@@ -1,0 +1,28 @@
+{
+  "name": "merge-guard",
+  "version": "0.1.0",
+  "description": "AI-ready pull request risk scanner for safer merges.",
+  "type": "module",
+  "bin": {
+    "merge-guard": "./src/cli.js"
+  },
+  "scripts": {
+    "demo": "node src/cli.js examples/sample.diff",
+    "smoke": "node src/cli.js examples/sample.diff",
+    "check": "node src/cli.js examples/sample.diff"
+  },
+  "keywords": [
+    "git",
+    "github",
+    "pull-request",
+    "code-review",
+    "diff",
+    "developer-tools",
+    "ai"
+  ],
+  "author": "keepithandy",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
