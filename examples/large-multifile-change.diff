@@ -1,0 +1,58 @@
+diff --git a/src/app.js b/src/app.js
+index 1111111..2222222 100644
+--- a/src/app.js
++++ b/src/app.js
+@@ -1,5 +1,12 @@
+ export function startApp() {
++  const startedAt = Date.now();
++  console.log('starting app', startedAt);
+   renderHomePage();
+ }
++
++export function stopApp() {
++  console.log('stopping app');
++}
+ 
+ diff --git a/src/save.js b/src/save.js
+ index 3333333..4444444 100644
+--- a/src/save.js
++++ b/src/save.js
+@@ -1,7 +1,14 @@
+ export function loadSave() {
+-  return JSON.parse(localStorage.getItem('save') || '{}');
++  const save = JSON.parse(localStorage.getItem('save') || '{}');
++  return {
++    version: 2,
++    ...save
++  };
+ }
+ 
+ export function writeSave(state) {
+-  localStorage.setItem('save', JSON.stringify(state));
++  localStorage.setItem('save', JSON.stringify({ ...state, savedAt: Date.now() }));
+ }
+ 
+ diff --git a/src/config.js b/src/config.js
+ index 5555555..6666666 100644
+--- a/src/config.js
++++ b/src/config.js
+@@ -1,4 +1,8 @@
+ export const config = {
+-  debug: false
++  debug: true,
++  cacheVersion: 'v2',
++  saveMigration: true,
++  telemetry: false
+ };
+ 
+ diff --git a/README.md b/README.md
+ index 7777777..8888888 100644
+--- a/README.md
++++ b/README.md
+@@ -20,3 +20,8 @@ Run the scanner against a diff.
+ ```bash
+ npm run demo
+ ```
++
++This example represents a broad change touching app startup,
++save behavior, configuration, and documentation in one patch.
