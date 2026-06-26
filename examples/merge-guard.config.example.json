@@ -1,0 +1,12 @@
+{
+  "highRiskPaths": [
+    "src/save",
+    "src/auth",
+    "src/payments"
+  ],
+  "testCommands": [
+    "npm test",
+    "npm run smoke"
+  ],
+  "failThreshold": 7
+}
