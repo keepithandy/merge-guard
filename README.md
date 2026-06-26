@@ -69,6 +69,28 @@ Pipe in your current diff:
 git diff | node src/cli.js
 ```
 
+## Configuration
+
+`merge-guard` works without configuration. If a `merge-guard.config.json` file exists in the current directory, the CLI reads it automatically.
+
+Example:
+
+```json
+{
+  "highRiskPaths": ["src/save", "src/auth", "src/payments"],
+  "testCommands": ["npm test", "npm run smoke"],
+  "failThreshold": 7
+}
+```
+
+Config fields:
+
+- `highRiskPaths` marks matching changed files as extra risky. A path matches when the changed file starts with one of these values.
+- `testCommands` adds project-specific checks to the suggested checks list.
+- `failThreshold` controls when the report becomes `HIGH` risk and `DO_NOT_MERGE_YET`. The default is `7`.
+
+A starter config is available at `examples/merge-guard.config.example.json`.
+
 ## Sample diffs
 
 The `examples/` folder includes a few ready-made diff shapes for testing the scanner:
