@@ -69,6 +69,25 @@ Pipe in your current diff:
 git diff | node src/cli.js
 ```
 
+## Sample diffs
+
+The `examples/` folder includes a few ready-made diff shapes for testing the scanner:
+
+- `examples/sample.diff` - default demo diff used by `npm run demo`
+- `examples/docs-only.diff` - low-risk documentation-only change
+- `examples/app-entry-change.diff` - medium-risk app startup change
+- `examples/state-persistence-change.diff` - save/load and persistence-style change
+- `examples/config-dependency-change.diff` - config and dependency-style change
+- `examples/large-multifile-change.diff` - larger multi-file change touching app, save, config, and docs
+
+Run any example directly:
+
+```bash
+node src/cli.js examples/docs-only.diff
+node src/cli.js examples/state-persistence-change.diff
+node src/cli.js examples/large-multifile-change.diff
+```
+
 ## Commands
 
 ```bash
