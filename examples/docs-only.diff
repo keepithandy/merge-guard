@@ -1,0 +1,15 @@
+diff --git a/README.md b/README.md
+index 1111111..2222222 100644
+--- a/README.md
++++ b/README.md
+@@ -10,6 +10,12 @@ The goal is simple: protect the main branch before you hit merge.
+ 
+ ## Usage
+ 
++Run the demo scanner against the included sample diff:
++
++```bash
++npm run demo
++```
++
+ Scan a diff file from disk or pipe in your current git changes.
