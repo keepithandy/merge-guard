@@ -1,3 +1,9 @@
+const DEFAULT_CONFIG = {
+  highRiskPaths: [],
+  testCommands: [],
+  failThreshold: 7
+};
+
 const RISK_PATTERNS = [
   {
     id: 'state-or-persistence',
@@ -53,6 +59,28 @@ function uniq(values) {
   return [...new Set(values)];
 }
 
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .filter((item) => typeof item === 'string')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeFailThreshold(value) {
+  if (!Number.isFinite(value)) return DEFAULT_CONFIG.failThreshold;
+  return Math.max(1, Math.floor(value));
+}
+
+function normalizeConfig(config = {}) {
+  return {
+    highRiskPaths: normalizeStringArray(config.highRiskPaths),
+    testCommands: normalizeStringArray(config.testCommands),
+    failThreshold: normalizeFailThreshold(config.failThreshold)
+  };
+}
+
 function parseChangedFiles(diffText) {
   const files = [];
   const lines = diffText.split('\n');
@@ -90,7 +118,7 @@ function collectAddedLines(diffText) {
     .map((line) => line.slice(1));
 }
 
-function scoreRisk(diffText, files, addedLines, totals) {
+function scoreRisk(diffText, files, addedLines, totals, config) {
   const flags = [];
   const checks = [];
   let score = 0;
@@ -113,6 +141,16 @@ function scoreRisk(diffText, files, addedLines, totals) {
     }
   }
 
+  const configuredHighRiskPaths = files.filter((file) =>
+    config.highRiskPaths.some((highRiskPath) => file.startsWith(highRiskPath))
+  );
+
+  if (configuredHighRiskPaths.length) {
+    score += 4;
+    flags.push(`Configured high-risk path changed: ${configuredHighRiskPaths.join(', ')}`);
+    checks.push('Review the configured high-risk path changes carefully before merging.');
+  }
+
   const touchedTests = files.some((file) => /(test|spec|smoke|__tests__)/i.test(file));
   const touchedImplementation = files.some((file) => !/(test|spec|smoke|__tests__|README|docs?\//i.test(file));
 
@@ -122,6 +160,10 @@ function scoreRisk(diffText, files, addedLines, totals) {
     checks.push('Run the closest available test or smoke check manually.');
   }
 
+  for (const command of config.testCommands) {
+    checks.push(`Configured check: ${command}`);
+  }
+
   return {
     score: Math.max(0, score),
     flags: uniq(flags),
@@ -129,30 +171,36 @@ function scoreRisk(diffText, files, addedLines, totals) {
   };
 }
 
-function readinessFromScore(score) {
-  if (score >= 7) return 'DO_NOT_MERGE_YET';
+function readinessFromScore(score, config) {
+  if (score >= config.failThreshold) return 'DO_NOT_MERGE_YET';
   if (score >= 3) return 'NEEDS_REVIEW';
   return 'SAFE_TO_MERGE';
 }
 
-function levelFromScore(score) {
-  if (score >= 7) return 'HIGH';
+function levelFromScore(score, config) {
+  if (score >= config.failThreshold) return 'HIGH';
   if (score >= 3) return 'MEDIUM';
   return 'LOW';
 }
 
-export function analyzeDiff(diffText) {
+export function analyzeDiff(diffText, userConfig = {}) {
+  const config = normalizeConfig({ ...DEFAULT_CONFIG, ...userConfig });
   const files = parseChangedFiles(diffText);
   const totals = countChangedLines(diffText);
   const addedLines = collectAddedLines(diffText);
-  const risk = scoreRisk(diffText, files, addedLines, totals);
+  const risk = scoreRisk(diffText, files, addedLines, totals, config);
 
   return {
     tool: 'merge-guard',
     version: '0.1.0',
-    riskLevel: levelFromScore(risk.score),
-    mergeReadiness: readinessFromScore(risk.score),
+    riskLevel: levelFromScore(risk.score, config),
+    mergeReadiness: readinessFromScore(risk.score, config),
     riskScore: risk.score,
+    config: {
+      highRiskPaths: config.highRiskPaths,
+      testCommands: config.testCommands,
+      failThreshold: config.failThreshold
+    },
     summary: {
       changedFiles: files.length,
       addedLines: totals.added,
@@ -186,6 +234,14 @@ export function formatReport(report) {
     for (const file of report.summary.files) {
       lines.push(`- ${file}`);
     }
+  }
+
+  if (report.config.highRiskPaths.length || report.config.testCommands.length || report.config.failThreshold !== DEFAULT_CONFIG.failThreshold) {
+    lines.push('');
+    lines.push('Config:');
+    lines.push(`- High-risk paths: ${report.config.highRiskPaths.length ? report.config.highRiskPaths.join(', ') : 'none'}`);
+    lines.push(`- Test commands: ${report.config.testCommands.length ? report.config.testCommands.join(', ') : 'none'}`);
+    lines.push(`- Fail threshold: ${report.config.failThreshold}`);
   }
 
   lines.push('');
