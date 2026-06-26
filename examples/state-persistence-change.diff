@@ -1,0 +1,23 @@
+diff --git a/src/save.js b/src/save.js
+index 1111111..2222222 100644
+--- a/src/save.js
++++ b/src/save.js
+@@ -1,9 +1,16 @@
+ const SAVE_KEY = 'demo-save';
+ 
+ export function loadSave() {
+-  return JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
++  const raw = localStorage.getItem(SAVE_KEY);
++  const parsed = JSON.parse(raw || '{}');
++
++  return {
++    version: 2,
++    player: parsed.player || {},
++    settings: parsed.settings || {}
++  };
+ }
+ 
+ export function writeSave(state) {
+-  localStorage.setItem(SAVE_KEY, JSON.stringify(state));
++  localStorage.setItem(SAVE_KEY, JSON.stringify({ ...state, savedAt: Date.now() }));
+ }
