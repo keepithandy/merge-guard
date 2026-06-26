@@ -1,0 +1,17 @@
+diff --git a/src/app.js b/src/app.js
+index 1111111..2222222 100644
+--- a/src/app.js
++++ b/src/app.js
+@@ -1,8 +1,14 @@
+ import { renderHomePage } from './ui.js';
++import { loadUserSession } from './session.js';
+ 
+ export function startApp() {
++  const session = loadUserSession();
++
++  if (!session.ready) {
++    return renderHomePage({ mode: 'loading' });
++  }
++
+   renderHomePage();
+ }
