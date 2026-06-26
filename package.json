@@ -8,8 +8,8 @@
   },
   "scripts": {
     "demo": "node src/cli.js examples/sample.diff",
-    "smoke": "node src/cli.js examples/sample.diff",
-    "check": "node src/cli.js examples/sample.diff"
+    "smoke": "node scripts/smoke.js",
+    "check": "node scripts/smoke.js"
   },
   "keywords": [
     "git",
