@@ -15,6 +15,9 @@ Usage:
 Options:
   --json     Print the report as JSON
   --help     Show this help message
+
+Config:
+  merge-guard reads merge-guard.config.json when it exists in the current directory.
 `);
 }
 
@@ -29,6 +32,20 @@ function readStdin() {
     process.stdin.on('end', () => resolve(data));
     process.stdin.on('error', reject);
   });
+}
+
+function loadConfig() {
+  const configFile = 'merge-guard.config.json';
+
+  if (!fs.existsSync(configFile)) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(fs.readFileSync(configFile, 'utf8'));
+  } catch (error) {
+    throw new Error(`invalid merge-guard.config.json: ${error.message}`);
+  }
 }
 
 async function main() {
@@ -65,7 +82,7 @@ async function main() {
     return;
   }
 
-  const report = analyzeDiff(diffText);
+  const report = analyzeDiff(diffText, loadConfig());
 
   if (jsonMode) {
     console.log(JSON.stringify(report, null, 2));
