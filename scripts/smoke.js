@@ -3,21 +3,21 @@ import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeD
 import { createAiReviewSummary } from '../src/aiReview.js';
 
 function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
+	if (!condition) {
+		throw new Error(message);
+	}
 }
 
 function assertString(value, fieldName) {
-  assert(typeof value === 'string' && value.length > 0, `${fieldName} should be a non-empty string`);
+	assert(typeof value === 'string' && value.length > 0, `${fieldName} should be a non-empty string`);
 }
 
 function assertArray(value, fieldName) {
-  assert(Array.isArray(value), `${fieldName} should be an array`);
+	assert(Array.isArray(value), `${fieldName} should be an array`);
 }
 
 function assertNumber(value, fieldName) {
-  assert(Number.isFinite(value), `${fieldName} should be a finite number`);
+	assert(Number.isFinite(value), `${fieldName} should be a finite number`);
 }
 
 const diffText = fs.readFileSync('examples/sample.diff', 'utf8');
