@@ -20,9 +20,9 @@ It does not replace human review. It gives developers a second set of eyes befor
 
 ## Current version
 
-This first version is a rules-based CLI scanner. It can inspect a diff and produce a basic merge-readiness report without requiring an AI API key.
+This version is a rules-based CLI scanner with optional Markdown, CI, per-file risk, docs-only detection, and AI-ready review summaries. It can inspect a diff and produce a merge-readiness report without requiring an AI API key.
 
-Future versions can add AI summaries, GitHub pull request comments, GitHub Actions support, and a simple web dashboard.
+Future versions can add direct pull request comments, richer provider-backed AI summaries, and a simple web dashboard.
 
 ## Example output
 
@@ -31,16 +31,22 @@ merge-guard report
 
 Risk level: MEDIUM
 Merge readiness: NEEDS_REVIEW
+Risk score: 4
 
 Summary:
-- 4 files changed
-- 86 added lines
-- 22 removed lines
+- 4 file(s) changed
+- 86 added line(s)
+- 22 removed line(s)
+
+Per-file risk:
+- MEDIUM src/saveState.js - State or persistence logic changed
+- MEDIUM package.json - Dependency or config file changed
+- LOW README.md - Documentation/comment-only change
 
 Risk flags:
 - State or persistence logic changed
 - Config file changed
-- Test coverage was not changed in this diff
+- Implementation changed without matching test changes
 
 Suggested checks:
 - Run the normal test suite
@@ -68,6 +74,84 @@ Pipe in your current diff:
 ```bash
 git diff | node src/cli.js
 ```
+
+## Output modes
+
+Plain text output is the default:
+
+```bash
+node src/cli.js examples/sample.diff
+```
+
+Markdown output is useful for pasting into pull requests:
+
+```bash
+node src/cli.js --markdown examples/sample.diff
+```
+
+JSON output includes the same risk data, including the per-file breakdown:
+
+```bash
+node src/cli.js --json examples/sample.diff
+```
+
+CI mode prints Markdown, writes to `GITHUB_STEP_SUMMARY` when GitHub Actions provides it, and exits with a failure when the report reaches the configured `failThreshold`:
+
+```bash
+node src/cli.js --ci examples/sample.diff
+```
+
+Optional AI-ready summary mode adds a structured review summary and adapted prompt package on top of the rules-based scanner:
+
+```bash
+node src/cli.js --ai --markdown examples/sample.diff
+```
+
+Normal CLI mode does not require an API key. The optional AI section organizes the scanner findings and provides a prompt package for a future AI reviewer; it does not prove a change is safe and does not replace human review.
+
+## Per-file risk scoring
+
+Every report includes a `files` breakdown. Each changed file receives:
+
+- `path`
+- `riskLevel`
+- `riskScore`
+- `reason`
+- added and removed line counts
+- matched file-specific flags
+
+The text and Markdown reports show the riskiest files first. File risk comes from the same rules used by the overall scan:
+
+- save, state, storage, persistence, migration, ledger, and cache paths are higher risk
+- dependency and config files are moderate risk
+- routing, app entry, async, network, service worker, and API files receive extra attention
+- configured `highRiskPaths` increase file risk
+- test changes lower risk when implementation changed with tests
+- docs, examples, Markdown, and comment-only diffs are treated as low risk unless a configured high-risk signal is present
+
+## Docs-only detection
+
+If a diff only touches docs, Markdown, examples, or comment-only changes, `merge-guard` marks the report as docs-only and normally returns `LOW` risk.
+
+Docs-only reports include the flag:
+
+```txt
+Docs-only change detected
+```
+
+The sample diff at `examples/docs-only.diff` demonstrates this path.
+
+## GitHub Actions
+
+See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for a copyable workflow.
+
+Minimal CI usage:
+
+```bash
+node src/cli.js --ci pr.diff
+```
+
+This mode works without an AI provider.
 
 ## Configuration
 
@@ -101,6 +185,7 @@ The `examples/` folder includes a few ready-made diff shapes for testing the sca
 - `examples/state-persistence-change.diff` - save/load and persistence-style change
 - `examples/config-dependency-change.diff` - config and dependency-style change
 - `examples/large-multifile-change.diff` - larger multi-file change touching app, save, config, and docs
+- `examples/actions-report-mode.yml` - copyable GitHub Actions report-mode workflow
 
 Run any example directly:
 
