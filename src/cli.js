@@ -2,7 +2,10 @@
 
 import fs from 'node:fs';
 import process from 'node:process';
-import { analyzeDiff, formatReport } from './analyzeDiff.js';
+import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
+import { createAiReviewSummary } from './aiReview.js';
+
+const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--help', '-h']);
 
 function printHelp() {
   console.log(`merge-guard
@@ -13,8 +16,11 @@ Usage:
   node src/cli.js examples/sample.diff
 
 Options:
-  --json     Print the report as JSON
-  --help     Show this help message
+  --json       Print the report as JSON
+  --markdown   Print the report as Markdown
+  --ci         Print Markdown, write to GITHUB_STEP_SUMMARY when available, and fail on configured high risk
+  --ai         Add an optional AI-ready review summary to the report
+  --help       Show this help message
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
@@ -48,6 +54,24 @@ function loadConfig() {
   }
 }
 
+function findFileArg(args) {
+  return args.find((arg) => !arg.startsWith('--'));
+}
+
+function validateOptions(args) {
+  const unknown = args.filter((arg) => arg.startsWith('--') && !KNOWN_OPTIONS.has(arg));
+  if (unknown.length) {
+    throw new Error(`unknown option(s): ${unknown.join(', ')}`);
+  }
+}
+
+function writeGitHubStepSummary(markdown) {
+  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryFile) return;
+
+  fs.appendFileSync(summaryFile, `${markdown}\n`, 'utf8');
+}
+
 async function main() {
   const args = process.argv.slice(2);
 
@@ -56,8 +80,13 @@ async function main() {
     return;
   }
 
+  validateOptions(args);
+
   const jsonMode = args.includes('--json');
-  const fileArg = args.find((arg) => !arg.startsWith('--'));
+  const markdownMode = args.includes('--markdown');
+  const ciMode = args.includes('--ci');
+  const aiMode = args.includes('--ai');
+  const fileArg = findFileArg(args);
 
   let diffText = '';
 
@@ -84,10 +113,26 @@ async function main() {
 
   const report = analyzeDiff(diffText, loadConfig());
 
+  if (aiMode) {
+    report.aiReview = createAiReviewSummary(report, diffText);
+  }
+
+  const markdown = formatMarkdownReport(report);
+
+  if (ciMode) {
+    writeGitHubStepSummary(markdown);
+  }
+
   if (jsonMode) {
     console.log(JSON.stringify(report, null, 2));
+  } else if (markdownMode || ciMode) {
+    console.log(markdown);
   } else {
     console.log(formatReport(report));
+  }
+
+  if (ciMode && report.riskScore >= report.config.failThreshold) {
+    process.exitCode = 1;
   }
 }
 
