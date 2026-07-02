@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeDiff.js';
 import { createAiReviewSummary } from '../src/aiReview.js';
+import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
 	if (!condition) {
@@ -64,8 +65,19 @@ assertArray(aiReview.possibleBreakpoints, 'aiReview.possibleBreakpoints');
 assertString(aiReview.prompt, 'aiReview.prompt');
 assert(aiReview.prompt.includes('You are merge-guard'), 'AI review prompt should adapt the prompt template');
 
+const commentBody = buildCommentBody(markdownOutput);
+assert(commentBody.includes(MERGE_GUARD_COMMENT_MARKER), 'PR comment should include stable marker');
+assert(commentBody.includes('# merge-guard report'), 'PR comment should include markdown report');
+
+const existingComment = findMergeGuardComment([
+  { id: 1, body: 'human review note' },
+  { id: 2, body: commentBody }
+]);
+assert(existingComment?.id === 2, 'existing merge-guard comment should be found by marker');
+
 console.log('merge-guard smoke passed');
 console.log(`riskLevel=${report.riskLevel}`);
 console.log(`mergeReadiness=${report.mergeReadiness}`);
 console.log(`changedFiles=${report.summary.changedFiles}`);
 console.log(`docsOnlyRisk=${docsOnlyReport.riskLevel}`);
+console.log('prCommentMarker=ok');

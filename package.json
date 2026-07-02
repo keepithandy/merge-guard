@@ -9,7 +9,8 @@
   "scripts": {
     "demo": "node src/cli.js examples/sample.diff",
     "smoke": "node scripts/smoke.js",
-    "check": "node scripts/smoke.js"
+    "check": "node scripts/smoke.js",
+    "comment": "node scripts/pr-comment.js"
   },
   "keywords": [
     "git",

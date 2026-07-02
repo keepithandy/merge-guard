@@ -5,16 +5,35 @@
 Use `--ci` to:
 
 - print a Markdown merge-readiness report to the job log
-- write the same report to the GitHub Actions step summary when `GITHUB_STEP_SUMMARY` is available
+- write the same report to the GitHub Actions step summary when available
 - fail the job when the report score reaches the configured `failThreshold`
 
 The default `failThreshold` is `7`. You can override it in `merge-guard.config.json`.
+
+## Pull request comments
+
+Use `scripts/pr-comment.js` to post the Markdown report to the pull request conversation.
+
+The comment script uses a hidden marker so rerunning the workflow updates the previous merge-guard comment instead of adding a duplicate comment.
+
+```bash
+node src/cli.js --markdown pr.diff > merge-guard-report.md
+node scripts/pr-comment.js --report merge-guard-report.md
+```
+
+The workflow needs read access to contents and write access to pull request or issue comments. The script reads the standard GitHub Actions repository, event, and token environment values.
+
+Use `--dry-run` to preview the exact comment body without calling GitHub:
+
+```bash
+node scripts/pr-comment.js --report merge-guard-report.md --dry-run
+```
 
 ## Example workflow
 
 See `examples/actions-report-mode.yml` for a copyable workflow.
 
-The workflow checks out the pull request, installs Node, builds a pull request diff into `pr.diff`, and runs:
+The workflow checks out the pull request, installs Node, builds a pull request diff into `pr.diff`, creates `merge-guard-report.md`, posts or updates a pull request comment, and runs:
 
 ```bash
 node src/cli.js --ci pr.diff

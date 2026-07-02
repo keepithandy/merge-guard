@@ -3,16 +3,29 @@ name: merge-guard
 on:
   pull_request:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   report:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 20
       - run: npm ci
       - name: Build pull request diff
-        run: git diff --no-ext-diff --unified=80 main...HEAD > pr.diff
-      - name: Run merge-guard
+        run: git diff --no-ext-diff --unified=80 origin/main...HEAD > pr.diff
+      - name: Build merge-guard report
+        run: node src/cli.js --markdown pr.diff > merge-guard-report.md
+      - name: Post merge-guard PR comment
+        run: node scripts/pr-comment.js --report merge-guard-report.md
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Enforce merge-guard threshold
         run: node src/cli.js --ci pr.diff
