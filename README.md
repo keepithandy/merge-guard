@@ -20,9 +20,9 @@ It does not replace human review. It gives developers a second set of eyes befor
 
 ## Current version
 
-This version is a rules-based CLI scanner with optional Markdown, CI, per-file risk, docs-only detection, and AI-ready review summaries. It can inspect a diff and produce a merge-readiness report without requiring an AI API key.
+This version is a rules-based CLI scanner with optional Markdown, CI, per-file risk, docs-only detection, AI-ready review summaries, and GitHub pull request comment updates. It can inspect a diff and produce a merge-readiness report without requiring an AI API key.
 
-Future versions can add direct pull request comments, richer provider-backed AI summaries, and a simple web dashboard.
+Future versions can add richer provider-backed AI summaries, rule presets, and a simple web dashboard.
 
 ## Example output
 
@@ -95,7 +95,7 @@ JSON output includes the same risk data, including the per-file breakdown:
 node src/cli.js --json examples/sample.diff
 ```
 
-CI mode prints Markdown, writes to `GITHUB_STEP_SUMMARY` when GitHub Actions provides it, and exits with a failure when the report reaches the configured `failThreshold`:
+CI mode prints Markdown, writes to the GitHub Actions step summary when available, and exits with a failure when the report reaches the configured `failThreshold`:
 
 ```bash
 node src/cli.js --ci examples/sample.diff
@@ -108,6 +108,25 @@ node src/cli.js --ai --markdown examples/sample.diff
 ```
 
 Normal CLI mode does not require an API key. The optional AI section organizes the scanner findings and provides a prompt package for a future AI reviewer; it does not prove a change is safe and does not replace human review.
+
+## Pull request comment mode
+
+Create a Markdown report and post it back to the pull request:
+
+```bash
+node src/cli.js --markdown pr.diff > merge-guard-report.md
+node scripts/pr-comment.js --report merge-guard-report.md
+```
+
+The comment script adds a hidden marker to the comment. When the workflow runs again, it updates the existing merge-guard comment instead of creating duplicates.
+
+Preview the comment body without calling GitHub:
+
+```bash
+node scripts/pr-comment.js --report merge-guard-report.md --dry-run
+```
+
+In GitHub Actions, the workflow needs read access to contents and write access to pull request or issue comments. See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml`.
 
 ## Per-file risk scoring
 
@@ -185,7 +204,7 @@ The `examples/` folder includes a few ready-made diff shapes for testing the sca
 - `examples/state-persistence-change.diff` - save/load and persistence-style change
 - `examples/config-dependency-change.diff` - config and dependency-style change
 - `examples/large-multifile-change.diff` - larger multi-file change touching app, save, config, and docs
-- `examples/actions-report-mode.yml` - copyable GitHub Actions report-mode workflow
+- `examples/actions-report-mode.yml` - copyable GitHub Actions report/comment workflow
 
 Run any example directly:
 
@@ -201,6 +220,7 @@ node src/cli.js examples/large-multifile-change.diff
 npm run demo
 npm run smoke
 npm run check
+npm run comment -- --report merge-guard-report.md
 ```
 
 ## Merge readiness labels
