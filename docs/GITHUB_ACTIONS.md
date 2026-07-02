@@ -12,29 +12,12 @@ The default `failThreshold` is `7`. You can override it in `merge-guard.config.j
 
 ## Example workflow
 
-See `examples/github-actions.yml` for a copyable workflow.
+See `examples/actions-report-mode.yml` for a copyable workflow.
 
-```yaml
-name: merge-guard
+The workflow checks out the pull request, installs Node, builds a pull request diff into `pr.diff`, and runs:
 
-on:
-  pull_request:
-
-jobs:
-  report:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-      - name: Build pull request diff
-        run: git diff --no-ext-diff --unified=80 origin/${{ github.base_ref }}...HEAD > pr.diff
-      - name: Run merge-guard
-        run: node src/cli.js --ci pr.diff
+```bash
+node src/cli.js --ci pr.diff
 ```
 
 ## Optional AI-ready summary
