@@ -8,7 +8,14 @@ Use `--ci` to:
 - write the same report to the GitHub Actions step summary when available
 - fail the job when the report score reaches the configured `failThreshold`
 
-The default `failThreshold` is `7`. You can override it in `merge-guard.config.json`.
+The default preset is `standard`. Use `--preset safe`, `--preset standard`, or `--preset strict` to choose how sensitive CI should be.
+
+Examples:
+
+```bash
+node src/cli.js --ci pr.diff
+node src/cli.js --ci --preset strict pr.diff
+```
 
 ## Pull request comments
 
@@ -17,7 +24,7 @@ Use `scripts/pr-comment.js` to post the Markdown report to the pull request conv
 The comment script uses a hidden marker so rerunning the workflow updates the previous merge-guard comment instead of adding a duplicate comment.
 
 ```bash
-node src/cli.js --markdown pr.diff > merge-guard-report.md
+node src/cli.js --markdown --preset strict pr.diff > merge-guard-report.md
 node scripts/pr-comment.js --report merge-guard-report.md
 ```
 
