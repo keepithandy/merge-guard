@@ -5,7 +5,8 @@ import process from 'node:process';
 import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
 import { createAiReviewSummary } from './aiReview.js';
 
-const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--help', '-h']);
+const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--preset', '--help', '-h']);
+const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
 function printHelp() {
   console.log(`merge-guard
@@ -16,11 +17,12 @@ Usage:
   node src/cli.js examples/sample.diff
 
 Options:
-  --json       Print the report as JSON
-  --markdown   Print the report as Markdown
-  --ci         Print Markdown, write to GITHUB_STEP_SUMMARY when available, and fail on configured high risk
-  --ai         Add an optional AI-ready review summary to the report
-  --help       Show this help message
+  --json              Print the report as JSON
+  --markdown          Print the report as Markdown
+  --ci                Print Markdown, write to GITHUB_STEP_SUMMARY when available, and fail on configured high risk
+  --ai                Add an optional AI-ready review summary to the report
+  --preset <preset>   Use risk preset: safe, standard, or strict
+  --help              Show this help message
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
@@ -54,8 +56,33 @@ function loadConfig() {
   }
 }
 
+function getOptionValue(args, optionName) {
+  const optionIndex = args.indexOf(optionName);
+  if (optionIndex === -1) return null;
+
+  const value = args[optionIndex + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${optionName} requires a value`);
+  }
+
+  return value;
+}
+
 function findFileArg(args) {
-  return args.find((arg) => !arg.startsWith('--'));
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+
+    if (arg === '--preset') {
+      index += 1;
+      continue;
+    }
+
+    if (!arg.startsWith('--')) {
+      return arg;
+    }
+  }
+
+  return null;
 }
 
 function validateOptions(args) {
@@ -63,6 +90,22 @@ function validateOptions(args) {
   if (unknown.length) {
     throw new Error(`unknown option(s): ${unknown.join(', ')}`);
   }
+}
+
+function resolveConfig(args) {
+  const config = loadConfig();
+  const preset = getOptionValue(args, '--preset');
+
+  if (preset) {
+    const normalizedPreset = preset.trim().toLowerCase();
+    if (!VALID_PRESETS.has(normalizedPreset)) {
+      throw new Error(`invalid preset: ${preset}. Use safe, standard, or strict.`);
+    }
+
+    config.preset = normalizedPreset;
+  }
+
+  return config;
 }
 
 function writeGitHubStepSummary(markdown) {
@@ -111,7 +154,7 @@ async function main() {
     return;
   }
 
-  const report = analyzeDiff(diffText, loadConfig());
+  const report = analyzeDiff(diffText, resolveConfig(args));
 
   if (aiMode) {
     report.aiReview = createAiReviewSummary(report, diffText);
