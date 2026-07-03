@@ -20,9 +20,9 @@ It does not replace human review. It gives developers a second set of eyes befor
 
 ## Current version
 
-This version is a rules-based CLI scanner with optional Markdown, CI, per-file risk, docs-only detection, AI-ready review summaries, and GitHub pull request comment updates. It can inspect a diff and produce a merge-readiness report without requiring an AI API key.
+This version is a rules-based CLI scanner with optional Markdown, CI, per-file risk, docs-only detection, risk presets, rule explanations, AI-ready review summaries, and GitHub pull request comment updates. It can inspect a diff and produce a merge-readiness report without requiring an AI API key.
 
-Future versions can add richer provider-backed AI summaries, rule presets, and a simple web dashboard.
+Future versions can add richer provider-backed AI summaries, custom rule packs, and a simple web dashboard.
 
 ## Example output
 
@@ -32,6 +32,7 @@ merge-guard report
 Risk level: MEDIUM
 Merge readiness: NEEDS_REVIEW
 Risk score: 4
+Preset: standard
 
 Summary:
 - 4 file(s) changed
@@ -39,14 +40,17 @@ Summary:
 - 22 removed line(s)
 
 Per-file risk:
-- MEDIUM src/saveState.js - State or persistence logic changed
-- MEDIUM package.json - Dependency or config file changed
-- LOW README.md - Documentation/comment-only change
+- MEDIUM src/saveState.js - State or persistence logic changed because src/saveState.js matched save, state, storage, persistence, migration, ledger, or cache path patterns.
+- MEDIUM package.json - Dependency or config file changed because package.json matched dependency, lockfile, build, lint, or formatter config path patterns.
+- LOW README.md - README.md is documentation, an example, Markdown, or comment-only content.
 
 Risk flags:
 - State or persistence logic changed
-- Config file changed
+- Dependency or config file changed
 - Implementation changed without matching test changes
+
+Rule explanations:
+- State or persistence logic changed (state-or-persistence, weight 3): State or persistence logic changed because src/saveState.js matched save, state, storage, persistence, migration, ledger, or cache path patterns.
 
 Suggested checks:
 - Run the normal test suite
@@ -89,7 +93,7 @@ Markdown output is useful for pasting into pull requests:
 node src/cli.js --markdown examples/sample.diff
 ```
 
-JSON output includes the same risk data, including the per-file breakdown:
+JSON output includes the same risk data, including the per-file breakdown and rule explanations:
 
 ```bash
 node src/cli.js --json examples/sample.diff
@@ -108,6 +112,56 @@ node src/cli.js --ai --markdown examples/sample.diff
 ```
 
 Normal CLI mode does not require an API key. The optional AI section organizes the scanner findings and provides a prompt package for a future AI reviewer; it does not prove a change is safe and does not replace human review.
+
+## Risk presets
+
+Use `--preset` to change how sensitive the scanner should be:
+
+```bash
+node src/cli.js --preset safe examples/sample.diff
+node src/cli.js --preset standard examples/sample.diff
+node src/cli.js --preset strict examples/sample.diff
+```
+
+Presets:
+
+- `safe` - relaxed scoring, higher fail threshold, useful for casual projects or early exploration.
+- `standard` - default scoring, balanced for normal review.
+- `strict` - sharper scoring, lower fail threshold, useful for release branches, risky systems, or repos where you want fewer surprise merges.
+
+Preset behavior affects:
+
+- positive risk weights
+- large-change thresholds
+- missing-test penalty
+- configured high-risk path weight
+- review and fail thresholds
+
+You can also set a default in `merge-guard.config.json`:
+
+```json
+{
+  "preset": "strict"
+}
+```
+
+## Rule explanations
+
+Every triggered rule now includes explanation metadata. JSON output includes a `rules` array like this:
+
+```json
+{
+  "id": "state-or-persistence",
+  "label": "State or persistence logic changed",
+  "weight": 3,
+  "reason": "State or persistence logic changed because src/saveState.js matched save, state, storage, persistence, migration, ledger, or cache path patterns.",
+  "check": "Review save/load behavior and run state-related smoke tests.",
+  "matchedFiles": ["src/saveState.js"],
+  "matchedLineCount": 0
+}
+```
+
+Text and Markdown reports include a `Rule explanations` section so reviewers can see why a warning fired instead of guessing.
 
 ## Pull request comment mode
 
@@ -138,6 +192,7 @@ Every report includes a `files` breakdown. Each changed file receives:
 - `reason`
 - added and removed line counts
 - matched file-specific flags
+- matched file-specific rules
 
 The text and Markdown reports show the riskiest files first. File risk comes from the same rules used by the overall scan:
 
@@ -170,6 +225,12 @@ Minimal CI usage:
 node src/cli.js --ci pr.diff
 ```
 
+Strict CI usage:
+
+```bash
+node src/cli.js --ci --preset strict pr.diff
+```
+
 This mode works without an AI provider.
 
 ## Configuration
@@ -180,6 +241,7 @@ Example:
 
 ```json
 {
+  "preset": "standard",
   "highRiskPaths": ["src/save", "src/auth", "src/payments"],
   "testCommands": ["npm test", "npm run smoke"],
   "failThreshold": 7
@@ -188,9 +250,10 @@ Example:
 
 Config fields:
 
+- `preset` sets the default risk preset. Valid values are `safe`, `standard`, and `strict`.
 - `highRiskPaths` marks matching changed files as extra risky. A path matches when the changed file starts with one of these values.
 - `testCommands` adds project-specific checks to the suggested checks list.
-- `failThreshold` controls when the report becomes `HIGH` risk and `DO_NOT_MERGE_YET`. The default is `7`.
+- `failThreshold` controls when the report becomes `HIGH` risk and `DO_NOT_MERGE_YET`. If omitted, the selected preset chooses the threshold.
 
 A starter config is available at `examples/merge-guard.config.example.json`.
 
