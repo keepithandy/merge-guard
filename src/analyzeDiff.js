@@ -1,7 +1,44 @@
 const DEFAULT_CONFIG = {
   highRiskPaths: [],
   testCommands: [],
+  preset: 'standard',
   failThreshold: 7
+};
+
+const RISK_PRESETS = {
+  safe: {
+    label: 'safe',
+    failThreshold: 9,
+    reviewThreshold: 4,
+    largeChangeLines: 160,
+    largeChangeFiles: 10,
+    positiveWeightDelta: -1,
+    configuredHighRiskWeight: 3,
+    missingTestsWeight: 1,
+    docsOnlyScoreCap: 1
+  },
+  standard: {
+    label: 'standard',
+    failThreshold: 7,
+    reviewThreshold: 3,
+    largeChangeLines: 120,
+    largeChangeFiles: 8,
+    positiveWeightDelta: 0,
+    configuredHighRiskWeight: 4,
+    missingTestsWeight: 2,
+    docsOnlyScoreCap: 1
+  },
+  strict: {
+    label: 'strict',
+    failThreshold: 5,
+    reviewThreshold: 2,
+    largeChangeLines: 80,
+    largeChangeFiles: 5,
+    positiveWeightDelta: 1,
+    configuredHighRiskWeight: 5,
+    missingTestsWeight: 3,
+    docsOnlyScoreCap: 1
+  }
 };
 
 const RISK_PATTERNS = [
@@ -10,7 +47,9 @@ const RISK_PATTERNS = [
     label: 'State or persistence logic changed',
     weight: 3,
     file: /(save|state|store|storage|persist|migration|ledger|cache)/i,
+    fileDescription: 'save, state, storage, persistence, migration, ledger, or cache path patterns',
     line: /(localStorage|sessionStorage|save|load|persist|migrate|hydrate|serialize|deserialize)/i,
+    lineDescription: 'save/load, storage, migration, hydration, or serialization code patterns',
     check: 'Review save/load behavior and run state-related smoke tests.'
   },
   {
@@ -18,7 +57,9 @@ const RISK_PATTERNS = [
     label: 'Dependency or config file changed',
     weight: 2,
     file: /(package\.json|package-lock\.json|pnpm-lock\.yaml|yarn\.lock|vite\.config|tsconfig|eslint|prettier|webpack|rollup)/i,
+    fileDescription: 'dependency, lockfile, build, lint, or formatter config path patterns',
     line: null,
+    lineDescription: null,
     check: 'Run install/build checks and verify the app still starts cleanly.'
   },
   {
@@ -26,7 +67,9 @@ const RISK_PATTERNS = [
     label: 'Routing or entry-point logic changed',
     weight: 2,
     file: /(route|router|entry|main|index|app)/i,
+    fileDescription: 'routing, entry, main, index, or app path patterns',
     line: /(navigate|redirect|route|render|mount|entry)/i,
+    lineDescription: 'navigation, routing, render, mount, or entry code patterns',
     check: 'Manually test the affected navigation or app entry path.'
   },
   {
@@ -34,7 +77,9 @@ const RISK_PATTERNS = [
     label: 'Async or network behavior changed',
     weight: 2,
     file: /(api|client|fetch|request|service|worker)/i,
+    fileDescription: 'API, client, fetch, request, service, or worker path patterns',
     line: /(fetch|axios|Promise|async|await|setTimeout|setInterval|AbortController)/i,
+    lineDescription: 'fetch, promise, async, timer, or abort controller code patterns',
     check: 'Check loading, failure, timeout, and empty-state behavior.'
   },
   {
@@ -42,7 +87,9 @@ const RISK_PATTERNS = [
     label: 'Large diff size',
     weight: 2,
     file: null,
+    fileDescription: null,
     line: null,
+    lineDescription: null,
     check: 'Split review into smaller sections or inspect the riskiest files first.'
   },
   {
@@ -50,13 +97,28 @@ const RISK_PATTERNS = [
     label: 'Tests changed with implementation',
     weight: -1,
     file: /(test|spec|smoke|__tests__)/i,
+    fileDescription: 'test, spec, smoke, or __tests__ path patterns',
     line: null,
+    lineDescription: null,
     check: 'Confirm the updated tests cover the changed behavior.'
   }
 ];
 
 function uniq(values) {
   return [...new Set(values)];
+}
+
+function uniqById(values) {
+  const seen = new Set();
+  const result = [];
+
+  for (const value of values) {
+    if (seen.has(value.id)) continue;
+    seen.add(value.id);
+    result.push(value);
+  }
+
+  return result;
 }
 
 function normalizeStringArray(value) {
@@ -68,16 +130,34 @@ function normalizeStringArray(value) {
     .filter(Boolean);
 }
 
-function normalizeFailThreshold(value) {
-  if (!Number.isFinite(value)) return DEFAULT_CONFIG.failThreshold;
+function normalizePreset(value) {
+  if (typeof value !== 'string') return DEFAULT_CONFIG.preset;
+  const normalized = value.trim().toLowerCase();
+  return RISK_PRESETS[normalized] ? normalized : DEFAULT_CONFIG.preset;
+}
+
+function normalizeFailThreshold(value, fallback) {
+  if (!Number.isFinite(value)) return fallback;
   return Math.max(1, Math.floor(value));
 }
 
 function normalizeConfig(config = {}) {
+  const preset = normalizePreset(config.preset);
+  const presetConfig = RISK_PRESETS[preset];
+
   return {
     highRiskPaths: normalizeStringArray(config.highRiskPaths),
     testCommands: normalizeStringArray(config.testCommands),
-    failThreshold: normalizeFailThreshold(config.failThreshold)
+    preset,
+    presetLabel: presetConfig.label,
+    reviewThreshold: presetConfig.reviewThreshold,
+    failThreshold: normalizeFailThreshold(config.failThreshold, presetConfig.failThreshold),
+    largeChangeLines: presetConfig.largeChangeLines,
+    largeChangeFiles: presetConfig.largeChangeFiles,
+    positiveWeightDelta: presetConfig.positiveWeightDelta,
+    configuredHighRiskWeight: presetConfig.configuredHighRiskWeight,
+    missingTestsWeight: presetConfig.missingTestsWeight,
+    docsOnlyScoreCap: presetConfig.docsOnlyScoreCap
   };
 }
 
@@ -189,20 +269,70 @@ function isImplementationFile(file) {
   return !isDocsFile(file) && !isTestFile(file);
 }
 
-function matchRiskPattern(pattern, files, addedLines, totals) {
+function adjustedWeight(weight, config) {
+  if (weight <= 0) return weight;
+  return Math.max(1, weight + config.positiveWeightDelta);
+}
+
+function commaList(values) {
+  return values.length ? values.join(', ') : 'none';
+}
+
+function lineMatchCount(lines, pattern) {
+  if (!pattern) return 0;
+  return lines.filter((line) => pattern.test(line)).length;
+}
+
+function matchRiskPattern(pattern, files, addedLines, totals, config) {
   if (pattern.id === 'large-change') {
-    return totals.added + totals.removed >= 120 || files.length >= 8;
+    const lineCount = totals.added + totals.removed;
+    const matched = lineCount >= config.largeChangeLines || files.length >= config.largeChangeFiles;
+    return {
+      matched,
+      reason: matched
+        ? `${lineCount} changed line(s) or ${files.length} file(s) met the ${config.preset} preset large-change threshold.`
+        : '',
+      matchedFiles: [],
+      matchedLineCount: 0
+    };
   }
 
-  const fileMatch = pattern.file ? files.some((file) => pattern.file.test(file)) : false;
-  const lineMatch = pattern.line ? addedLines.some((line) => pattern.line.test(line)) : false;
-  return fileMatch || lineMatch;
+  const matchedFiles = pattern.file ? files.filter((file) => pattern.file.test(file)) : [];
+  const matchedLineCount = lineMatchCount(addedLines, pattern.line);
+  const reasons = [];
+
+  if (matchedFiles.length) {
+    reasons.push(`${commaList(matchedFiles)} matched ${pattern.fileDescription}.`);
+  }
+
+  if (matchedLineCount) {
+    reasons.push(`${matchedLineCount} added line(s) matched ${pattern.lineDescription}.`);
+  }
+
+  return {
+    matched: Boolean(matchedFiles.length || matchedLineCount),
+    reason: reasons.join(' '),
+    matchedFiles,
+    matchedLineCount
+  };
 }
 
 function configuredHighRiskFiles(files, config) {
   return files.filter((file) =>
     config.highRiskPaths.some((highRiskPath) => file.startsWith(highRiskPath))
   );
+}
+
+function makeRuleHit({ id, label, weight, reason, check, matchedFiles = [], matchedLineCount = 0 }) {
+  return {
+    id,
+    label,
+    weight,
+    reason,
+    check,
+    matchedFiles,
+    matchedLineCount
+  };
 }
 
 function scoreRisk(diffText, changes, config) {
@@ -213,16 +343,26 @@ function scoreRisk(diffText, changes, config) {
     removed: changes.reduce((sum, change) => sum + change.removedLinesCount, 0)
   };
   const docsOnly = isDocsOnlyChange(changes);
-  const flags = [];
+  const ruleHits = [];
   const checks = [];
   let score = 0;
 
   for (const pattern of RISK_PATTERNS) {
     if (docsOnly && pattern.id !== 'test-change') continue;
 
-    if (matchRiskPattern(pattern, files, addedLines, totals)) {
-      score += pattern.weight;
-      flags.push(pattern.label);
+    const match = matchRiskPattern(pattern, files, addedLines, totals, config);
+    if (match.matched) {
+      const weight = adjustedWeight(pattern.weight, config);
+      score += weight;
+      ruleHits.push(makeRuleHit({
+        id: pattern.id,
+        label: pattern.label,
+        weight,
+        reason: `${pattern.label} because ${match.reason}`,
+        check: pattern.check,
+        matchedFiles: match.matchedFiles,
+        matchedLineCount: match.matchedLineCount
+      }));
       checks.push(pattern.check);
     }
   }
@@ -230,26 +370,51 @@ function scoreRisk(diffText, changes, config) {
   const configuredRiskFiles = configuredHighRiskFiles(files, config);
 
   if (configuredRiskFiles.length) {
-    score += 4;
-    flags.push(`Configured high-risk path changed: ${configuredRiskFiles.join(', ')}`);
+    score += config.configuredHighRiskWeight;
+    ruleHits.push(makeRuleHit({
+      id: 'configured-high-risk-path',
+      label: 'Configured high-risk path changed',
+      weight: config.configuredHighRiskWeight,
+      reason: `Configured high-risk path changed because ${configuredRiskFiles.join(', ')} matched highRiskPaths from merge-guard.config.json.`,
+      check: 'Review the configured high-risk path changes carefully before merging.',
+      matchedFiles: configuredRiskFiles,
+      matchedLineCount: 0
+    }));
     checks.push('Review the configured high-risk path changes carefully before merging.');
   }
 
   const touchedTests = files.some(isTestFile);
   const touchedImplementation = files.some(isImplementationFile);
+  const implementationFiles = files.filter(isImplementationFile);
 
   if (!docsOnly && touchedImplementation && !touchedTests) {
-    score += 2;
-    flags.push('Implementation changed without matching test changes');
+    score += config.missingTestsWeight;
+    ruleHits.push(makeRuleHit({
+      id: 'implementation-without-tests',
+      label: 'Implementation changed without matching test changes',
+      weight: config.missingTestsWeight,
+      reason: `Implementation changed without matching test changes because ${implementationFiles.join(', ')} changed and no test, spec, smoke, or __tests__ file changed.`,
+      check: 'Run the closest available test or smoke check manually.',
+      matchedFiles: implementationFiles,
+      matchedLineCount: 0
+    }));
     checks.push('Run the closest available test or smoke check manually.');
   }
 
   if (docsOnly) {
-    flags.unshift('Docs-only change detected');
+    ruleHits.unshift(makeRuleHit({
+      id: 'docs-only',
+      label: 'Docs-only change detected',
+      weight: 0,
+      reason: 'Docs-only change detected because every changed file is documentation, an example, Markdown, or comment-only content.',
+      check: 'Proofread documentation and verify examples or commands still match the project.',
+      matchedFiles: files,
+      matchedLineCount: 0
+    }));
     checks.push('Proofread documentation and verify examples or commands still match the project.');
 
     if (!configuredRiskFiles.length) {
-      score = Math.min(score, 1);
+      score = Math.min(score, config.docsOnlyScoreCap);
     }
   }
 
@@ -259,7 +424,8 @@ function scoreRisk(diffText, changes, config) {
 
   return {
     score: Math.max(0, score),
-    flags: uniq(flags),
+    ruleHits: uniqById(ruleHits),
+    flags: uniq(ruleHits.map((ruleHit) => ruleHit.label)),
     checks: uniq(checks),
     docsOnly
   };
@@ -267,24 +433,24 @@ function scoreRisk(diffText, changes, config) {
 
 function readinessFromScore(score, config) {
   if (score >= config.failThreshold) return 'DO_NOT_MERGE_YET';
-  if (score >= 3) return 'NEEDS_REVIEW';
+  if (score >= config.reviewThreshold) return 'NEEDS_REVIEW';
   return 'SAFE_TO_MERGE';
 }
 
 function levelFromScore(score, config) {
   if (score >= config.failThreshold) return 'HIGH';
-  if (score >= 3) return 'MEDIUM';
+  if (score >= config.reviewThreshold) return 'MEDIUM';
   return 'LOW';
 }
 
-function fileLevelFromScore(score) {
-  if (score >= 5) return 'HIGH';
-  if (score >= 2) return 'MEDIUM';
+function fileLevelFromScore(score, config) {
+  if (score >= config.failThreshold) return 'HIGH';
+  if (score >= config.reviewThreshold) return 'MEDIUM';
   return 'LOW';
 }
 
 function scoreSingleFile(change, config) {
-  const flags = [];
+  const ruleHits = [];
   let score = 0;
   const addedLines = change.addedLines;
   const totals = {
@@ -295,34 +461,62 @@ function scoreSingleFile(change, config) {
 
   if (!docsLike) {
     for (const pattern of RISK_PATTERNS) {
-      if (matchRiskPattern(pattern, [change.path], addedLines, totals)) {
-        score += pattern.weight;
-        flags.push(pattern.label);
+      const match = matchRiskPattern(pattern, [change.path], addedLines, totals, config);
+      if (match.matched) {
+        const weight = adjustedWeight(pattern.weight, config);
+        score += weight;
+        ruleHits.push(makeRuleHit({
+          id: pattern.id,
+          label: pattern.label,
+          weight,
+          reason: `${pattern.label} because ${match.reason}`,
+          check: pattern.check,
+          matchedFiles: match.matchedFiles,
+          matchedLineCount: match.matchedLineCount
+        }));
       }
     }
   }
 
   const configuredRiskFiles = configuredHighRiskFiles([change.path], config);
   if (configuredRiskFiles.length) {
-    score += 4;
-    flags.push('Configured high-risk path changed');
+    score += config.configuredHighRiskWeight;
+    ruleHits.push(makeRuleHit({
+      id: 'configured-high-risk-path',
+      label: 'Configured high-risk path changed',
+      weight: config.configuredHighRiskWeight,
+      reason: `${change.path} matched highRiskPaths from merge-guard.config.json.`,
+      check: 'Review the configured high-risk path changes carefully before merging.',
+      matchedFiles: configuredRiskFiles,
+      matchedLineCount: 0
+    }));
   }
 
   if (docsLike && !configuredRiskFiles.length) {
-    flags.push('Documentation/comment-only change');
-    score = Math.min(score, 1);
+    ruleHits.push(makeRuleHit({
+      id: 'docs-or-comment-only-file',
+      label: 'Documentation/comment-only change',
+      weight: 0,
+      reason: `${change.path} is documentation, an example, Markdown, or comment-only content.`,
+      check: 'Proofread documentation and verify examples or commands still match the project.',
+      matchedFiles: [change.path],
+      matchedLineCount: 0
+    }));
+    score = Math.min(score, config.docsOnlyScoreCap);
   }
 
   score = Math.max(0, score);
+  const uniqueRuleHits = uniqById(ruleHits);
 
   return {
     path: change.path,
-    riskLevel: fileLevelFromScore(score),
+    riskLevel: fileLevelFromScore(score, config),
     riskScore: score,
     addedLines: change.addedLinesCount,
     removedLines: change.removedLinesCount,
-    reason: flags.length ? uniq(flags).join('; ') : 'No major file-specific risk signals',
-    flags: uniq(flags)
+    reason: uniqueRuleHits.length ? uniqueRuleHits.map((ruleHit) => ruleHit.reason).join(' ') : 'No major file-specific risk signals.',
+    flags: uniqueRuleHits.map((ruleHit) => ruleHit.label),
+    rules: uniqueRuleHits
   };
 }
 
@@ -341,8 +535,15 @@ function escapeMarkdownTableCell(value) {
   return String(value).replace(/\|/g, '\\|').replace(/\n/g, ' ');
 }
 
+function shouldShowConfig(report) {
+  return report.config.preset !== DEFAULT_CONFIG.preset
+    || report.config.highRiskPaths.length
+    || report.config.testCommands.length
+    || report.config.failThreshold !== RISK_PRESETS[report.config.preset].failThreshold;
+}
+
 export function analyzeDiff(diffText, userConfig = {}) {
-  const config = normalizeConfig({ ...DEFAULT_CONFIG, ...userConfig });
+  const config = normalizeConfig(userConfig);
   const changes = parseFileChanges(diffText);
   const files = changes.map((change) => change.path);
   const totals = {
@@ -360,9 +561,11 @@ export function analyzeDiff(diffText, userConfig = {}) {
     riskScore: risk.score,
     docsOnly: risk.docsOnly,
     config: {
+      preset: config.preset,
       highRiskPaths: config.highRiskPaths,
       testCommands: config.testCommands,
-      failThreshold: config.failThreshold
+      failThreshold: config.failThreshold,
+      reviewThreshold: config.reviewThreshold
     },
     summary: {
       changedFiles: files.length,
@@ -372,6 +575,7 @@ export function analyzeDiff(diffText, userConfig = {}) {
       files
     },
     files: fileBreakdown,
+    rules: risk.ruleHits,
     flags: risk.flags,
     suggestedChecks: risk.checks.length
       ? risk.checks
@@ -387,6 +591,7 @@ export function formatReport(report) {
   lines.push(`Risk level: ${report.riskLevel}`);
   lines.push(`Merge readiness: ${report.mergeReadiness}`);
   lines.push(`Risk score: ${report.riskScore}`);
+  lines.push(`Preset: ${report.config.preset}`);
   lines.push('');
   lines.push('Summary:');
   lines.push(`- ${report.summary.changedFiles} file(s) changed`);
@@ -413,11 +618,13 @@ export function formatReport(report) {
     }
   }
 
-  if (report.config.highRiskPaths.length || report.config.testCommands.length || report.config.failThreshold !== DEFAULT_CONFIG.failThreshold) {
+  if (shouldShowConfig(report)) {
     lines.push('');
     lines.push('Config:');
+    lines.push(`- Preset: ${report.config.preset}`);
     lines.push(`- High-risk paths: ${report.config.highRiskPaths.length ? report.config.highRiskPaths.join(', ') : 'none'}`);
     lines.push(`- Test commands: ${report.config.testCommands.length ? report.config.testCommands.join(', ') : 'none'}`);
+    lines.push(`- Review threshold: ${report.config.reviewThreshold}`);
     lines.push(`- Fail threshold: ${report.config.failThreshold}`);
   }
 
@@ -425,6 +632,14 @@ export function formatReport(report) {
   lines.push('Risk flags:');
   for (const flag of report.flags.length ? report.flags : ['No major risk flags detected']) {
     lines.push(`- ${flag}`);
+  }
+
+  if (report.rules?.length) {
+    lines.push('');
+    lines.push('Rule explanations:');
+    for (const rule of report.rules) {
+      lines.push(`- ${rule.label} (${rule.id}, weight ${rule.weight}): ${rule.reason}`);
+    }
   }
 
   lines.push('');
@@ -459,6 +674,7 @@ export function formatMarkdownReport(report) {
   lines.push(`**Risk level:** ${report.riskLevel}`);
   lines.push(`**Merge readiness:** ${report.mergeReadiness}`);
   lines.push(`**Risk score:** ${report.riskScore}`);
+  lines.push(`**Preset:** ${report.config.preset}`);
   lines.push('');
   lines.push('## Summary');
   lines.push('');
@@ -483,6 +699,15 @@ export function formatMarkdownReport(report) {
   lines.push('');
   for (const flag of report.flags.length ? report.flags : ['No major risk flags detected']) {
     lines.push(`- ${flag}`);
+  }
+
+  if (report.rules?.length) {
+    lines.push('');
+    lines.push('## Rule explanations');
+    lines.push('');
+    for (const rule of report.rules) {
+      lines.push(`- **${rule.label}** (\`${rule.id}\`, weight ${rule.weight}): ${rule.reason}`);
+    }
   }
 
   lines.push('');
@@ -517,6 +742,7 @@ export const __testables = {
   countChangedLines,
   isDocsFile,
   isDocsOnlyChange,
+  normalizeConfig,
   parseChangedFiles,
   parseFileChanges
 };
