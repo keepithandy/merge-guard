@@ -1,4 +1,5 @@
 {
+  "preset": "standard",
   "highRiskPaths": [
     "src/save",
     "src/auth",
