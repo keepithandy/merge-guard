@@ -4,21 +4,21 @@ import { createAiReviewSummary } from '../src/aiReview.js';
 import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
-	if (!condition) {
-		throw new Error(message);
-	}
+  if (!condition) {
+    throw new Error(message);
+  }
 }
 
 function assertString(value, fieldName) {
-	assert(typeof value === 'string' && value.length > 0, `${fieldName} should be a non-empty string`);
+  assert(typeof value === 'string' && value.length > 0, `${fieldName} should be a non-empty string`);
 }
 
 function assertArray(value, fieldName) {
-	assert(Array.isArray(value), `${fieldName} should be an array`);
+  assert(Array.isArray(value), `${fieldName} should be an array`);
 }
 
 function assertNumber(value, fieldName) {
-	assert(Number.isFinite(value), `${fieldName} should be a finite number`);
+  assert(Number.isFinite(value), `${fieldName} should be a finite number`);
 }
 
 const diffText = fs.readFileSync('examples/sample.diff', 'utf8');
@@ -28,6 +28,7 @@ assert(report && typeof report === 'object', 'report should be an object');
 assertString(report.riskLevel, 'riskLevel');
 assertString(report.mergeReadiness, 'mergeReadiness');
 assertNumber(report.riskScore, 'riskScore');
+assert(report.config.preset === 'standard', 'default preset should be standard');
 
 assert(report.summary && typeof report.summary === 'object', 'summary should be an object');
 assertNumber(report.summary.changedFiles, 'summary.changedFiles');
@@ -41,15 +42,24 @@ assertString(report.files[0].riskLevel, 'files[0].riskLevel');
 assertString(report.files[0].reason, 'files[0].reason');
 
 assertArray(report.flags, 'flags');
+assertArray(report.rules, 'rules');
+assert(report.rules.length > 0, 'rules should include at least one explanation');
+assertString(report.rules[0].id, 'rules[0].id');
+assertString(report.rules[0].label, 'rules[0].label');
+assertString(report.rules[0].reason, 'rules[0].reason');
+assertNumber(report.rules[0].weight, 'rules[0].weight');
+assert(report.rules[0].reason.includes('because'), 'rule explanation should explain why it fired');
 assertArray(report.suggestedChecks, 'suggestedChecks');
 assert(report.suggestedChecks.length > 0, 'suggestedChecks should include at least one check');
 
 const textOutput = formatReport(report);
 assert(textOutput.includes('Per-file risk:'), 'text output should include per-file risk');
+assert(textOutput.includes('Rule explanations:'), 'text output should include rule explanations');
 
 const markdownOutput = formatMarkdownReport(report);
 assert(markdownOutput.includes('# merge-guard report'), 'markdown output should include heading');
 assert(markdownOutput.includes('## Per-file risk'), 'markdown output should include per-file risk');
+assert(markdownOutput.includes('## Rule explanations'), 'markdown output should include rule explanations');
 assert(markdownOutput.includes('## Suggested checks'), 'markdown output should include suggested checks');
 
 const docsOnlyDiff = fs.readFileSync('examples/docs-only.diff', 'utf8');
@@ -57,6 +67,14 @@ const docsOnlyReport = analyzeDiff(docsOnlyDiff);
 assert(docsOnlyReport.docsOnly === true, 'docs-only diff should be detected');
 assert(docsOnlyReport.riskLevel === 'LOW', 'docs-only diff should stay low risk');
 assert(docsOnlyReport.flags.includes('Docs-only change detected'), 'docs-only flag should be present');
+assert(docsOnlyReport.rules.some((rule) => rule.id === 'docs-only'), 'docs-only rule should be present');
+
+const relaxedReport = analyzeDiff(diffText, { preset: 'safe' });
+const strictReport = analyzeDiff(diffText, { preset: 'strict' });
+assert(relaxedReport.config.preset === 'safe', 'safe preset should be reported');
+assert(strictReport.config.preset === 'strict', 'strict preset should be reported');
+assert(strictReport.riskScore > relaxedReport.riskScore, 'strict preset should score sample diff higher than safe preset');
+assert(strictReport.config.failThreshold < relaxedReport.config.failThreshold, 'strict preset should fail earlier than safe preset');
 
 const aiReview = createAiReviewSummary(report, diffText);
 assertString(aiReview.mode, 'aiReview.mode');
@@ -80,4 +98,5 @@ console.log(`riskLevel=${report.riskLevel}`);
 console.log(`mergeReadiness=${report.mergeReadiness}`);
 console.log(`changedFiles=${report.summary.changedFiles}`);
 console.log(`docsOnlyRisk=${docsOnlyReport.riskLevel}`);
+console.log(`strictRiskScore=${strictReport.riskScore}`);
 console.log('prCommentMarker=ok');
