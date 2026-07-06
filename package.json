@@ -6,6 +6,15 @@
   "bin": {
     "merge-guard": "./src/cli.js"
   },
+  "files": [
+    "src/",
+    "scripts/",
+    "examples/",
+    "action.yml",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "demo": "node src/cli.js examples/sample.diff",
     "smoke": "node scripts/smoke.js",
@@ -15,6 +24,7 @@
   "keywords": [
     "git",
     "github",
+    "github-action",
     "pull-request",
     "code-review",
     "diff",
