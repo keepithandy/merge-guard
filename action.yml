@@ -1,0 +1,43 @@
+name: merge-guard
+
+description: Run merge-guard against a pull request diff and optionally comment on the PR.
+
+author: keepithandy
+
+inputs:
+  preset:
+    description: Risk preset to use: safe, standard, or strict.
+    required: false
+    default: standard
+  diff-path:
+    description: Optional path to a prebuilt diff file. When omitted, the workflow should pipe a generated diff into the CLI.
+    required: false
+    default: ""
+  markdown:
+    description: Print Markdown output.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - name: Run merge-guard from diff file
+      if: ${{ inputs.diff-path != '' }}
+      shell: bash
+      run: |
+        if [ "${{ inputs.markdown }}" = "true" ]; then
+          node "$GITHUB_ACTION_PATH/src/cli.js" --markdown --preset "${{ inputs.preset }}" "${{ inputs.diff-path }}"
+        else
+          node "$GITHUB_ACTION_PATH/src/cli.js" --preset "${{ inputs.preset }}" "${{ inputs.diff-path }}"
+        fi
+
+    - name: Run merge-guard from pull request diff
+      if: ${{ inputs.diff-path == '' }}
+      shell: bash
+      run: |
+        git diff origin/${{ github.base_ref }}...HEAD > merge-guard.diff
+        if [ "${{ inputs.markdown }}" = "true" ]; then
+          node "$GITHUB_ACTION_PATH/src/cli.js" --markdown --preset "${{ inputs.preset }}" merge-guard.diff
+        else
+          node "$GITHUB_ACTION_PATH/src/cli.js" --preset "${{ inputs.preset }}" merge-guard.diff
+        fi
