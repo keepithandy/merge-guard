@@ -1,10 +1,33 @@
 # merge-guard
 
-**AI-powered pull request risk scanner for safer merges.**
+`merge-guard` is a lightweight pull request and diff risk scanner for safer merges. It reviews changed files and creates a plain-English merge-readiness report showing what changed, what might break, which files look risky, and what checks should be run before merging.
 
-`merge-guard` is a lightweight developer tool that reviews code changes before they are merged. It scans git diffs, commits, or pull requests and creates a plain-English safety report showing what changed, what might break, which files look risky, and what tests should be run before merging.
+The goal is simple: **protect the main branch before you merge.**
 
-The goal is simple: **protect the main branch before you hit merge.**
+## Try It First
+
+Install dependencies and run the bundled demo:
+
+```bash
+git clone https://github.com/keepithandy/merge-guard.git
+cd merge-guard
+npm install
+npm run demo
+```
+
+Scan the sample diff:
+
+```bash
+node src/cli.js examples/sample.diff
+```
+
+Generate Markdown output:
+
+```bash
+node src/cli.js --markdown examples/sample.diff
+```
+
+Current status: active developer-tool prototype. The current CLI is rules-based and can produce useful merge-readiness reports without requiring an API key.
 
 ## What it answers
 
@@ -13,16 +36,25 @@ The goal is simple: **protect the main branch before you hit merge.**
 1. What changed?
 2. Why does it matter?
 3. What might break?
-4. What tests should I run?
+4. What checks should I run?
 5. Is this safe to merge?
 
 It does not replace human review. It gives developers a second set of eyes before shipping.
 
 ## Current version
 
-This version is a rules-based CLI scanner with optional Markdown, CI, per-file risk, docs-only detection, risk presets, rule explanations, AI-ready review summaries, and GitHub pull request comment updates. It can inspect a diff and produce a merge-readiness report without requiring an AI API key.
+This version supports:
 
-Future versions can add richer provider-backed AI summaries, custom rule packs, and a simple web dashboard.
+- plain text, Markdown, and JSON reports
+- CI-oriented output
+- per-file risk scoring
+- docs-only detection
+- risk presets
+- rule explanations
+- structured review summaries
+- pull request comment update helpers
+
+Future versions can add richer summaries, custom rule packs, and a simple web dashboard.
 
 ## Example output
 
@@ -40,17 +72,14 @@ Summary:
 - 22 removed line(s)
 
 Per-file risk:
-- MEDIUM src/saveState.js - State or persistence logic changed because src/saveState.js matched save, state, storage, persistence, migration, ledger, or cache path patterns.
-- MEDIUM package.json - Dependency or config file changed because package.json matched dependency, lockfile, build, lint, or formatter config path patterns.
-- LOW README.md - README.md is documentation, an example, Markdown, or comment-only content.
+- MEDIUM src/saveState.js - State or persistence logic changed.
+- MEDIUM package.json - Dependency or config file changed.
+- LOW README.md - Documentation-only file.
 
 Risk flags:
 - State or persistence logic changed
 - Dependency or config file changed
 - Implementation changed without matching test changes
-
-Rule explanations:
-- State or persistence logic changed (state-or-persistence, weight 3): State or persistence logic changed because src/saveState.js matched save, state, storage, persistence, migration, ledger, or cache path patterns.
 
 Suggested checks:
 - Run the normal test suite
@@ -99,19 +128,11 @@ JSON output includes the same risk data, including the per-file breakdown and ru
 node src/cli.js --json examples/sample.diff
 ```
 
-CI mode prints Markdown, writes to the GitHub Actions step summary when available, and exits with a failure when the report reaches the configured `failThreshold`:
+CI mode prints Markdown and exits with a failure when the report reaches the configured `failThreshold`:
 
 ```bash
 node src/cli.js --ci examples/sample.diff
 ```
-
-Optional AI-ready summary mode adds a structured review summary and adapted prompt package on top of the rules-based scanner:
-
-```bash
-node src/cli.js --ai --markdown examples/sample.diff
-```
-
-Normal CLI mode does not require an API key. The optional AI section organizes the scanner findings and provides a prompt package for a future AI reviewer; it does not prove a change is safe and does not replace human review.
 
 ## Risk presets
 
@@ -125,54 +146,22 @@ node src/cli.js --preset strict examples/sample.diff
 
 Presets:
 
-- `safe` - relaxed scoring, higher fail threshold, useful for casual projects or early exploration.
+- `safe` - relaxed scoring, useful for casual projects or early exploration.
 - `standard` - default scoring, balanced for normal review.
-- `strict` - sharper scoring, lower fail threshold, useful for release branches, risky systems, or repos where you want fewer surprise merges.
-
-Preset behavior affects:
-
-- positive risk weights
-- large-change thresholds
-- missing-test penalty
-- configured high-risk path weight
-- review and fail thresholds
-
-You can also set a default in `merge-guard.config.json`:
-
-```json
-{
-  "preset": "strict"
-}
-```
+- `strict` - sharper scoring, useful for release branches or risky systems.
 
 ## Rule explanations
 
-Every triggered rule now includes explanation metadata. JSON output includes a `rules` array like this:
-
-```json
-{
-  "id": "state-or-persistence",
-  "label": "State or persistence logic changed",
-  "weight": 3,
-  "reason": "State or persistence logic changed because src/saveState.js matched save, state, storage, persistence, migration, ledger, or cache path patterns.",
-  "check": "Review save/load behavior and run state-related smoke tests.",
-  "matchedFiles": ["src/saveState.js"],
-  "matchedLineCount": 0
-}
-```
-
-Text and Markdown reports include a `Rule explanations` section so reviewers can see why a warning fired instead of guessing.
+Every triggered rule includes explanation metadata so reviewers can see why a warning fired instead of guessing.
 
 ## Pull request comment mode
 
-Create a Markdown report and post it back to the pull request:
+Create a Markdown report, then use the comment helper to post or update the report in a pull request discussion:
 
 ```bash
 node src/cli.js --markdown pr.diff > merge-guard-report.md
 node scripts/pr-comment.js --report merge-guard-report.md
 ```
-
-The comment script adds a hidden marker to the comment. When the workflow runs again, it updates the existing merge-guard comment instead of creating duplicates.
 
 Preview the comment body without calling GitHub:
 
@@ -180,7 +169,7 @@ Preview the comment body without calling GitHub:
 node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 
-In GitHub Actions, the workflow needs read access to contents and write access to pull request or issue comments. See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml`.
+See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for workflow examples.
 
 ## Per-file risk scoring
 
@@ -194,118 +183,4 @@ Every report includes a `files` breakdown. Each changed file receives:
 - matched file-specific flags
 - matched file-specific rules
 
-The text and Markdown reports show the riskiest files first. File risk comes from the same rules used by the overall scan:
-
-- save, state, storage, persistence, migration, ledger, and cache paths are higher risk
-- dependency and config files are moderate risk
-- routing, app entry, async, network, service worker, and API files receive extra attention
-- configured `highRiskPaths` increase file risk
-- test changes lower risk when implementation changed with tests
-- docs, examples, Markdown, and comment-only diffs are treated as low risk unless a configured high-risk signal is present
-
-## Docs-only detection
-
-If a diff only touches docs, Markdown, examples, or comment-only changes, `merge-guard` marks the report as docs-only and normally returns `LOW` risk.
-
-Docs-only reports include the flag:
-
-```txt
-Docs-only change detected
-```
-
-The sample diff at `examples/docs-only.diff` demonstrates this path.
-
-## GitHub Actions
-
-See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for a copyable workflow.
-
-Minimal CI usage:
-
-```bash
-node src/cli.js --ci pr.diff
-```
-
-Strict CI usage:
-
-```bash
-node src/cli.js --ci --preset strict pr.diff
-```
-
-This mode works without an AI provider.
-
-## Configuration
-
-`merge-guard` works without configuration. If a `merge-guard.config.json` file exists in the current directory, the CLI reads it automatically.
-
-Example:
-
-```json
-{
-  "preset": "standard",
-  "highRiskPaths": ["src/save", "src/auth", "src/payments"],
-  "testCommands": ["npm test", "npm run smoke"],
-  "failThreshold": 7
-}
-```
-
-Config fields:
-
-- `preset` sets the default risk preset. Valid values are `safe`, `standard`, and `strict`.
-- `highRiskPaths` marks matching changed files as extra risky. A path matches when the changed file starts with one of these values.
-- `testCommands` adds project-specific checks to the suggested checks list.
-- `failThreshold` controls when the report becomes `HIGH` risk and `DO_NOT_MERGE_YET`. If omitted, the selected preset chooses the threshold.
-
-A starter config is available at `examples/merge-guard.config.example.json`.
-
-## Sample diffs
-
-The `examples/` folder includes a few ready-made diff shapes for testing the scanner:
-
-- `examples/sample.diff` - default demo diff used by `npm run demo`
-- `examples/docs-only.diff` - low-risk documentation-only change
-- `examples/app-entry-change.diff` - medium-risk app startup change
-- `examples/state-persistence-change.diff` - save/load and persistence-style change
-- `examples/config-dependency-change.diff` - config and dependency-style change
-- `examples/large-multifile-change.diff` - larger multi-file change touching app, save, config, and docs
-- `examples/actions-report-mode.yml` - copyable GitHub Actions report/comment workflow
-
-Run any example directly:
-
-```bash
-node src/cli.js examples/docs-only.diff
-node src/cli.js examples/state-persistence-change.diff
-node src/cli.js examples/large-multifile-change.diff
-```
-
-## Commands
-
-```bash
-npm run demo
-npm run smoke
-npm run check
-npm run comment -- --report merge-guard-report.md
-```
-
-## Merge readiness labels
-
-`SAFE_TO_MERGE` means the diff looks low-risk.
-
-`NEEDS_REVIEW` means the diff has moderate risk or needs more attention.
-
-`DO_NOT_MERGE_YET` means the diff has high-risk signals and should be reviewed before merging.
-
-## Project vision
-
-The bigger version of `merge-guard` should:
-
-- Read local diffs
-- Review pull requests
-- Produce clear risk reports
-- Suggest targeted smoke tests
-- Comment on GitHub PRs
-- Learn project-specific review rules
-- Generate release notes from merged changes
-
-## One-line pitch
-
-**merge-guard scans code changes before merge and tells you what changed, what might break, and what to test next.**
+The text and Markdown reports show the riskiest files first.
