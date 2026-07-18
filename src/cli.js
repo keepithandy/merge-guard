@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import process from 'node:process';
 import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
 import { createAiReviewSummary } from './aiReview.js';
+import { appendCustomRuleWarnings, applyCustomRules } from './customRules.js';
 
 const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--preset', '--fail-threshold', '--help', '-h']);
 const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold']);
@@ -28,6 +29,7 @@ Options:
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
+  The optional customRules array adds project-specific path and added-line rules.
 `);
 }
 
@@ -166,13 +168,18 @@ async function main() {
     return;
   }
 
-  const report = analyzeDiff(diffText, resolveConfig(args));
+  const config = resolveConfig(args);
+  const report = applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules);
 
   if (aiMode) {
     report.aiReview = createAiReviewSummary(report, diffText);
   }
 
-  const markdown = formatMarkdownReport(report);
+  const markdown = appendCustomRuleWarnings(
+    formatMarkdownReport(report),
+    report.customRuleWarnings,
+    'markdown'
+  );
 
   if (ciMode) {
     writeGitHubStepSummary(markdown);
@@ -183,7 +190,7 @@ async function main() {
   } else if (markdownMode || ciMode) {
     console.log(markdown);
   } else {
-    console.log(formatReport(report));
+    console.log(appendCustomRuleWarnings(formatReport(report), report.customRuleWarnings));
   }
 
   if (ciMode && report.riskScore >= report.config.failThreshold) {
