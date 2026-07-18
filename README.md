@@ -51,12 +51,13 @@ This version supports:
 - docs-only detection
 - risk presets
 - rule explanations
+- project-defined custom rules
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
 - a reusable composite GitHub Action
 
-Future versions can add richer summaries, custom rule packs, and a simple web dashboard.
+Future versions can add richer summaries and a simple web dashboard.
 
 ## Example output
 
@@ -174,6 +175,37 @@ Presets:
 - `standard` - default scoring, balanced for normal review.
 - `strict` - sharper scoring, useful for release branches or risky systems.
 
+## Custom rules
+
+Add a `customRules` array to `merge-guard.config.json` when a project has risky paths or line patterns that the built-in rules do not cover.
+
+```json
+{
+  "preset": "standard",
+  "customRules": [
+    {
+      "id": "payment-provider-change",
+      "label": "Payment provider integration changed",
+      "pathPattern": "^src/payments/",
+      "linePattern": "fetch\\(|Authorization|webhook",
+      "weight": 4,
+      "check": "Run the payment-provider sandbox smoke and verify webhook signatures."
+    }
+  ]
+}
+```
+
+Each rule supports:
+
+- `id`: stable project-specific identifier.
+- `label`: human-readable risk flag.
+- `pathPattern`: optional case-insensitive regular expression matched against changed file paths.
+- `linePattern`: optional case-insensitive regular expression matched against added lines.
+- `weight`: finite numeric score adjustment.
+- `check`: suggested verification command or review step.
+
+A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. Invalid rules are ignored without stopping the scan and are listed under **Custom rule warnings**.
+
 ## Rule explanations
 
 Every triggered rule includes explanation metadata so reviewers can see why a warning fired instead of guessing.
@@ -251,7 +283,7 @@ Action inputs:
 - `comment`: post or update the stable merge-guard PR comment.
 - `fail-threshold`: optional positive integer override.
 - `diff-path`: optional path to a prebuilt diff.
-- `markdown`: choose Markdown output; comment mode always generates Markdown.
+- `markdown`: retained for compatibility; CI and comment reports are Markdown.
 
 When comment mode is enabled, the workflow needs `pull-requests: write`. The Action records the scan result, posts the report, and then enforces the failure exit code so high-risk reports are not lost.
 
