@@ -1,6 +1,6 @@
 name: merge-guard
 
-description: Run merge-guard against a pull request diff and optionally comment on the PR.
+description: Run merge-guard against a pull request diff, enforce a risk threshold, and optionally comment on the PR.
 
 author: keepithandy
 
@@ -9,35 +9,73 @@ inputs:
     description: Risk preset to use: safe, standard, or strict.
     required: false
     default: standard
+  comment:
+    description: Post or update the merge-guard Markdown report on the pull request.
+    required: false
+    default: "false"
+  fail-threshold:
+    description: Optional positive integer risk score that fails the action.
+    required: false
+    default: ""
   diff-path:
-    description: Optional path to a prebuilt diff file. When omitted, the workflow should pipe a generated diff into the CLI.
+    description: Optional path to a prebuilt diff file. When omitted, the action generates the pull request diff.
     required: false
     default: ""
   markdown:
-    description: Print Markdown output.
+    description: Print Markdown output instead of plain text. Comment mode always generates Markdown.
     required: false
     default: "true"
 
 runs:
   using: composite
   steps:
-    - name: Run merge-guard from diff file
-      if: ${{ inputs.diff-path != '' }}
-      shell: bash
-      run: |
-        if [ "${{ inputs.markdown }}" = "true" ]; then
-          node "$GITHUB_ACTION_PATH/src/cli.js" --markdown --preset "${{ inputs.preset }}" "${{ inputs.diff-path }}"
-        else
-          node "$GITHUB_ACTION_PATH/src/cli.js" --preset "${{ inputs.preset }}" "${{ inputs.diff-path }}"
-        fi
-
-    - name: Run merge-guard from pull request diff
+    - name: Prepare pull request diff
       if: ${{ inputs.diff-path == '' }}
       shell: bash
+      run: git diff "origin/${{ github.base_ref }}...HEAD" > merge-guard.diff
+
+    - name: Run merge-guard
+      id: scan
+      shell: bash
+      env:
+        MERGE_GUARD_DIFF_PATH: ${{ inputs.diff-path }}
+        MERGE_GUARD_PRESET: ${{ inputs.preset }}
+        MERGE_GUARD_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
+        MERGE_GUARD_MARKDOWN: ${{ inputs.markdown }}
+        MERGE_GUARD_COMMENT: ${{ inputs.comment }}
       run: |
-        git diff origin/${{ github.base_ref }}...HEAD > merge-guard.diff
-        if [ "${{ inputs.markdown }}" = "true" ]; then
-          node "$GITHUB_ACTION_PATH/src/cli.js" --markdown --preset "${{ inputs.preset }}" merge-guard.diff
-        else
-          node "$GITHUB_ACTION_PATH/src/cli.js" --preset "${{ inputs.preset }}" merge-guard.diff
+        diff_file="$MERGE_GUARD_DIFF_PATH"
+        if [ -z "$diff_file" ]; then
+          diff_file="merge-guard.diff"
         fi
+
+        threshold_args=()
+        if [ -n "$MERGE_GUARD_FAIL_THRESHOLD" ]; then
+          threshold_args=(--fail-threshold "$MERGE_GUARD_FAIL_THRESHOLD")
+        fi
+
+        output_args=()
+        if [ "$MERGE_GUARD_MARKDOWN" = "true" ] || [ "$MERGE_GUARD_COMMENT" = "true" ]; then
+          output_args=(--markdown)
+        fi
+
+        set +e
+        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${output_args[@]}" "$diff_file" | tee merge-guard-report.md
+        scan_status=${PIPESTATUS[0]}
+        set -e
+
+        echo "exit_code=$scan_status" >> "$GITHUB_OUTPUT"
+
+    - name: Comment on pull request
+      if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: node "$GITHUB_ACTION_PATH/scripts/pr-comment.js" --report merge-guard-report.md
+
+    - name: Enforce merge-guard result
+      if: ${{ steps.scan.outputs.exit_code != '0' }}
+      shell: bash
+      run: |
+        echo "merge-guard exceeded its configured failure threshold."
+        exit "${{ steps.scan.outputs.exit_code }}"
