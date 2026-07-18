@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeDiff.js';
 import { createAiReviewSummary } from '../src/aiReview.js';
+import { appendCustomRuleWarnings, applyCustomRules } from '../src/customRules.js';
 import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
@@ -79,6 +80,38 @@ assert(strictReport.config.failThreshold < relaxedReport.config.failThreshold, '
 const explicitThresholdReport = analyzeDiff(diffText, { failThreshold: 4 });
 assert(explicitThresholdReport.config.failThreshold === 4, 'explicit fail threshold should be retained');
 
+const customRuleConfig = [{
+  id: 'save-storage-write',
+  label: 'Project save storage changed',
+  pathPattern: 'save|state',
+  linePattern: 'localStorage|persist',
+  weight: 3,
+  check: 'Run the project save round-trip smoke.'
+}];
+const customRuleReport = applyCustomRules(analyzeDiff(diffText), diffText, customRuleConfig);
+const customRuleHit = customRuleReport.rules.find((rule) => rule.id === 'custom:save-storage-write');
+assert(customRuleHit, 'custom rule should appear in the normal rule output');
+assert(customRuleHit.reason.includes('because'), 'custom rule should explain why it fired');
+assert(customRuleReport.flags.includes('Project save storage changed'), 'custom rule label should appear in flags');
+assert(customRuleReport.suggestedChecks.includes('Run the project save round-trip smoke.'), 'custom rule check should appear in suggested checks');
+assert(customRuleReport.riskScore > report.riskScore, 'positive custom rule weight should increase risk score');
+assert(customRuleReport.config.customRules.length === 1, 'normalized custom rules should appear in report config');
+
+const invalidCustomRuleReport = applyCustomRules(analyzeDiff(diffText), diffText, [{
+  id: 'broken-pattern',
+  label: 'Broken pattern',
+  pathPattern: '[',
+  weight: 2,
+  check: 'Review manually.'
+}]);
+assert(invalidCustomRuleReport.customRuleWarnings.length === 1, 'invalid custom rule should be reported without crashing');
+const warningMarkdown = appendCustomRuleWarnings(
+  formatMarkdownReport(invalidCustomRuleReport),
+  invalidCustomRuleReport.customRuleWarnings,
+  'markdown'
+);
+assert(warningMarkdown.includes('## Custom rule warnings'), 'Markdown should expose invalid custom rule warnings');
+
 const aiReview = createAiReviewSummary(report, diffText);
 assertString(aiReview.mode, 'aiReview.mode');
 assertArray(aiReview.summary, 'aiReview.summary');
@@ -104,6 +137,7 @@ for (const packagePath of ['src/', 'scripts/', 'examples/', 'action.yml', 'READM
 
 const cliSource = fs.readFileSync('src/cli.js', 'utf8');
 assert(cliSource.includes('--fail-threshold'), 'CLI should expose fail-threshold override');
+assert(cliSource.includes('applyCustomRules'), 'CLI should apply configured custom rules');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
 for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
@@ -111,12 +145,15 @@ for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
 assert(fs.existsSync('scripts/pr-comment.js'), 'Action comment helper target should exist');
+assert(fs.existsSync('src/customRules.js'), 'Custom rule module should exist');
 
 const readme = fs.readFileSync('README.md', 'utf8');
 assert(readme.includes('npm pack --dry-run'), 'README should document package inspection');
 assert(readme.includes('npx --package . merge-guard'), 'README should document npx-style use');
 assert(readme.includes('Reusable GitHub Action'), 'README should document reusable Action use');
 assert(readme.includes('pull-requests: write'), 'README should document comment permissions');
+assert(readme.includes('customRules'), 'README should document custom rules');
+assert(readme.includes('pathPattern'), 'README should include a realistic custom path rule');
 
 console.log('merge-guard smoke passed');
 console.log(`riskLevel=${report.riskLevel}`);
@@ -127,3 +164,4 @@ console.log(`strictRiskScore=${strictReport.riskScore}`);
 console.log('prCommentMarker=ok');
 console.log('packageContract=ok');
 console.log('actionContract=ok');
+console.log('customRules=ok');
