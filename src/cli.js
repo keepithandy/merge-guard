@@ -5,9 +5,22 @@ import process from 'node:process';
 import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
 import { createAiReviewSummary } from './aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from './customRules.js';
+import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePrContext } from './prContext.js';
+import { applyProjectChecks, detectProjectChecks } from './projectChecks.js';
 
-const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--preset', '--fail-threshold', '--help', '-h']);
-const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold']);
+const KNOWN_OPTIONS = new Set([
+  '--json',
+  '--markdown',
+  '--ci',
+  '--ai',
+  '--preset',
+  '--fail-threshold',
+  '--pr-title',
+  '--pr-body',
+  '--help',
+  '-h'
+]);
+const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold', '--pr-title', '--pr-body']);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
 function printHelp() {
@@ -25,11 +38,14 @@ Options:
   --ai                      Add an optional AI-ready review summary to the report
   --preset <preset>         Use risk preset: safe, standard, or strict
   --fail-threshold <score>  Override the configured CI failure score with a positive integer
+  --pr-title <text>         Include pull request title as report context
+  --pr-body <path>          Include pull request body from a UTF-8 text or Markdown file
   --help                    Show this help message
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
   The optional customRules array adds project-specific path and added-line rules.
+  Suggested checks are enriched from package scripts, root smoke files, and README commands.
 `);
 }
 
@@ -122,6 +138,22 @@ function resolveConfig(args) {
   return config;
 }
 
+function resolvePrContext(args) {
+  const title = getOptionValue(args, '--pr-title');
+  const bodyPath = getOptionValue(args, '--pr-body');
+  let body = null;
+
+  if (bodyPath) {
+    if (!fs.existsSync(bodyPath)) {
+      throw new Error(`PR body file not found: ${bodyPath}`);
+    }
+
+    body = fs.readFileSync(bodyPath, 'utf8');
+  }
+
+  return normalizePrContext({ title, body });
+}
+
 function writeGitHubStepSummary(markdown) {
   const summaryFile = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryFile) return;
@@ -169,14 +201,24 @@ async function main() {
   }
 
   const config = resolveConfig(args);
-  const report = applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules);
+  const prContext = resolvePrContext(args);
+  const report = applyPrContext(
+    applyProjectChecks(
+      applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
+      detectProjectChecks()
+    ),
+    prContext
+  );
 
   if (aiMode) {
-    report.aiReview = createAiReviewSummary(report, diffText);
+    report.aiReview = appendPrContextToAiReview(
+      createAiReviewSummary(report, diffText),
+      prContext
+    );
   }
 
   const markdown = appendCustomRuleWarnings(
-    formatMarkdownReport(report),
+    appendPrContext(formatMarkdownReport(report), prContext, 'markdown'),
     report.customRuleWarnings,
     'markdown'
   );
@@ -190,7 +232,8 @@ async function main() {
   } else if (markdownMode || ciMode) {
     console.log(markdown);
   } else {
-    console.log(appendCustomRuleWarnings(formatReport(report), report.customRuleWarnings));
+    const text = appendPrContext(formatReport(report), prContext);
+    console.log(appendCustomRuleWarnings(text, report.customRuleWarnings));
   }
 
   if (ciMode && report.riskScore >= report.config.failThreshold) {
