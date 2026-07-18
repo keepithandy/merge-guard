@@ -1,7 +1,11 @@
 import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeDiff.js';
 import { createAiReviewSummary } from '../src/aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from '../src/customRules.js';
+import { appendPrContext, appendPrContextToAiReview, applyPrContext } from '../src/prContext.js';
+import { applyProjectChecks, detectProjectChecks } from '../src/projectChecks.js';
 import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
@@ -112,12 +116,57 @@ const warningMarkdown = appendCustomRuleWarnings(
 );
 assert(warningMarkdown.includes('## Custom rule warnings'), 'Markdown should expose invalid custom rule warnings');
 
-const aiReview = createAiReviewSummary(report, diffText);
+const prContext = {
+  title: 'Harden save migration boundaries',
+  body: 'Summary\n\n- preserves existing save schema\n- adds focused smoke coverage'
+};
+const contextualReport = applyPrContext(analyzeDiff(diffText), prContext);
+assert(contextualReport.prContext.title === prContext.title, 'report should retain PR title context');
+const contextualMarkdown = appendPrContext(formatMarkdownReport(contextualReport), prContext, 'markdown');
+assert(contextualMarkdown.includes('## Pull request context'), 'Markdown should include PR context section');
+assert(contextualMarkdown.includes('Context only'), 'PR context should state that scoring remains diff-based');
+
+const aiReview = appendPrContextToAiReview(createAiReviewSummary(report, diffText), prContext);
 assertString(aiReview.mode, 'aiReview.mode');
 assertArray(aiReview.summary, 'aiReview.summary');
 assertArray(aiReview.possibleBreakpoints, 'aiReview.possibleBreakpoints');
 assertString(aiReview.prompt, 'aiReview.prompt');
 assert(aiReview.prompt.includes('You are merge-guard'), 'AI review prompt should adapt the prompt template');
+assert(aiReview.prompt.includes(prContext.title), 'AI review prompt should include PR title context');
+assert(aiReview.prompt.includes('do not use it as a substitute for the diff'), 'AI prompt should preserve diff authority');
+
+const projectFixture = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-project-'));
+const emptyFixture = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-empty-'));
+try {
+  fs.writeFileSync(path.join(projectFixture, 'package.json'), JSON.stringify({
+    scripts: {
+      test: 'node test.js',
+      smoke: 'node smoke.js',
+      build: 'node build.js'
+    }
+  }), 'utf8');
+  fs.writeFileSync(path.join(projectFixture, 'smoke_save.mjs'), 'console.log("ok");\n', 'utf8');
+  fs.writeFileSync(path.join(projectFixture, 'README.md'), '```bash\nnpm run verify\n```\n', 'utf8');
+
+  const detectedChecks = detectProjectChecks(projectFixture);
+  assert(detectedChecks.includes('npm test'), 'package test script should be detected');
+  assert(detectedChecks.includes('npm run smoke'), 'package smoke script should be detected');
+  assert(detectedChecks.includes('node smoke_save.mjs'), 'root smoke file should be detected');
+  assert(detectedChecks.includes('npm run verify'), 'README check command should be detected');
+
+  const projectCheckReport = applyProjectChecks(analyzeDiff(diffText), detectedChecks);
+  assert(projectCheckReport.projectChecks.includes('npm run smoke'), 'report should expose detected project checks');
+  assert(projectCheckReport.suggestedChecks[0].startsWith('Project check:'), 'project checks should lead suggested checks');
+
+  const fallbackReport = analyzeDiff(diffText);
+  const fallbackChecks = [...fallbackReport.suggestedChecks];
+  applyProjectChecks(fallbackReport, detectProjectChecks(emptyFixture));
+  assert(fallbackReport.projectChecks.length === 0, 'empty repository should not invent project checks');
+  assert(JSON.stringify(fallbackReport.suggestedChecks) === JSON.stringify(fallbackChecks), 'generic fallback checks should remain unchanged');
+} finally {
+  fs.rmSync(projectFixture, { recursive: true, force: true });
+  fs.rmSync(emptyFixture, { recursive: true, force: true });
+}
 
 const commentBody = buildCommentBody(markdownOutput);
 assert(commentBody.includes(MERGE_GUARD_COMMENT_MARKER), 'PR comment should include stable marker');
@@ -138,6 +187,9 @@ for (const packagePath of ['src/', 'scripts/', 'examples/', 'action.yml', 'READM
 const cliSource = fs.readFileSync('src/cli.js', 'utf8');
 assert(cliSource.includes('--fail-threshold'), 'CLI should expose fail-threshold override');
 assert(cliSource.includes('applyCustomRules'), 'CLI should apply configured custom rules');
+assert(cliSource.includes('--pr-title'), 'CLI should expose PR title context');
+assert(cliSource.includes('--pr-body'), 'CLI should expose PR body file context');
+assert(cliSource.includes('detectProjectChecks'), 'CLI should detect repository-specific checks');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
 for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
@@ -146,6 +198,8 @@ for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
 assert(fs.existsSync('scripts/pr-comment.js'), 'Action comment helper target should exist');
 assert(fs.existsSync('src/customRules.js'), 'Custom rule module should exist');
+assert(fs.existsSync('src/prContext.js'), 'PR context module should exist');
+assert(fs.existsSync('src/projectChecks.js'), 'Project check detector should exist');
 
 const readme = fs.readFileSync('README.md', 'utf8');
 assert(readme.includes('npm pack --dry-run'), 'README should document package inspection');
@@ -154,6 +208,8 @@ assert(readme.includes('Reusable GitHub Action'), 'README should document reusab
 assert(readme.includes('pull-requests: write'), 'README should document comment permissions');
 assert(readme.includes('customRules'), 'README should document custom rules');
 assert(readme.includes('pathPattern'), 'README should include a realistic custom path rule');
+assert(readme.includes('--pr-title'), 'README should document PR title context');
+assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
 
 console.log('merge-guard smoke passed');
 console.log(`riskLevel=${report.riskLevel}`);
@@ -165,3 +221,5 @@ console.log('prCommentMarker=ok');
 console.log('packageContract=ok');
 console.log('actionContract=ok');
 console.log('customRules=ok');
+console.log('prContext=ok');
+console.log('projectChecks=ok');
