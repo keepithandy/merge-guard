@@ -53,6 +53,8 @@ This version supports:
 - rule explanations
 - structured review summaries
 - pull request comment update helpers
+- npm/npx-compatible package metadata
+- a reusable composite GitHub Action
 
 Future versions can add richer summaries, custom rule packs, and a simple web dashboard.
 
@@ -108,6 +110,27 @@ Pipe in your current diff:
 git diff | node src/cli.js
 ```
 
+## npm and npx usage
+
+The package exposes the `merge-guard` executable through `bin.merge-guard` and includes the CLI, scripts, examples, Action wrapper, README, changelog, and license in the package payload.
+
+Install from a local checkout:
+
+```bash
+npm install --global .
+merge-guard --help
+```
+
+Test an npm-style invocation without publishing:
+
+```bash
+npm pack --dry-run
+npx --package . merge-guard --help
+npx --package . merge-guard --markdown examples/sample.diff
+```
+
+Publishing is intentionally manual. Before publishing, inspect the `npm pack --dry-run` file list and follow the release checklist in `CHANGELOG.md`.
+
 ## Output modes
 
 Plain text output is the default:
@@ -132,6 +155,7 @@ CI mode prints Markdown and exits with a failure when the report reaches the con
 
 ```bash
 node src/cli.js --ci examples/sample.diff
+node src/cli.js --ci --fail-threshold 5 examples/sample.diff
 ```
 
 ## Risk presets
@@ -170,6 +194,66 @@ node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 
 See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for workflow examples.
+
+## Reusable GitHub Action
+
+The repository root contains a composite `action.yml`. A consuming workflow must check out the pull request with enough history for a base comparison.
+
+Minimal report-only usage:
+
+```yaml
+name: Merge Guard
+
+on:
+  pull_request:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: keepithandy/merge-guard@main
+        with:
+          preset: standard
+```
+
+Strict usage with a PR comment and explicit failure score:
+
+```yaml
+name: Strict Merge Guard
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: keepithandy/merge-guard@main
+        with:
+          preset: strict
+          comment: "true"
+          fail-threshold: "5"
+```
+
+Action inputs:
+
+- `preset`: `safe`, `standard`, or `strict`.
+- `comment`: post or update the stable merge-guard PR comment.
+- `fail-threshold`: optional positive integer override.
+- `diff-path`: optional path to a prebuilt diff.
+- `markdown`: choose Markdown output; comment mode always generates Markdown.
+
+When comment mode is enabled, the workflow needs `pull-requests: write`. The Action records the scan result, posts the report, and then enforces the failure exit code so high-risk reports are not lost.
 
 ## Per-file risk scoring
 

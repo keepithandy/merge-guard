@@ -5,7 +5,8 @@ import process from 'node:process';
 import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
 import { createAiReviewSummary } from './aiReview.js';
 
-const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--preset', '--help', '-h']);
+const KNOWN_OPTIONS = new Set(['--json', '--markdown', '--ci', '--ai', '--preset', '--fail-threshold', '--help', '-h']);
+const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold']);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
 function printHelp() {
@@ -17,12 +18,13 @@ Usage:
   node src/cli.js examples/sample.diff
 
 Options:
-  --json              Print the report as JSON
-  --markdown          Print the report as Markdown
-  --ci                Print Markdown, write to GITHUB_STEP_SUMMARY when available, and fail on configured high risk
-  --ai                Add an optional AI-ready review summary to the report
-  --preset <preset>   Use risk preset: safe, standard, or strict
-  --help              Show this help message
+  --json                    Print the report as JSON
+  --markdown                Print the report as Markdown
+  --ci                      Print Markdown, write to GITHUB_STEP_SUMMARY when available, and fail on configured high risk
+  --ai                      Add an optional AI-ready review summary to the report
+  --preset <preset>         Use risk preset: safe, standard, or strict
+  --fail-threshold <score>  Override the configured CI failure score with a positive integer
+  --help                    Show this help message
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
@@ -72,7 +74,7 @@ function findFileArg(args) {
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
 
-    if (arg === '--preset') {
+    if (VALUE_OPTIONS.has(arg)) {
       index += 1;
       continue;
     }
@@ -95,6 +97,7 @@ function validateOptions(args) {
 function resolveConfig(args) {
   const config = loadConfig();
   const preset = getOptionValue(args, '--preset');
+  const failThreshold = getOptionValue(args, '--fail-threshold');
 
   if (preset) {
     const normalizedPreset = preset.trim().toLowerCase();
@@ -103,6 +106,15 @@ function resolveConfig(args) {
     }
 
     config.preset = normalizedPreset;
+  }
+
+  if (failThreshold) {
+    const parsedThreshold = Number(failThreshold);
+    if (!Number.isInteger(parsedThreshold) || parsedThreshold < 1) {
+      throw new Error(`invalid fail threshold: ${failThreshold}. Use a positive integer.`);
+    }
+
+    config.failThreshold = parsedThreshold;
   }
 
   return config;

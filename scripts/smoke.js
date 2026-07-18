@@ -76,6 +76,9 @@ assert(strictReport.config.preset === 'strict', 'strict preset should be reporte
 assert(strictReport.riskScore > relaxedReport.riskScore, 'strict preset should score sample diff higher than safe preset');
 assert(strictReport.config.failThreshold < relaxedReport.config.failThreshold, 'strict preset should fail earlier than safe preset');
 
+const explicitThresholdReport = analyzeDiff(diffText, { failThreshold: 4 });
+assert(explicitThresholdReport.config.failThreshold === 4, 'explicit fail threshold should be retained');
+
 const aiReview = createAiReviewSummary(report, diffText);
 assertString(aiReview.mode, 'aiReview.mode');
 assertArray(aiReview.summary, 'aiReview.summary');
@@ -93,6 +96,28 @@ const existingComment = findMergeGuardComment([
 ]);
 assert(existingComment?.id === 2, 'existing merge-guard comment should be found by marker');
 
+const packageMetadata = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+assert(packageMetadata.bin?.['merge-guard'] === './src/cli.js', 'package should expose the merge-guard CLI');
+for (const packagePath of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
+  assert(packageMetadata.files.includes(packagePath), `package files should include ${packagePath}`);
+}
+
+const cliSource = fs.readFileSync('src/cli.js', 'utf8');
+assert(cliSource.includes('--fail-threshold'), 'CLI should expose fail-threshold override');
+
+const actionSource = fs.readFileSync('action.yml', 'utf8');
+for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
+  assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
+}
+assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
+assert(fs.existsSync('scripts/pr-comment.js'), 'Action comment helper target should exist');
+
+const readme = fs.readFileSync('README.md', 'utf8');
+assert(readme.includes('npm pack --dry-run'), 'README should document package inspection');
+assert(readme.includes('npx --package . merge-guard'), 'README should document npx-style use');
+assert(readme.includes('Reusable GitHub Action'), 'README should document reusable Action use');
+assert(readme.includes('pull-requests: write'), 'README should document comment permissions');
+
 console.log('merge-guard smoke passed');
 console.log(`riskLevel=${report.riskLevel}`);
 console.log(`mergeReadiness=${report.mergeReadiness}`);
@@ -100,3 +125,5 @@ console.log(`changedFiles=${report.summary.changedFiles}`);
 console.log(`docsOnlyRisk=${docsOnlyReport.riskLevel}`);
 console.log(`strictRiskScore=${strictReport.riskScore}`);
 console.log('prCommentMarker=ok');
+console.log('packageContract=ok');
+console.log('actionContract=ok');
