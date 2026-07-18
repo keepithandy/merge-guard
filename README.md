@@ -52,6 +52,8 @@ This version supports:
 - risk presets
 - rule explanations
 - project-defined custom rules
+- optional pull request title/body context
+- repository-aware suggested checks
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
@@ -159,6 +161,24 @@ node src/cli.js --ci examples/sample.diff
 node src/cli.js --ci --fail-threshold 5 examples/sample.diff
 ```
 
+## Pull request title and body context
+
+PR text can be included as context without changing how risk rules score the diff.
+
+```bash
+node src/cli.js \
+  --markdown \
+  --pr-title "Harden save migration boundaries" \
+  --pr-body notes/pr-body.md \
+  change.diff
+```
+
+- `--pr-title <text>` adds the title to text, Markdown, JSON, and AI-ready output.
+- `--pr-body <path>` reads the body from a UTF-8 text or Markdown file.
+- PR text is explicitly labeled **context only**.
+- Rule matches, risk score, readiness, and per-file findings continue to come from the diff and configuration.
+- When `--ai` is used, PR context is appended to the review prompt with the same diff-authority warning.
+
 ## Risk presets
 
 Use `--preset` to change how sensitive the scanner should be:
@@ -205,6 +225,19 @@ Each rule supports:
 - `check`: suggested verification command or review step.
 
 A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. Invalid rules are ignored without stopping the scan and are listed under **Custom rule warnings**.
+
+## Project-specific suggested checks
+
+Before formatting a report, merge-guard inspects the current repository for likely verification commands. Detection is read-only and never executes a command.
+
+It looks for:
+
+- `package.json` scripts named or containing `smoke`, `test`, `check`, `verify`, or `validate`;
+- common supporting scripts such as `lint` and `build`;
+- root files matching `smoke*.js`, `smoke*.mjs`, or `smoke*.cjs`;
+- exact `npm test`, `npm run ...`, and `node smoke...` commands documented in a root README.
+
+Detected commands appear first under **Suggested checks** and are exposed as `projectChecks` in JSON output. When no project-specific command is found, the existing generic suggested checks remain unchanged.
 
 ## Rule explanations
 

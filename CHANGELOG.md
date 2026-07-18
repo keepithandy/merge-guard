@@ -5,6 +5,8 @@
 - Added project-defined `customRules` with path and added-line regular expressions.
 - Custom rule hits now share the normal rule, flag, score, file-risk, and suggested-check output.
 - Invalid custom rules are ignored safely and reported as warnings.
+- Added optional PR title/body context while keeping diff scoring authoritative.
+- Added read-only project check detection from package scripts, root smoke files, and README commands.
 - Completed npm/npx package guidance and reusable GitHub Action inputs.
 
 ## 0.1.0 - MVP CLI foundation
