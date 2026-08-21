@@ -22,5 +22,5 @@ jobs:
       - name: Install
         run: npm install
 
-      - name: Run smoke check
-        run: npm run smoke
+      - name: Run test suite
+        run: npm test
