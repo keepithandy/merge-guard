@@ -18,6 +18,8 @@
   "scripts": {
     "demo": "node src/cli.js examples/sample.diff",
     "smoke": "node scripts/smoke.js",
+    "test:cli": "node scripts/cli-args-smoke.js",
+    "test": "npm run smoke && npm run test:cli",
     "check": "node scripts/smoke.js",
     "comment": "node scripts/pr-comment.js"
   },
