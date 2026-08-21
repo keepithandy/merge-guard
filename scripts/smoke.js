@@ -87,7 +87,7 @@ assert(explicitThresholdReport.config.failThreshold === 4, 'explicit fail thresh
 const customRuleConfig = [{
   id: 'app-entry-change',
   label: 'Project app entry changed',
-  pathPattern: '^src/app\\\\.js
+  pathPattern: '^src/app\.js$',
   linePattern: 'ready|renderHomePage',
   weight: 3,
   check: 'Run the app startup smoke.'
