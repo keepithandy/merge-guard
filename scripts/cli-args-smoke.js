@@ -49,7 +49,7 @@ const unknownOption = runCli(['--unknown-option', sampleDiffPath]);
 assert(unknownOption.status === 1, 'unknown options should fail');
 assert(unknownOption.stderr.includes('unknown option(s): --unknown-option'), 'unknown option error should name the option');
 
-const missingValue = runCli(['--preset', sampleDiffPath]);
+const missingValue = runCli([sampleDiffPath, '--preset']);
 assert(missingValue.status === 1, 'value options without a value should fail');
 assert(missingValue.stderr.includes('--preset requires a value'), 'missing value error should name the option');
 
