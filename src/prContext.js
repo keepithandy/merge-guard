@@ -2,7 +2,8 @@ function clean(value) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
 }
 
-export function normalizePrContext({ title, body } = {}) {
+export function normalizePrContext(context = {}) {
+  const { title, body } = context || {};
   const normalized = {
     title: clean(title),
     body: clean(body)
