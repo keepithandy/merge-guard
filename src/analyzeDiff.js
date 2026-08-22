@@ -1,3 +1,5 @@
+export const JSON_SCHEMA_VERSION = '1.0.0';
+
 const DEFAULT_CONFIG = {
   highRiskPaths: [],
   testCommands: [],
@@ -555,6 +557,7 @@ export function analyzeDiff(diffText, userConfig = {}) {
 
   return {
     tool: 'merge-guard',
+    schemaVersion: JSON_SCHEMA_VERSION,
     version: '0.1.0',
     riskLevel: levelFromScore(risk.score, config),
     mergeReadiness: readinessFromScore(risk.score, config),
