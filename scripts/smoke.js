@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeDiff.js';
+import { analyzeDiff, formatMarkdownReport, formatReport, JSON_SCHEMA_VERSION } from '../src/analyzeDiff.js';
 import { createAiReviewSummary } from '../src/aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from '../src/customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext } from '../src/prContext.js';
@@ -30,6 +30,7 @@ const diffText = fs.readFileSync('examples/sample.diff', 'utf8');
 const report = analyzeDiff(diffText);
 
 assert(report && typeof report === 'object', 'report should be an object');
+assert(report.schemaVersion === JSON_SCHEMA_VERSION, 'report should expose the current JSON schema version');
 assertString(report.riskLevel, 'riskLevel');
 assertString(report.mergeReadiness, 'mergeReadiness');
 assertNumber(report.riskScore, 'riskScore');
@@ -85,19 +86,19 @@ const explicitThresholdReport = analyzeDiff(diffText, { failThreshold: 4 });
 assert(explicitThresholdReport.config.failThreshold === 4, 'explicit fail threshold should be retained');
 
 const customRuleConfig = [{
-  id: 'save-storage-write',
-  label: 'Project save storage changed',
-  pathPattern: 'save|state',
-  linePattern: 'localStorage|persist',
+  id: 'app-entry-change',
+  label: 'Project app entry changed',
+  pathPattern: 'src/app[.]js',
+  linePattern: 'ready|renderHomePage',
   weight: 3,
-  check: 'Run the project save round-trip smoke.'
+  check: 'Run the app startup smoke.'
 }];
 const customRuleReport = applyCustomRules(analyzeDiff(diffText), diffText, customRuleConfig);
-const customRuleHit = customRuleReport.rules.find((rule) => rule.id === 'custom:save-storage-write');
+const customRuleHit = customRuleReport.rules.find((rule) => rule.id === 'custom:app-entry-change');
 assert(customRuleHit, 'custom rule should appear in the normal rule output');
 assert(customRuleHit.reason.includes('because'), 'custom rule should explain why it fired');
-assert(customRuleReport.flags.includes('Project save storage changed'), 'custom rule label should appear in flags');
-assert(customRuleReport.suggestedChecks.includes('Run the project save round-trip smoke.'), 'custom rule check should appear in suggested checks');
+assert(customRuleReport.flags.includes('Project app entry changed'), 'custom rule label should appear in flags');
+assert(customRuleReport.suggestedChecks.includes('Run the app startup smoke.'), 'custom rule check should appear in suggested checks');
 assert(customRuleReport.riskScore > report.riskScore, 'positive custom rule weight should increase risk score');
 assert(customRuleReport.config.customRules.length === 1, 'normalized custom rules should appear in report config');
 
