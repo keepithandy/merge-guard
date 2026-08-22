@@ -134,6 +134,22 @@ npx --package . merge-guard --markdown examples/sample.diff
 
 Publishing is intentionally manual. Before publishing, inspect the `npm pack --dry-run` file list and follow the release checklist in `CHANGELOG.md`.
 
+## Release readiness dry run
+
+Run the non-publishing release check before a manual release:
+
+```bash
+npm run release:check
+```
+
+PowerShell uses the same command:
+
+```powershell
+npm run release:check
+```
+
+It runs the smoke suite, CLI help, sample Markdown and JSON reports, `npm pack --dry-run`, action target checks, and package/changelog checks. It never publishes, creates a tag, or creates a GitHub release.
+
 ## Output modes
 
 Plain text output is the default:
