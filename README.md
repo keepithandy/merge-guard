@@ -161,6 +161,10 @@ node src/cli.js --ci examples/sample.diff
 node src/cli.js --ci --fail-threshold 5 examples/sample.diff
 ```
 
+## JSON report schema
+
+JSON output includes `schemaVersion: "1.0.0"`. The contract is documented in [docs/JSON_SCHEMA.md](docs/JSON_SCHEMA.md). Additive fields may be introduced within schema 1.x; a removed or meaning-changing field requires a new major schema version.
+
 ## Pull request title and body context
 
 PR text can be included as context without changing how risk rules score the diff.
