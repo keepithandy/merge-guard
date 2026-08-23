@@ -6,6 +6,7 @@ import { createAiReviewSummary } from '../src/aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from '../src/customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext } from '../src/prContext.js';
 import { applyProjectChecks, detectProjectChecks } from '../src/projectChecks.js';
+import { formatDiagnostics, validateConfig } from '../src/configDiagnostics.js';
 import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
@@ -115,6 +116,31 @@ const warningMarkdown = appendCustomRuleWarnings(
   'markdown'
 );
 assert(warningMarkdown.includes('## Custom rule warnings'), 'Markdown should expose invalid custom rule warnings');
+
+const invalidCoreConfig = JSON.parse(fs.readFileSync('test/fixtures/config/invalid-core.json', 'utf8'));
+const coreDiagnostics = validateConfig(invalidCoreConfig);
+assert(coreDiagnostics.fatal.length >= 5, 'invalid core config should produce fatal diagnostics');
+assert(coreDiagnostics.fatal.some((diagnostic) => diagnostic.path === 'preset'), 'preset diagnostic should include its JSON path');
+assert(coreDiagnostics.fatal.some((diagnostic) => diagnostic.path === 'failThreshold'), 'threshold diagnostic should include its JSON path');
+assert(coreDiagnostics.fatal.some((diagnostic) => diagnostic.path === 'highRiskPaths'), 'high-risk path diagnostic should include its JSON path');
+assert(coreDiagnostics.fatal.some((diagnostic) => diagnostic.path === 'testCommands[1]'), 'test command item diagnostic should include its JSON path');
+assert(coreDiagnostics.fatal.every((diagnostic) => diagnostic.receivedType && diagnostic.expected), 'fatal diagnostics should include type and expected form');
+assert(formatDiagnostics(coreDiagnostics.fatal).includes('failThreshold'), 'text diagnostics should name invalid fields');
+
+const invalidCustomConfig = JSON.parse(fs.readFileSync('test/fixtures/config/invalid-custom-rules.json', 'utf8'));
+const customDiagnostics = validateConfig(invalidCustomConfig);
+assert(customDiagnostics.fatal.length === 0, 'invalid custom rules should not become fatal config errors');
+assert(customDiagnostics.warnings.some((diagnostic) => diagnostic.path === 'customRules[0]'), 'custom rule warning should include its JSON path');
+assert(customDiagnostics.warnings.some((diagnostic) => diagnostic.path === 'customRules[1].weight'), 'custom rule field warning should include its JSON path');
+assert(customDiagnostics.warnings.every((diagnostic) => diagnostic.severity === 'warning'), 'custom rule diagnostics should be warnings');
+
+let malformedConfigRejected = false;
+try {
+  JSON.parse(fs.readFileSync('test/fixtures/config/malformed.json', 'utf8'));
+} catch {
+  malformedConfigRejected = true;
+}
+assert(malformedConfigRejected, 'malformed JSON fixture should fail parsing');
 
 const prContext = {
   title: 'Harden save migration boundaries',
