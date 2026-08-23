@@ -226,6 +226,23 @@ Each rule supports:
 
 A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. Invalid rules are ignored without stopping the scan and are listed under **Custom rule warnings**.
 
+## Configuration diagnostics
+
+When `merge-guard.config.json` contains an invalid core field, the CLI stops before scanning and reports a structured diagnostic. Each fatal diagnostic includes:
+
+- JSON path, such as `failThreshold` or `highRiskPaths[0]`
+- stable diagnostic code
+- received value type
+- expected form
+
+Core validation covers `preset`, `failThreshold`, `highRiskPaths`, and `testCommands`. Invalid custom rules remain non-fatal and are reported as warnings so one project-specific rule cannot prevent the rest of the scan.
+
+For machine-readable handling, use JSON mode:
+
+```bash
+node src/cli.js --json examples/sample.diff
+```
+
 ## Project-specific suggested checks
 
 Before formatting a report, merge-guard inspects the current repository for likely verification commands. Detection is read-only and never executes a command.
