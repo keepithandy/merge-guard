@@ -7,6 +7,7 @@ import { createAiReviewSummary } from './aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from './customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePrContext } from './prContext.js';
 import { applyProjectChecks, detectProjectChecks } from './projectChecks.js';
+import { ConfigurationError, formatDiagnostics, validateConfig } from './configDiagnostics.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -69,11 +70,231 @@ function loadConfig() {
     return {};
   }
 
+  let parsed;
   try {
-    return JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    parsed = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   } catch (error) {
-    throw new Error(`invalid merge-guard.config.json: ${error.message}`);
+    throw new ConfigurationError('invalid merge-guard.config.json', [{
+      severity: 'fatal',
+      path: '
+}
+
+function getOptionValue(args, optionName) {
+  const optionIndex = args.indexOf(optionName);
+  if (optionIndex === -1) return null;
+
+  const value = args[optionIndex + 1];
+  if (!value || value.startsWith('--')) {
+    throw new Error(`${optionName} requires a value`);
   }
+
+  return value;
+}
+
+function findFileArg(args) {
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+
+    if (VALUE_OPTIONS.has(arg)) {
+      index += 1;
+      continue;
+    }
+
+    if (!arg.startsWith('--')) {
+      return arg;
+    }
+  }
+
+  return null;
+}
+
+function validateOptions(args) {
+  const unknown = args.filter((arg) => arg.startsWith('--') && !KNOWN_OPTIONS.has(arg));
+  if (unknown.length) {
+    throw new Error(`unknown option(s): ${unknown.join(', ')}`);
+  }
+}
+
+function resolveConfig(args) {
+  const config = loadConfig();
+  const preset = getOptionValue(args, '--preset');
+  const failThreshold = getOptionValue(args, '--fail-threshold');
+
+  if (preset) {
+    const normalizedPreset = preset.trim().toLowerCase();
+    if (!VALID_PRESETS.has(normalizedPreset)) {
+      throw new Error(`invalid preset: ${preset}. Use safe, standard, or strict.`);
+    }
+
+    config.preset = normalizedPreset;
+  }
+
+  if (failThreshold) {
+    const parsedThreshold = Number(failThreshold);
+    if (!Number.isInteger(parsedThreshold) || parsedThreshold < 1) {
+      throw new Error(`invalid fail threshold: ${failThreshold}. Use a positive integer.`);
+    }
+
+    config.failThreshold = parsedThreshold;
+  }
+
+  return config;
+}
+
+function resolvePrContext(args) {
+  const title = getOptionValue(args, '--pr-title');
+  const bodyPath = getOptionValue(args, '--pr-body');
+  let body = null;
+
+  if (bodyPath) {
+    if (!fs.existsSync(bodyPath)) {
+      throw new Error(`PR body file not found: ${bodyPath}`);
+    }
+
+    body = fs.readFileSync(bodyPath, 'utf8');
+  }
+
+  return normalizePrContext({ title, body });
+}
+
+function appendConfigDiagnostics(output, diagnostics, mode = 'text') {
+  if (!Array.isArray(diagnostics) || diagnostics.length === 0) return output;
+
+  if (mode === 'markdown') {
+    return `${output}\n\n## Configuration diagnostics\n\n${formatDiagnostics(diagnostics, 'text')}`;
+  }
+
+  return `${output}\n\nConfiguration diagnostics:\n${formatDiagnostics(diagnostics, 'text')}`;
+}
+
+function writeGitHubStepSummary(markdown) {
+  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+  if (!summaryFile) return;
+
+  fs.appendFileSync(summaryFile, `${markdown}\n`, 'utf8');
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+
+  if (args.includes('--help') || args.includes('-h')) {
+    printHelp();
+    return;
+  }
+
+  validateOptions(args);
+
+  const jsonMode = args.includes('--json');
+  const markdownMode = args.includes('--markdown');
+  const ciMode = args.includes('--ci');
+  const aiMode = args.includes('--ai');
+  const fileArg = findFileArg(args);
+
+  let diffText = '';
+
+  if (fileArg) {
+    if (!fs.existsSync(fileArg)) {
+      console.error(`merge-guard error: file not found: ${fileArg}`);
+      process.exitCode = 1;
+      return;
+    }
+
+    diffText = fs.readFileSync(fileArg, 'utf8');
+  } else if (!process.stdin.isTTY) {
+    diffText = await readStdin();
+  } else {
+    printHelp();
+    return;
+  }
+
+  if (!diffText.trim()) {
+    console.error('merge-guard error: no diff content provided');
+    process.exitCode = 1;
+    return;
+  }
+
+  const config = resolveConfig(args);
+  const prContext = resolvePrContext(args);
+  const report = applyPrContext(
+    applyProjectChecks(
+      applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
+      detectProjectChecks()
+    ),
+    prContext
+  );
+
+  report.configDiagnostics = Array.isArray(config.__configWarnings) ? config.__configWarnings : [];
+
+  if (aiMode) {
+    report.aiReview = appendPrContextToAiReview(
+      createAiReviewSummary(report, diffText),
+      prContext
+    );
+  }
+
+  const markdown = appendCustomRuleWarnings(
+    appendConfigDiagnostics(
+      appendPrContext(formatMarkdownReport(report), prContext, 'markdown'),
+      report.configDiagnostics,
+      'markdown'
+    ),
+    report.customRuleWarnings,
+    'markdown'
+  );
+
+  if (ciMode) {
+    writeGitHubStepSummary(markdown);
+  }
+
+  if (jsonMode) {
+    console.log(JSON.stringify(report, null, 2));
+  } else if (markdownMode || ciMode) {
+    console.log(markdown);
+  } else {
+    const text = appendConfigDiagnostics(
+      appendPrContext(formatReport(report), prContext),
+      report.configDiagnostics
+    );
+    console.log(appendCustomRuleWarnings(text, report.customRuleWarnings));
+  }
+
+  if (ciMode && report.riskScore >= report.config.failThreshold) {
+    process.exitCode = 1;
+  }
+}
+
+main().catch((error) => {
+  if (error instanceof ConfigurationError) {
+    if (process.argv.includes('--json')) {
+      console.error(JSON.stringify({
+        error: error.message,
+        code: 'INVALID_CONFIGURATION',
+        diagnostics: error.diagnostics
+      }, null, 2));
+    } else {
+      console.error(`merge-guard configuration error: ${error.message}`);
+      console.error(formatDiagnostics(error.diagnostics));
+    }
+  } else {
+    console.error('merge-guard error:', error.message);
+  }
+  process.exitCode = 1;
+});
+,
+      code: 'invalid-json',
+      message: error.message,
+      receivedType: 'invalid-json',
+      expected: 'valid JSON object'
+    }]);
+  }
+
+  const diagnostics = validateConfig(parsed);
+  if (diagnostics.fatal.length) {
+    throw new ConfigurationError('invalid merge-guard.config.json', diagnostics.fatal);
+  }
+
+  parsed.__configWarnings = diagnostics.warnings;
+  return parsed;
 }
 
 function getOptionValue(args, optionName) {
