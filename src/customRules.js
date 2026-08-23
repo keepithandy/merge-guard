@@ -1,3 +1,6 @@
+export const CUSTOM_RULE_WEIGHT_MIN = 0;
+export const CUSTOM_RULE_WEIGHT_MAX = 10;
+
 function uniq(values) {
   return [...new Set(values)];
 }
@@ -43,6 +46,7 @@ function compilePattern(value, fieldName, ruleId, warnings) {
 export function normalizeCustomRules(customRules) {
   const warnings = [];
   const rules = [];
+  const seenIds = new Set();
 
   if (customRules === undefined) {
     return { rules, warnings };
@@ -66,17 +70,31 @@ export function normalizeCustomRules(customRules) {
     const id = nonEmptyString(candidate.id);
     const label = nonEmptyString(candidate.label);
     const check = nonEmptyString(candidate.check) || 'Review the custom-rule match before merging.';
-    const weight = Number(candidate.weight);
+    const weight = candidate.weight;
 
     if (!id || !label) {
       warnings.push(`Custom rule ${id || fallbackId} ignored: id and label are required.`);
       continue;
     }
 
-    if (!Number.isFinite(weight)) {
-      warnings.push(`Custom rule ${id} ignored: weight must be a finite number.`);
+    if (seenIds.has(id)) {
+      warnings.push(`Custom rule ${id} ignored: duplicate rule id; define each id only once.`);
       continue;
     }
+
+    if (
+      typeof weight !== 'number'
+      || !Number.isInteger(weight)
+      || weight < CUSTOM_RULE_WEIGHT_MIN
+      || weight > CUSTOM_RULE_WEIGHT_MAX
+    ) {
+      warnings.push(
+        `Custom rule ${id} ignored: weight must be an integer from ${CUSTOM_RULE_WEIGHT_MIN} to ${CUSTOM_RULE_WEIGHT_MAX}; negative and non-finite weights are not allowed.`
+      );
+      continue;
+    }
+
+    seenIds.add(id);
 
     const pathPattern = compilePattern(candidate.pathPattern, 'pathPattern', id, warnings);
     const linePattern = compilePattern(candidate.linePattern, 'linePattern', id, warnings);
