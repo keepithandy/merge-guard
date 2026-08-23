@@ -101,6 +101,33 @@ assert(customRuleReport.suggestedChecks.includes('Run the project save round-tri
 assert(customRuleReport.riskScore > report.riskScore, 'positive custom rule weight should increase risk score');
 assert(customRuleReport.config.customRules.length === 1, 'normalized custom rules should appear in report config');
 
+const edgeCases = JSON.parse(fs.readFileSync('test/fixtures/custom-rules/edge-cases.json', 'utf8'));
+const zeroWeightReport = applyCustomRules(analyzeDiff(diffText), diffText, [edgeCases.zeroWeight]);
+const zeroWeightHit = zeroWeightReport.rules.find((rule) => rule.id === 'custom:zero-weight');
+assert(zeroWeightHit?.weight === 0, 'zero-weight custom rule should remain visible with weight zero');
+assert(zeroWeightReport.riskScore === report.riskScore, 'zero-weight custom rule should not change total risk');
+assert(zeroWeightReport.files[0].riskScore === report.files[0].riskScore, 'zero-weight custom rule should not change per-file risk');
+
+const maximumWeightReport = applyCustomRules(analyzeDiff(diffText), diffText, [edgeCases.maximumWeight]);
+const maximumWeightHit = maximumWeightReport.rules.find((rule) => rule.id === 'custom:maximum-weight');
+assert(maximumWeightHit?.weight === 10, 'maximum custom rule weight should be accepted');
+assert(maximumWeightReport.riskScore === report.riskScore + 10, 'maximum custom rule weight should be applied exactly once');
+
+const negativeWeightReport = applyCustomRules(analyzeDiff(diffText), diffText, [edgeCases.negativeWeight]);
+assert(negativeWeightReport.rules.every((rule) => rule.id !== 'custom:negative-weight'), 'negative custom rule weight should be rejected');
+assert(negativeWeightReport.customRuleWarnings.some((warning) => warning.includes('0 to 10')), 'negative weight warning should document the permitted range');
+
+const extremeWeightReport = applyCustomRules(analyzeDiff(diffText), diffText, [edgeCases.extremeWeight]);
+assert(extremeWeightReport.rules.every((rule) => rule.id !== 'custom:extreme-weight'), 'extreme custom rule weight should be rejected');
+
+const coercedWeightReport = applyCustomRules(analyzeDiff(diffText), diffText, [edgeCases.coercedWeight]);
+assert(coercedWeightReport.rules.every((rule) => rule.id !== 'custom:coerced-weight'), 'string custom rule weight should not be coerced');
+
+const duplicateRules = [edgeCases.duplicateWeight, { ...edgeCases.duplicateWeight, label: 'Duplicate second rule' }];
+const duplicateRuleReport = applyCustomRules(analyzeDiff(diffText), diffText, duplicateRules);
+assert(duplicateRuleReport.config.customRules.length === 1, 'duplicate custom rule ids should be applied only once');
+assert(duplicateRuleReport.customRuleWarnings.some((warning) => warning.includes('duplicate rule id')), 'duplicate custom rule ids should produce a warning');
+
 const invalidCustomRuleReport = applyCustomRules(analyzeDiff(diffText), diffText, [{
   id: 'broken-pattern',
   label: 'Broken pattern',
