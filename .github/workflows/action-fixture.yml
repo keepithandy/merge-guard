@@ -1,0 +1,48 @@
+name: Composite Action fixture
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  action-fixture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create known diff fixture
+        shell: bash
+        run: |
+          mkdir -p action-fixture
+          printf 'fixture\n' > action-fixture/example.txt
+          git diff --no-index /dev/null action-fixture/example.txt > action-fixture/sample.diff || true
+
+      - name: Run report-only Action
+        uses: ./
+        with:
+          preset: standard
+          comment: "false"
+          diff-path: action-fixture/sample.diff
+
+      - name: Run threshold failure contract
+        id: threshold
+        continue-on-error: true
+        uses: ./
+        with:
+          preset: standard
+          comment: "false"
+          fail-threshold: "1"
+          diff-path: action-fixture/sample.diff
+
+      - name: Assert threshold failure was enforced
+        if: ${{ steps.threshold.outcome != 'failure' }}
+        run: |
+          echo "Expected merge-guard to fail at threshold 1."
+          exit 1
