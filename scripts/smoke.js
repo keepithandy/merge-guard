@@ -211,6 +211,24 @@ assert(readme.includes('pathPattern'), 'README should include a realistic custom
 assert(readme.includes('--pr-title'), 'README should document PR title context');
 assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
 
+const fixtureRoot = path.resolve('test/fixtures');
+const nodeFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'node-project'));
+assert(nodeFixtureChecks.includes('npm test'), 'Node fixture should detect npm test');
+assert(nodeFixtureChecks.includes('npm run smoke'), 'Node fixture should detect npm smoke');
+assert(nodeFixtureChecks.includes('npm run verify:content'), 'Node fixture should detect named verification scripts');
+assert(nodeFixtureChecks.includes('node smoke_save.mjs'), 'Node fixture should detect root smoke files');
+assert(nodeFixtureChecks.includes('npm run verify'), 'Node fixture should detect README npm commands');
+assert(nodeFixtureChecks.includes('node smoke_readme.js'), 'Node fixture should detect README smoke commands');
+
+const pythonFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'python-project'));
+assert(pythonFixtureChecks.length === 0, 'Unsupported Python commands should not be invented as Node checks');
+
+const malformedFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'malformed-package'));
+assert(malformedFixtureChecks.length === 0, 'Malformed package fixture should fail closed');
+
+const emptyFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'empty'));
+assert(emptyFixtureChecks.length === 0, 'Empty fixture should not invent project checks');
+
 console.log('merge-guard smoke passed');
 console.log(`riskLevel=${report.riskLevel}`);
 console.log(`mergeReadiness=${report.mergeReadiness}`);
