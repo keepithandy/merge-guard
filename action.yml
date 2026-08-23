@@ -34,6 +34,14 @@ runs:
       shell: bash
       run: git diff "origin/${{ github.base_ref }}...HEAD" > merge-guard.diff
 
+    - name: Prepare pull request context
+      if: ${{ github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        MERGE_GUARD_PR_BODY: ${{ github.event.pull_request.body }}
+      run: |
+        printf '%s' "$MERGE_GUARD_PR_BODY" > merge-guard-pr-body.md
+
     - name: Run merge-guard
       id: scan
       shell: bash
@@ -43,6 +51,7 @@ runs:
         MERGE_GUARD_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
         MERGE_GUARD_MARKDOWN: ${{ inputs.markdown }}
         MERGE_GUARD_COMMENT: ${{ inputs.comment }}
+        MERGE_GUARD_PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         diff_file="$MERGE_GUARD_DIFF_PATH"
         if [ -z "$diff_file" ]; then
@@ -59,8 +68,16 @@ runs:
           output_args=(--markdown)
         fi
 
+        context_args=()
+        if [ -n "$MERGE_GUARD_PR_TITLE" ]; then
+          context_args+=(--pr-title "$MERGE_GUARD_PR_TITLE")
+        fi
+        if [ -s merge-guard-pr-body.md ]; then
+          context_args+=(--pr-body merge-guard-pr-body.md)
+        fi
+
         set +e
-        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${output_args[@]}" "$diff_file" | tee merge-guard-report.md
+        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
         scan_status=${PIPESTATUS[0]}
         set -e
 
