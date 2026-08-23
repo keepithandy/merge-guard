@@ -1,0 +1,54 @@
+name: Node LTS compatibility
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: ['18.x', '20.x', '22.x', '24.x']
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: package.json
+
+      - name: Print runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install dependencies without changing lock state
+        run: npm install --no-package-lock --ignore-scripts
+
+      - name: Run smoke suite
+        run: npm run smoke
+
+      - name: Check CLI help
+        run: node src/cli.js --help
+
+      - name: Analyze sample diff
+        run: node src/cli.js examples/sample.diff
+
+      - name: Generate JSON report
+        run: node src/cli.js --json examples/sample.diff
+
+      - name: Verify package contents without publishing
+        run: npm pack --dry-run
