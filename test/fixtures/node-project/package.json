@@ -1,0 +1,10 @@
+{
+  "name": "fixture-node-project",
+  "private": true,
+  "scripts": {
+    "test": "node test.js",
+    "smoke": "node smoke.js",
+    "build": "node build.js",
+    "verify:content": "node verify.js"
+  }
+}
