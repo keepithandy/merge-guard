@@ -1,0 +1,15 @@
+{
+  "customRules": [
+    {
+      "id": "missing-pattern",
+      "label": "Missing pattern",
+      "weight": 2
+    },
+    {
+      "id": "bad-weight",
+      "label": "Bad weight",
+      "pathPattern": "src/",
+      "weight": "high"
+    }
+  ]
+}
