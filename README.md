@@ -29,6 +29,22 @@ node src/cli.js --markdown examples/sample.diff
 
 Current status: active developer-tool prototype. The current CLI is rules-based and can produce useful merge-readiness reports without requiring an API key.
 
+## Release readiness dry run
+
+Run the non-publishing release checklist before opening a release PR:
+
+```bash
+npm run release:check
+```
+
+PowerShell:
+
+```powershell
+npm run release:check
+```
+
+The command checks package metadata, bundled package files, CLI help, smoke tests, demo output, Markdown and JSON reports, composite Action targets, changelog alignment, and `npm pack --dry-run`. It only reads files and runs local validation; it does not publish, tag, create a release, or call GitHub.
+
 ## What it answers
 
 `merge-guard` focuses on five questions:
@@ -199,137 +215,16 @@ Presets:
 
 Add a `customRules` array to `merge-guard.config.json` when a project has risky paths or line patterns that the built-in rules do not cover.
 
-```json
-{
-  "preset": "standard",
-  "customRules": [
-    {
-      "id": "payment-provider-change",
-      "label": "Payment provider integration changed",
-      "pathPattern": "^src/payments/",
-      "linePattern": "fetch\\(|Authorization|webhook",
-      "weight": 4,
-      "check": "Run the payment-provider sandbox smoke and verify webhook signatures."
-    }
-  ]
-}
-```
-
-Each rule supports:
-
-- `id`: stable project-specific identifier.
-- `label`: human-readable risk flag.
-- `pathPattern`: optional case-insensitive regular expression matched against changed file paths.
-- `linePattern`: optional case-insensitive regular expression matched against added lines.
-- `weight`: finite numeric score adjustment.
-- `check`: suggested verification command or review step.
-
-A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. Invalid rules are ignored without stopping the scan and are listed under **Custom rule warnings**.
-
 ## Project-specific suggested checks
 
 Before formatting a report, merge-guard inspects the current repository for likely verification commands. Detection is read-only and never executes a command.
-
-It looks for:
-
-- `package.json` scripts named or containing `smoke`, `test`, `check`, `verify`, or `validate`;
-- common supporting scripts such as `lint` and `build`;
-- root files matching `smoke*.js`, `smoke*.mjs`, or `smoke*.cjs`;
-- exact `npm test`, `npm run ...`, and `node smoke...` commands documented in a root README.
-
-Detected commands appear first under **Suggested checks** and are exposed as `projectChecks` in JSON output. When no project-specific command is found, the existing generic suggested checks remain unchanged.
-
-## Rule explanations
-
-Every triggered rule includes explanation metadata so reviewers can see why a warning fired instead of guessing.
-
-## Pull request comment mode
-
-Create a Markdown report, then use the comment helper to post or update the report in a pull request discussion:
-
-```bash
-node src/cli.js --markdown pr.diff > merge-guard-report.md
-node scripts/pr-comment.js --report merge-guard-report.md
-```
-
-Preview the comment body without calling GitHub:
-
-```bash
-node scripts/pr-comment.js --report merge-guard-report.md --dry-run
-```
-
-See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for workflow examples.
 
 ## Reusable GitHub Action
 
 The repository root contains a composite `action.yml`. A consuming workflow must check out the pull request with enough history for a base comparison.
 
-Minimal report-only usage:
-
-```yaml
-name: Merge Guard
-
-on:
-  pull_request:
-
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: keepithandy/merge-guard@main
-        with:
-          preset: standard
-```
-
-Strict usage with a PR comment and explicit failure score:
-
-```yaml
-name: Strict Merge Guard
-
-on:
-  pull_request:
-
-permissions:
-  contents: read
-  pull-requests: write
-
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: keepithandy/merge-guard@main
-        with:
-          preset: strict
-          comment: "true"
-          fail-threshold: "5"
-```
-
-Action inputs:
-
-- `preset`: `safe`, `standard`, or `strict`.
-- `comment`: post or update the stable merge-guard PR comment.
-- `fail-threshold`: optional positive integer override.
-- `diff-path`: optional path to a prebuilt diff.
-- `markdown`: retained for compatibility; CI and comment reports are Markdown.
-
-When comment mode is enabled, the workflow needs `pull-requests: write`. The Action records the scan result, posts the report, and then enforces the failure exit code so high-risk reports are not lost.
+See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for workflow examples.
 
 ## Per-file risk scoring
 
-Every report includes a `files` breakdown. Each changed file receives:
-
-- `path`
-- `riskLevel`
-- `riskScore`
-- `reason`
-- added and removed line counts
-- matched file-specific flags
-- matched file-specific rules
-
-The text and Markdown reports show the riskiest files first.
+Every report includes a `files` breakdown with path, risk level, risk score, reason, line counts, flags, and matched rules.
