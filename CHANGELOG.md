@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added `npm run release:check`, a non-publishing release-readiness checklist.
+- The release check validates package metadata, bundled files, CLI help, smoke/demo/report modes, Action targets, and `npm pack --dry-run`.
+- The checklist reports individual pass/fail results and exits non-zero when a release contract fails.
 - Added project-defined `customRules` with path and added-line regular expressions.
 - Custom rule hits now share the normal rule, flag, score, file-risk, and suggested-check output.
 - Invalid custom rules are ignored safely and reported as warnings.
@@ -33,6 +36,7 @@ Included features:
 
 Before cutting a release:
 
+- run `npm run release:check`
 - run `npm run smoke`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`
