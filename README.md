@@ -221,10 +221,10 @@ Each rule supports:
 - `label`: human-readable risk flag.
 - `pathPattern`: optional case-insensitive regular expression matched against changed file paths.
 - `linePattern`: optional case-insensitive regular expression matched against added lines.
-- `weight`: finite numeric score adjustment.
+- `weight`: integer score adjustment from `0` to `10`; negative, fractional, string, non-finite, and extreme values are rejected.
 - `check`: suggested verification command or review step.
 
-A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. Invalid rules are ignored without stopping the scan and are listed under **Custom rule warnings**.
+A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. A weight of `0` records an informational match without changing risk. Duplicate rule IDs and invalid weights are ignored without stopping the scan and are listed under **Custom rule warnings**.
 
 ## Project-specific suggested checks
 
