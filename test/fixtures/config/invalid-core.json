@@ -1,0 +1,6 @@
+{
+  "preset": "turbo",
+  "failThreshold": 0,
+  "highRiskPaths": "src",
+  "testCommands": ["npm test", 42]
+}
