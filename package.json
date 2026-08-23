@@ -19,6 +19,7 @@
     "demo": "node src/cli.js examples/sample.diff",
     "smoke": "node scripts/smoke.js",
     "check": "node scripts/smoke.js",
+    "release:check": "node scripts/release-readiness.js",
     "comment": "node scripts/pr-comment.js"
   },
   "keywords": [
