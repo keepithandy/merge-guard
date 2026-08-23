@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added structured configuration diagnostics for invalid core fields.
+- Core configuration errors now fail closed with JSON paths, stable codes, received types, and expected forms.
+- Invalid custom-rule entries remain non-fatal warnings with field-level paths.
+- Added malformed configuration fixtures and smoke coverage.
+
 - Added project-defined `customRules` with path and added-line regular expressions.
 - Custom rule hits now share the normal rule, flag, score, file-risk, and suggested-check output.
 - Invalid custom rules are ignored safely and reported as warnings.
