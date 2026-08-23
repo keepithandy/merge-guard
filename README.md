@@ -226,6 +226,28 @@ Each rule supports:
 
 A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. Invalid rules are ignored without stopping the scan and are listed under **Custom rule warnings**.
 
+## Rule suppressions
+
+Suppressions are report annotations only: they never delete findings, change risk scores, or bypass configured failure thresholds.
+
+Each suppression requires a rule ID, reason, owner, and expiration date:
+
+```json
+{
+  "suppressions": [
+    {
+      "ruleId": "custom:known-legacy-path",
+      "pathPattern": "^src/legacy/",
+      "reason": "Tracked migration with approved follow-up.",
+      "owner": "team-tools",
+      "expires": "2026-12-31"
+    }
+  ]
+}
+```
+
+Expired, malformed, duplicate, or invalid suppressions remain visible as warnings. Matching findings appear separately in `suppressedFindings`.
+
 ## Project-specific suggested checks
 
 Before formatting a report, merge-guard inspects the current repository for likely verification commands. Detection is read-only and never executes a command.
