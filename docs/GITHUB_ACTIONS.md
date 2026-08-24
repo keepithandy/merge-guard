@@ -38,11 +38,16 @@ Full history is required when the Action creates the pull request diff. If `diff
 - `policy`: optional explicit starter policy ID: `frontend`, `backend`, `library`, `browser-game`, or `infrastructure`.
 - `policy-config`: optional repository-relative policy manifest path; cannot be combined with `policy`.
 - `comment`: post or update the stable Merge Guard pull request comment; default `false`.
+- `comment-dry-run`: render comment mode without calling GitHub; default `false` and intended for fixture/workflow validation.
 - `fail-threshold`: optional positive integer that overrides the preset failure score.
+- `annotations`: emit deduplicated workflow annotations for eligible changed lines; default `false`.
+- `sarif`: generate `merge-guard.sarif` without uploading it; default `false`.
+- `compare`: compare current findings with an explicitly supplied prior report; default `false`.
+- `previous-report`: optional path to that immutable prior report.
 - `diff-path`: optional path to a prebuilt diff.
 - `markdown`: print Markdown instead of plain text; default `true`. Comment mode always uses Markdown.
 
-When `comment: "true"` is used, grant `pull-requests: write`. The Action captures the scan output, posts or updates the report, and then enforces the CLI exit code.
+When live `comment: "true"` is used, grant `pull-requests: write`. The Action captures the scan output, posts or updates the report, and then enforces the CLI exit code. `comment-dry-run: "true"` prints the marker-prefixed body and performs no API request, so it does not need write permission.
 
 ## Pull request context
 
@@ -77,6 +82,12 @@ node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 
 Remove `--dry-run` inside an authenticated GitHub Actions job to create or update the comment.
+
+## End-to-end fixture
+
+`npm run test:review-e2e` replays opened and synchronize events with two cumulative pull-request diffs. It validates report and comment rendering, changed-line annotations, SARIF, new/unchanged/resolved comparison, missing-history exit 2, threshold exit 1 with a retained report, and create-then-update comment behavior through an injected offline request adapter.
+
+`.github/workflows/review-experience-fixture.yml` also invokes the composite Action in report mode and dry-run comment mode. It supplies the first report explicitly to the second Action invocation, enables annotations and SARIF, and asserts all outputs. The workflow has only `contents: read`, uses no third-party secret or service, never uploads SARIF, and never writes a pull-request comment. See [review experience fixtures](review-experience-fixtures.md).
 
 ## Optional AI-ready summary
 

@@ -73,6 +73,8 @@ Normal CLI reports also expose:
 
 Finding comparison output uses schema version 1 and identity version 1. It records canonical hashes of the complete previous/current reports and classifies stable rule/source/path identities as new, unchanged, or resolved. Missing history produces explicit unknown classifications and a distinct exit code. See `docs/finding-comparisons.md`.
 
+The complete projection path is exercised by the deterministic two-push fixture described in `docs/review-experience-fixtures.md`; the fixture does not introduce another report schema.
+
 ## Files and rules
 
 Each `files` entry contains its path, risk level, risk score, changed-line counts, reason, flags, and matched rules. Each rule finding includes a stable ID, label, weight, reason, suggested check, matched files, and matched added-line count.

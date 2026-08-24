@@ -20,6 +20,7 @@
     "docs/pull-request-summaries.md",
     "docs/github-review-outputs.md",
     "docs/finding-comparisons.md",
+    "docs/review-experience-fixtures.md",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -39,6 +40,7 @@
     "test:pr-summary": "node scripts/pr-summary-contracts.js",
     "test:github-review": "node scripts/github-review-contracts.js",
     "test:finding-comparison": "node scripts/finding-comparison-contracts.js",
+    "test:review-e2e": "node scripts/review-experience-e2e.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },

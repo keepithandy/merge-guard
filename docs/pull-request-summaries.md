@@ -34,4 +34,4 @@ The composite Action automatically selects the compact summary when `comment: "t
 npm run test:pr-summary
 ```
 
-Committed Markdown snapshots cover a standard code change with escaped PR context and a docs-only change. Pull-request `opened` and `synchronize` event fixtures lock PR-number lookup and before/after metadata for later push-comparison work. The contract proves stable markers, expandable files/rules/checks, risk-first ordering, report immutability, and context-independent scoring. No AI service, external API, or hosted service is required to build a summary.
+Committed Markdown snapshots cover a standard code change with escaped PR context and a docs-only change. Pull-request `opened` and `synchronize` event fixtures also drive the end-to-end push-comparison and comment-update gate. The contracts prove stable markers, expandable files/rules/checks, risk-first ordering, report immutability, context-independent scoring, and one managed comment across reruns. No AI service, external API, or hosted service is required.

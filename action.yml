@@ -13,6 +13,10 @@ inputs:
     description: Post or update the merge-guard Markdown report on the pull request.
     required: false
     default: "false"
+  comment-dry-run:
+    description: Render comment mode without calling GitHub; intended for fixture and workflow validation.
+    required: false
+    default: "false"
   fail-threshold:
     description: Optional positive integer risk score that fails the action.
     required: false
@@ -218,11 +222,17 @@ runs:
         node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write('comparison_status='+value.status+'\n')" "$comparison_path" >> "$GITHUB_OUTPUT"
 
     - name: Comment on pull request
-      if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}
+      if: ${{ inputs.comment == 'true' && (github.event_name == 'pull_request' || inputs.comment-dry-run == 'true') }}
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      run: node "$GITHUB_ACTION_PATH/scripts/pr-comment.js" --report merge-guard-report.md
+        MERGE_GUARD_COMMENT_DRY_RUN: ${{ inputs.comment-dry-run }}
+      run: |
+        comment_args=(--report merge-guard-report.md)
+        if [ "$MERGE_GUARD_COMMENT_DRY_RUN" = "true" ]; then
+          comment_args+=(--dry-run)
+        fi
+        node "$GITHUB_ACTION_PATH/scripts/pr-comment.js" "${comment_args[@]}"
 
     - name: Enforce merge-guard result
       if: ${{ steps.scan.outputs.exit_code != '0' }}

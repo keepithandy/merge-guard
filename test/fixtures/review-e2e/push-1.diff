@@ -1,0 +1,18 @@
+diff --git a/src/app.js b/src/app.js
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/app.js
+@@ -0,0 +1,3 @@
++export function renderApp() {
++  return render('home');
++}
+diff --git a/src/legacyState.js b/src/legacyState.js
+new file mode 100644
+index 0000000..2222222
+--- /dev/null
++++ b/src/legacyState.js
+@@ -0,0 +1,3 @@
++export function loadState() {
++  return JSON.parse(localStorage.getItem('state'));
++}
