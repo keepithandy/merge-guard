@@ -120,12 +120,16 @@ export function normalizeCustomRules(customRules) {
   return { rules, warnings };
 }
 
-function matchCustomRule(rule, changes) {
+function matchCustomRule(rule, changes, scopePaths = null, pathAliases = {}) {
   const matchedFiles = [];
   let matchedLineCount = 0;
 
   for (const change of changes) {
-    const pathMatches = !rule.pathPattern || rule.pathPattern.test(change.path);
+    if (scopePaths && !scopePaths.has(change.path)) continue;
+    const matchPath = typeof pathAliases[change.path] === 'string'
+      ? pathAliases[change.path]
+      : change.path;
+    const pathMatches = !rule.pathPattern || rule.pathPattern.test(matchPath);
     const matchingLines = rule.linePattern
       ? change.addedLines.filter((line) => rule.linePattern.test(line))
       : change.addedLines;
@@ -190,6 +194,12 @@ export function applyCustomRules(report, diffText, customRules, options = {}) {
     ? options.hitMetadata
     : {};
   const reasonContext = nonEmptyString(options.reasonContext);
+  const scopePaths = Array.isArray(options.scopePaths)
+    ? new Set(options.scopePaths.filter((filePath) => typeof filePath === 'string'))
+    : null;
+  const pathAliases = options.pathAliases && typeof options.pathAliases === 'object'
+    ? options.pathAliases
+    : {};
 
   if (warningsField) report[warningsField] = normalized.warnings;
   if (configField) {
@@ -204,7 +214,7 @@ export function applyCustomRules(report, diffText, customRules, options = {}) {
   }
 
   for (const rule of normalized.rules) {
-    const match = matchCustomRule(rule, changes);
+    const match = matchCustomRule(rule, changes, scopePaths, pathAliases);
     if (!match.matched) continue;
 
     const patternSummary = [

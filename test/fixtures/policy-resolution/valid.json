@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "policy": "frontend",
+    "exceptions": [
+      {
+        "id": "legacy-root-route",
+        "target": {
+          "type": "rule",
+          "id": "client-routing-change"
+        },
+        "pathPattern": "^src/routes/legacy/",
+        "reason": "Legacy route migration is tracked for removal.",
+        "owner": "@frontend-maintainers",
+        "expires": "2026-12-31"
+      }
+    ]
+  },
+  "packages": [
+    {
+      "root": "apps/web",
+      "inherit": true,
+      "exceptions": [
+        {
+          "id": "legacy-web-auth",
+          "target": {
+            "type": "protectedPath",
+            "id": "frontend-auth"
+          },
+          "pathPattern": "^src/auth/legacy/",
+          "reason": "Legacy auth UI is isolated while replacement work is active.",
+          "owner": "@web-security",
+          "expires": "2026-12-31"
+        }
+      ]
+    },
+    {
+      "root": "packages/core",
+      "inherit": false,
+      "policy": "library",
+      "exceptions": [
+        {
+          "id": "core-export-transition",
+          "target": {
+            "type": "rule",
+            "id": "public-api-change"
+          },
+          "pathPattern": "^src/index\\.js$",
+          "reason": "The compatibility shim remains during the documented transition.",
+          "owner": "@library-maintainers",
+          "expires": "2026-12-31"
+        }
+      ]
+    },
+    {
+      "root": "packages/core/tools/cli",
+      "inherit": true
+    },
+    {
+      "root": "services/deploy",
+      "inherit": false,
+      "policy": "infrastructure",
+      "exceptions": [
+        {
+          "id": "plan-command-transition",
+          "target": {
+            "type": "requiredCheck",
+            "id": "plan-review"
+          },
+          "pathPattern": "^\\.github/workflows/",
+          "reason": "The plan command is being migrated to the shared deployment runner.",
+          "owner": "@platform-maintainers",
+          "expires": "2026-12-31"
+        }
+      ]
+    }
+  ]
+}

@@ -39,6 +39,14 @@ jobs:
           comment: "false"
           diff-path: action-fixture/sample.diff
 
+      - name: Run Action with explicit policy manifest
+        uses: ./
+        with:
+          preset: standard
+          policy-config: test/fixtures/policy-resolution/valid.json
+          comment: "false"
+          diff-path: action-fixture/sample.diff
+
       - name: Run threshold failure contract
         id: threshold
         continue-on-error: true

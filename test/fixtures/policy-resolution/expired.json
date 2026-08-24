@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "policy": "frontend",
+    "exceptions": [
+      {
+        "id": "expired-route",
+        "target": {
+          "type": "rule",
+          "id": "client-routing-change"
+        },
+        "pathPattern": "^src/routes/legacy/",
+        "reason": "Expired fixture.",
+        "owner": "@frontend-maintainers",
+        "expires": "2026-01-01"
+      }
+    ]
+  }
+}

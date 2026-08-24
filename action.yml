@@ -21,6 +21,10 @@ inputs:
     description: "Optional starter policy: frontend, backend, library, browser-game, or infrastructure."
     required: false
     default: ""
+  policy-config:
+    description: Optional repository-relative path to an explicit root/package policy manifest.
+    required: false
+    default: ""
   diff-path:
     description: Optional path to a prebuilt diff file. When omitted, the action generates the pull request diff.
     required: false
@@ -54,6 +58,7 @@ runs:
         MERGE_GUARD_PRESET: ${{ inputs.preset }}
         MERGE_GUARD_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
         MERGE_GUARD_POLICY: ${{ inputs.policy }}
+        MERGE_GUARD_POLICY_CONFIG: ${{ inputs.policy-config }}
         MERGE_GUARD_MARKDOWN: ${{ inputs.markdown }}
         MERGE_GUARD_COMMENT: ${{ inputs.comment }}
         MERGE_GUARD_PR_TITLE: ${{ github.event.pull_request.title }}
@@ -69,8 +74,13 @@ runs:
         fi
 
         policy_args=()
-        if [ -n "$MERGE_GUARD_POLICY" ]; then
+        if [ -n "$MERGE_GUARD_POLICY" ] && [ -n "$MERGE_GUARD_POLICY_CONFIG" ]; then
+          echo "policy and policy-config cannot be selected together."
+          exit 1
+        elif [ -n "$MERGE_GUARD_POLICY" ]; then
           policy_args=(--policy "$MERGE_GUARD_POLICY")
+        elif [ -n "$MERGE_GUARD_POLICY_CONFIG" ]; then
+          policy_args=(--policy-config "$MERGE_GUARD_POLICY_CONFIG")
         fi
 
         output_args=()

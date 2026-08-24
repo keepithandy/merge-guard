@@ -56,6 +56,9 @@ jobs:
       - name: Run protected-path and CODEOWNERS guidance contracts
         run: npm run test:guidance
 
+      - name: Run policy inheritance and exception contracts
+        run: npm run test:policy-resolution
+
       - name: Run release-readiness suite
         run: npm run release:check
 

@@ -1,0 +1,44 @@
+diff --git a/src/routes/legacy/index.js b/src/routes/legacy/index.js
+index 1111111..2222222 100644
+--- a/src/routes/legacy/index.js
++++ b/src/routes/legacy/index.js
+@@ -1 +1,2 @@
+ export const route = '/legacy';
++export const redirect = '/new';
+diff --git a/apps/web/src/auth/legacy/login.js b/apps/web/src/auth/legacy/login.js
+index 1111111..2222222 100644
+--- a/apps/web/src/auth/legacy/login.js
++++ b/apps/web/src/auth/legacy/login.js
+@@ -1 +1,2 @@
+ export function login() {
++  return true;
+ }
+diff --git a/packages/core/src/index.js b/packages/core/src/index.js
+index 1111111..2222222 100644
+--- a/packages/core/src/index.js
++++ b/packages/core/src/index.js
+@@ -1 +1,2 @@
+ export { existing } from './existing.js';
++export { compatibilityShim } from './shim.js';
+diff --git a/packages/core/tools/cli/src/index.js b/packages/core/tools/cli/src/index.js
+index 1111111..2222222 100644
+--- a/packages/core/tools/cli/src/index.js
++++ b/packages/core/tools/cli/src/index.js
+@@ -1 +1,2 @@
+ export { run } from './run.js';
++export { parseArgs } from './args.js';
+diff --git a/services/deploy/.github/workflows/deploy.yml b/services/deploy/.github/workflows/deploy.yml
+index 1111111..2222222 100644
+--- a/services/deploy/.github/workflows/deploy.yml
++++ b/services/deploy/.github/workflows/deploy.yml
+@@ -1 +1,3 @@
+ name: Deploy
++permissions:
++  contents: write
+diff --git a/docs/policy.md b/docs/policy.md
+index 1111111..2222222 100644
+--- a/docs/policy.md
++++ b/docs/policy.md
+@@ -1 +1,2 @@
+ # Policy
++Updated.

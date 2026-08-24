@@ -49,6 +49,8 @@ Normal CLI reports also expose:
 - `policyPacks`
 - `policyRequiredChecks`
 - `reviewGuidance`
+- `policyResolution`
+- `policyExceptions`
 - `prContext`
 
 `prContext` is `null` when no title or body was supplied. Context never changes risk scoring.
@@ -60,6 +62,8 @@ Normal CLI reports also expose:
 `policyPacks` and `policyRequiredChecks` appear only after explicit policy selection. Policy findings use namespaced IDs, retain their pack ID/version, and are separate from project custom rules. Required checks are suggestions with reasons; they are never executed automatically. See `docs/starter-policy-packs.md`.
 
 `reviewGuidance` separates selected-policy protected-path matches and unverified CODEOWNERS suggestions from scoring. It includes unmatched/unowned paths, parser warnings, and an explicit no-assignment/no-approval disclaimer. See `docs/review-guidance.md`.
+
+`policyResolution` records root/package precedence and per-path provenance after explicit manifest selection. `policyExceptions` records active and unmatched reasoned/owned/expiring annotations. Exceptions never change score, checks, guidance, or CI thresholds. See `docs/policy-inheritance.md`.
 
 ## Files and rules
 

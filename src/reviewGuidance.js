@@ -253,10 +253,26 @@ export function matchCodeOwners(paths, parsed) {
   };
 }
 
+function policyScopes(paths, policies) {
+  return policies.map((item) => {
+    if (item?.policy?.identity) {
+      return {
+        policy: item.policy,
+        paths: new Set(Array.isArray(item.paths) ? item.paths : paths),
+        pathAliases: item.pathAliases && typeof item.pathAliases === 'object'
+          ? item.pathAliases
+          : {}
+      };
+    }
+    return { policy: item, paths: new Set(paths), pathAliases: {} };
+  }).filter((item) => item.policy?.identity);
+}
+
 function matchProtectedPaths(paths, policies) {
   const matches = [];
 
-  for (const policy of policies) {
+  for (const scope of policyScopes(paths, policies)) {
+    const policy = scope.policy;
     for (const protectedPath of policy.protectedPaths || []) {
       let matcher;
       try {
@@ -266,12 +282,15 @@ function matchProtectedPaths(paths, policies) {
       }
 
       for (const filePath of paths) {
-        if (!matcher.test(filePath)) continue;
+        if (!scope.paths.has(filePath)) continue;
+        const matchPath = scope.pathAliases[filePath] || filePath;
+        if (!matcher.test(matchPath)) continue;
         const requiredChecks = (policy.requiredChecks || [])
           .filter((check) => protectedPath.requiredCheckIds.includes(check.id))
           .map((check) => ({ id: check.id, command: check.command, reason: check.reason }));
         matches.push({
           path: filePath,
+          matchedPath: matchPath,
           policyPackId: policy.identity.id,
           policyPackVersion: policy.identity.version,
           protectedPathId: protectedPath.id,

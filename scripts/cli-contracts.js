@@ -45,6 +45,38 @@ assert.deepEqual(
 assert.equal(policyReport.config.policyPacks[0].id, 'merge-guard.starter.frontend');
 assert.equal(run(['--policy', 'unknown', 'examples/sample.diff']).status, 1, 'unknown starter policy should fail');
 assert.equal(run(['--policy']).status, 1, 'missing policy value should fail');
+const resolvedPolicyRun = run([
+  '--json',
+  '--policy-config',
+  'test/fixtures/policy-resolution/valid.json',
+  'test/fixtures/policy-resolution/changes.diff'
+]);
+assert.equal(resolvedPolicyRun.status, 0, 'explicit policy manifest should succeed');
+const resolvedPolicyReport = JSON.parse(resolvedPolicyRun.stdout);
+assert.equal(resolvedPolicyReport.policyPacks.length, 3);
+assert.equal(resolvedPolicyReport.policyResolution.assignments.length, 6);
+assert.equal(resolvedPolicyReport.policyExceptions.active.length, 4);
+assert(resolvedPolicyReport.policyExceptions.semantics.includes('annotations-only'));
+assert.equal(
+  run([
+    '--policy',
+    'frontend',
+    '--policy-config',
+    'test/fixtures/policy-resolution/valid.json',
+    'examples/sample.diff'
+  ]).status,
+  1,
+  'direct and manifest policy selection should conflict clearly'
+);
+assert.equal(run(['--policy-config']).status, 1, 'missing policy-config value should fail');
+const expiredManifestRun = run([
+  '--json',
+  '--policy-config',
+  'test/fixtures/policy-resolution/expired.json',
+  'examples/sample.diff'
+]);
+assert.equal(expiredManifestRun.status, 1, 'expired policy exceptions should fail');
+assert.equal(JSON.parse(expiredManifestRun.stderr).code, 'INVALID_POLICY_MANIFEST');
 assert.equal(run(['--fail-threshold', '5', 'examples/sample.diff']).status, 0, 'threshold value should be consumed');
 assert.equal(run(['--unknown']).status, 1, 'unknown options should fail');
 assert.equal(run(['--preset']).status, 1, 'missing preset value should fail');
