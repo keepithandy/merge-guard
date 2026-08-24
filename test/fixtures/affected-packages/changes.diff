@@ -1,0 +1,25 @@
+diff --git a/packages/core/src/index.js b/packages/core/src/index.js
+index 1111111..2222222 100644
+--- a/packages/core/src/index.js
++++ b/packages/core/src/index.js
+@@ -1 +1 @@
+-export const version = 1;
++export const version = 2;
+diff --git a/package.json b/package.json
+index 3333333..4444444 100644
+--- a/package.json
++++ b/package.json
+@@ -1 +1 @@
+-{"private": true}
++{"private": true, "engines": {"node": ">=18"}}
+diff --git a/packages/core/src/legacy.js b/apps/web/src/moved.js
+similarity index 100%
+rename from packages/core/src/legacy.js
+rename to apps/web/src/moved.js
+diff --git a/packages/core/tools/cli/src/removed.js b/packages/core/tools/cli/src/removed.js
+deleted file mode 100644
+index 5555555..0000000
+--- a/packages/core/tools/cli/src/removed.js
++++ /dev/null
+@@ -1 +0,0 @@
+-export const removed = true;
