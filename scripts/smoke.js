@@ -5,7 +5,8 @@ import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeD
 import { createAiReviewSummary } from '../src/aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from '../src/customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext } from '../src/prContext.js';
-import { applyProjectChecks, detectProjectChecks } from '../src/projectChecks.js';
+import { applyProjectChecks, detectProjectCheckDetails, detectProjectChecks } from '../src/projectChecks.js';
+import { applyRepositoryIntelligence, inspectRepository } from '../src/repositoryIntelligence.js';
 import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
@@ -185,14 +186,31 @@ try {
   fs.writeFileSync(path.join(projectFixture, 'README.md'), '```bash\nnpm run verify\n```\n', 'utf8');
 
   const detectedChecks = detectProjectChecks(projectFixture);
+  const detectedDetails = detectProjectCheckDetails(projectFixture);
   assert(detectedChecks.includes('npm test'), 'package test script should be detected');
   assert(detectedChecks.includes('npm run smoke'), 'package smoke script should be detected');
   assert(detectedChecks.includes('node smoke_save.mjs'), 'root smoke file should be detected');
   assert(detectedChecks.includes('npm run verify'), 'README check command should be detected');
 
-  const projectCheckReport = applyProjectChecks(analyzeDiff(diffText), detectedChecks);
+  const projectCheckReport = applyProjectChecks(analyzeDiff(diffText), detectedDetails);
   assert(projectCheckReport.projectChecks.includes('npm run smoke'), 'report should expose detected project checks');
+  assert(projectCheckReport.projectCheckDetails.length === detectedDetails.length, 'report should expose project check details');
+  assert(
+    projectCheckReport.projectCheckDetails.every((detail) =>
+      detail.sources.length && detail.sources.every((source) => source.path && source.reason)
+    ),
+    'every project check detail should explain its source'
+  );
   assert(projectCheckReport.suggestedChecks[0].startsWith('Project check:'), 'project checks should lead suggested checks');
+  assert(formatReport(projectCheckReport).includes('Project check sources:'), 'text output should explain project checks');
+  assert(formatMarkdownReport(projectCheckReport).includes('## Project check sources'), 'Markdown should explain project checks');
+
+  const legacyCheckReport = applyProjectChecks(analyzeDiff(diffText), detectedChecks);
+  assert(
+    JSON.stringify(legacyCheckReport.projectChecks) === JSON.stringify(detectedChecks),
+    'legacy string project-check input should remain compatible'
+  );
+  assert(legacyCheckReport.projectCheckDetails.length === 0, 'legacy string input should not invent source metadata');
 
   const fallbackReport = analyzeDiff(diffText);
   const fallbackChecks = [...fallbackReport.suggestedChecks];
@@ -225,7 +243,7 @@ assert(cliSource.includes('--fail-threshold'), 'CLI should expose fail-threshold
 assert(cliSource.includes('applyCustomRules'), 'CLI should apply configured custom rules');
 assert(cliSource.includes('--pr-title'), 'CLI should expose PR title context');
 assert(cliSource.includes('--pr-body'), 'CLI should expose PR body file context');
-assert(cliSource.includes('detectProjectChecks'), 'CLI should detect repository-specific checks');
+assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
 for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
@@ -236,6 +254,8 @@ assert(fs.existsSync('scripts/pr-comment.js'), 'Action comment helper target sho
 assert(fs.existsSync('src/customRules.js'), 'Custom rule module should exist');
 assert(fs.existsSync('src/prContext.js'), 'PR context module should exist');
 assert(fs.existsSync('src/projectChecks.js'), 'Project check detector should exist');
+assert(fs.existsSync('src/affectedPackages.js'), 'Affected-package mapper should exist');
+assert(fs.existsSync('src/repositoryIntelligence.js'), 'Repository-intelligence composer should exist');
 
 const readme = fs.readFileSync('README.md', 'utf8');
 assert(readme.includes('npm pack --dry-run'), 'README should document package inspection');
@@ -248,6 +268,25 @@ assert(readme.includes('--pr-title'), 'README should document PR title context')
 assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
 
 const fixtureRoot = path.resolve('test/fixtures');
+const affectedFixtureDiff = fs.readFileSync(
+  path.join(fixtureRoot, 'affected-packages', 'changes.diff'),
+  'utf8'
+);
+const repositoryReport = applyRepositoryIntelligence(
+  analyzeDiff(affectedFixtureDiff),
+  inspectRepository(affectedFixtureDiff, path.join(fixtureRoot, 'npm-workspaces'))
+);
+assert(repositoryReport.repository.kind === 'npm-workspaces', 'report should expose repository layout');
+assert(
+  repositoryReport.repository.affectedPackages.directPackages.length === 3,
+  'report should expose directly affected packages'
+);
+assert(
+  repositoryReport.repository.affectedPackages.sharedFiles.some((file) => file.path === 'package.json'),
+  'report should expose repository-level shared files'
+);
+assert(formatMarkdownReport(repositoryReport).includes('## Repository impact'), 'Markdown should expose repository impact');
+
 const nodeFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'node-project'));
 assert(nodeFixtureChecks.includes('npm test'), 'Node fixture should detect npm test');
 assert(nodeFixtureChecks.includes('npm run smoke'), 'Node fixture should detect npm smoke');
