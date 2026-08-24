@@ -29,7 +29,7 @@ assert.deepEqual(parseAddedLineLocations(diffText).map((item) => [item.path, ite
   ['src/app.js', 9],
   ['src/app.js', 10]
 ]);
-assert.deepEqual(parseAddedLineLocations(diffText.replace(/\n/g, '\r\n')), parseAddedLineLocations(diffText));
+assert.deepEqual(parseAddedLineLocations(diffText.replace(/\r?\n/g, '\r\n')), parseAddedLineLocations(diffText));
 assert.deepEqual(
   parseAddedLineLocations([
     'diff --git "a/src/file name.js" "b/src/file name.js"',
