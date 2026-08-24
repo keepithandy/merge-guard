@@ -1,0 +1,11 @@
+{
+  "name": "fixture-mixed-project",
+  "private": true,
+  "scripts": {
+    "test": "node test.js",
+    "lint": "eslint .",
+    "build": "node build.js",
+    "migrate:db": "node migrate.js",
+    "deploy:staging": "node deploy.js"
+  }
+}
