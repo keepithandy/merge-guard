@@ -1,17 +1,41 @@
 # Changelog
 
-## Unreleased
+## Unreleased — v0.2.0 candidate
+
+Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
+
+### Added
+
+- Reusable composite GitHub Action with report-only, threshold, and stable PR-comment modes.
+- Project-defined custom rules with path and added-line expressions.
+- Optional PR title/body context while keeping diff scoring authoritative.
+- Repository-aware suggested-check detection.
+- Expiring, non-destructive rule suppressions.
+- Structured configuration diagnostics.
+- Schema-versioned JSON reports and deterministic contract snapshots.
+- Node 18/20/22/24 compatibility coverage on Ubuntu and Windows.
+
+### Changed
 
 - Bounded custom-rule weights to integer values from 0 through 10.
-- Rejected negative, fractional, string, non-finite, extreme, and duplicate custom-rule definitions.
-- Added edge-case fixtures and smoke coverage while preserving built-in scoring and preset thresholds.
+- Rejected duplicate and malformed custom rules safely with warnings.
+- Expanded release readiness to smoke, CLI, snapshot, package, and Action contracts.
+- Reconciled README and supporting docs with the consolidated implementation.
 
-- Added project-defined `customRules` with path and added-line regular expressions.
-- Custom rule hits now share the normal rule, flag, score, file-risk, and suggested-check output.
-- Invalid custom rules are ignored safely and reported as warnings.
-- Added optional PR title/body context while keeping diff scoring authoritative.
-- Added read-only project check detection from package scripts, root smoke files, and README commands.
-- Completed npm/npx package guidance and reusable GitHub Action inputs.
+### Fixed
+
+- Restored valid composite Action metadata.
+- Restored the CLI configuration-diagnostics integration.
+- Made no-context CLI use safe.
+- Made diff and custom-rule parsing consistent for LF and CRLF input.
+- Made the release-readiness package dry run portable on Windows.
+- Corrected the Action threshold fixture to exercise a scored diff.
+
+### Compatibility
+
+- Requires Node.js 18 or newer.
+- Preserves built-in scoring intent and preset thresholds.
+- No package, tag, or GitHub release has been published for v0.2.0.
 
 ## 0.1.0 - MVP CLI foundation
 
@@ -39,6 +63,7 @@ Before cutting a release:
 
 - run `npm run smoke`
 - run `npm run test:cli`
+- run `npm run test:snapshots`
 - run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`
