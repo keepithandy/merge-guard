@@ -1,34 +1,47 @@
-# Custom Rule Config Scope
+# Custom rules
 
-## Goal
+Projects can add lightweight risk detection in `merge-guard.config.json` without changing Merge Guard source.
 
-Custom rules should let projects add lightweight risk detection without editing merge-guard source code.
+```json
+{
+  "customRules": [
+    {
+      "id": "payment-provider-change",
+      "label": "Payment provider integration changed",
+      "pathPattern": "^src/payments/",
+      "linePattern": "fetch\\(|Authorization|webhook",
+      "weight": 4,
+      "check": "Run the payment-provider sandbox smoke."
+    }
+  ]
+}
+```
 
-## Proposed config idea
+## Fields
 
-A future `merge-guard.config.json` entry could define:
+- `id`: required stable, unique identifier.
+- `label`: required human-readable finding label.
+- `pathPattern`: optional case-insensitive regular expression for changed paths.
+- `linePattern`: optional case-insensitive regular expression for added lines.
+- `weight`: required integer from `0` through `10`.
+- `check`: optional suggested verification step.
 
-- rule id
-- label
-- weight
-- file path match text
-- suggested check text
+At least one of `pathPattern` or `linePattern` is required. When both are present, the same file must match the path and contain a matching added line.
 
-## Behavior target
+## Output
 
-- invalid custom rules should not crash normal scans
-- matching custom rules should appear in `rules`
-- matching custom rules should contribute to risk score
-- custom rule checks should appear in suggested checks
-- built-in rules should keep working unchanged
+A match appears in:
 
-## Guardrails
+- `rules` as `custom:<id>`;
+- `flags`;
+- the per-file risk breakdown;
+- `suggestedChecks`;
+- `config.customRules`.
 
-- keep rules simple
-- do not execute commands from custom rules
-- do not add network calls
-- do not require an AI API key
+A weight of `0` records an informational match without changing the score.
 
-## Status
+## Validation and safety
 
-This document scopes the feature. The scanner implementation still needs a focused code pass and smoke coverage.
+Negative, fractional, string, non-finite, and greater-than-10 weights are rejected. Duplicate IDs, invalid regular expressions, malformed entries, and missing required fields are ignored safely and reported through configuration or custom-rule warnings.
+
+Custom rules cannot execute commands, make network calls, or replace built-in rules. Built-in scoring and preset thresholds continue to apply.

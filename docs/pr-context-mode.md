@@ -1,28 +1,39 @@
-# PR Context Mode Scope
+# Pull request context mode
 
-## Goal
+Merge Guard can include a pull request title and body alongside its diff-authoritative report.
 
-PR context mode should let merge-guard include pull request title/body context alongside the diff report.
+## CLI usage
 
-## Why
+```bash
+node src/cli.js \
+  --pr-title "Harden save migration boundaries" \
+  --pr-body notes/pr-body.md \
+  change.diff
+```
 
-Diffs show what changed. PR text often explains why it changed, what was tested, and what reviewers should pay attention to.
+- `--pr-title <text>` accepts optional title text.
+- `--pr-body <path>` reads optional UTF-8 text or Markdown.
+- A missing title and body leaves `prContext` as `null`.
+- A missing body file is an error.
 
-## Behavior target
+Context appears in plain text, Markdown, JSON, and AI-ready review output. When `--ai` is used, the title/body are appended to the review prompt with an explicit context-only warning.
 
-- accept optional PR title text
-- accept optional PR body text
-- include that context in plain text, Markdown, and JSON output
-- include PR context in AI-ready review summaries when `--ai` is used
-- keep risk scoring based on the diff, not PR prose
+## Composite Action behavior
 
-## Guardrails
+On `pull_request` events, `action.yml` automatically passes the event title and body to the CLI. On other events, it runs without PR context. See `docs/GITHUB_ACTIONS.md`.
 
-- do not invent intent from missing PR text
-- do not let PR text override risky diff findings
-- do not require GitHub API access for the basic mode
-- do not remove current stdin/file diff workflows
+## Scoring boundary
 
-## Status
+PR prose never changes:
 
-This document scopes the feature. The CLI implementation and smoke coverage still need a focused follow-up pass.
+- matched rules;
+- risk score or risk level;
+- merge readiness;
+- preset thresholds;
+- CI failure behavior.
+
+The diff remains authoritative. Context explains why a change exists; it cannot override or suppress a finding.
+
+## Availability
+
+PR context works with file and stdin diff workflows and requires no GitHub API access in direct CLI mode. The composite Action obtains context only from the event payload.
