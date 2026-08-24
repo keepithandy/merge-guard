@@ -179,19 +179,29 @@ function updateFileBreakdown(report, hit) {
   });
 }
 
-export function applyCustomRules(report, diffText, customRules) {
+export function applyCustomRules(report, diffText, customRules, options = {}) {
   const normalized = normalizeCustomRules(customRules);
   const changes = parseFileChanges(diffText);
+  const idPrefix = typeof options.idPrefix === 'string' ? options.idPrefix : 'custom:';
+  const custom = options.custom === undefined ? true : Boolean(options.custom);
+  const warningsField = options.warningsField === undefined ? 'customRuleWarnings' : options.warningsField;
+  const configField = options.configField === undefined ? 'customRules' : options.configField;
+  const hitMetadata = options.hitMetadata && typeof options.hitMetadata === 'object'
+    ? options.hitMetadata
+    : {};
+  const reasonContext = nonEmptyString(options.reasonContext);
 
-  report.customRuleWarnings = normalized.warnings;
-  report.config.customRules = normalized.rules.map((rule) => ({
-    id: rule.id,
-    label: rule.label,
-    weight: rule.weight,
-    pathPattern: rule.pathPatternSource,
-    linePattern: rule.linePatternSource,
-    check: rule.check
-  }));
+  if (warningsField) report[warningsField] = normalized.warnings;
+  if (configField) {
+    report.config[configField] = normalized.rules.map((rule) => ({
+      id: rule.id,
+      label: rule.label,
+      weight: rule.weight,
+      pathPattern: rule.pathPatternSource,
+      linePattern: rule.linePatternSource,
+      check: rule.check
+    }));
+  }
 
   for (const rule of normalized.rules) {
     const match = matchCustomRule(rule, changes);
@@ -203,11 +213,12 @@ export function applyCustomRules(report, diffText, customRules) {
     ].filter(Boolean).join(' and ');
 
     const hit = {
-      id: `custom:${rule.id}`,
-      custom: true,
+      id: `${idPrefix}${rule.id}`,
+      custom,
+      ...hitMetadata,
       label: rule.label,
       weight: rule.weight,
-      reason: `${rule.label} because ${match.matchedFiles.join(', ')} matched ${patternSummary}.`,
+      reason: `${rule.label} because ${match.matchedFiles.join(', ')} matched ${patternSummary}${reasonContext ? ` from ${reasonContext}` : ''}.`,
       check: rule.check,
       matchedFiles: match.matchedFiles,
       matchedLineCount: match.matchedLineCount

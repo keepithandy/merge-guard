@@ -1,0 +1,8 @@
+diff --git a/src/state/session.js b/src/state/session.js
+index 1111111..2222222 100644
+--- a/src/state/session.js
++++ b/src/state/session.js
+@@ -1 +1,2 @@
+ export function saveSession(value) {
++  localStorage.setItem('session', JSON.stringify(value));
+ }

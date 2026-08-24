@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.starter.backend",
+    "name": "Backend starter policy",
+    "version": "1.0.0",
+    "description": "For API or service repositories with automated tests and reviewable database migrations."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "authorization-boundary-change",
+      "label": "Authorization boundary changed",
+      "pathPattern": "^src/(api|auth|middleware)/",
+      "linePattern": "Authorization|authorize|permission|token",
+      "weight": 5,
+      "check": "Run authorization allow/deny integration cases."
+    },
+    {
+      "id": "database-migration-change",
+      "label": "Database migration changed",
+      "pathPattern": "(^|/)(migrations?|schema)/",
+      "weight": 5,
+      "check": "Run migration upgrade, rollback, and compatibility checks."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "service-auth",
+      "pattern": "^src/(auth|middleware)/",
+      "reason": "Authorization changes require service-owner review guidance.",
+      "requiredCheckIds": ["service-tests"]
+    },
+    {
+      "id": "database-migrations",
+      "pattern": "(^|/)(migrations?|schema)/",
+      "reason": "Persistent schema changes need rollout and rollback review.",
+      "requiredCheckIds": ["migration-check"]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "service-tests",
+      "command": "npm test",
+      "reason": "Run the service test suite, including integration coverage."
+    },
+    {
+      "id": "migration-check",
+      "command": "npm run migrate:check",
+      "reason": "Validate migrations without applying them to production data."
+    }
+  ]
+}

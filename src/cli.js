@@ -9,6 +9,7 @@ import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePr
 import { applyRepositoryIntelligence, inspectRepository } from './repositoryIntelligence.js';
 import { applySuppressions } from './suppressions.js';
 import { ConfigurationError, formatDiagnostics, validateConfig } from './configDiagnostics.js';
+import { applyPolicyPack, loadStarterPolicyPack } from './starterPolicies.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -19,10 +20,11 @@ const KNOWN_OPTIONS = new Set([
   '--fail-threshold',
   '--pr-title',
   '--pr-body',
+  '--policy',
   '--help',
   '-h'
 ]);
-const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold', '--pr-title', '--pr-body']);
+const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold', '--pr-title', '--pr-body', '--policy']);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
 function printHelp() {
@@ -42,12 +44,15 @@ Options:
   --fail-threshold <score>  Override the configured CI failure score with a positive integer
   --pr-title <text>         Include pull request title as report context
   --pr-body <path>          Include pull request body from a UTF-8 text or Markdown file
+  --policy <starter-id>     Apply frontend, backend, library, browser-game, or infrastructure explicitly
   --help                    Show this help message
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
   The optional customRules array adds project-specific path and added-line rules.
-  Suggested checks are enriched from JavaScript/Python metadata, root checks, and README commands.\n  Workspace ownership and potential shared impact are reported without dependency inference.
+  Suggested checks are enriched from JavaScript/Python metadata, root checks, and README commands.
+  Workspace ownership and potential shared impact are reported without dependency inference.
+  Starter policies are never selected unless --policy is supplied.
 `);
 }
 
@@ -193,6 +198,7 @@ async function main() {
   const markdownMode = args.includes('--markdown');
   const ciMode = args.includes('--ci');
   const aiMode = args.includes('--ai');
+  const policyId = getOptionValue(args, '--policy');
   const fileArg = findFileArg(args);
 
   let diffText = '';
@@ -221,7 +227,7 @@ async function main() {
   const config = resolveConfig(args);
   const prContext = resolvePrContext(args);
   const repositoryIntelligence = inspectRepository(diffText);
-  const report = applyPrContext(
+  let report = applyPrContext(
     applyRepositoryIntelligence(
       applySuppressions(
         applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
@@ -231,6 +237,9 @@ async function main() {
     ),
     prContext
   );
+  if (policyId) {
+    report = applyPolicyPack(report, diffText, loadStarterPolicyPack(policyId));
+  }
   report.schemaVersion = 1;
   report.configDiagnostics = Array.isArray(config.__configWarnings) ? config.__configWarnings : [];
 

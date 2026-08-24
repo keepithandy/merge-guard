@@ -1,0 +1,8 @@
+diff --git a/src/auth/authorize.js b/src/auth/authorize.js
+index 1111111..2222222 100644
+--- a/src/auth/authorize.js
++++ b/src/auth/authorize.js
+@@ -1 +1,2 @@
+ export function authorize(request) {
++  const token = request.headers.Authorization;
+ }

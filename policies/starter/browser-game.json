@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.starter.browser-game",
+    "name": "Browser game starter policy",
+    "version": "1.0.0",
+    "description": "For browser games with persistent save data, a render loop, and deterministic smoke coverage."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "save-format-change",
+      "label": "Game save format changed",
+      "pathPattern": "^src/(game/)?(save|state|storage)",
+      "linePattern": "serialize|deserialize|localStorage|saveVersion",
+      "weight": 5,
+      "check": "Load an existing save, create a new save, and verify rollback behavior."
+    },
+    {
+      "id": "game-loop-change",
+      "label": "Game loop timing changed",
+      "pathPattern": "^src/(game|engine)/",
+      "linePattern": "requestAnimationFrame|deltaTime|tick\\(",
+      "weight": 3,
+      "check": "Run frame pacing, pause/resume, and background-tab smoke checks."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "save-system",
+      "pattern": "^src/(game/)?(save|state|storage)",
+      "reason": "Save compatibility protects existing player progress.",
+      "requiredCheckIds": ["game-smoke", "game-tests"]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "game-smoke",
+      "command": "npm run smoke",
+      "reason": "Exercise startup, save/load, and the primary play loop."
+    },
+    {
+      "id": "game-tests",
+      "command": "npm test",
+      "reason": "Run deterministic game-state tests."
+    }
+  ]
+}

@@ -46,6 +46,8 @@ Normal CLI reports also expose:
 - `projectChecks`
 - `projectCheckDetails`
 - `repository`
+- `policyPacks`
+- `policyRequiredChecks`
 - `prContext`
 
 `prContext` is `null` when no title or body was supplied. Context never changes risk scoring.
@@ -53,6 +55,8 @@ Normal CLI reports also expose:
 `projectChecks` remains the ordered string-command compatibility field. `projectCheckDetails` adds category, ecosystem, and `sources[]` records containing a repository-relative path and reason for every detected CLI command.
 
 `repository` contains detected package-layout metadata, warnings, and `affectedPackages`. Direct ownership, repository-level shared files, and potential shared-impact packages are separate. Potential shared impact does not assert a dependency graph. See `docs/repository-intelligence.md`.
+
+`policyPacks` and `policyRequiredChecks` appear only after explicit policy selection. Policy findings use namespaced IDs, retain their pack ID/version, and are separate from project custom rules. Required checks are suggestions with reasons; they are never executed automatically. See `docs/starter-policy-packs.md`.
 
 ## Files and rules
 

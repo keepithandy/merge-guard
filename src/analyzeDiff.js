@@ -677,6 +677,14 @@ export function formatReport(report) {
     lines.push(`- Potential shared-impact packages: ${affected.sharedImpactPackages.length ? affected.sharedImpactPackages.map(packageDisplayName).join(', ') : 'none'}`);
   }
 
+  if (report.policyPacks?.length) {
+    lines.push('');
+    lines.push('Selected policy packs:');
+    for (const policy of report.policyPacks) {
+      lines.push(`- ${policy.name} (${policy.id}@${policy.version}, schema ${policy.schemaVersion})`);
+    }
+  }
+
   if (report.aiReview) {
     lines.push('');
     lines.push('AI review summary:');
@@ -766,6 +774,16 @@ export function formatMarkdownReport(report) {
     if (affected.sharedImpactPackages.length) {
       lines.push('- Shared impact is potential only; no dependency relationship is inferred.');
     }
+  }
+
+  if (report.policyPacks?.length) {
+    lines.push('');
+    lines.push('## Selected policy packs');
+    lines.push('');
+    for (const policy of report.policyPacks) {
+      lines.push(`- **${policy.name}** (\`${policy.id}@${policy.version}\`, schema ${policy.schemaVersion})`);
+    }
+    lines.push('- Selection is explicit; listed packs add policy findings and checks without changing built-in preset definitions.');
   }
 
   if (report.aiReview) {

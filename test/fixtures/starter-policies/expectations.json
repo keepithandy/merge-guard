@@ -1,0 +1,27 @@
+{
+  "frontend": {
+    "ruleId": "policy:merge-guard.starter.frontend:browser-storage-change",
+    "riskDelta": 4,
+    "requiredCommands": ["npm test", "npm run build"]
+  },
+  "backend": {
+    "ruleId": "policy:merge-guard.starter.backend:authorization-boundary-change",
+    "riskDelta": 5,
+    "requiredCommands": ["npm test", "npm run migrate:check"]
+  },
+  "library": {
+    "ruleId": "policy:merge-guard.starter.library:public-api-change",
+    "riskDelta": 4,
+    "requiredCommands": ["npm test", "npm pack --dry-run"]
+  },
+  "browser-game": {
+    "ruleId": "policy:merge-guard.starter.browser-game:save-format-change",
+    "riskDelta": 5,
+    "requiredCommands": ["npm run smoke", "npm test"]
+  },
+  "infrastructure": {
+    "ruleId": "policy:merge-guard.starter.infrastructure:workflow-permission-change",
+    "riskDelta": 5,
+    "requiredCommands": ["npm run validate", "npm run plan"]
+  }
+}

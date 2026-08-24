@@ -1,0 +1,7 @@
+diff --git a/src/index.js b/src/index.js
+index 1111111..2222222 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -1 +1,2 @@
+ export { existing } from './existing.js';
++export { createClient } from './client.js';
