@@ -1,0 +1,47 @@
+{
+  "today": "2026-08-24T00:00:00.000Z",
+  "active": [
+    {
+      "ruleId": "routing-or-entry",
+      "reason": "Known app-entry migration",
+      "owner": "platform",
+      "expires": "2027-12-31",
+      "pathPattern": "src/app\\.js$"
+    }
+  ],
+  "expired": [
+    {
+      "ruleId": "routing-or-entry",
+      "reason": "Expired migration exception",
+      "owner": "platform",
+      "expires": "2025-01-01",
+      "pathPattern": "src/app\\.js$"
+    }
+  ],
+  "unmatched": [
+    {
+      "ruleId": "async-or-network",
+      "reason": "No matching finding in this fixture",
+      "owner": "platform",
+      "expires": "2027-12-31",
+      "pathPattern": "src/api"
+    }
+  ],
+  "malformed": [
+    null,
+    {
+      "ruleId": "",
+      "reason": "",
+      "owner": "",
+      "expires": "not-a-date",
+      "pathPattern": 42
+    },
+    {
+      "ruleId": "routing-or-entry",
+      "reason": "Invalid path expression",
+      "owner": "platform",
+      "expires": "2027-12-31",
+      "pathPattern": "["
+    }
+  ]
+}
