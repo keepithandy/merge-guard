@@ -1,57 +1,79 @@
-# GitHub Actions report mode
+# GitHub Actions and composite Action
 
-`merge-guard` can run in CI without an AI provider or API key.
+Merge Guard runs in CI without an AI provider or API key.
 
-Use `--ci` to:
+## Reusable composite Action
 
-- print a Markdown merge-readiness report to the job log
-- write the same report to the GitHub Actions step summary when available
-- fail the job when the report score reaches the configured `failThreshold`
+The repository root contains `action.yml`.
 
-The default preset is `standard`. Use `--preset safe`, `--preset standard`, or `--preset strict` to choose how sensitive CI should be.
+```yaml
+name: Merge Guard
 
-Examples:
+on:
+  pull_request:
 
-```bash
-node src/cli.js --ci pr.diff
-node src/cli.js --ci --preset strict pr.diff
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: keepithandy/merge-guard@main
+        with:
+          preset: standard
+          comment: "true"
 ```
 
-## Pull request comments
+Full history is required when the Action creates the pull request diff. If `diff-path` is supplied, the caller is responsible for creating that diff file.
 
-Use `scripts/pr-comment.js` to post the Markdown report to the pull request conversation.
+## Inputs
 
-The comment script uses a hidden marker so rerunning the workflow updates the previous merge-guard comment instead of adding a duplicate comment.
+- `preset`: `safe`, `standard`, or `strict`; default `standard`.
+- `comment`: post or update the stable Merge Guard pull request comment; default `false`.
+- `fail-threshold`: optional positive integer that overrides the preset failure score.
+- `diff-path`: optional path to a prebuilt diff.
+- `markdown`: print Markdown instead of plain text; default `true`. Comment mode always uses Markdown.
+
+When `comment: "true"` is used, grant `pull-requests: write`. The Action captures the scan output, posts or updates the report, and then enforces the CLI exit code.
+
+## Pull request context
+
+On `pull_request` events, the Action passes `github.event.pull_request.title` and `github.event.pull_request.body` to the CLI. The body is written to a UTF-8 file before being passed through `--pr-body`.
+
+PR context appears in text, Markdown, JSON, and AI-ready output. It is context only: rules, scores, readiness, and failure thresholds remain diff-authoritative. On events without pull request metadata, the Action runs without PR context.
+
+## Direct CI mode
+
+The equivalent CLI mode is:
 
 ```bash
-node src/cli.js --markdown --preset strict pr.diff > merge-guard-report.md
-node scripts/pr-comment.js --report merge-guard-report.md
+node src/cli.js --ci --preset standard pr.diff
+node src/cli.js --ci --preset strict --fail-threshold 5 pr.diff
 ```
 
-The workflow needs read access to contents and write access to pull request or issue comments. The script reads the standard GitHub Actions repository, event, and token environment values.
+`--ci` prints Markdown, writes to `GITHUB_STEP_SUMMARY` when available, and exits non-zero when the report reaches `failThreshold`.
 
-Use `--dry-run` to preview the exact comment body without calling GitHub:
+## Pull request comment helper
+
+The composite Action uses `scripts/pr-comment.js`. The helper includes a stable hidden marker, so reruns update the prior Merge Guard comment instead of creating duplicates.
 
 ```bash
+node src/cli.js --markdown pr.diff > merge-guard-report.md
 node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 
-## Example workflow
-
-See `examples/actions-report-mode.yml` for a copyable workflow.
-
-The workflow checks out the pull request, installs Node, builds a pull request diff into `pr.diff`, creates `merge-guard-report.md`, posts or updates a pull request comment, and runs:
-
-```bash
-node src/cli.js --ci pr.diff
-```
+Remove `--dry-run` inside an authenticated GitHub Actions job to create or update the comment.
 
 ## Optional AI-ready summary
-
-Add `--ai` when you want the report to include an AI-ready review summary and adapted review prompt:
 
 ```bash
 node src/cli.js --ci --ai pr.diff
 ```
 
-This mode still runs without an API key. The AI section organizes the rules-based findings and includes a prompt package that can be sent to an AI reviewer later. It does not replace human review and does not prove a pull request is safe.
+This organizes rules-based findings and emits a prompt package. It makes no network call, requires no API key, and does not replace human review.
