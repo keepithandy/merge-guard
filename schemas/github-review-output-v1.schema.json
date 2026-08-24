@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/github-review-output-v1.schema.json",
+  "title": "Merge Guard GitHub changed-line annotation bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "report", "annotations", "unsupported", "semantics"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "tool", "version", "riskScore", "riskLevel", "mergeReadiness"],
+      "properties": {
+        "schemaVersion": { "type": "integer", "minimum": 1 },
+        "tool": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "riskScore": { "type": "number" },
+        "riskLevel": { "type": "string", "minLength": 1 },
+        "mergeReadiness": { "type": "string", "minLength": 1 }
+      }
+    },
+    "annotations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/annotation" }
+    },
+    "unsupported": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unsupported" }
+    },
+    "semantics": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fingerprint", "ruleId", "title", "message", "level", "path", "startLine", "endLine", "anchor", "weight"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "fingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "ruleId": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "message": { "type": "string", "minLength": 1 },
+        "level": { "enum": ["notice", "warning"] },
+        "path": { "type": "string", "minLength": 1 },
+        "startLine": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 },
+        "anchor": { "const": "first-added-line" },
+        "weight": { "type": "integer" }
+      }
+    },
+    "unsupported": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleId", "label", "path", "reason"],
+      "properties": {
+        "ruleId": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "path": { "type": ["string", "null"] },
+        "reason": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

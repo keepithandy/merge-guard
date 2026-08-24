@@ -1,0 +1,18 @@
+diff --git a/src/app.js b/src/app.js
+index 1111111..2222222 100644
+--- a/src/app.js
++++ b/src/app.js
+@@ -8,2 +8,4 @@
+ const boot = true;
++export async function startApp() {
++  return fetch('/api/start');
+ return boot;
+diff --git a/package.json b/package.json
+deleted file mode 100644
+index 3333333..0000000
+--- a/package.json
++++ /dev/null
+@@ -1,3 +0,0 @@
+-{
+-  "private": true
+-}

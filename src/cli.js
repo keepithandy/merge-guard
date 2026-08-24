@@ -18,6 +18,7 @@ import {
   PolicyManifestError
 } from './policyResolution.js';
 import { formatPullRequestSummary } from './pullRequestSummary.js';
+import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutputs.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -31,6 +32,9 @@ const KNOWN_OPTIONS = new Set([
   '--policy',
   '--policy-config',
   '--pr-summary',
+  '--annotations',
+  '--sarif',
+  '--report-json',
   '--help',
   '-h'
 ]);
@@ -40,7 +44,8 @@ const VALUE_OPTIONS = new Set([
   '--pr-title',
   '--pr-body',
   '--policy',
-  '--policy-config'
+  '--policy-config',
+  '--report-json'
 ]);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
@@ -64,6 +69,9 @@ Options:
   --policy <starter-id>     Apply frontend, backend, library, browser-game, or infrastructure explicitly
   --policy-config <path>    Apply an explicit root/package policy manifest
   --pr-summary              Print a compact GitHub pull-request summary with expandable details
+  --annotations             Print a versioned changed-line annotation bundle as JSON
+  --sarif                   Print optional SARIF 2.1.0 output for eligible changed-line findings
+  --report-json <path>      Also write the complete JSON report to a file
   --help                    Show this help message
 
 Config:
@@ -219,6 +227,14 @@ async function main() {
   const ciMode = args.includes('--ci');
   const aiMode = args.includes('--ai');
   const prSummaryMode = args.includes('--pr-summary');
+  const annotationMode = args.includes('--annotations');
+  const sarifMode = args.includes('--sarif');
+  const reportJsonPath = getOptionValue(args, '--report-json');
+  const selectedOutputModes = [jsonMode, markdownMode, prSummaryMode, annotationMode, sarifMode]
+    .filter(Boolean).length;
+  if (selectedOutputModes > 1) {
+    throw new Error('--json, --markdown, --pr-summary, --annotations, and --sarif are mutually exclusive output modes.');
+  }
   const policyId = getOptionValue(args, '--policy');
   const policyConfigPath = getOptionValue(args, '--policy-config');
   if (policyId && policyConfigPath) {
@@ -291,18 +307,32 @@ async function main() {
     );
   }
 
+  if (reportJsonPath) {
+    if (fs.existsSync(reportJsonPath) && fs.lstatSync(reportJsonPath).isSymbolicLink()) {
+      throw new Error(`refusing to write JSON report through symbolic link: ${reportJsonPath}`);
+    }
+    fs.writeFileSync(reportJsonPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+  }
+
   const markdown = appendCustomRuleWarnings(
     appendPrContext(formatMarkdownReport(report), prContext, 'markdown'),
     report.customRuleWarnings,
     'markdown'
   );
   const prSummary = formatPullRequestSummary(report);
+  const annotationBundle = annotationMode || sarifMode
+    ? createGithubAnnotationBundle(report, diffText)
+    : null;
 
   if (ciMode) {
     writeGitHubStepSummary(prSummary);
   }
 
-  if (jsonMode) {
+  if (annotationMode) {
+    console.log(JSON.stringify(annotationBundle, null, 2));
+  } else if (sarifMode) {
+    console.log(JSON.stringify(createSarifLog(report, annotationBundle), null, 2));
+  } else if (jsonMode) {
     console.log(JSON.stringify(report, null, 2));
   } else if (prSummaryMode) {
     console.log(prSummary);

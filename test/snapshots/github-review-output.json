@@ -1,0 +1,112 @@
+{
+  "bundle": {
+    "schemaVersion": 1,
+    "report": {
+      "schemaVersion": 1,
+      "tool": "merge-guard",
+      "version": "0.1.0",
+      "riskScore": 8,
+      "riskLevel": "HIGH",
+      "mergeReadiness": "DO_NOT_MERGE_YET"
+    },
+    "annotations": [
+      {
+        "id": "64245e460340948cce5d65bc22d1467515946d9223eb4904913d55e5aadc890e",
+        "fingerprint": "f196d884b40638d795bfd49e10315f897de9a686e6350fcfd21d600a2e15d743",
+        "ruleId": "async-or-network",
+        "title": "Async or network behavior changed",
+        "message": "Async or network behavior changed because 2 added line(s) matched fetch, promise, async, timer, or abort controller code patterns. Suggested check: Check loading, failure, timeout, and empty-state behavior.",
+        "level": "warning",
+        "path": "src/app.js",
+        "startLine": 9,
+        "endLine": 9,
+        "anchor": "first-added-line",
+        "weight": 2
+      },
+      {
+        "id": "90df2061df42a9b1dfa5c987ddb16b94cf96238a5f42cd50815b9309e2c101d4",
+        "fingerprint": "739bc1d662e6f3ddb3c58c25ae93eca676af1a218084d9303aecac4c0b48b295",
+        "ruleId": "implementation-without-tests",
+        "title": "Implementation changed without matching test changes",
+        "message": "Implementation changed without matching test changes because src/app.js, package.json changed and no test, spec, smoke, or __tests__ file changed. Suggested check: Run the closest available test or smoke check manually.",
+        "level": "warning",
+        "path": "src/app.js",
+        "startLine": 9,
+        "endLine": 9,
+        "anchor": "first-added-line",
+        "weight": 2
+      },
+      {
+        "id": "0609525cf8915fe098edcd98497861fb342c47e409625f5ab195ae115dd5f062",
+        "fingerprint": "c682283fd17b8688d5b74ab1321dd96cfa4bf8e097814c699a9b3477fb912bce",
+        "ruleId": "routing-or-entry",
+        "title": "Routing or entry-point logic changed",
+        "message": "Routing or entry-point logic changed because src/app.js matched routing, entry, main, index, or app path patterns. Suggested check: Manually test the affected navigation or app entry path.",
+        "level": "warning",
+        "path": "src/app.js",
+        "startLine": 9,
+        "endLine": 9,
+        "anchor": "first-added-line",
+        "weight": 2
+      }
+    ],
+    "unsupported": [
+      {
+        "ruleId": "dependency-or-config",
+        "label": "Dependency or config file changed",
+        "path": "package.json",
+        "reason": "changed file has no added line to annotate"
+      },
+      {
+        "ruleId": "implementation-without-tests",
+        "label": "Implementation changed without matching test changes",
+        "path": "package.json",
+        "reason": "changed file has no added line to annotate"
+      }
+    ],
+    "semantics": "projection-only; annotations do not change findings, risk scores, readiness, or CI thresholds"
+  },
+  "sarif": {
+    "version": "2.1.0",
+    "automationId": "merge-guard/pull-request-review",
+    "ruleIds": [
+      "async-or-network",
+      "dependency-or-config",
+      "implementation-without-tests",
+      "routing-or-entry"
+    ],
+    "results": [
+      {
+        "ruleId": "async-or-network",
+        "level": "warning",
+        "path": "src/app.js",
+        "line": 9,
+        "fingerprint": "f196d884b40638d795bfd49e10315f897de9a686e6350fcfd21d600a2e15d743"
+      },
+      {
+        "ruleId": "implementation-without-tests",
+        "level": "warning",
+        "path": "src/app.js",
+        "line": 9,
+        "fingerprint": "739bc1d662e6f3ddb3c58c25ae93eca676af1a218084d9303aecac4c0b48b295"
+      },
+      {
+        "ruleId": "routing-or-entry",
+        "level": "warning",
+        "path": "src/app.js",
+        "line": 9,
+        "fingerprint": "c682283fd17b8688d5b74ab1321dd96cfa4bf8e097814c699a9b3477fb912bce"
+      }
+    ],
+    "invocation": {
+      "executionSuccessful": true,
+      "properties": {
+        "mergeGuardSchemaVersion": 1,
+        "reportSchemaVersion": 1,
+        "riskScore": 8,
+        "unsupportedFindings": 2,
+        "semantics": "projection-only; annotations do not change findings, risk scores, readiness, or CI thresholds"
+      }
+    }
+  }
+}

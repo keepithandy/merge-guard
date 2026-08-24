@@ -38,6 +38,28 @@ jobs:
           grep -q '<!-- merge-guard-pr-summary:v1 -->' action-fixture/summary.md
           grep -q '<summary>Files (' action-fixture/summary.md
 
+      - name: Run Action with annotations and SARIF enabled
+        id: native_review
+        uses: ./
+        with:
+          preset: standard
+          comment: "false"
+          annotations: "true"
+          sarif: "true"
+          diff-path: action-fixture/sample.diff
+
+      - name: Assert native review outputs
+        shell: bash
+        env:
+          REPORT_PATH: ${{ steps.native_review.outputs.report-path }}
+          ANNOTATIONS_PATH: ${{ steps.native_review.outputs.annotations-path }}
+          SARIF_PATH: ${{ steps.native_review.outputs.sarif-path }}
+        run: |
+          test -s "$REPORT_PATH"
+          test -s "$ANNOTATIONS_PATH"
+          test -s "$SARIF_PATH"
+          node -e "const fs=require('fs'); const a=JSON.parse(fs.readFileSync(process.env.ANNOTATIONS_PATH)); const s=JSON.parse(fs.readFileSync(process.env.SARIF_PATH)); if(a.schemaVersion!==1 || s.version!=='2.1.0') process.exit(1)"
+
       - name: Run Action with explicit starter policy
         uses: ./
         with:

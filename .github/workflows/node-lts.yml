@@ -62,6 +62,9 @@ jobs:
       - name: Run pull-request summary contracts
         run: npm run test:pr-summary
 
+      - name: Run GitHub annotation and SARIF contracts
+        run: npm run test:github-review
+
       - name: Run release-readiness suite
         run: npm run release:check
 

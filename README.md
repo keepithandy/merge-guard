@@ -62,6 +62,7 @@ This version supports:
 - protected-path and CODEOWNERS guidance that is separate from scoring and approval
 - deterministic monorepo policy inheritance and expiring annotation-only exceptions
 - compact pull-request summaries with expandable files, rules, and checks
+- optional deduplicated changed-line annotations and SARIF 2.1.0 generation
 - pull request comment update helpers
 - npm/npx-compatible package metadata
 - a reusable composite GitHub Action
@@ -169,6 +170,7 @@ npm run test:policies
 npm run test:guidance
 npm run test:policy-resolution
 npm run test:pr-summary
+npm run test:github-review
 npm run release:check
 ```
 
@@ -199,6 +201,15 @@ JSON output includes the same risk data, including the per-file breakdown and ru
 ```bash
 node src/cli.js --json examples/sample.diff
 ```
+
+Optional GitHub-native projections retain only findings with valid changed-line anchors; unsupported findings stay in the normal report:
+
+```bash
+node src/cli.js --annotations examples/sample.diff > merge-guard-annotations.json
+node src/cli.js --sarif examples/sample.diff > merge-guard.sarif
+```
+
+See [GitHub annotations and SARIF](docs/github-review-outputs.md) for the versioned bundle, location semantics, Action inputs, and explicit SARIF upload boundary.
 
 CI mode prints Markdown and exits with a failure when the report reaches the configured `failThreshold`:
 
