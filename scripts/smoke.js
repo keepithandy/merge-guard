@@ -32,7 +32,11 @@ const crlfReport = analyzeDiff(diffText.replace(/\n/g, '\r\n'));
 const noContextReport = applyPrContext(analyzeDiff(diffText), null);
 
 assert(crlfReport.files.length === report.files.length, 'CRLF diffs should preserve changed files');
-assert(crlfReport.changedLines === report.changedLines, 'CRLF diffs should preserve changed line counts');
+assert(
+  crlfReport.summary.addedLines === report.summary.addedLines
+    && crlfReport.summary.removedLines === report.summary.removedLines,
+  'CRLF diffs should preserve changed line counts'
+);
 assert(noContextReport.prContext === null, 'missing PR context should remain optional');
 assert(report && typeof report === 'object', 'report should be an object');
 assertString(report.riskLevel, 'riskLevel');
