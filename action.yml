@@ -84,7 +84,9 @@ runs:
         fi
 
         output_args=()
-        if [ "$MERGE_GUARD_MARKDOWN" = "true" ] || [ "$MERGE_GUARD_COMMENT" = "true" ]; then
+        if [ "$MERGE_GUARD_COMMENT" = "true" ]; then
+          output_args=(--pr-summary)
+        elif [ "$MERGE_GUARD_MARKDOWN" = "true" ]; then
           output_args=(--markdown)
         fi
 

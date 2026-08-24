@@ -17,6 +17,7 @@ import {
   loadAndResolvePolicyManifest,
   PolicyManifestError
 } from './policyResolution.js';
+import { formatPullRequestSummary } from './pullRequestSummary.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -29,6 +30,7 @@ const KNOWN_OPTIONS = new Set([
   '--pr-body',
   '--policy',
   '--policy-config',
+  '--pr-summary',
   '--help',
   '-h'
 ]);
@@ -61,6 +63,7 @@ Options:
   --pr-body <path>          Include pull request body from a UTF-8 text or Markdown file
   --policy <starter-id>     Apply frontend, backend, library, browser-game, or infrastructure explicitly
   --policy-config <path>    Apply an explicit root/package policy manifest
+  --pr-summary              Print a compact GitHub pull-request summary with expandable details
   --help                    Show this help message
 
 Config:
@@ -215,6 +218,7 @@ async function main() {
   const markdownMode = args.includes('--markdown');
   const ciMode = args.includes('--ci');
   const aiMode = args.includes('--ai');
+  const prSummaryMode = args.includes('--pr-summary');
   const policyId = getOptionValue(args, '--policy');
   const policyConfigPath = getOptionValue(args, '--policy-config');
   if (policyId && policyConfigPath) {
@@ -292,13 +296,16 @@ async function main() {
     report.customRuleWarnings,
     'markdown'
   );
+  const prSummary = formatPullRequestSummary(report);
 
   if (ciMode) {
-    writeGitHubStepSummary(markdown);
+    writeGitHubStepSummary(prSummary);
   }
 
   if (jsonMode) {
     console.log(JSON.stringify(report, null, 2));
+  } else if (prSummaryMode) {
+    console.log(prSummary);
   } else if (markdownMode || ciMode) {
     console.log(markdown);
   } else {

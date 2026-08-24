@@ -7,6 +7,7 @@ import { appendCustomRuleWarnings, applyCustomRules } from '../src/customRules.j
 import { appendPrContext, appendPrContextToAiReview, applyPrContext } from '../src/prContext.js';
 import { applyProjectChecks, detectProjectCheckDetails, detectProjectChecks } from '../src/projectChecks.js';
 import { applyRepositoryIntelligence, inspectRepository } from '../src/repositoryIntelligence.js';
+import { formatPullRequestSummary, PULL_REQUEST_SUMMARY_MARKER } from '../src/pullRequestSummary.js';
 import { buildCommentBody, findMergeGuardComment, MERGE_GUARD_COMMENT_MARKER } from './pr-comment.js';
 
 function assert(condition, message) {
@@ -76,6 +77,10 @@ assert(markdownOutput.includes('# merge-guard report'), 'markdown output should 
 assert(markdownOutput.includes('## Per-file risk'), 'markdown output should include per-file risk');
 assert(markdownOutput.includes('## Rule explanations'), 'markdown output should include rule explanations');
 assert(markdownOutput.includes('## Suggested checks'), 'markdown output should include suggested checks');
+const pullRequestSummary = formatPullRequestSummary(report);
+assert(pullRequestSummary.includes(PULL_REQUEST_SUMMARY_MARKER), 'PR summary should declare its contract marker');
+assert(pullRequestSummary.includes('<summary>Files (2)</summary>'), 'PR summary should expand file details');
+assert(pullRequestSummary.includes('### Highest-risk files'), 'PR summary should prioritize risky files');
 
 const docsOnlyDiff = fs.readFileSync('examples/docs-only.diff', 'utf8');
 const docsOnlyReport = analyzeDiff(docsOnlyDiff);
@@ -222,9 +227,9 @@ try {
   fs.rmSync(emptyFixture, { recursive: true, force: true });
 }
 
-const commentBody = buildCommentBody(markdownOutput);
+const commentBody = buildCommentBody(pullRequestSummary);
 assert(commentBody.includes(MERGE_GUARD_COMMENT_MARKER), 'PR comment should include stable marker');
-assert(commentBody.includes('# merge-guard report'), 'PR comment should include markdown report');
+assert(commentBody.includes('## merge-guard review summary'), 'PR comment should include compact review summary');
 
 const existingComment = findMergeGuardComment([
   { id: 1, body: 'human review note' },
@@ -245,6 +250,7 @@ for (const packagePath of [
   'docs/starter-policy-packs.md',
   'docs/review-guidance.md',
   'docs/policy-inheritance.md',
+  'docs/pull-request-summaries.md',
   'action.yml',
   'README.md',
   'CHANGELOG.md',
@@ -262,7 +268,7 @@ assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-polic
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'fail-threshold:', 'policy:', 'policy-config:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
+for (const actionContract of ['comment:', 'fail-threshold:', 'policy:', 'policy-config:', 'diff-path:', '--pr-summary', 'src/cli.js', 'scripts/pr-comment.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -276,11 +282,13 @@ assert(fs.existsSync('src/policyPacks.js'), 'Policy-pack validator should exist'
 assert(fs.existsSync('src/starterPolicies.js'), 'Starter-policy loader should exist');
 assert(fs.existsSync('src/reviewGuidance.js'), 'Review-guidance module should exist');
 assert(fs.existsSync('src/policyResolution.js'), 'Policy-resolution module should exist');
+assert(fs.existsSync('src/pullRequestSummary.js'), 'Pull-request summary module should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
 assert(packageMetadata.scripts?.['test:policies'], 'Package should expose the policy conformance gate');
 assert(packageMetadata.scripts?.['test:guidance'], 'Package should expose the review-guidance gate');
 assert(packageMetadata.scripts?.['test:policy-resolution'], 'Package should expose the policy-resolution gate');
+assert(packageMetadata.scripts?.['test:pr-summary'], 'Package should expose the pull-request summary gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -299,6 +307,7 @@ assert(readme.includes('--policy frontend'), 'README should document explicit st
 assert(readme.includes('CODEOWNERS guidance'), 'README should document guidance-only ownership suggestions');
 assert(readme.includes('--policy-config'), 'README should document explicit policy-manifest selection');
 assert(readme.includes('Expiring policy exceptions'), 'README should document exception guardrails');
+assert(readme.includes('--pr-summary'), 'README should document compact pull-request summaries');
 
 const fixtureRoot = path.resolve('test/fixtures');
 const affectedFixtureDiff = fs.readFileSync(

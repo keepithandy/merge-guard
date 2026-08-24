@@ -95,7 +95,7 @@ function loadEvent(eventPath) {
   return JSON.parse(fs.readFileSync(eventPath, 'utf8'));
 }
 
-function getPullRequestNumber(event) {
+export function getPullRequestNumber(event) {
   const number = event?.pull_request?.number || event?.number;
 
   if (!Number.isInteger(number)) {
@@ -116,7 +116,10 @@ export function buildCommentBody(markdownReport) {
 }
 
 export function findMergeGuardComment(comments) {
-  return comments.find((comment) => typeof comment.body === 'string' && comment.body.includes(MERGE_GUARD_COMMENT_MARKER)) || null;
+  return comments.find((comment) =>
+    typeof comment.body === 'string'
+    && comment.body.trimStart().startsWith(MERGE_GUARD_COMMENT_MARKER)
+  ) || null;
 }
 
 async function githubRequest({ method, url, token, body }) {

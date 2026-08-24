@@ -1,0 +1,20 @@
+{
+  "action": "synchronize",
+  "number": 63,
+  "before": "2222222222222222222222222222222222222222",
+  "after": "3333333333333333333333333333333333333333",
+  "repository": {
+    "full_name": "keepithandy/merge-guard"
+  },
+  "pull_request": {
+    "number": 63,
+    "title": "Harden startup after review",
+    "body": "Second push; findings still come from the current diff.",
+    "base": {
+      "sha": "1111111111111111111111111111111111111111"
+    },
+    "head": {
+      "sha": "3333333333333333333333333333333333333333"
+    }
+  }
+}

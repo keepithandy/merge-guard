@@ -17,6 +17,7 @@
     "docs/starter-policy-packs.md",
     "docs/review-guidance.md",
     "docs/policy-inheritance.md",
+    "docs/pull-request-summaries.md",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -33,6 +34,7 @@
     "test:policies": "node scripts/policy-pack-contracts.js",
     "test:guidance": "node scripts/review-guidance-contracts.js",
     "test:policy-resolution": "node scripts/policy-resolution-contracts.js",
+    "test:pr-summary": "node scripts/pr-summary-contracts.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [

@@ -61,12 +61,12 @@ This version supports:
 - explicit frontend, backend, library, browser-game, and infrastructure starter policies
 - protected-path and CODEOWNERS guidance that is separate from scoring and approval
 - deterministic monorepo policy inheritance and expiring annotation-only exceptions
-- structured review summaries
+- compact pull-request summaries with expandable files, rules, and checks
 - pull request comment update helpers
 - npm/npx-compatible package metadata
 - a reusable composite GitHub Action
 
-Future versions can add richer summaries and a simple web dashboard.
+Future versions can add inline annotations, push-to-push comparisons, and a local review dashboard.
 
 ## Example output
 
@@ -168,6 +168,7 @@ npm run test:repository
 npm run test:policies
 npm run test:guidance
 npm run test:policy-resolution
+npm run test:pr-summary
 npm run release:check
 ```
 
@@ -185,6 +186,12 @@ Markdown output is useful for pasting into pull requests:
 
 ```bash
 node src/cli.js --markdown examples/sample.diff
+```
+
+Compact GitHub-oriented output puts the highest-risk files first and keeps files, rules, and checks in expandable sections:
+
+```bash
+node src/cli.js --pr-summary examples/sample.diff
 ```
 
 JSON output includes the same risk data, including the per-file breakdown and rule explanations. Reports declare `schemaVersion: 1` and required machine-readable fields documented in [the report contract](docs/REPORT_FORMAT.md):
@@ -377,10 +384,10 @@ Every triggered rule includes explanation metadata so reviewers can see why a wa
 
 ## Pull request comment mode
 
-Create a Markdown report, then use the comment helper to post or update the report in a pull request discussion:
+Create a compact summary, then use the comment helper to post or update it in a pull request discussion:
 
 ```bash
-node src/cli.js --markdown pr.diff > merge-guard-report.md
+node src/cli.js --pr-summary pr.diff > merge-guard-report.md
 node scripts/pr-comment.js --report merge-guard-report.md
 ```
 
@@ -390,7 +397,7 @@ Preview the comment body without calling GitHub:
 node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 
-See `docs/GITHUB_ACTIONS.md` and `examples/actions-report-mode.yml` for workflow examples.
+The stable managed-comment marker is unchanged, so reruns update one comment. Comment mode in the composite Action selects this summary automatically. See [compact pull-request summaries](docs/pull-request-summaries.md), `docs/GITHUB_ACTIONS.md`, and `examples/actions-report-mode.yml`.
 
 ## Reusable GitHub Action
 
