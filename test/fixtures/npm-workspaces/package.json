@@ -1,0 +1,12 @@
+{
+  "name": "fixture-workspace",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "packages/*/tools/*",
+    "!packages/ignored",
+    "../outside/*",
+    42
+  ]
+}
