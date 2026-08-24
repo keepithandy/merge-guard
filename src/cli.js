@@ -7,6 +7,7 @@ import { createAiReviewSummary } from './aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from './customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePrContext } from './prContext.js';
 import { applyProjectChecks, detectProjectChecks } from './projectChecks.js';
+import { applySuppressions } from './suppressions.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -204,7 +205,10 @@ async function main() {
   const prContext = resolvePrContext(args);
   const report = applyPrContext(
     applyProjectChecks(
-      applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
+      applySuppressions(
+        applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
+        config.suppressions
+      ),
       detectProjectChecks()
     ),
     prContext
