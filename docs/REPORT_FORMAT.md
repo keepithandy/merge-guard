@@ -69,6 +69,8 @@ Normal CLI reports also expose:
 
 `--pr-summary` is a deterministic Markdown projection of the completed report, not a second report schema or scoring path. Contract version 1 puts risk and the highest-risk files first, then exposes expandable files, rules, and checks. It never mutates report values or derives risk from PR text. See `docs/pull-request-summaries.md` and the committed `test/snapshots/pr-summary-*.md` fixtures.
 
+`--annotations` and `--sarif` are optional projections of a completed report onto valid added-line locations from the authoritative diff. The annotation bundle has schema version 1; SARIF uses 2.1.0 and embeds the projection version. Findings without an eligible location remain in the normal report and are recorded as unsupported rather than dropped. See `docs/github-review-outputs.md`.
+
 ## Files and rules
 
 Each `files` entry contains its path, risk level, risk score, changed-line counts, reason, flags, and matched rules. Each rule finding includes a stable ID, label, weight, reason, suggested check, matched files, and matched added-line count.

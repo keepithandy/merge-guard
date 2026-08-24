@@ -19,11 +19,28 @@ assert(prSummaryRun.stdout.includes('<!-- merge-guard-pr-summary:v1 -->'));
 assert(prSummaryRun.stdout.includes('<summary>Files (2)</summary>'));
 assert(prSummaryRun.stdout.includes('<summary>Rules (2)</summary>'));
 assert(prSummaryRun.stdout.includes('<summary>Suggested and required checks ('));
+const annotationsRun = run(['--annotations', 'test/fixtures/github-review/annotations.diff']);
+assert.equal(annotationsRun.status, 0, 'annotation JSON mode should succeed');
+const annotations = JSON.parse(annotationsRun.stdout);
+assert.equal(annotations.schemaVersion, 1);
+assert.equal(annotations.annotations.length, 3);
+assert.equal(annotations.unsupported.length, 2);
+const sarifRun = run(['--sarif', 'test/fixtures/github-review/annotations.diff']);
+assert.equal(sarifRun.status, 0, 'SARIF mode should succeed');
+const sarif = JSON.parse(sarifRun.stdout);
+assert.equal(sarif.version, '2.1.0');
+assert.equal(sarif.runs[0].results.length, 3);
+assert.equal(
+  run(['--json', '--sarif', 'examples/sample.diff']).status,
+  1,
+  'structured output modes should conflict clearly'
+);
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-cli-'));
 try {
   const stepSummaryPath = path.join(temporaryRoot, 'step-summary.md');
+  const reportJsonPath = path.join(temporaryRoot, 'report.json');
   const ciRun = run(
-    ['--ci', '--fail-threshold', '999', 'examples/sample.diff'],
+    ['--ci', '--report-json', reportJsonPath, '--fail-threshold', '999', 'examples/sample.diff'],
     '',
     { env: { GITHUB_STEP_SUMMARY: stepSummaryPath } }
   );
@@ -32,6 +49,10 @@ try {
   const stepSummary = fs.readFileSync(stepSummaryPath, 'utf8');
   assert(stepSummary.includes('<!-- merge-guard-pr-summary:v1 -->'));
   assert(stepSummary.includes('### Highest-risk files'));
+  const persistedReport = JSON.parse(fs.readFileSync(reportJsonPath, 'utf8'));
+  assert.equal(persistedReport.schemaVersion, 1);
+  assert.equal(persistedReport.tool, 'merge-guard');
+  assert(Array.isArray(persistedReport.rules));
 } finally {
   fs.rmSync(temporaryRoot, { recursive: true, force: true });
 }
@@ -95,6 +116,7 @@ assert.equal(
   'direct and manifest policy selection should conflict clearly'
 );
 assert.equal(run(['--policy-config']).status, 1, 'missing policy-config value should fail');
+assert.equal(run(['--report-json']).status, 1, 'missing report-json value should fail');
 const expiredManifestRun = run([
   '--json',
   '--policy-config',

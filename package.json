@@ -18,6 +18,7 @@
     "docs/review-guidance.md",
     "docs/policy-inheritance.md",
     "docs/pull-request-summaries.md",
+    "docs/github-review-outputs.md",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -35,6 +36,7 @@
     "test:guidance": "node scripts/review-guidance-contracts.js",
     "test:policy-resolution": "node scripts/policy-resolution-contracts.js",
     "test:pr-summary": "node scripts/pr-summary-contracts.js",
+    "test:github-review": "node scripts/github-review-contracts.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [

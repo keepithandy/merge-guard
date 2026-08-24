@@ -52,6 +52,8 @@ PR context appears in text, Markdown, JSON, and AI-ready output. It is context o
 
 Comment mode uses the compact summary contract: highest-risk files first, followed by expandable files, rules, and checks. CI writes the same compact view to `GITHUB_STEP_SUMMARY`, while report-only stdout remains the full Markdown report. See [compact pull-request summaries](pull-request-summaries.md).
 
+Set `annotations: "true"` to emit deduplicated native workflow annotations for findings with valid added-line anchors. Set `sarif: "true"` to generate, but not upload, `merge-guard.sarif`. The Action outputs `report-path`, `annotations-path`, and `sarif-path`; generation requires no extra secrets. SARIF upload is deliberately separate and may require `security-events: write` plus repository code-scanning availability. See [GitHub annotations and SARIF](github-review-outputs.md).
+
 ## Direct CI mode
 
 The equivalent CLI mode is:

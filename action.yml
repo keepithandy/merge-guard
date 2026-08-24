@@ -25,6 +25,14 @@ inputs:
     description: Optional repository-relative path to an explicit root/package policy manifest.
     required: false
     default: ""
+  annotations:
+    description: Emit deduplicated GitHub changed-line annotations for eligible findings.
+    required: false
+    default: "false"
+  sarif:
+    description: Generate merge-guard.sarif without uploading it.
+    required: false
+    default: "false"
   diff-path:
     description: Optional path to a prebuilt diff file. When omitted, the action generates the pull request diff.
     required: false
@@ -33,6 +41,17 @@ inputs:
     description: Print Markdown output instead of plain text. Comment mode always generates Markdown.
     required: false
     default: "true"
+
+outputs:
+  report-path:
+    description: Path to the complete JSON report generated from the authoritative diff.
+    value: ${{ steps.scan.outputs.report_path }}
+  annotations-path:
+    description: Path to the annotation bundle when annotations are enabled.
+    value: ${{ steps.github_review.outputs.annotations_path }}
+  sarif-path:
+    description: Path to the SARIF file when SARIF generation is enabled.
+    value: ${{ steps.github_review.outputs.sarif_path }}
 
 runs:
   using: composite
@@ -99,11 +118,47 @@ runs:
         fi
 
         set +e
-        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
+        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --report-json merge-guard-report.json --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
         scan_status=${PIPESTATUS[0]}
         set -e
 
         echo "exit_code=$scan_status" >> "$GITHUB_OUTPUT"
+        echo "diff_path=$diff_file" >> "$GITHUB_OUTPUT"
+        echo "report_path=merge-guard-report.json" >> "$GITHUB_OUTPUT"
+
+    - name: Generate optional GitHub review outputs
+      id: github_review
+      if: ${{ inputs.annotations == 'true' || inputs.sarif == 'true' }}
+      shell: bash
+      env:
+        MERGE_GUARD_ANNOTATIONS: ${{ inputs.annotations }}
+        MERGE_GUARD_SARIF: ${{ inputs.sarif }}
+        MERGE_GUARD_DIFF_PATH: ${{ steps.scan.outputs.diff_path }}
+        MERGE_GUARD_REPORT_PATH: ${{ steps.scan.outputs.report_path }}
+      run: |
+        if [ ! -s "$MERGE_GUARD_REPORT_PATH" ]; then
+          echo "JSON report was not produced; optional review projections are skipped."
+          echo "annotations_path=" >> "$GITHUB_OUTPUT"
+          echo "sarif_path=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        review_args=(--report "$MERGE_GUARD_REPORT_PATH" --diff "$MERGE_GUARD_DIFF_PATH")
+        annotations_path=""
+        sarif_path=""
+
+        if [ "$MERGE_GUARD_ANNOTATIONS" = "true" ]; then
+          annotations_path="merge-guard-annotations.json"
+          review_args+=(--annotations "$annotations_path" --emit-commands)
+        fi
+        if [ "$MERGE_GUARD_SARIF" = "true" ]; then
+          sarif_path="merge-guard.sarif"
+          review_args+=(--sarif "$sarif_path")
+        fi
+
+        node "$GITHUB_ACTION_PATH/scripts/github-review-outputs.js" "${review_args[@]}"
+        echo "annotations_path=$annotations_path" >> "$GITHUB_OUTPUT"
+        echo "sarif_path=$sarif_path" >> "$GITHUB_OUTPUT"
 
     - name: Comment on pull request
       if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}
