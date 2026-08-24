@@ -20,9 +20,9 @@ jobs:
       - name: Create known diff fixture
         shell: bash
         run: |
-          mkdir -p action-fixture
-          printf 'fixture\n' > action-fixture/example.txt
-          git diff --no-index /dev/null action-fixture/example.txt > action-fixture/sample.diff || true
+          mkdir -p action-fixture/src
+          printf 'renderApp();\n' > action-fixture/src/app.js
+          git diff --no-index /dev/null action-fixture/src/app.js > action-fixture/sample.diff || true
 
       - name: Run report-only Action
         uses: ./

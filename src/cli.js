@@ -76,7 +76,22 @@ function loadConfig() {
     parsed = JSON.parse(fs.readFileSync(configFile, 'utf8'));
   } catch (error) {
     throw new ConfigurationError('invalid merge-guard.config.json', [{
-      severity: 'fatal', path: '
+      severity: 'fatal',
+      path: '$',
+      code: 'invalid-json',
+      message: error.message,
+      receivedType: 'invalid-json',
+      expected: 'valid JSON object'
+    }]);
+  }
+
+  const diagnostics = validateConfig(parsed);
+  if (diagnostics.fatal.length) {
+    throw new ConfigurationError('invalid merge-guard.config.json', diagnostics.fatal);
+  }
+
+  parsed.__configWarnings = diagnostics.warnings;
+  return parsed;
 }
 
 function getOptionValue(args, optionName) {
@@ -251,191 +266,21 @@ async function main() {
 
 main().catch((error) => {
   if (error instanceof ConfigurationError) {
-    const output = { error: error.message, code: 'INVALID_CONFIGURATION', diagnostics: error.diagnostics };
-    if (process.argv.includes('--json')) console.error(JSON.stringify(output, null, 2));
-    else { console.error(`merge-guard configuration error: ${error.message}`); console.error(formatDiagnostics(error.diagnostics)); }
-  } else console.error('merge-guard error:', error.message);
-  process.exitCode = 1;
-});
-, code: 'invalid-json', message: error.message,
-      receivedType: 'invalid-json', expected: 'valid JSON object'
-    }]);
-  }
-  const diagnostics = validateConfig(parsed);
-  if (diagnostics.fatal.length) throw new ConfigurationError('invalid merge-guard.config.json', diagnostics.fatal);
-  parsed.__configWarnings = diagnostics.warnings;
-  return parsed;
-}
+    const output = {
+      error: error.message,
+      code: 'INVALID_CONFIGURATION',
+      diagnostics: error.diagnostics
+    };
 
-function getOptionValue(args, optionName) {
-  const optionIndex = args.indexOf(optionName);
-  if (optionIndex === -1) return null;
-
-  const value = args[optionIndex + 1];
-  if (!value || value.startsWith('--')) {
-    throw new Error(`${optionName} requires a value`);
-  }
-
-  return value;
-}
-
-function findFileArg(args) {
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-
-    if (VALUE_OPTIONS.has(arg)) {
-      index += 1;
-      continue;
+    if (process.argv.includes('--json')) {
+      console.error(JSON.stringify(output, null, 2));
+    } else {
+      console.error(`merge-guard configuration error: ${error.message}`);
+      console.error(formatDiagnostics(error.diagnostics));
     }
-
-    if (!arg.startsWith('--')) {
-      return arg;
-    }
-  }
-
-  return null;
-}
-
-function validateOptions(args) {
-  const unknown = args.filter((arg) => arg.startsWith('--') && !KNOWN_OPTIONS.has(arg));
-  if (unknown.length) {
-    throw new Error(`unknown option(s): ${unknown.join(', ')}`);
-  }
-}
-
-function resolveConfig(args) {
-  const config = loadConfig();
-  const preset = getOptionValue(args, '--preset');
-  const failThreshold = getOptionValue(args, '--fail-threshold');
-
-  if (preset) {
-    const normalizedPreset = preset.trim().toLowerCase();
-    if (!VALID_PRESETS.has(normalizedPreset)) {
-      throw new Error(`invalid preset: ${preset}. Use safe, standard, or strict.`);
-    }
-
-    config.preset = normalizedPreset;
-  }
-
-  if (failThreshold) {
-    const parsedThreshold = Number(failThreshold);
-    if (!Number.isInteger(parsedThreshold) || parsedThreshold < 1) {
-      throw new Error(`invalid fail threshold: ${failThreshold}. Use a positive integer.`);
-    }
-
-    config.failThreshold = parsedThreshold;
-  }
-
-  return config;
-}
-
-function resolvePrContext(args) {
-  const title = getOptionValue(args, '--pr-title');
-  const bodyPath = getOptionValue(args, '--pr-body');
-  let body = null;
-
-  if (bodyPath) {
-    if (!fs.existsSync(bodyPath)) {
-      throw new Error(`PR body file not found: ${bodyPath}`);
-    }
-
-    body = fs.readFileSync(bodyPath, 'utf8');
-  }
-
-  return normalizePrContext({ title, body });
-}
-
-function writeGitHubStepSummary(markdown) {
-  const summaryFile = process.env.GITHUB_STEP_SUMMARY;
-  if (!summaryFile) return;
-
-  fs.appendFileSync(summaryFile, `${markdown}\n`, 'utf8');
-}
-
-async function main() {
-  const args = process.argv.slice(2);
-
-  if (args.includes('--help') || args.includes('-h')) {
-    printHelp();
-    return;
-  }
-
-  validateOptions(args);
-
-  const jsonMode = args.includes('--json');
-  const markdownMode = args.includes('--markdown');
-  const ciMode = args.includes('--ci');
-  const aiMode = args.includes('--ai');
-  const fileArg = findFileArg(args);
-
-  let diffText = '';
-
-  if (fileArg) {
-    if (!fs.existsSync(fileArg)) {
-      console.error(`merge-guard error: file not found: ${fileArg}`);
-      process.exitCode = 1;
-      return;
-    }
-
-    diffText = fs.readFileSync(fileArg, 'utf8');
-  } else if (!process.stdin.isTTY) {
-    diffText = await readStdin();
   } else {
-    printHelp();
-    return;
+    console.error('merge-guard error:', error.message);
   }
 
-  if (!diffText.trim()) {
-    console.error('merge-guard error: no diff content provided');
-    process.exitCode = 1;
-    return;
-  }
-
-  const config = resolveConfig(args);
-  const prContext = resolvePrContext(args);
-  const report = applyPrContext(
-    applyProjectChecks(
-      applySuppressions(
-        applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
-        config.suppressions
-      ),
-      detectProjectChecks()
-    ),
-    prContext
-  );
-
-  if (aiMode) {
-    report.aiReview = appendPrContextToAiReview(
-      createAiReviewSummary(report, diffText),
-      prContext
-    );
-  }
-
-  const markdown = appendCustomRuleWarnings(
-    appendPrContext(formatMarkdownReport(report), prContext, 'markdown'),
-    report.customRuleWarnings,
-    'markdown'
-  );
-
-  if (ciMode) {
-    writeGitHubStepSummary(markdown);
-  }
-
-  if (jsonMode) {
-    console.log(JSON.stringify(report, null, 2));
-  } else if (markdownMode || ciMode) {
-    console.log(markdown);
-  } else {
-    const text = appendPrContext(formatReport(report), prContext);
-    console.log(appendCustomRuleWarnings(text, report.customRuleWarnings));
-  }
-
-  if (ciMode && report.riskScore >= report.config.failThreshold) {
-    process.exitCode = 1;
-  }
-}
-
-main().catch((error) => {
-  console.error('merge-guard error:', error.message);
   process.exitCode = 1;
 });
