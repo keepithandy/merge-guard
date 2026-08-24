@@ -1,0 +1,9 @@
+{
+  "name": "fixture-object-workspace",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "modules/*"
+    ]
+  }
+}
