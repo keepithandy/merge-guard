@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/policy-pack-v1.schema.json",
+  "title": "Merge Guard policy pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "identity",
+    "compatibility"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "identity": {
+      "$ref": "#/$defs/identity"
+    },
+    "compatibility": {
+      "$ref": "#/$defs/compatibility"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      },
+      "default": []
+    },
+    "protectedPaths": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/protectedPath"
+      },
+      "default": []
+    },
+    "requiredChecks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/requiredCheck"
+      },
+      "default": []
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "version"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimumMergeGuardVersion",
+        "maximumMergeGuardVersionExclusive",
+        "reportSchemaVersion"
+      ],
+      "properties": {
+        "minimumMergeGuardVersion": {
+          "$ref": "#/$defs/semver"
+        },
+        "maximumMergeGuardVersionExclusive": {
+          "$ref": "#/$defs/semver"
+        },
+        "reportSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "weight", "check"],
+      "anyOf": [
+        {
+          "required": ["pathPattern"]
+        },
+        {
+          "required": ["linePattern"]
+        }
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pathPattern": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "linePattern": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "weight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "check": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "requiredCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "command", "reason"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "protectedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "pattern", "reason"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "pattern": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requiredCheckIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true,
+          "default": []
+        }
+      }
+    }
+  }
+}

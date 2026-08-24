@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.warning-fixture",
+    "name": "Warning fixture",
+    "version": "1.0.0",
+    "maintainer": "team-tools"
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "requiredChecks": [
+    {
+      "id": "unit-tests",
+      "command": "npm test",
+      "reason": "Run unit tests."
+    },
+    {
+      "id": "duplicate-unit-tests",
+      "command": "npm test",
+      "reason": "Intentional duplicate command fixture."
+    }
+  ],
+  "notes": "Unknown top-level fields are warnings."
+}

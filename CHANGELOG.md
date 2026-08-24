@@ -14,6 +14,8 @@ Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 - Structured configuration diagnostics.
 - Schema-versioned JSON reports and deterministic contract snapshots.
 - Node 18/20/22/24 compatibility coverage on Ubuntu and Windows.
+- Repository-intelligence layouts, command explanations, and affected-package mapping.
+- Versioned policy-pack validation contract and machine-readable schema.
 
 ### Changed
 
@@ -64,6 +66,8 @@ Before cutting a release:
 - run `npm run smoke`
 - run `npm run test:cli`
 - run `npm run test:snapshots`
+- run `npm run test:repository`
+- run `npm run test:policies`
 - run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`

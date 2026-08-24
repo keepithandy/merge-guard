@@ -234,7 +234,18 @@ assert(existingComment?.id === 2, 'existing merge-guard comment should be found 
 
 const packageMetadata = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 assert(packageMetadata.bin?.['merge-guard'] === './src/cli.js', 'package should expose the merge-guard CLI');
-for (const packagePath of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
+for (const packagePath of [
+  'src/',
+  'scripts/',
+  'examples/',
+  'schemas/',
+  'docs/policy-packs.md',
+  'docs/policy-pack-migrations.md',
+  'action.yml',
+  'README.md',
+  'CHANGELOG.md',
+  'LICENSE'
+]) {
   assert(packageMetadata.files.includes(packagePath), `package files should include ${packagePath}`);
 }
 
@@ -256,6 +267,9 @@ assert(fs.existsSync('src/prContext.js'), 'PR context module should exist');
 assert(fs.existsSync('src/projectChecks.js'), 'Project check detector should exist');
 assert(fs.existsSync('src/affectedPackages.js'), 'Affected-package mapper should exist');
 assert(fs.existsSync('src/repositoryIntelligence.js'), 'Repository-intelligence composer should exist');
+assert(fs.existsSync('src/policyPacks.js'), 'Policy-pack validator should exist');
+assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
+assert(packageMetadata.scripts?.['test:policies'], 'Package should expose the policy conformance gate');
 
 const readme = fs.readFileSync('README.md', 'utf8');
 assert(readme.includes('npm pack --dry-run'), 'README should document package inspection');
@@ -266,6 +280,7 @@ assert(readme.includes('customRules'), 'README should document custom rules');
 assert(readme.includes('pathPattern'), 'README should include a realistic custom path rule');
 assert(readme.includes('--pr-title'), 'README should document PR title context');
 assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
+assert(readme.includes('Policy-pack schema'), 'README should document the policy-pack contract');
 
 const fixtureRoot = path.resolve('test/fixtures');
 const affectedFixtureDiff = fs.readFileSync(

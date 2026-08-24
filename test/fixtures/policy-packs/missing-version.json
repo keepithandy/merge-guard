@@ -1,0 +1,20 @@
+{
+  "identity": {
+    "id": "merge-guard.missing-version",
+    "name": "Missing version fixture",
+    "version": "1.0.0",
+    "description": "Fixture without a policy schema version."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "requiredChecks": [
+    {
+      "id": "unit-tests",
+      "command": "npm test",
+      "reason": "Exercise the required-check contract."
+    }
+  ]
+}
