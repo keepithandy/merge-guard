@@ -1,0 +1,127 @@
+{
+  "active": {
+    "schemaVersion": 1,
+    "riskScore": 1,
+    "ruleIds": [
+      "routing-or-entry",
+      "test-change"
+    ],
+    "suppressions": [
+      {
+        "ruleId": "routing-or-entry",
+        "reason": "Known app-entry migration",
+        "owner": "platform",
+        "expires": "2027-12-31",
+        "pathPattern": "src/app\\.js$"
+      }
+    ],
+    "warnings": [],
+    "suppressedFindings": [
+      {
+        "id": "routing-or-entry",
+        "matchedFiles": [
+          "src/app.js",
+          "src/app.test.js"
+        ],
+        "suppression": {
+          "ruleId": "routing-or-entry",
+          "reason": "Known app-entry migration",
+          "owner": "platform",
+          "expires": "2027-12-31",
+          "pathPattern": "src/app\\.js$"
+        }
+      }
+    ]
+  },
+  "expired": {
+    "schemaVersion": 1,
+    "riskScore": 1,
+    "ruleIds": [
+      "routing-or-entry",
+      "test-change"
+    ],
+    "suppressions": [
+      {
+        "ruleId": "routing-or-entry",
+        "reason": "Expired migration exception",
+        "owner": "platform",
+        "expires": "2025-01-01",
+        "pathPattern": "src/app\\.js$"
+      }
+    ],
+    "warnings": [
+      {
+        "path": "routing-or-entry",
+        "message": "expired on 2025-01-01; finding was not suppressed",
+        "severity": "warning"
+      }
+    ],
+    "suppressedFindings": []
+  },
+  "unmatched": {
+    "schemaVersion": 1,
+    "riskScore": 1,
+    "ruleIds": [
+      "routing-or-entry",
+      "test-change"
+    ],
+    "suppressions": [
+      {
+        "ruleId": "async-or-network",
+        "reason": "No matching finding in this fixture",
+        "owner": "platform",
+        "expires": "2027-12-31",
+        "pathPattern": "src/api"
+      }
+    ],
+    "warnings": [],
+    "suppressedFindings": []
+  },
+  "malformed": {
+    "schemaVersion": 1,
+    "riskScore": 1,
+    "ruleIds": [
+      "routing-or-entry",
+      "test-change"
+    ],
+    "suppressions": [],
+    "warnings": [
+      {
+        "path": "suppressions[0]",
+        "message": "expected an object",
+        "severity": "warning"
+      },
+      {
+        "path": "suppressions[1].ruleId",
+        "message": "required non-empty string",
+        "severity": "warning"
+      },
+      {
+        "path": "suppressions[1].reason",
+        "message": "required non-empty string",
+        "severity": "warning"
+      },
+      {
+        "path": "suppressions[1].owner",
+        "message": "required non-empty string",
+        "severity": "warning"
+      },
+      {
+        "path": "suppressions[1].expires",
+        "message": "required ISO date in YYYY-MM-DD format",
+        "severity": "warning"
+      },
+      {
+        "path": "suppressions[1].pathPattern",
+        "message": "must be a string when provided",
+        "severity": "warning"
+      },
+      {
+        "path": "suppressions[2].pathPattern",
+        "message": "invalid regular expression",
+        "severity": "warning"
+      }
+    ],
+    "suppressedFindings": []
+  }
+}
