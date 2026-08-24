@@ -22,7 +22,7 @@
     "comment": "node scripts/pr-comment.js",
     "test:cli": "node scripts/cli-contracts.js",
     "test:snapshots": "node scripts/snapshot-contracts.js",
-    "test:repository": "node scripts/repository-intelligence-contracts.js",
+    "test:repository": "node scripts/repository-intelligence-contracts.js && node scripts/repository-intelligence-snapshots.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [
