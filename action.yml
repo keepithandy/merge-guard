@@ -6,7 +6,7 @@ author: keepithandy
 
 inputs:
   preset:
-    description: Risk preset to use: safe, standard, or strict.
+    description: "Risk preset to use: safe, standard, or strict."
     required: false
     default: standard
   comment:
