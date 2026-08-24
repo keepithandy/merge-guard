@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { detectProjectCheckDetails, detectProjectChecks } from '../src/projectChecks.js';
 import { detectNpmWorkspaces } from '../src/workspaces.js';
 
 const root = process.cwd();
@@ -65,6 +66,54 @@ assert.equal(empty.kind, 'unknown');
 assert.deepEqual(empty.packages, []);
 assert.deepEqual(empty.warnings, []);
 
+const pythonDetails = detectProjectCheckDetails(fixture('python-project'));
+assert.deepEqual(
+  pythonDetails.map((entry) => entry.command),
+  [
+    'python -m pytest',
+    'python -m ruff check .',
+    'python -m black --check .',
+    'python -m mypy .',
+    'python -m flake8',
+    'python -m build',
+    'python -m tox',
+    'python -m unittest discover -s tests'
+  ]
+);
+assert(pythonDetails.every((entry) => entry.ecosystem === 'python'));
+assert(pythonDetails.every((entry) => entry.sources.length > 0));
+assert(pythonDetails.every((entry) => entry.sources.every((source) => source.path && source.reason)));
+const pytestDetail = pythonDetails.find((entry) => entry.command === 'python -m pytest');
+assert.equal(pytestDetail.sources.length, 2, 'metadata and README pytest commands should deduplicate');
+assert.deepEqual(detectProjectChecks(fixture('python-project')), pythonDetails.map((entry) => entry.command));
+
+const mixedDetails = detectProjectCheckDetails(fixture('mixed-project'));
+assert.deepEqual(
+  mixedDetails.map((entry) => entry.command),
+  [
+    'npm test',
+    'npm run lint',
+    'npm run build',
+    'npm run deploy:staging',
+    'npm run migrate:db',
+    'python -m pytest',
+    'python -m ruff check .',
+    'python -m build'
+  ]
+);
+assert(mixedDetails.some((entry) => entry.ecosystem === 'node'));
+assert(mixedDetails.some((entry) => entry.ecosystem === 'python'));
+assert.equal(mixedDetails.find((entry) => entry.command === 'npm test').sources.length, 2);
+assert.equal(mixedDetails.find((entry) => entry.command === 'python -m build').sources.length, 2);
+assert.deepEqual(
+  detectProjectCheckDetails(fixture('mixed-project')),
+  mixedDetails,
+  'mixed-project detection should be deterministic'
+);
+
+assert.deepEqual(detectProjectCheckDetails(fixture('malformed-python')), []);
+assert.deepEqual(detectProjectCheckDetails(fixture('empty')), []);
+
 const implementation = fs.readFileSync(path.join(root, 'src', 'workspaces.js'), 'utf8');
 assert(!implementation.includes('node:child_process'), 'workspace detection must remain read-only');
 assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(implementation), 'workspace detection must not execute commands');
@@ -73,3 +122,5 @@ console.log('repository intelligence contracts passed');
 console.log(`workspacePackages=${workspaces.packages.length}`);
 console.log(`workspaceWarnings=${workspaces.warnings.length}`);
 console.log(`layoutPackages=${layout.packages.length}`);
+console.log(`pythonChecks=${pythonDetails.length}`);
+console.log(`mixedChecks=${mixedDetails.length}`);
