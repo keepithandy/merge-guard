@@ -54,6 +54,8 @@ Comment mode uses the compact summary contract: highest-risk files first, follow
 
 Set `annotations: "true"` to emit deduplicated native workflow annotations for findings with valid added-line anchors. Set `sarif: "true"` to generate, but not upload, `merge-guard.sarif`. The Action outputs `report-path`, `annotations-path`, and `sarif-path`; generation requires no extra secrets. SARIF upload is deliberately separate and may require `security-events: write` plus repository code-scanning availability. See [GitHub annotations and SARIF](github-review-outputs.md).
 
+Set `compare: "true"` and pass `previous-report` to classify current findings against an explicitly retrieved prior JSON report. The Action exposes `comparison-path` and `comparison-status` and appends the comparison to the job summary and managed comment content. Without a previous report, status is `history-unavailable` and a warning is emitted; missing history is not reported as clean. Merge Guard never chooses or downloads prior artifacts automatically. See [finding comparison across pushes](finding-comparisons.md).
+
 ## Direct CI mode
 
 The equivalent CLI mode is:

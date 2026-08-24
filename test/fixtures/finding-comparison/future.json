@@ -1,0 +1,16 @@
+{
+  "tool": "merge-guard",
+  "version": "0.2.0",
+  "schemaVersion": 2,
+  "riskScore": 0,
+  "riskLevel": "LOW",
+  "mergeReadiness": "SAFE_TO_MERGE",
+  "docsOnly": false,
+  "config": { "preset": "standard", "failThreshold": 7, "reviewThreshold": 3 },
+  "summary": { "changedFiles": 0, "addedLines": 0, "removedLines": 0, "docsOnly": false, "files": [] },
+  "flags": [],
+  "suggestedChecks": [],
+  "configDiagnostics": [],
+  "files": [],
+  "rules": []
+}

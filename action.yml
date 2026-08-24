@@ -33,6 +33,14 @@ inputs:
     description: Generate merge-guard.sarif without uploading it.
     required: false
     default: "false"
+  compare:
+    description: Compare current findings with a previous immutable JSON report.
+    required: false
+    default: "false"
+  previous-report:
+    description: Optional path to the previous JSON report used when comparison is enabled.
+    required: false
+    default: ""
   diff-path:
     description: Optional path to a prebuilt diff file. When omitted, the action generates the pull request diff.
     required: false
@@ -52,6 +60,12 @@ outputs:
   sarif-path:
     description: Path to the SARIF file when SARIF generation is enabled.
     value: ${{ steps.github_review.outputs.sarif_path }}
+  comparison-path:
+    description: Path to the finding comparison JSON when comparison is enabled.
+    value: ${{ steps.finding_comparison.outputs.comparison_path }}
+  comparison-status:
+    description: compared, history-unavailable, or report-unavailable.
+    value: ${{ steps.finding_comparison.outputs.comparison_status }}
 
 runs:
   using: composite
@@ -159,6 +173,49 @@ runs:
         node "$GITHUB_ACTION_PATH/scripts/github-review-outputs.js" "${review_args[@]}"
         echo "annotations_path=$annotations_path" >> "$GITHUB_OUTPUT"
         echo "sarif_path=$sarif_path" >> "$GITHUB_OUTPUT"
+
+    - name: Compare findings with previous report
+      id: finding_comparison
+      if: ${{ inputs.compare == 'true' }}
+      shell: bash
+      env:
+        MERGE_GUARD_CURRENT_REPORT: ${{ steps.scan.outputs.report_path }}
+        MERGE_GUARD_PREVIOUS_REPORT: ${{ inputs.previous-report }}
+      run: |
+        comparison_path="merge-guard-comparison.json"
+        comparison_markdown="merge-guard-comparison.md"
+        if [ ! -s "$MERGE_GUARD_CURRENT_REPORT" ]; then
+          echo "Current JSON report was not produced; comparison is unavailable."
+          echo "comparison_path=" >> "$GITHUB_OUTPUT"
+          echo "comparison_status=report-unavailable" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        comparison_args=(--current "$MERGE_GUARD_CURRENT_REPORT" --output "$comparison_path" --markdown)
+        if [ -n "$MERGE_GUARD_PREVIOUS_REPORT" ]; then
+          comparison_args+=(--previous "$MERGE_GUARD_PREVIOUS_REPORT")
+        fi
+
+        set +e
+        node "$GITHUB_ACTION_PATH/scripts/compare-reports.js" "${comparison_args[@]}" > "$comparison_markdown"
+        comparison_exit=$?
+        set -e
+
+        if [ -s "$comparison_markdown" ] && [ -n "$GITHUB_STEP_SUMMARY" ]; then
+          cat "$comparison_markdown" >> "$GITHUB_STEP_SUMMARY"
+        fi
+        if [ -s "$comparison_markdown" ] && [ -f merge-guard-report.md ]; then
+          printf '\n\n' >> merge-guard-report.md
+          cat "$comparison_markdown" >> merge-guard-report.md
+        fi
+        if [ "$comparison_exit" -eq 2 ]; then
+          echo "::warning title=Merge Guard comparison::Previous report history is unavailable; finding changes are unknown."
+        elif [ "$comparison_exit" -ne 0 ]; then
+          exit "$comparison_exit"
+        fi
+
+        echo "comparison_path=$comparison_path" >> "$GITHUB_OUTPUT"
+        node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write('comparison_status='+value.status+'\n')" "$comparison_path" >> "$GITHUB_OUTPUT"
 
     - name: Comment on pull request
       if: ${{ inputs.comment == 'true' && github.event_name == 'pull_request' }}

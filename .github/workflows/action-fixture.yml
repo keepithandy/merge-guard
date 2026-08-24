@@ -46,6 +46,8 @@ jobs:
           comment: "false"
           annotations: "true"
           sarif: "true"
+          compare: "true"
+          previous-report: test/fixtures/finding-comparison/previous.json
           diff-path: action-fixture/sample.diff
 
       - name: Assert native review outputs
@@ -54,11 +56,15 @@ jobs:
           REPORT_PATH: ${{ steps.native_review.outputs.report-path }}
           ANNOTATIONS_PATH: ${{ steps.native_review.outputs.annotations-path }}
           SARIF_PATH: ${{ steps.native_review.outputs.sarif-path }}
+          COMPARISON_PATH: ${{ steps.native_review.outputs.comparison-path }}
+          COMPARISON_STATUS: ${{ steps.native_review.outputs.comparison-status }}
         run: |
           test -s "$REPORT_PATH"
           test -s "$ANNOTATIONS_PATH"
           test -s "$SARIF_PATH"
-          node -e "const fs=require('fs'); const a=JSON.parse(fs.readFileSync(process.env.ANNOTATIONS_PATH)); const s=JSON.parse(fs.readFileSync(process.env.SARIF_PATH)); if(a.schemaVersion!==1 || s.version!=='2.1.0') process.exit(1)"
+          test -s "$COMPARISON_PATH"
+          test "$COMPARISON_STATUS" = "compared"
+          node -e "const fs=require('fs'); const a=JSON.parse(fs.readFileSync(process.env.ANNOTATIONS_PATH)); const s=JSON.parse(fs.readFileSync(process.env.SARIF_PATH)); const c=JSON.parse(fs.readFileSync(process.env.COMPARISON_PATH)); if(a.schemaVersion!==1 || s.version!=='2.1.0' || c.status!=='compared') process.exit(1)"
 
       - name: Run Action with explicit starter policy
         uses: ./

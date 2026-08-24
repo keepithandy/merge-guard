@@ -71,6 +71,8 @@ Normal CLI reports also expose:
 
 `--annotations` and `--sarif` are optional projections of a completed report onto valid added-line locations from the authoritative diff. The annotation bundle has schema version 1; SARIF uses 2.1.0 and embeds the projection version. Findings without an eligible location remain in the normal report and are recorded as unsupported rather than dropped. See `docs/github-review-outputs.md`.
 
+Finding comparison output uses schema version 1 and identity version 1. It records canonical hashes of the complete previous/current reports and classifies stable rule/source/path identities as new, unchanged, or resolved. Missing history produces explicit unknown classifications and a distinct exit code. See `docs/finding-comparisons.md`.
+
 ## Files and rules
 
 Each `files` entry contains its path, risk level, risk score, changed-line counts, reason, flags, and matched rules. Each rule finding includes a stable ID, label, weight, reason, suggested check, matched files, and matched added-line count.

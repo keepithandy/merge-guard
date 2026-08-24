@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/finding-comparison-v1.schema.json",
+  "title": "Merge Guard finding comparison v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "findingIdentityVersion", "status", "historyAvailable", "classificationAvailable", "previous", "current", "summary", "findings", "warning", "semantics"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "findingIdentityVersion": { "const": 1 },
+    "status": { "enum": ["compared", "history-unavailable"] },
+    "historyAvailable": { "type": "boolean" },
+    "classificationAvailable": { "type": "boolean" },
+    "previous": { "oneOf": [{ "$ref": "#/$defs/report" }, { "type": "null" }] },
+    "current": { "$ref": "#/$defs/report" },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["new", "unchanged", "resolved"],
+      "properties": {
+        "new": { "type": ["integer", "null"], "minimum": 0 },
+        "unchanged": { "type": ["integer", "null"], "minimum": 0 },
+        "resolved": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["new", "unchanged", "resolved"],
+      "properties": {
+        "new": { "type": "array", "items": { "$ref": "#/$defs/finding" } },
+        "unchanged": { "type": "array", "items": { "$ref": "#/$defs/unchanged" } },
+        "resolved": { "type": "array", "items": { "$ref": "#/$defs/finding" } }
+      }
+    },
+    "warning": { "type": ["string", "null"] },
+    "semantics": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "toolVersion", "contentHash", "findingCount", "riskScore", "riskLevel", "mergeReadiness"],
+      "properties": {
+        "schemaVersion": { "type": "integer", "minimum": 1 },
+        "toolVersion": { "type": "string", "minLength": 1 },
+        "contentHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "findingCount": { "type": "integer", "minimum": 0 },
+        "riskScore": { "type": ["number", "null"] },
+        "riskLevel": { "type": ["string", "null"] },
+        "mergeReadiness": { "type": ["string", "null"] }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "identityVersion", "source", "ruleId", "path", "label", "weight", "reason", "check", "matchedLineCount", "policyPackId", "policyPackVersion", "exceptionIds"],
+      "properties": {
+        "identity": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "identityVersion": { "const": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "ruleId": { "type": "string", "minLength": 1 },
+        "path": { "type": ["string", "null"] },
+        "label": { "type": "string", "minLength": 1 },
+        "weight": { "type": "integer" },
+        "reason": { "type": "string", "minLength": 1 },
+        "check": { "type": ["string", "null"] },
+        "matchedLineCount": { "type": "integer", "minimum": 0 },
+        "policyPackId": { "type": ["string", "null"] },
+        "policyPackVersion": { "type": ["string", "null"] },
+        "exceptionIds": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "unchanged": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "previous", "current", "detailsChanged"],
+      "properties": {
+        "identity": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "previous": { "$ref": "#/$defs/finding" },
+        "current": { "$ref": "#/$defs/finding" },
+        "detailsChanged": { "type": "boolean" }
+      }
+    }
+  }
+}
