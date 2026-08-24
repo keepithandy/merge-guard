@@ -1,0 +1,38 @@
+{
+  "zeroWeight": {
+    "id": "zero-weight",
+    "label": "Zero-weight review marker",
+    "pathPattern": "src/",
+    "weight": 0
+  },
+  "maximumWeight": {
+    "id": "maximum-weight",
+    "label": "Maximum bounded rule",
+    "pathPattern": "src/",
+    "weight": 10
+  },
+  "negativeWeight": {
+    "id": "negative-weight",
+    "label": "Negative rule",
+    "pathPattern": "src/",
+    "weight": -1
+  },
+  "extremeWeight": {
+    "id": "extreme-weight",
+    "label": "Extreme rule",
+    "pathPattern": "src/",
+    "weight": 1000
+  },
+  "coercedWeight": {
+    "id": "coerced-weight",
+    "label": "String weight",
+    "pathPattern": "src/",
+    "weight": "3"
+  },
+  "duplicateWeight": {
+    "id": "duplicate-weight",
+    "label": "Duplicate rule",
+    "pathPattern": "src/",
+    "weight": 2
+  }
+}

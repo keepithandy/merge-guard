@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Bounded custom-rule weights to integer values from 0 through 10.
+- Rejected negative, fractional, string, non-finite, extreme, and duplicate custom-rule definitions.
+- Added edge-case fixtures and smoke coverage while preserving built-in scoring and preset thresholds.
+
 - Added project-defined `customRules` with path and added-line regular expressions.
 - Custom rule hits now share the normal rule, flag, score, file-risk, and suggested-check output.
 - Invalid custom rules are ignored safely and reported as warnings.
