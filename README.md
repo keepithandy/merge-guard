@@ -134,6 +134,20 @@ npx --package . merge-guard --markdown examples/sample.diff
 
 Publishing is intentionally manual. Before publishing, inspect the `npm pack --dry-run` file list and follow the release checklist in `CHANGELOG.md`.
 
+## Compatibility checks
+
+Merge Guard supports Node.js 18 or newer. The repository runs its smoke and CLI contract checks on Node 18, 20, 22, and 24 across Ubuntu and Windows through GitHub Actions.
+
+The matrix checks:
+
+- smoke tests
+- CLI help
+- sample diff analysis
+- JSON output
+- `npm pack --dry-run`
+
+The workflow installs with `npm install --no-package-lock`, uses the package metadata for npm cache configuration, and never publishes packages or creates releases.
+
 ## Output modes
 
 Plain text output is the default:
