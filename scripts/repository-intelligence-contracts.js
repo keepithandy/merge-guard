@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { detectProjectCheckDetails, detectProjectChecks } from '../src/projectChecks.js';
+import { mapChangedFilesToPackages, parseDiffFileChanges } from '../src/affectedPackages.js';
 import { detectNpmWorkspaces } from '../src/workspaces.js';
 
 const root = process.cwd();
@@ -66,6 +67,91 @@ assert.equal(empty.kind, 'unknown');
 assert.deepEqual(empty.packages, []);
 assert.deepEqual(empty.warnings, []);
 
+const affectedDiff = fs.readFileSync(
+  path.join(fixture('affected-packages'), 'changes.diff'),
+  'utf8'
+);
+const changedFiles = parseDiffFileChanges(affectedDiff);
+assert.deepEqual(changedFiles, [
+  {
+    path: 'apps/web/src/moved.js',
+    previousPath: 'packages/core/src/legacy.js',
+    status: 'renamed'
+  },
+  {
+    path: 'package.json',
+    previousPath: null,
+    status: 'modified'
+  },
+  {
+    path: 'packages/core/src/index.js',
+    previousPath: null,
+    status: 'modified'
+  },
+  {
+    path: 'packages/core/tools/cli/src/removed.js',
+    previousPath: null,
+    status: 'deleted'
+  }
+]);
+
+const affected = mapChangedFilesToPackages(affectedDiff, workspaces);
+assert.deepEqual(
+  affected.directPackages.map((entry) => entry.root),
+  ['apps/web', 'packages/core', 'packages/core/tools/cli']
+);
+assert.deepEqual(
+  affected.directPackages.find((entry) => entry.root === 'apps/web').files,
+  [{ path: 'apps/web/src/moved.js', status: 'renamed', role: 'current' }]
+);
+assert.deepEqual(
+  affected.directPackages.find((entry) => entry.root === 'packages/core').files,
+  [
+    { path: 'packages/core/src/index.js', status: 'modified', role: 'current' },
+    { path: 'packages/core/src/legacy.js', status: 'renamed', role: 'previous' }
+  ]
+);
+assert.deepEqual(
+  affected.directPackages.find((entry) => entry.root === 'packages/core/tools/cli').files,
+  [{ path: 'packages/core/tools/cli/src/removed.js', status: 'deleted', role: 'previous' }]
+);
+assert.deepEqual(
+  affected.sharedFiles,
+  [{ path: 'package.json', status: 'modified', role: 'current' }]
+);
+assert.deepEqual(
+  affected.sharedImpactPackages.map((entry) => entry.root),
+  ['apps/web', 'packages/core', 'packages/core/tools/cli']
+);
+assert(
+  affected.sharedImpactPackages.every((entry) => entry.reason.includes('does not infer dependencies')),
+  'shared impact must not claim a dependency graph'
+);
+assert.deepEqual(
+  mapChangedFilesToPackages(affectedDiff, workspaces),
+  affected,
+  'affected-package mapping should be deterministic'
+);
+
+const singlePackageDiff = [
+  'diff --git a/src/index.js b/src/index.js',
+  '--- a/src/index.js',
+  '+++ b/src/index.js'
+].join('\n');
+const singlePackage = mapChangedFilesToPackages(
+  singlePackageDiff,
+  detectNpmWorkspaces(fixture('node-project'))
+);
+assert.deepEqual(singlePackage.directPackages.map((entry) => entry.root), ['.']);
+assert.deepEqual(singlePackage.sharedFiles, []);
+
+const unsafeDiff = [
+  'diff --git a/../../outside.js b/../../outside.js',
+  '--- a/../../outside.js',
+  '+++ b/../../outside.js'
+].join('\n');
+assert.deepEqual(parseDiffFileChanges(unsafeDiff), []);
+
 const pythonDetails = detectProjectCheckDetails(fixture('python-project'));
 assert.deepEqual(
   pythonDetails.map((entry) => entry.command),
@@ -115,8 +201,11 @@ assert.deepEqual(detectProjectCheckDetails(fixture('malformed-python')), []);
 assert.deepEqual(detectProjectCheckDetails(fixture('empty')), []);
 
 const implementation = fs.readFileSync(path.join(root, 'src', 'workspaces.js'), 'utf8');
+const affectedImplementation = fs.readFileSync(path.join(root, 'src', 'affectedPackages.js'), 'utf8');
 assert(!implementation.includes('node:child_process'), 'workspace detection must remain read-only');
 assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(implementation), 'workspace detection must not execute commands');
+assert(!affectedImplementation.includes('node:child_process'), 'affected-package mapping must remain read-only');
+assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(affectedImplementation), 'affected-package mapping must not execute commands');
 
 console.log('repository intelligence contracts passed');
 console.log(`workspacePackages=${workspaces.packages.length}`);
@@ -124,3 +213,4 @@ console.log(`workspaceWarnings=${workspaces.warnings.length}`);
 console.log(`layoutPackages=${layout.packages.length}`);
 console.log(`pythonChecks=${pythonDetails.length}`);
 console.log(`mixedChecks=${mixedDetails.length}`);
+console.log(`affectedPackages=${affected.directPackages.length}`);
