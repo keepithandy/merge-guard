@@ -9,7 +9,7 @@ function parseFileChanges(diffText) {
   const changes = [];
   let current = null;
 
-  for (const line of diffText.split('\n')) {
+  for (const line of diffText.split(/\r?\n/)) {
     if (line.startsWith('diff --git ')) {
       const match = line.match(/^diff --git a\/(.*?) b\/(.*)$/);
       current = match
