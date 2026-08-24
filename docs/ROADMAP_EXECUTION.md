@@ -39,6 +39,41 @@
 - #65 — Push-to-push comparisons
 - #66 — End-to-end review fixtures
 
+### v0.6
+
+- #68 — Dashboard architecture and security boundary
+- #69 — Local diff and report import contracts
+- #70 — File-risk explorer and verification checklist
+- #71 — Accessible responsive layout and exports
+
+### v0.7
+
+- #72 — Immutable report artifact manifests
+- #73 — Deterministic report comparison
+- #74 — Accepted legacy-risk model
+- #75 — Trends and retention rules
+
+### v0.8
+
+- #76 — Rule-plugin manifest
+- #77 — Isolated plugin worker boundary
+- #78 — Checksums and artifact attestation
+- #79 — Plugin conformance kit
+
+### v0.9
+
+- #80 — Cross-platform installation and packaging
+- #81 — Security, dependency, and provenance review
+- #82 — Performance budgets and soak
+- #83 — Release-candidate examples, docs, and gate
+
+### v1.0
+
+- #84 — Stable public-contract freeze
+- #85 — Gated release artifacts and signing
+- #86 — npm and GitHub Marketplace listings
+- #87 — Post-release support and deprecation
+
 ## Definition of ready
 
 An issue is ready when it has:
