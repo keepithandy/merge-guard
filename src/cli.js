@@ -6,7 +6,7 @@ import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.j
 import { createAiReviewSummary } from './aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from './customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePrContext } from './prContext.js';
-import { applyProjectChecks, detectProjectChecks } from './projectChecks.js';
+import { applyRepositoryIntelligence, inspectRepository } from './repositoryIntelligence.js';
 import { applySuppressions } from './suppressions.js';
 import { ConfigurationError, formatDiagnostics, validateConfig } from './configDiagnostics.js';
 
@@ -47,7 +47,7 @@ Options:
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
   The optional customRules array adds project-specific path and added-line rules.
-  Suggested checks are enriched from package scripts, root smoke files, and README commands.
+  Suggested checks are enriched from JavaScript/Python metadata, root checks, and README commands.\n  Workspace ownership and potential shared impact are reported without dependency inference.
 `);
 }
 
@@ -220,13 +220,14 @@ async function main() {
 
   const config = resolveConfig(args);
   const prContext = resolvePrContext(args);
+  const repositoryIntelligence = inspectRepository(diffText);
   const report = applyPrContext(
-    applyProjectChecks(
+    applyRepositoryIntelligence(
       applySuppressions(
         applyCustomRules(analyzeDiff(diffText, config), diffText, config.customRules),
         config.suppressions
       ),
-      detectProjectChecks()
+      repositoryIntelligence
     ),
     prContext
   );
