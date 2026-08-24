@@ -1,0 +1,18 @@
+{
+  "action": "opened",
+  "number": 63,
+  "repository": {
+    "full_name": "keepithandy/merge-guard"
+  },
+  "pull_request": {
+    "number": 63,
+    "title": "Harden <startup> while preserving score",
+    "body": "Reviewer context only: keep **diff-derived** scoring authoritative.",
+    "base": {
+      "sha": "1111111111111111111111111111111111111111"
+    },
+    "head": {
+      "sha": "2222222222222222222222222222222222222222"
+    }
+  }
+}

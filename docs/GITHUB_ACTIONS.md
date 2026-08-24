@@ -50,6 +50,8 @@ On `pull_request` events, the Action passes `github.event.pull_request.title` an
 
 PR context appears in text, Markdown, JSON, and AI-ready output. It is context only: rules, scores, readiness, and failure thresholds remain diff-authoritative. On events without pull request metadata, the Action runs without PR context.
 
+Comment mode uses the compact summary contract: highest-risk files first, followed by expandable files, rules, and checks. CI writes the same compact view to `GITHUB_STEP_SUMMARY`, while report-only stdout remains the full Markdown report. See [compact pull-request summaries](pull-request-summaries.md).
+
 ## Direct CI mode
 
 The equivalent CLI mode is:
@@ -66,7 +68,7 @@ node src/cli.js --ci --preset strict --fail-threshold 5 pr.diff
 The composite Action uses `scripts/pr-comment.js`. The helper includes a stable hidden marker, so reruns update the prior Merge Guard comment instead of creating duplicates.
 
 ```bash
-node src/cli.js --markdown pr.diff > merge-guard-report.md
+node src/cli.js --pr-summary pr.diff > merge-guard-report.md
 node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 

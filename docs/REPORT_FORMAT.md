@@ -65,6 +65,10 @@ Normal CLI reports also expose:
 
 `policyResolution` records root/package precedence and per-path provenance after explicit manifest selection. `policyExceptions` records active and unmatched reasoned/owned/expiring annotations. Exceptions never change score, checks, guidance, or CI thresholds. See `docs/policy-inheritance.md`.
 
+## Pull-request summary view
+
+`--pr-summary` is a deterministic Markdown projection of the completed report, not a second report schema or scoring path. Contract version 1 puts risk and the highest-risk files first, then exposes expandable files, rules, and checks. It never mutates report values or derives risk from PR text. See `docs/pull-request-summaries.md` and the committed `test/snapshots/pr-summary-*.md` fixtures.
+
 ## Files and rules
 
 Each `files` entry contains its path, risk level, risk score, changed-line counts, reason, flags, and matched rules. Each rule finding includes a stable ID, label, weight, reason, suggested check, matched files, and matched added-line count.

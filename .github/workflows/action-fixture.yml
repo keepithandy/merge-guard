@@ -31,6 +31,13 @@ jobs:
           comment: "false"
           diff-path: action-fixture/sample.diff
 
+      - name: Run compact pull-request summary fixture
+        shell: bash
+        run: |
+          node src/cli.js --pr-summary action-fixture/sample.diff > action-fixture/summary.md
+          grep -q '<!-- merge-guard-pr-summary:v1 -->' action-fixture/summary.md
+          grep -q '<summary>Files (' action-fixture/summary.md
+
       - name: Run Action with explicit starter policy
         uses: ./
         with:

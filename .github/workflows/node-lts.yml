@@ -59,6 +59,9 @@ jobs:
       - name: Run policy inheritance and exception contracts
         run: npm run test:policy-resolution
 
+      - name: Run pull-request summary contracts
+        run: npm run test:pr-summary
+
       - name: Run release-readiness suite
         run: npm run release:check
 

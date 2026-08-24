@@ -1,14 +1,40 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-function run(args, input = '') {
+function run(args, input = '', options = {}) {
   return spawnSync(process.execPath, ['src/cli.js', ...args], {
     input,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    env: { ...process.env, ...(options.env || {}) }
   });
 }
 
 assert.equal(run(['--help']).status, 0, 'help should succeed');
+const prSummaryRun = run(['--pr-summary', 'examples/sample.diff']);
+assert.equal(prSummaryRun.status, 0, 'pull-request summary mode should succeed');
+assert(prSummaryRun.stdout.includes('<!-- merge-guard-pr-summary:v1 -->'));
+assert(prSummaryRun.stdout.includes('<summary>Files (2)</summary>'));
+assert(prSummaryRun.stdout.includes('<summary>Rules (2)</summary>'));
+assert(prSummaryRun.stdout.includes('<summary>Suggested and required checks ('));
+const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-cli-'));
+try {
+  const stepSummaryPath = path.join(temporaryRoot, 'step-summary.md');
+  const ciRun = run(
+    ['--ci', '--fail-threshold', '999', 'examples/sample.diff'],
+    '',
+    { env: { GITHUB_STEP_SUMMARY: stepSummaryPath } }
+  );
+  assert.equal(ciRun.status, 0, 'CI summary contract should succeed below its explicit threshold');
+  assert(ciRun.stdout.includes('# merge-guard report'), 'CI stdout should preserve the full Markdown report');
+  const stepSummary = fs.readFileSync(stepSummaryPath, 'utf8');
+  assert(stepSummary.includes('<!-- merge-guard-pr-summary:v1 -->'));
+  assert(stepSummary.includes('### Highest-risk files'));
+} finally {
+  fs.rmSync(temporaryRoot, { recursive: true, force: true });
+}
 assert.equal(run(['--preset', 'strict', 'examples/sample.diff']).status, 0, 'value options should consume their value');
 const jsonRun = run(['--json', 'examples/sample.diff']);
 assert.equal(jsonRun.status, 0, 'JSON mode should succeed');
