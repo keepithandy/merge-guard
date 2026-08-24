@@ -57,6 +57,7 @@ This version supports:
 - optional pull request title/body context
 - repository-aware suggested checks with source/reason metadata
 - npm workspace boundaries and affected-package mapping
+- a versioned, validated policy-pack schema
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
@@ -161,6 +162,7 @@ npm run smoke
 npm run test:cli
 npm run test:snapshots
 npm run test:repository
+npm run test:policies
 npm run release:check
 ```
 
@@ -308,6 +310,23 @@ Detected commands still appear first under **Suggested checks** and remain avail
 Repository-level files are reported explicitly. Potential shared impact never claims a dependency relationship. When no supported project command exists, the generic suggested checks remain unchanged.
 
 See [repository intelligence](docs/repository-intelligence.md) for the exact supported layouts, unsupported cases, report fields, and conformance fixtures.
+
+## Policy-pack schema
+
+Merge Guard defines a versioned reusable-policy contract for identity, compatibility, risk rules, protected paths, and required checks. Validation is read-only and does not select a pack, execute a command, or change built-in scoring defaults.
+
+```js
+import { validatePolicyPack } from './src/policyPacks.js';
+
+const result = validatePolicyPack(policyData);
+if (!result.valid) {
+  console.error(result.fatal);
+}
+```
+
+Schema version 1 rejects missing, malformed, legacy, future, and runtime-incompatible packs with structured fatal diagnostics. Unknown fields, missing descriptions, duplicate command strings, and empty behavior produce warnings. The machine-readable schema is `schemas/policy-pack-v1.schema.json`.
+
+Run `npm run test:policies` for the compatibility gate. See [the policy-pack contract](docs/policy-packs.md) and [migration rules](docs/policy-pack-migrations.md). Pack selection remains explicit; validation alone never applies policy behavior.
 
 ## Rule explanations
 

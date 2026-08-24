@@ -10,6 +10,9 @@
     "src/",
     "scripts/",
     "examples/",
+    "schemas/",
+    "docs/policy-packs.md",
+    "docs/policy-pack-migrations.md",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -23,6 +26,7 @@
     "test:cli": "node scripts/cli-contracts.js",
     "test:snapshots": "node scripts/snapshot-contracts.js",
     "test:repository": "node scripts/repository-intelligence-contracts.js && node scripts/repository-intelligence-snapshots.js",
+    "test:policies": "node scripts/policy-pack-contracts.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [

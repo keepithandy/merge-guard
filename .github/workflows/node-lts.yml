@@ -50,6 +50,9 @@ jobs:
       - name: Run repository-intelligence contracts and snapshots
         run: npm run test:repository
 
+      - name: Run policy-pack contracts
+        run: npm run test:policies
+
       - name: Run release-readiness suite
         run: npm run release:check
 

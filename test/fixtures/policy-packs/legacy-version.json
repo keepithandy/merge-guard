@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 0,
+  "identity": {
+    "id": "merge-guard.legacy",
+    "name": "Legacy policy fixture",
+    "version": "0.9.0",
+    "description": "Fixture from the pre-v1 policy format."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  }
+}

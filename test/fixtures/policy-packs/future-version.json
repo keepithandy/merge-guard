@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 2,
+  "identity": {
+    "id": "merge-guard.future",
+    "name": "Future policy fixture",
+    "version": "2.0.0",
+    "description": "Fixture from a future policy schema."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1",
+  "identity": {
+    "id": "Not Valid",
+    "name": "",
+    "version": "latest"
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "2.0.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 99
+  },
+  "rules": [
+    {
+      "id": "broken-rule",
+      "label": "Broken rule",
+      "pathPattern": "[",
+      "weight": -1,
+      "check": ""
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "protected",
+      "pattern": "^src/",
+      "reason": "Focused review is required.",
+      "requiredCheckIds": [
+        "missing-check"
+      ]
+    }
+  ],
+  "requiredChecks": {}
+}

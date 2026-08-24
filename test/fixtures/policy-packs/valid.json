@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.frontend-base",
+    "name": "Frontend base policy",
+    "version": "1.2.0",
+    "description": "Review policy for a browser-facing JavaScript application."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "browser-storage-change",
+      "label": "Browser storage behavior changed",
+      "pathPattern": "^src/(storage|state)/",
+      "linePattern": "localStorage|sessionStorage",
+      "weight": 4,
+      "check": "Run the browser persistence smoke test."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "authentication-ui",
+      "pattern": "^src/auth/",
+      "reason": "Authentication UI changes require focused review.",
+      "requiredCheckIds": [
+        "unit-tests"
+      ]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "unit-tests",
+      "command": "npm test",
+      "reason": "The pack requires the root unit suite."
+    }
+  ]
+}
