@@ -1,0 +1,57 @@
+{
+  "tool": "merge-guard",
+  "version": "0.1.0",
+  "schemaVersion": 1,
+  "riskScore": 6,
+  "riskLevel": "MEDIUM",
+  "mergeReadiness": "NEEDS_REVIEW",
+  "docsOnly": false,
+  "config": { "preset": "standard", "failThreshold": 7, "reviewThreshold": 3 },
+  "summary": { "changedFiles": 2, "addedLines": 20, "removedLines": 4, "docsOnly": false, "files": ["src/app.js", "src/legacyState.js"] },
+  "flags": ["Routing or entry-point logic changed", "State or persistence logic changed", "Large diff size"],
+  "suggestedChecks": ["Test app startup.", "Test save and load.", "Review in sections."],
+  "configDiagnostics": [],
+  "files": [
+    {
+      "path": "src/app.js",
+      "rules": [
+        { "id": "routing-or-entry" }
+      ]
+    },
+    {
+      "path": "src/legacyState.js",
+      "rules": [
+        { "id": "state-or-persistence" }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "routing-or-entry",
+      "label": "Routing or entry-point logic changed",
+      "weight": 2,
+      "reason": "The app entry changed on the first push.",
+      "check": "Test app startup.",
+      "matchedFiles": ["src/app.js"],
+      "matchedLineCount": 1
+    },
+    {
+      "id": "state-or-persistence",
+      "label": "State or persistence logic changed",
+      "weight": 3,
+      "reason": "Legacy state persistence changed on the first push.",
+      "check": "Test save and load.",
+      "matchedFiles": ["src/legacyState.js"],
+      "matchedLineCount": 1
+    },
+    {
+      "id": "large-change",
+      "label": "Large diff size",
+      "weight": 1,
+      "reason": "The first push crossed the configured large-change boundary.",
+      "check": "Review in sections.",
+      "matchedFiles": [],
+      "matchedLineCount": 0
+    }
+  ]
+}

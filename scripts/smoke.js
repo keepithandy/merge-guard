@@ -252,6 +252,7 @@ for (const packagePath of [
   'docs/policy-inheritance.md',
   'docs/pull-request-summaries.md',
   'docs/github-review-outputs.md',
+  'docs/finding-comparisons.md',
   'action.yml',
   'README.md',
   'CHANGELOG.md',
@@ -269,7 +270,7 @@ assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-polic
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'fail-threshold:', 'policy:', 'policy-config:', 'annotations:', 'sarif:', 'report-path:', 'annotations-path:', 'sarif-path:', 'diff-path:', '--pr-summary', '--report-json', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js']) {
+for (const actionContract of ['comment:', 'fail-threshold:', 'policy:', 'policy-config:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'report-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'diff-path:', '--pr-summary', '--report-json', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -285,14 +286,17 @@ assert(fs.existsSync('src/reviewGuidance.js'), 'Review-guidance module should ex
 assert(fs.existsSync('src/policyResolution.js'), 'Policy-resolution module should exist');
 assert(fs.existsSync('src/pullRequestSummary.js'), 'Pull-request summary module should exist');
 assert(fs.existsSync('src/githubReviewOutputs.js'), 'GitHub review-output module should exist');
+assert(fs.existsSync('src/findingComparison.js'), 'Finding-comparison module should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
 assert(fs.existsSync('schemas/github-review-output-v1.schema.json'), 'GitHub review-output JSON schema should exist');
+assert(fs.existsSync('schemas/finding-comparison-v1.schema.json'), 'Finding-comparison JSON schema should exist');
 assert(packageMetadata.scripts?.['test:policies'], 'Package should expose the policy conformance gate');
 assert(packageMetadata.scripts?.['test:guidance'], 'Package should expose the review-guidance gate');
 assert(packageMetadata.scripts?.['test:policy-resolution'], 'Package should expose the policy-resolution gate');
 assert(packageMetadata.scripts?.['test:pr-summary'], 'Package should expose the pull-request summary gate');
 assert(packageMetadata.scripts?.['test:github-review'], 'Package should expose the GitHub review-output gate');
+assert(packageMetadata.scripts?.['test:finding-comparison'], 'Package should expose the finding-comparison gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -314,6 +318,7 @@ assert(readme.includes('Expiring policy exceptions'), 'README should document ex
 assert(readme.includes('--pr-summary'), 'README should document compact pull-request summaries');
 assert(readme.includes('--annotations'), 'README should document changed-line annotation output');
 assert(readme.includes('--sarif'), 'README should document optional SARIF output');
+assert(readme.includes('compare-reports.js'), 'README should document immutable finding comparison');
 
 const fixtureRoot = path.resolve('test/fixtures');
 const affectedFixtureDiff = fs.readFileSync(

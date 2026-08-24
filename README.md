@@ -63,6 +63,7 @@ This version supports:
 - deterministic monorepo policy inheritance and expiring annotation-only exceptions
 - compact pull-request summaries with expandable files, rules, and checks
 - optional deduplicated changed-line annotations and SARIF 2.1.0 generation
+- deterministic new, unchanged, and resolved finding comparisons across supplied reports
 - pull request comment update helpers
 - npm/npx-compatible package metadata
 - a reusable composite GitHub Action
@@ -171,6 +172,7 @@ npm run test:guidance
 npm run test:policy-resolution
 npm run test:pr-summary
 npm run test:github-review
+npm run test:finding-comparison
 npm run release:check
 ```
 
@@ -210,6 +212,17 @@ node src/cli.js --sarif examples/sample.diff > merge-guard.sarif
 ```
 
 See [GitHub annotations and SARIF](docs/github-review-outputs.md) for the versioned bundle, location semantics, Action inputs, and explicit SARIF upload boundary.
+
+Compare two immutable JSON reports from successive pushes:
+
+```bash
+node scripts/compare-reports.js \
+  --previous previous-report.json \
+  --current current-report.json \
+  --markdown
+```
+
+Missing previous history is reported as unknown with exit code 2, never as a clean zero-finding comparison. See [finding comparison across pushes](docs/finding-comparisons.md).
 
 CI mode prints Markdown and exits with a failure when the report reaches the configured `failThreshold`:
 

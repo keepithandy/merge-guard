@@ -1,0 +1,57 @@
+{
+  "tool": "merge-guard",
+  "version": "0.1.0",
+  "schemaVersion": 1,
+  "riskScore": 5,
+  "riskLevel": "MEDIUM",
+  "mergeReadiness": "NEEDS_REVIEW",
+  "docsOnly": false,
+  "config": { "preset": "standard", "failThreshold": 7, "reviewThreshold": 3 },
+  "summary": { "changedFiles": 2, "addedLines": 12, "removedLines": 6, "docsOnly": false, "files": ["src/api.js", "src/app.js"] },
+  "flags": ["Routing or entry-point logic changed", "Async or network behavior changed", "Large diff size"],
+  "suggestedChecks": ["Test app startup and navigation.", "Test loading and failure states.", "Review in sections."],
+  "configDiagnostics": [],
+  "files": [
+    {
+      "path": "src/api.js",
+      "rules": [
+        { "id": "async-or-network" }
+      ]
+    },
+    {
+      "path": "src/app.js",
+      "rules": [
+        { "id": "routing-or-entry" }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "id": "routing-or-entry",
+      "label": "Routing or entry-point logic changed",
+      "weight": 2,
+      "reason": "The app entry remains changed after review feedback.",
+      "check": "Test app startup and navigation.",
+      "matchedFiles": ["src/app.js"],
+      "matchedLineCount": 2
+    },
+    {
+      "id": "async-or-network",
+      "label": "Async or network behavior changed",
+      "weight": 2,
+      "reason": "The second push added an API request.",
+      "check": "Test loading and failure states.",
+      "matchedFiles": ["src/api.js"],
+      "matchedLineCount": 1
+    },
+    {
+      "id": "large-change",
+      "label": "Large diff size",
+      "weight": 1,
+      "reason": "The second push remains above the large-change boundary.",
+      "check": "Review in sections.",
+      "matchedFiles": [],
+      "matchedLineCount": 0
+    }
+  ]
+}

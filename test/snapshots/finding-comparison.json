@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "findingIdentityVersion": 1,
+  "status": "compared",
+  "historyAvailable": true,
+  "classificationAvailable": true,
+  "previous": {
+    "schemaVersion": 1,
+    "toolVersion": "0.1.0",
+    "contentHash": "8574ceea65de6ef0068efbc72a47131e6351747b125d59a6ae1be742b6761540",
+    "findingCount": 3,
+    "riskScore": 6,
+    "riskLevel": "MEDIUM",
+    "mergeReadiness": "NEEDS_REVIEW"
+  },
+  "current": {
+    "schemaVersion": 1,
+    "toolVersion": "0.1.0",
+    "contentHash": "4256e00abb0d3630bf6ae8a4a2d48d40a57a456f424396c7d2a0cb51939d4103",
+    "findingCount": 3,
+    "riskScore": 5,
+    "riskLevel": "MEDIUM",
+    "mergeReadiness": "NEEDS_REVIEW"
+  },
+  "summary": {
+    "new": 1,
+    "unchanged": 2,
+    "resolved": 1
+  },
+  "findings": {
+    "new": [
+      {
+        "identity": "84c7f677cc21df9c9b9acb84e280bdf89e08c9e003361da63da5865dd9912cc9",
+        "identityVersion": 1,
+        "source": "builtin",
+        "ruleId": "async-or-network",
+        "path": "src/api.js",
+        "label": "Async or network behavior changed",
+        "weight": 2,
+        "reason": "The second push added an API request.",
+        "check": "Test loading and failure states.",
+        "matchedLineCount": 1,
+        "policyPackId": null,
+        "policyPackVersion": null,
+        "exceptionIds": []
+      }
+    ],
+    "unchanged": [
+      {
+        "identity": "02816f09fb0d6bef48b7af734c01c9c96592d2396a147ea2b376dc990dea8700",
+        "previous": {
+          "identity": "02816f09fb0d6bef48b7af734c01c9c96592d2396a147ea2b376dc990dea8700",
+          "identityVersion": 1,
+          "source": "builtin",
+          "ruleId": "large-change",
+          "path": null,
+          "label": "Large diff size",
+          "weight": 1,
+          "reason": "The first push crossed the configured large-change boundary.",
+          "check": "Review in sections.",
+          "matchedLineCount": 0,
+          "policyPackId": null,
+          "policyPackVersion": null,
+          "exceptionIds": []
+        },
+        "current": {
+          "identity": "02816f09fb0d6bef48b7af734c01c9c96592d2396a147ea2b376dc990dea8700",
+          "identityVersion": 1,
+          "source": "builtin",
+          "ruleId": "large-change",
+          "path": null,
+          "label": "Large diff size",
+          "weight": 1,
+          "reason": "The second push remains above the large-change boundary.",
+          "check": "Review in sections.",
+          "matchedLineCount": 0,
+          "policyPackId": null,
+          "policyPackVersion": null,
+          "exceptionIds": []
+        },
+        "detailsChanged": true
+      },
+      {
+        "identity": "f1d0972cffc11cbb5204fde537152bd4de0102667b5993562d2f8d26e5439854",
+        "previous": {
+          "identity": "f1d0972cffc11cbb5204fde537152bd4de0102667b5993562d2f8d26e5439854",
+          "identityVersion": 1,
+          "source": "builtin",
+          "ruleId": "routing-or-entry",
+          "path": "src/app.js",
+          "label": "Routing or entry-point logic changed",
+          "weight": 2,
+          "reason": "The app entry changed on the first push.",
+          "check": "Test app startup.",
+          "matchedLineCount": 1,
+          "policyPackId": null,
+          "policyPackVersion": null,
+          "exceptionIds": []
+        },
+        "current": {
+          "identity": "f1d0972cffc11cbb5204fde537152bd4de0102667b5993562d2f8d26e5439854",
+          "identityVersion": 1,
+          "source": "builtin",
+          "ruleId": "routing-or-entry",
+          "path": "src/app.js",
+          "label": "Routing or entry-point logic changed",
+          "weight": 2,
+          "reason": "The app entry remains changed after review feedback.",
+          "check": "Test app startup and navigation.",
+          "matchedLineCount": 2,
+          "policyPackId": null,
+          "policyPackVersion": null,
+          "exceptionIds": []
+        },
+        "detailsChanged": true
+      }
+    ],
+    "resolved": [
+      {
+        "identity": "6d28a72e203ba2fbf7a36ea62e9db47b3853bf4d987da3b4b2445c3937a44891",
+        "identityVersion": 1,
+        "source": "builtin",
+        "ruleId": "state-or-persistence",
+        "path": "src/legacyState.js",
+        "label": "State or persistence logic changed",
+        "weight": 3,
+        "reason": "Legacy state persistence changed on the first push.",
+        "check": "Test save and load.",
+        "matchedLineCount": 1,
+        "policyPackId": null,
+        "policyPackVersion": null,
+        "exceptionIds": []
+      }
+    ]
+  },
+  "warning": null,
+  "semantics": "comparison-only; resolved means absent from the current report and does not by itself prove remediation"
+}

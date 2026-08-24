@@ -19,6 +19,7 @@
     "docs/policy-inheritance.md",
     "docs/pull-request-summaries.md",
     "docs/github-review-outputs.md",
+    "docs/finding-comparisons.md",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -37,6 +38,8 @@
     "test:policy-resolution": "node scripts/policy-resolution-contracts.js",
     "test:pr-summary": "node scripts/pr-summary-contracts.js",
     "test:github-review": "node scripts/github-review-contracts.js",
+    "test:finding-comparison": "node scripts/finding-comparison-contracts.js",
+    "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [
