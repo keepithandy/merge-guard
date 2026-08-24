@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { detectProjectCheckDetails, detectProjectChecks } from '../src/projectChecks.js';
+import { applyProjectChecks, detectProjectCheckDetails, detectProjectChecks } from '../src/projectChecks.js';
 import { mapChangedFilesToPackages, parseDiffFileChanges } from '../src/affectedPackages.js';
 import { detectNpmWorkspaces } from '../src/workspaces.js';
 
@@ -199,6 +199,21 @@ assert.deepEqual(
 
 assert.deepEqual(detectProjectCheckDetails(fixture('malformed-python')), []);
 assert.deepEqual(detectProjectCheckDetails(fixture('empty')), []);
+
+const detailedReport = applyProjectChecks({ suggestedChecks: ['Generic fallback'] }, mixedDetails);
+assert.deepEqual(
+  detailedReport.projectChecks,
+  mixedDetails.map((entry) => entry.command),
+  'legacy projectChecks should preserve detailed command order'
+);
+assert.deepEqual(detailedReport.projectCheckDetails, mixedDetails);
+assert.equal(new Set(detailedReport.projectChecks).size, detailedReport.projectChecks.length);
+assert(detailedReport.suggestedChecks[0].startsWith('Project check:'));
+
+const fallbackReport = applyProjectChecks({ suggestedChecks: ['Generic fallback'] }, []);
+assert.deepEqual(fallbackReport.projectChecks, []);
+assert.deepEqual(fallbackReport.projectCheckDetails, []);
+assert.deepEqual(fallbackReport.suggestedChecks, ['Generic fallback']);
 
 const implementation = fs.readFileSync(path.join(root, 'src', 'workspaces.js'), 'utf8');
 const affectedImplementation = fs.readFileSync(path.join(root, 'src', 'affectedPackages.js'), 'utf8');
