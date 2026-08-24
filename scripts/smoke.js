@@ -28,7 +28,9 @@ function assertNumber(value, fieldName) {
 
 const diffText = fs.readFileSync('examples/sample.diff', 'utf8');
 const report = analyzeDiff(diffText);
+const noContextReport = applyPrContext(analyzeDiff(diffText), null);
 
+assert(noContextReport.prContext === null, 'missing PR context should remain optional');
 assert(report && typeof report === 'object', 'report should be an object');
 assertString(report.riskLevel, 'riskLevel');
 assertString(report.mergeReadiness, 'mergeReadiness');
