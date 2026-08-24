@@ -1,0 +1,129 @@
+{
+  "$schema": "../schemas/dashboard-boundary-v1.schema.json",
+  "schemaVersion": 1,
+  "status": "accepted",
+  "implementationStatus": "architecture-only",
+  "runtime": {
+    "plannedEntrypoint": "node dashboard/server.js",
+    "server": {
+      "bindHost": "127.0.0.1",
+      "port": "ephemeral",
+      "methods": [
+        "GET",
+        "HEAD"
+      ],
+      "assetAccess": "fixed-allowlist",
+      "acceptsRequestBodies": false,
+      "acceptsUserFiles": false,
+      "hostHeaderPolicy": "exact-loopback-authority",
+      "cors": false,
+      "cache": "no-store"
+    },
+    "browser": {
+      "inputAcquisition": [
+        "file-picker",
+        "drag-and-drop"
+      ],
+      "processing": "dedicated-module-worker",
+      "state": "memory-only",
+      "serviceWorker": false,
+      "remoteRequests": false
+    }
+  },
+  "inputs": {
+    "diff": {
+      "extensions": [
+        ".diff",
+        ".patch"
+      ],
+      "maxBytes": 20971520,
+      "maxLines": 200000,
+      "encoding": "utf-8",
+      "requiredMarker": "diff --git ",
+      "reject": [
+        "archive",
+        "binary-patch",
+        "nul-byte"
+      ]
+    },
+    "report": {
+      "extensions": [
+        ".json"
+      ],
+      "maxBytes": 10485760,
+      "maxDepth": 64,
+      "maxFiles": 10000,
+      "maxRules": 50000,
+      "maxChecks": 10000,
+      "maxComparisonFiles": 2,
+      "requiredTool": "merge-guard",
+      "supportedSchemaVersions": [
+        1
+      ],
+      "reject": [
+        "archive",
+        "non-object-root",
+        "unsupported-schema"
+      ]
+    }
+  },
+  "processing": {
+    "timeoutMs": 10000,
+    "commitStateAfterValidation": true,
+    "executeInput": false,
+    "executeSuggestedChecks": false,
+    "compileInputRegex": false,
+    "renderUntrustedStringsWith": "textContent",
+    "importedReportScoreSource": "report-values-only",
+    "importedDiffScoreSource": "shared-merge-guard-core-only"
+  },
+  "network": {
+    "implicitRequests": false,
+    "remoteOrigins": [],
+    "runtimeDependencies": "bundled-local-only",
+    "telemetry": false,
+    "updateChecks": false,
+    "contentSecurityPolicy": "default-src 'none'; connect-src 'none'; img-src 'self' data:; style-src 'self'; style-src-attr 'none'; script-src 'self'; script-src-attr 'none'; worker-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; frame-ancestors 'none'; manifest-src 'none'"
+  },
+  "storage": {
+    "browserPersistentStores": [],
+    "serverPersistence": false,
+    "remoteStorage": false,
+    "clearOnReload": true,
+    "exports": "explicit-user-download",
+    "objectUrls": "revoke-after-download"
+  },
+  "outputs": {
+    "formats": [
+      "markdown",
+      "json"
+    ],
+    "trigger": "explicit-user-action",
+    "preserveReportValues": true,
+    "executeChecks": false
+  },
+  "errors": {
+    "behavior": "reject-before-state-commit",
+    "retainPreviousValidView": true,
+    "exposeLocalPaths": false,
+    "categories": [
+      "too-large",
+      "unsupported-type",
+      "invalid-encoding",
+      "malformed-input",
+      "incompatible-schema",
+      "processing-timeout"
+    ]
+  },
+  "threatIds": [
+    "DASH-T01",
+    "DASH-T02",
+    "DASH-T03",
+    "DASH-T04",
+    "DASH-T05",
+    "DASH-T06",
+    "DASH-T07",
+    "DASH-T08",
+    "DASH-T09"
+  ]
+}

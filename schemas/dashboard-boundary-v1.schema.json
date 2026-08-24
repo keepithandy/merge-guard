@@ -1,0 +1,452 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/dashboard-boundary-v1.schema.json",
+  "title": "Merge Guard local dashboard security boundary v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schemaVersion",
+    "status",
+    "implementationStatus",
+    "runtime",
+    "inputs",
+    "processing",
+    "network",
+    "storage",
+    "outputs",
+    "errors",
+    "threatIds"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "../schemas/dashboard-boundary-v1.schema.json"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "status": {
+      "const": "accepted"
+    },
+    "implementationStatus": {
+      "enum": [
+        "architecture-only",
+        "implemented"
+      ]
+    },
+    "runtime": {
+      "$ref": "#/$defs/runtime"
+    },
+    "inputs": {
+      "$ref": "#/$defs/inputs"
+    },
+    "processing": {
+      "$ref": "#/$defs/processing"
+    },
+    "network": {
+      "$ref": "#/$defs/network"
+    },
+    "storage": {
+      "$ref": "#/$defs/storage"
+    },
+    "outputs": {
+      "$ref": "#/$defs/outputs"
+    },
+    "errors": {
+      "$ref": "#/$defs/errors"
+    },
+    "threatIds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^DASH-T[0-9]{2}$"
+      }
+    }
+  },
+  "$defs": {
+    "stringArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "server": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindHost",
+        "port",
+        "methods",
+        "assetAccess",
+        "acceptsRequestBodies",
+        "acceptsUserFiles",
+        "hostHeaderPolicy",
+        "cors",
+        "cache"
+      ],
+      "properties": {
+        "bindHost": {
+          "const": "127.0.0.1"
+        },
+        "port": {
+          "const": "ephemeral"
+        },
+        "methods": {
+          "type": "array",
+          "const": [
+            "GET",
+            "HEAD"
+          ]
+        },
+        "assetAccess": {
+          "const": "fixed-allowlist"
+        },
+        "acceptsRequestBodies": {
+          "const": false
+        },
+        "acceptsUserFiles": {
+          "const": false
+        },
+        "hostHeaderPolicy": {
+          "const": "exact-loopback-authority"
+        },
+        "cors": {
+          "const": false
+        },
+        "cache": {
+          "const": "no-store"
+        }
+      }
+    },
+    "browser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inputAcquisition",
+        "processing",
+        "state",
+        "serviceWorker",
+        "remoteRequests"
+      ],
+      "properties": {
+        "inputAcquisition": {
+          "type": "array",
+          "const": [
+            "file-picker",
+            "drag-and-drop"
+          ]
+        },
+        "processing": {
+          "const": "dedicated-module-worker"
+        },
+        "state": {
+          "const": "memory-only"
+        },
+        "serviceWorker": {
+          "const": false
+        },
+        "remoteRequests": {
+          "const": false
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plannedEntrypoint",
+        "server",
+        "browser"
+      ],
+      "properties": {
+        "plannedEntrypoint": {
+          "const": "node dashboard/server.js"
+        },
+        "server": {
+          "$ref": "#/$defs/server"
+        },
+        "browser": {
+          "$ref": "#/$defs/browser"
+        }
+      }
+    },
+    "diffInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "extensions",
+        "maxBytes",
+        "maxLines",
+        "encoding",
+        "requiredMarker",
+        "reject"
+      ],
+      "properties": {
+        "extensions": {
+          "type": "array",
+          "const": [
+            ".diff",
+            ".patch"
+          ]
+        },
+        "maxBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxLines": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "encoding": {
+          "const": "utf-8"
+        },
+        "requiredMarker": {
+          "const": "diff --git "
+        },
+        "reject": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "reportInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "extensions",
+        "maxBytes",
+        "maxDepth",
+        "maxFiles",
+        "maxRules",
+        "maxChecks",
+        "maxComparisonFiles",
+        "requiredTool",
+        "supportedSchemaVersions",
+        "reject"
+      ],
+      "properties": {
+        "extensions": {
+          "type": "array",
+          "const": [
+            ".json"
+          ]
+        },
+        "maxBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxDepth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxFiles": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxRules": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxChecks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxComparisonFiles": {
+          "const": 2
+        },
+        "requiredTool": {
+          "const": "merge-guard"
+        },
+        "supportedSchemaVersions": {
+          "type": "array",
+          "const": [
+            1
+          ]
+        },
+        "reject": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diff",
+        "report"
+      ],
+      "properties": {
+        "diff": {
+          "$ref": "#/$defs/diffInput"
+        },
+        "report": {
+          "$ref": "#/$defs/reportInput"
+        }
+      }
+    },
+    "processing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeoutMs",
+        "commitStateAfterValidation",
+        "executeInput",
+        "executeSuggestedChecks",
+        "compileInputRegex",
+        "renderUntrustedStringsWith",
+        "importedReportScoreSource",
+        "importedDiffScoreSource"
+      ],
+      "properties": {
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1000
+        },
+        "commitStateAfterValidation": {
+          "const": true
+        },
+        "executeInput": {
+          "const": false
+        },
+        "executeSuggestedChecks": {
+          "const": false
+        },
+        "compileInputRegex": {
+          "const": false
+        },
+        "renderUntrustedStringsWith": {
+          "const": "textContent"
+        },
+        "importedReportScoreSource": {
+          "const": "report-values-only"
+        },
+        "importedDiffScoreSource": {
+          "const": "shared-merge-guard-core-only"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implicitRequests",
+        "remoteOrigins",
+        "runtimeDependencies",
+        "telemetry",
+        "updateChecks",
+        "contentSecurityPolicy"
+      ],
+      "properties": {
+        "implicitRequests": {
+          "const": false
+        },
+        "remoteOrigins": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "runtimeDependencies": {
+          "const": "bundled-local-only"
+        },
+        "telemetry": {
+          "const": false
+        },
+        "updateChecks": {
+          "const": false
+        },
+        "contentSecurityPolicy": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "browserPersistentStores",
+        "serverPersistence",
+        "remoteStorage",
+        "clearOnReload",
+        "exports",
+        "objectUrls"
+      ],
+      "properties": {
+        "browserPersistentStores": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "serverPersistence": {
+          "const": false
+        },
+        "remoteStorage": {
+          "const": false
+        },
+        "clearOnReload": {
+          "const": true
+        },
+        "exports": {
+          "const": "explicit-user-download"
+        },
+        "objectUrls": {
+          "const": "revoke-after-download"
+        }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formats",
+        "trigger",
+        "preserveReportValues",
+        "executeChecks"
+      ],
+      "properties": {
+        "formats": {
+          "type": "array",
+          "const": [
+            "markdown",
+            "json"
+          ]
+        },
+        "trigger": {
+          "const": "explicit-user-action"
+        },
+        "preserveReportValues": {
+          "const": true
+        },
+        "executeChecks": {
+          "const": false
+        }
+      }
+    },
+    "errors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "behavior",
+        "retainPreviousValidView",
+        "exposeLocalPaths",
+        "categories"
+      ],
+      "properties": {
+        "behavior": {
+          "const": "reject-before-state-commit"
+        },
+        "retainPreviousValidView": {
+          "const": true
+        },
+        "exposeLocalPaths": {
+          "const": false
+        },
+        "categories": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    }
+  }
+}

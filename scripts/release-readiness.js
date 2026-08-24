@@ -91,6 +91,8 @@ function printReport() {
 const metadata = packageMetadata();
 check('CLI entrypoint exists', Boolean(read('src/cli.js')));
 check('Smoke script exists', Boolean(read('scripts/smoke.js')));
+check('Dashboard architecture contract exists', Boolean(read('dashboard/architecture-boundary.v1.json')));
+check('Dashboard architecture gate exists', Boolean(read('scripts/dashboard-architecture-contracts.js')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
 check('README exists', Boolean(read('README.md')));
 check('CHANGELOG exists', Boolean(read('CHANGELOG.md')));
@@ -100,6 +102,7 @@ if (metadata) {
   check('release:check script is configured', metadata.scripts?.['release:check'] === 'node scripts/release-readiness.js');
   check('smoke script is configured', Boolean(metadata.scripts?.smoke));
   check('demo script is configured', Boolean(metadata.scripts?.demo));
+  check('dashboard architecture script is configured', Boolean(metadata.scripts?.['test:dashboard-architecture']));
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
     check(`package includes ${entry}`, Array.isArray(metadata.files) && metadata.files.includes(entry));
