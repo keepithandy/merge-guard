@@ -1,70 +1,71 @@
-# merge-guard report format
+# Merge Guard report contract
 
-`merge-guard` produces a small merge-readiness report for a git diff.
-
-## Fields
-
-## `riskLevel`
-
-The overall risk label.
-
-Possible values:
-
-- `LOW`
-- `MEDIUM`
-- `HIGH`
-
-## `mergeReadiness`
-
-The final merge recommendation.
-
-Possible values:
-
-- `SAFE_TO_MERGE`
-- `NEEDS_REVIEW`
-- `DO_NOT_MERGE_YET`
-
-## `riskScore`
-
-A simple numeric score based on risk signals found in the diff.
-
-The score is not a guarantee. It is a prioritization aid.
-
-## `summary`
-
-Basic diff metadata:
-
-- changed files
-- added lines
-- removed lines
-- file list
-
-## `flags`
-
-Human-readable warnings found during the scan.
-
-Examples:
-
-- State or persistence logic changed
-- Config file changed
-- Implementation changed without matching test changes
-
-## `suggestedChecks`
-
-Recommended follow-up checks before merging.
-
-Examples:
-
-- Run the normal test suite
-- Run smoke tests related to changed systems
-- Manually review changed behavior
-
-## JSON output
-
-Run:
+Merge Guard emits the same underlying report as plain text, Markdown, or JSON. JSON is the machine-readable contract.
 
 ```bash
-node src/cli.js examples/sample.diff --json
+node src/cli.js --json examples/sample.diff
 ```
 
-This returns the same report as structured JSON.
+## Schema version
+
+Every CLI JSON report contains:
+
+```json
+{
+  "tool": "merge-guard",
+  "version": "0.1.0",
+  "schemaVersion": 1
+}
+```
+
+Consumers should check `schemaVersion` before interpreting the payload. Additive fields may be introduced within schema version 1; removals, renames, type changes, semantic reinterpretations, or incompatible nesting require a schema-version increment. See `docs/REPORT_CONTRACT_SNAPSHOTS.md`.
+
+## Required top-level fields
+
+- `tool` and `version`: producer identity.
+- `schemaVersion`: machine-readable contract version.
+- `riskLevel`: `LOW`, `MEDIUM`, or `HIGH`.
+- `mergeReadiness`: `SAFE_TO_MERGE`, `NEEDS_REVIEW`, or `DO_NOT_MERGE_YET`.
+- `riskScore`: numeric score used with the configured thresholds.
+- `docsOnly`: whether every changed file is documentation, an example, Markdown, or comment-only content.
+- `config`: resolved preset, thresholds, custom rules, and suppressions.
+- `summary`: changed-file and line totals.
+- `files`: per-file risk breakdown.
+- `rules`: normalized rule findings and explanations.
+- `flags`: human-readable finding labels.
+- `suggestedChecks`: recommended verification steps.
+- `configDiagnostics`: non-fatal configuration diagnostics.
+
+## Enriched fields
+
+Normal CLI reports also expose:
+
+- `customRuleWarnings`
+- `suppressionWarnings`
+- `suppressedFindings`
+- `projectChecks`
+- `prContext`
+
+`prContext` is `null` when no title or body was supplied. Context never changes risk scoring.
+
+## Files and rules
+
+Each `files` entry contains its path, risk level, risk score, changed-line counts, reason, flags, and matched rules. Each rule finding includes a stable ID, label, weight, reason, suggested check, matched files, and matched added-line count.
+
+## Suppression semantics
+
+Suppressions annotate matching findings in `suppressedFindings`. They do not remove entries from `rules`, reduce `riskScore`, or bypass CI thresholds. Expired and malformed suppressions appear in `suppressionWarnings`. See `docs/suppressions.md`.
+
+## Configuration diagnostics
+
+Fatal configuration errors do not emit a normal report. With `--json`, the CLI writes an error payload to stderr and exits non-zero:
+
+```json
+{
+  "error": "invalid merge-guard.config.json",
+  "code": "INVALID_CONFIGURATION",
+  "diagnostics": []
+}
+```
+
+Non-fatal diagnostics remain in `configDiagnostics`. See `docs/configuration-diagnostics.md`.
