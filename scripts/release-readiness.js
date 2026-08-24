@@ -26,6 +26,22 @@ function run(label, command, args) {
   check(label, result.status === 0, detail);
 }
 
+function runNpmPack() {
+  const args = ['pack', '--dry-run', '--json'];
+
+  if (process.env.npm_execpath) {
+    run('npm pack dry run', process.execPath, [process.env.npm_execpath, ...args]);
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    run('npm pack dry run', process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `npm ${args.join(' ')}`]);
+    return;
+  }
+
+  run('npm pack dry run', 'npm', args);
+}
+
 function packageMetadata() {
   const content = read('package.json');
   if (!content) {
@@ -97,6 +113,6 @@ run('Smoke test suite', process.execPath, ['scripts/smoke.js']);
 run('Demo report generation', process.execPath, ['src/cli.js', 'examples/sample.diff']);
 run('Markdown report generation', process.execPath, ['src/cli.js', '--markdown', 'examples/sample.diff']);
 run('JSON report generation', process.execPath, ['src/cli.js', '--json', 'examples/sample.diff']);
-run('npm pack dry run', process.platform === 'win32' ? 'npm.cmd' : 'npm', ['pack', '--dry-run', '--json']);
+runNpmPack();
 printReport();
 process.exitCode = failed ? 1 : 0;
