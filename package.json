@@ -21,6 +21,7 @@
     "check": "node scripts/smoke.js",
     "comment": "node scripts/pr-comment.js",
     "test:cli": "node scripts/cli-contracts.js",
+    "test:snapshots": "node scripts/snapshot-contracts.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [
