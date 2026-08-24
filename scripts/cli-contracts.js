@@ -10,7 +10,25 @@ function run(args, input = '') {
 
 assert.equal(run(['--help']).status, 0, 'help should succeed');
 assert.equal(run(['--preset', 'strict', 'examples/sample.diff']).status, 0, 'value options should consume their value');
-assert.equal(run(['--json', 'examples/sample.diff']).status, 0, 'JSON mode should succeed');
+const jsonRun = run(['--json', 'examples/sample.diff']);
+assert.equal(jsonRun.status, 0, 'JSON mode should succeed');
+const jsonReport = JSON.parse(jsonRun.stdout);
+assert.equal(jsonReport.schemaVersion, 1, 'repository intelligence should remain additive in schema version 1');
+assert(Array.isArray(jsonReport.projectChecks), 'JSON should retain the projectChecks string array');
+assert(Array.isArray(jsonReport.projectCheckDetails), 'JSON should expose projectCheckDetails');
+assert.deepEqual(
+  jsonReport.projectCheckDetails.map((detail) => detail.command),
+  jsonReport.projectChecks,
+  'detailed and legacy project check ordering should match'
+);
+assert(
+  jsonReport.projectCheckDetails.every((detail) =>
+    detail.sources.length && detail.sources.every((source) => source.path && source.reason)
+  ),
+  'every detected CLI check should include source and reason metadata'
+);
+assert.equal(jsonReport.repository.kind, 'single-package', 'JSON should expose the detected repository layout');
+assert(jsonReport.repository.affectedPackages, 'JSON should expose affected-package mapping');
 assert.equal(run(['--fail-threshold', '5', 'examples/sample.diff']).status, 0, 'threshold value should be consumed');
 assert.equal(run(['--unknown']).status, 1, 'unknown options should fail');
 assert.equal(run(['--preset']).status, 1, 'missing preset value should fail');

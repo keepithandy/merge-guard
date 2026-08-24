@@ -542,6 +542,18 @@ function shouldShowConfig(report) {
     || report.config.failThreshold !== RISK_PRESETS[report.config.preset].failThreshold;
 }
 
+function packageDisplayName(packageRecord) {
+  return packageRecord.name
+    ? `${packageRecord.name} (${packageRecord.root})`
+    : packageRecord.root;
+}
+
+function projectCheckSourceSummary(detail) {
+  return detail.sources
+    .map((source) => `${source.path}: ${source.reason}`)
+    .join('; ');
+}
+
 export function analyzeDiff(diffText, userConfig = {}) {
   const config = normalizeConfig(userConfig);
   const changes = parseFileChanges(diffText);
@@ -648,6 +660,23 @@ export function formatReport(report) {
     lines.push(`- ${check}`);
   }
 
+  if (report.projectCheckDetails?.length) {
+    lines.push('');
+    lines.push('Project check sources:');
+    for (const detail of report.projectCheckDetails) {
+      lines.push(`- ${detail.command} [${detail.ecosystem}/${detail.category}] - ${projectCheckSourceSummary(detail)}`);
+    }
+  }
+
+  if (report.repository?.affectedPackages) {
+    const affected = report.repository.affectedPackages;
+    lines.push('');
+    lines.push('Repository impact:');
+    lines.push(`- Direct packages: ${affected.directPackages.length ? affected.directPackages.map(packageDisplayName).join(', ') : 'none'}`);
+    lines.push(`- Shared files: ${affected.sharedFiles.length ? affected.sharedFiles.map((file) => file.path).join(', ') : 'none'}`);
+    lines.push(`- Potential shared-impact packages: ${affected.sharedImpactPackages.length ? affected.sharedImpactPackages.map(packageDisplayName).join(', ') : 'none'}`);
+  }
+
   if (report.aiReview) {
     lines.push('');
     lines.push('AI review summary:');
@@ -715,6 +744,28 @@ export function formatMarkdownReport(report) {
   lines.push('');
   for (const check of report.suggestedChecks) {
     lines.push(`- ${check}`);
+  }
+
+  if (report.projectCheckDetails?.length) {
+    lines.push('');
+    lines.push('## Project check sources');
+    lines.push('');
+    for (const detail of report.projectCheckDetails) {
+      lines.push(`- **${detail.command}** (${detail.ecosystem}/${detail.category}): ${projectCheckSourceSummary(detail)}`);
+    }
+  }
+
+  if (report.repository?.affectedPackages) {
+    const affected = report.repository.affectedPackages;
+    lines.push('');
+    lines.push('## Repository impact');
+    lines.push('');
+    lines.push(`- **Direct packages:** ${affected.directPackages.length ? affected.directPackages.map(packageDisplayName).join(', ') : 'none'}`);
+    lines.push(`- **Shared files:** ${affected.sharedFiles.length ? affected.sharedFiles.map((file) => `\`${file.path}\``).join(', ') : 'none'}`);
+    lines.push(`- **Potential shared-impact packages:** ${affected.sharedImpactPackages.length ? affected.sharedImpactPackages.map(packageDisplayName).join(', ') : 'none'}`);
+    if (affected.sharedImpactPackages.length) {
+      lines.push('- Shared impact is potential only; no dependency relationship is inferred.');
+    }
   }
 
   if (report.aiReview) {

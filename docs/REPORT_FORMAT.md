@@ -44,9 +44,15 @@ Normal CLI reports also expose:
 - `suppressionWarnings`
 - `suppressedFindings`
 - `projectChecks`
+- `projectCheckDetails`
+- `repository`
 - `prContext`
 
 `prContext` is `null` when no title or body was supplied. Context never changes risk scoring.
+
+`projectChecks` remains the ordered string-command compatibility field. `projectCheckDetails` adds category, ecosystem, and `sources[]` records containing a repository-relative path and reason for every detected CLI command.
+
+`repository` contains detected package-layout metadata, warnings, and `affectedPackages`. Direct ownership, repository-level shared files, and potential shared-impact packages are separate. Potential shared impact does not assert a dependency graph. See `docs/repository-intelligence.md`.
 
 ## Files and rules
 
