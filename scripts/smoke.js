@@ -257,7 +257,12 @@ assert(nodeFixtureChecks.includes('npm run verify'), 'Node fixture should detect
 assert(nodeFixtureChecks.includes('node smoke_readme.js'), 'Node fixture should detect README smoke commands');
 
 const pythonFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'python-project'));
-assert(pythonFixtureChecks.length === 0, 'Unsupported Python commands should not be invented as Node checks');
+assert(pythonFixtureChecks.includes('python -m pytest'), 'Python fixture should detect pytest metadata');
+assert(pythonFixtureChecks.includes('python -m unittest discover -s tests'), 'Python fixture should detect documented unittest commands');
+assert(pythonFixtureChecks.includes('python -m ruff check .'), 'Python fixture should detect Ruff configuration');
+assert(pythonFixtureChecks.includes('python -m build'), 'Python fixture should detect build metadata');
+assert(pythonFixtureChecks.includes('python -m tox'), 'Python fixture should detect tox configuration');
+assert(new Set(pythonFixtureChecks).size === pythonFixtureChecks.length, 'Python fixture commands should be deduplicated');
 
 const malformedFixtureChecks = detectProjectChecks(path.join(fixtureRoot, 'malformed-package'));
 assert(malformedFixtureChecks.length === 0, 'Malformed package fixture should fail closed');
