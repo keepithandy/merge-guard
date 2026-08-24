@@ -71,8 +71,6 @@ function snapshotRule(rule) {
     custom: Boolean(rule.custom),
     label: rule.label,
     weight: rule.weight,
-    reason: rule.reason,
-    check: rule.check,
     matchedFiles: rule.matchedFiles || [],
     matchedLineCount: rule.matchedLineCount || 0
   };
@@ -103,9 +101,8 @@ function snapshotReport(report, label) {
       riskScore: file.riskScore,
       addedLines: file.addedLines,
       removedLines: file.removedLines,
-      reason: file.reason,
       flags: file.flags,
-      rules: file.rules.map(snapshotRule)
+      ruleIds: file.rules.map((rule) => rule.id)
     })),
     rules: report.rules.map(snapshotRule),
     flags: report.flags,
@@ -113,11 +110,29 @@ function snapshotReport(report, label) {
     customRuleWarnings: report.customRuleWarnings || [],
     suppressionWarnings: report.suppressionWarnings || [],
     suppressedFindings: (report.suppressedFindings || []).map((finding) => ({
-      ...snapshotRule(finding),
+      id: finding.id,
+      matchedFiles: finding.matchedFiles || [],
       suppression: finding.suppression
     })),
     prContext: report.prContext,
     configDiagnostics: report.configDiagnostics
+  };
+}
+
+function snapshotSuppression(report, label) {
+  assertRequiredFields(report, label);
+
+  return {
+    schemaVersion: report.schemaVersion,
+    riskScore: report.riskScore,
+    ruleIds: report.rules.map((rule) => rule.id),
+    suppressions: report.config.suppressions || [],
+    warnings: report.suppressionWarnings || [],
+    suppressedFindings: (report.suppressedFindings || []).map((finding) => ({
+      id: finding.id,
+      matchedFiles: finding.matchedFiles || [],
+      suppression: finding.suppression
+    }))
   };
 }
 
@@ -163,7 +178,7 @@ const reportSnapshots = {
 const suppressionSnapshots = Object.fromEntries(
   ['active', 'expired', 'unmatched', 'malformed'].map((name) => [
     name,
-    snapshotReport(
+    snapshotSuppression(
       buildReport(sampleDiff, {
         suppressions: suppressionFixtures[name],
         today
@@ -174,12 +189,8 @@ const suppressionSnapshots = Object.fromEntries(
 );
 
 if (!fs.existsSync(reportSnapshotPath) || !fs.existsSync(suppressionSnapshotPath)) {
-  console.log('REPORT_SNAPSHOTS_BEGIN');
-  console.log(JSON.stringify(reportSnapshots, null, 2));
-  console.log('REPORT_SNAPSHOTS_END');
-  console.log('SUPPRESSION_SNAPSHOTS_BEGIN');
-  console.log(JSON.stringify(suppressionSnapshots, null, 2));
-  console.log('SUPPRESSION_SNAPSHOTS_END');
+  console.log(`REPORT_SNAPSHOTS_JSON=${JSON.stringify(reportSnapshots)}`);
+  console.log(`SUPPRESSION_SNAPSHOTS_JSON=${JSON.stringify(suppressionSnapshots)}`);
   console.log('Snapshot baselines are not committed yet.');
   process.exit(0);
 }
