@@ -28,7 +28,7 @@ function assertNumber(value, fieldName) {
 
 const diffText = fs.readFileSync('examples/sample.diff', 'utf8');
 const report = analyzeDiff(diffText);
-const crlfReport = analyzeDiff(diffText.replace(/\n/g, '\r\n'));
+const crlfReport = analyzeDiff(diffText.replace(/\r?\n/g, '\r\n'));
 const noContextReport = applyPrContext(analyzeDiff(diffText), null);
 
 assert(crlfReport.files.length === report.files.length, 'CRLF diffs should preserve changed files');
