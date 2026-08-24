@@ -85,19 +85,19 @@ const explicitThresholdReport = analyzeDiff(diffText, { failThreshold: 4 });
 assert(explicitThresholdReport.config.failThreshold === 4, 'explicit fail threshold should be retained');
 
 const customRuleConfig = [{
-  id: 'save-storage-write',
-  label: 'Project save storage changed',
-  pathPattern: 'save|state',
-  linePattern: 'localStorage|persist',
+  id: 'app-readiness-guard',
+  label: 'App readiness guard changed',
+  pathPattern: 'src/app',
+  linePattern: 'ready',
   weight: 3,
-  check: 'Run the project save round-trip smoke.'
+  check: 'Run the app startup smoke.'
 }];
 const customRuleReport = applyCustomRules(analyzeDiff(diffText), diffText, customRuleConfig);
-const customRuleHit = customRuleReport.rules.find((rule) => rule.id === 'custom:save-storage-write');
+const customRuleHit = customRuleReport.rules.find((rule) => rule.id === 'custom:app-readiness-guard');
 assert(customRuleHit, 'custom rule should appear in the normal rule output');
 assert(customRuleHit.reason.includes('because'), 'custom rule should explain why it fired');
-assert(customRuleReport.flags.includes('Project save storage changed'), 'custom rule label should appear in flags');
-assert(customRuleReport.suggestedChecks.includes('Run the project save round-trip smoke.'), 'custom rule check should appear in suggested checks');
+assert(customRuleReport.flags.includes('App readiness guard changed'), 'custom rule label should appear in flags');
+assert(customRuleReport.suggestedChecks.includes('Run the app startup smoke.'), 'custom rule check should appear in suggested checks');
 assert(customRuleReport.riskScore > report.riskScore, 'positive custom rule weight should increase risk score');
 assert(customRuleReport.config.customRules.length === 1, 'normalized custom rules should appear in report config');
 
