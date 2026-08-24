@@ -41,6 +41,12 @@ jobs:
       - name: Run smoke suite
         run: npm run smoke
 
+      - name: Run CLI contract suite
+        run: npm run test:cli
+
+      - name: Run release-readiness suite
+        run: npm run release:check
+
       - name: Check CLI help
         run: node src/cli.js --help
 

@@ -38,6 +38,8 @@ Included features:
 Before cutting a release:
 
 - run `npm run smoke`
+- run `npm run test:cli`
+- run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`
 - verify `node src/cli.js --json examples/sample.diff`
