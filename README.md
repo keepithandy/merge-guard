@@ -59,6 +59,7 @@ This version supports:
 - npm workspace boundaries and affected-package mapping
 - a versioned, validated policy-pack schema
 - explicit frontend, backend, library, browser-game, and infrastructure starter policies
+- protected-path and CODEOWNERS guidance that is separate from scoring and approval
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
@@ -164,6 +165,7 @@ npm run test:cli
 npm run test:snapshots
 npm run test:repository
 npm run test:policies
+npm run test:guidance
 npm run release:check
 ```
 
@@ -340,6 +342,14 @@ node src/cli.js --policy infrastructure change.diff
 ```
 
 Selected packs add namespaced policy findings and reasoned required checks. They never execute those checks. See [starter policy packs](docs/starter-policy-packs.md) for assumptions and exact behavior.
+
+## Protected paths and CODEOWNERS guidance
+
+Merge Guard reports selected-policy protected-path matches and reads the first CODEOWNERS file found in `.github/`, the repository root, or `docs/`. Matching is case-sensitive and last-match wins. Unsupported negation, bracket ranges, escaped patterns, malformed lines, and invalid owners are skipped with warnings.
+
+CODEOWNERS output is intentionally labeled as unverified guidance. Merge Guard does not assign reviewers, verify access, request reviews, read approvals, or claim that a requirement has been satisfied. The checked-out CODEOWNERS file may also differ from the pull request base branch used by GitHub.
+
+See [protected-path and CODEOWNERS guidance](docs/review-guidance.md) for the supported syntax, limitations, report fields, and fixture gate.
 
 ## Rule explanations
 

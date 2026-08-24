@@ -97,6 +97,8 @@ Explicit selection adds:
 
 Policy rule weights affect the selected report, but built-in preset definitions remain unchanged. Policy findings are marked `policy: true` and `custom: false` so consumers can distinguish their source.
 
+Protected paths are matched separately under `reviewGuidance` and never alter score. See [protected-path and CODEOWNERS review guidance](review-guidance.md).
+
 ## Fixtures and conformance
 
 Each pack has a deterministic diff fixture under `test/fixtures/starter-policies/` plus expected finding IDs, score deltas, and required commands in `expectations.json`.

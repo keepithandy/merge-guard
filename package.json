@@ -15,6 +15,7 @@
     "docs/policy-packs.md",
     "docs/policy-pack-migrations.md",
     "docs/starter-policy-packs.md",
+    "docs/review-guidance.md",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -29,6 +30,7 @@
     "test:snapshots": "node scripts/snapshot-contracts.js",
     "test:repository": "node scripts/repository-intelligence-contracts.js && node scripts/repository-intelligence-snapshots.js",
     "test:policies": "node scripts/policy-pack-contracts.js",
+    "test:guidance": "node scripts/review-guidance-contracts.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [

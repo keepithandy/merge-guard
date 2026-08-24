@@ -17,6 +17,7 @@ Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 - Repository-intelligence layouts, command explanations, and affected-package mapping.
 - Versioned policy-pack validation contract and machine-readable schema.
 - Explicit frontend, backend, library, browser-game, and infrastructure starter policy packs.
+- Guidance-only protected-path and CODEOWNERS matching with safe parser warnings.
 
 ### Changed
 
@@ -69,6 +70,7 @@ Before cutting a release:
 - run `npm run test:snapshots`
 - run `npm run test:repository`
 - run `npm run test:policies`
+- run `npm run test:guidance`
 - run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`

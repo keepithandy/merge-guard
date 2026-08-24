@@ -1,0 +1,40 @@
+diff --git a/docs/guide.md b/docs/guide.md
+index 1111111..2222222 100644
+--- a/docs/guide.md
++++ b/docs/guide.md
+@@ -1 +1,2 @@
+ # Guide
++Updated.
+diff --git a/other/file.txt b/other/file.txt
+index 1111111..2222222 100644
+--- a/other/file.txt
++++ b/other/file.txt
+@@ -1 +1,2 @@
+ old
++new
+diff --git a/src/auth/login.js b/src/auth/login.js
+index 1111111..2222222 100644
+--- a/src/auth/login.js
++++ b/src/auth/login.js
+@@ -1 +1,2 @@
+ export function login() {
++  return true;
+ }
+diff --git a/src/auth/special.js b/src/auth/special.js
+index 1111111..2222222 100644
+--- a/src/auth/special.js
++++ b/src/auth/special.js
+@@ -1 +1,2 @@
+ export const special = true;
++export const reviewed = false;
+diff --git a/src/auth/generated/code.js b/src/auth/generated/code.js
+index 1111111..2222222 100644
+--- a/src/auth/generated/code.js
++++ b/src/auth/generated/code.js
+@@ -1 +1,2 @@
+ export const generated = true;
++export const version = 2;
+diff --git a/src/auth/old.js b/src/auth/new.js
+similarity index 100%
+rename from src/auth/old.js
+rename to src/auth/new.js
