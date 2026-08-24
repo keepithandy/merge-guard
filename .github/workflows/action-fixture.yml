@@ -31,6 +31,14 @@ jobs:
           comment: "false"
           diff-path: action-fixture/sample.diff
 
+      - name: Run Action with explicit starter policy
+        uses: ./
+        with:
+          preset: standard
+          policy: frontend
+          comment: "false"
+          diff-path: action-fixture/sample.diff
+
       - name: Run threshold failure contract
         id: threshold
         continue-on-error: true

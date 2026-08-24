@@ -238,9 +238,11 @@ for (const packagePath of [
   'src/',
   'scripts/',
   'examples/',
+  'policies/',
   'schemas/',
   'docs/policy-packs.md',
   'docs/policy-pack-migrations.md',
+  'docs/starter-policy-packs.md',
   'action.yml',
   'README.md',
   'CHANGELOG.md',
@@ -254,10 +256,11 @@ assert(cliSource.includes('--fail-threshold'), 'CLI should expose fail-threshold
 assert(cliSource.includes('applyCustomRules'), 'CLI should apply configured custom rules');
 assert(cliSource.includes('--pr-title'), 'CLI should expose PR title context');
 assert(cliSource.includes('--pr-body'), 'CLI should expose PR body file context');
+assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-policy selection');
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'fail-threshold:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
+for (const actionContract of ['comment:', 'fail-threshold:', 'policy:', 'diff-path:', 'src/cli.js', 'scripts/pr-comment.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -268,8 +271,12 @@ assert(fs.existsSync('src/projectChecks.js'), 'Project check detector should exi
 assert(fs.existsSync('src/affectedPackages.js'), 'Affected-package mapper should exist');
 assert(fs.existsSync('src/repositoryIntelligence.js'), 'Repository-intelligence composer should exist');
 assert(fs.existsSync('src/policyPacks.js'), 'Policy-pack validator should exist');
+assert(fs.existsSync('src/starterPolicies.js'), 'Starter-policy loader should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(packageMetadata.scripts?.['test:policies'], 'Package should expose the policy conformance gate');
+for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
+  assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
+}
 
 const readme = fs.readFileSync('README.md', 'utf8');
 assert(readme.includes('npm pack --dry-run'), 'README should document package inspection');
@@ -281,6 +288,7 @@ assert(readme.includes('pathPattern'), 'README should include a realistic custom
 assert(readme.includes('--pr-title'), 'README should document PR title context');
 assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
 assert(readme.includes('Policy-pack schema'), 'README should document the policy-pack contract');
+assert(readme.includes('--policy frontend'), 'README should document explicit starter-policy selection');
 
 const fixtureRoot = path.resolve('test/fixtures');
 const affectedFixtureDiff = fs.readFileSync(

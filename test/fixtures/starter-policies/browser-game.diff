@@ -1,0 +1,8 @@
+diff --git a/src/game/saveState.js b/src/game/saveState.js
+index 1111111..2222222 100644
+--- a/src/game/saveState.js
++++ b/src/game/saveState.js
+@@ -1 +1,2 @@
+ export function saveGame(state) {
++  localStorage.setItem('save', serialize(state));
+ }

@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { analyzeDiff } from '../src/analyzeDiff.js';
+import { analyzeDiff, formatMarkdownReport, formatReport } from '../src/analyzeDiff.js';
 import {
   formatPolicyDiagnostics,
   MERGE_GUARD_VERSION,
@@ -11,6 +11,13 @@ import {
   REPORT_SCHEMA_VERSION,
   validatePolicyPack
 } from '../src/policyPacks.js';
+import {
+  applyPolicyPack,
+  listStarterPolicyPacks,
+  loadStarterPolicyPack,
+  PolicyPackSelectionError,
+  STARTER_POLICY_IDS
+} from '../src/starterPolicies.js';
 
 const root = process.cwd();
 const fixtureRoot = path.join(root, 'test', 'fixtures', 'policy-packs');
@@ -114,6 +121,68 @@ assert.equal(jsonSchema.properties.schemaVersion.const, 1);
 assert.deepEqual(jsonSchema.required, ['schemaVersion', 'identity', 'compatibility']);
 assert(jsonSchema.$defs.rule && jsonSchema.$defs.protectedPath && jsonSchema.$defs.requiredCheck);
 
+const starterFixtureRoot = path.join(root, 'test', 'fixtures', 'starter-policies');
+const starterExpectations = JSON.parse(
+  fs.readFileSync(path.join(starterFixtureRoot, 'expectations.json'), 'utf8')
+);
+const starterList = listStarterPolicyPacks();
+assert.deepEqual(starterList.map((entry) => entry.id), STARTER_POLICY_IDS);
+assert.equal(new Set(starterList.map((entry) => entry.policyId)).size, STARTER_POLICY_IDS.length);
+
+for (const id of STARTER_POLICY_IDS) {
+  const policy = loadStarterPolicyPack(id);
+  const diff = fs.readFileSync(path.join(starterFixtureRoot, `${id}.diff`), 'utf8');
+  const baseline = analyzeDiff(diff);
+  const report = applyPolicyPack(analyzeDiff(diff), diff, policy);
+  const expectation = starterExpectations[id];
+
+  assert.equal(report.policyPacks.length, 1);
+  assert.equal(report.policyPacks[0].id, policy.identity.id);
+  assert.equal(report.config.policyPacks[0].id, policy.identity.id);
+  assert.equal(report.riskScore, baseline.riskScore + expectation.riskDelta);
+  const finding = report.rules.find((rule) => rule.id === expectation.ruleId);
+  assert(finding, `${id} should emit ${expectation.ruleId}`);
+  assert.equal(finding.policy, true);
+  assert.equal(finding.custom, false);
+  assert.equal(finding.policyPackId, policy.identity.id);
+  assert.deepEqual(
+    report.policyRequiredChecks.map((check) => check.command),
+    expectation.requiredCommands
+  );
+  for (const command of expectation.requiredCommands) {
+    assert(
+      report.suggestedChecks.some((check) => check.includes(command)),
+      `${id} should suggest ${command}`
+    );
+  }
+  assert.deepEqual(
+    applyPolicyPack(analyzeDiff(diff), diff, policy),
+    report,
+    `${id} application should be deterministic`
+  );
+  assert(formatReport(report).includes('Selected policy packs:'));
+  assert(formatMarkdownReport(report).includes('## Selected policy packs'));
+}
+
+const explicitSelectionBaseline = analyzeDiff(sampleDiff);
+listStarterPolicyPacks();
+loadStarterPolicyPack('frontend');
+assert.deepEqual(
+  analyzeDiff(sampleDiff),
+  explicitSelectionBaseline,
+  'listing or loading a starter pack must not apply it'
+);
+assert.throws(
+  () => loadStarterPolicyPack('unknown'),
+  (error) => error instanceof PolicyPackSelectionError && error.message.includes('Available packs')
+);
+const duplicatePolicy = loadStarterPolicyPack('frontend');
+const duplicateReport = applyPolicyPack(analyzeDiff(sampleDiff), sampleDiff, duplicatePolicy);
+assert.throws(
+  () => applyPolicyPack(duplicateReport, sampleDiff, duplicatePolicy),
+  PolicyPackSelectionError
+);
+
 const implementation = fs.readFileSync(path.join(root, 'src', 'policyPacks.js'), 'utf8');
 assert(!implementation.includes('node:child_process'), 'policy validation must not execute commands');
 assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(implementation), 'policy validation must remain read-only');
@@ -124,3 +193,4 @@ console.log(`validProtectedPaths=${valid.policy.protectedPaths.length}`);
 console.log(`validRequiredChecks=${valid.policy.requiredChecks.length}`);
 console.log(`malformedFatal=${malformed.fatal.length}`);
 console.log(`warningDiagnostics=${warningResult.warnings.length}`);
+console.log(`starterPolicies=${starterList.length}`);

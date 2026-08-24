@@ -16,6 +16,7 @@ Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 - Node 18/20/22/24 compatibility coverage on Ubuntu and Windows.
 - Repository-intelligence layouts, command explanations, and affected-package mapping.
 - Versioned policy-pack validation contract and machine-readable schema.
+- Explicit frontend, backend, library, browser-game, and infrastructure starter policy packs.
 
 ### Changed
 

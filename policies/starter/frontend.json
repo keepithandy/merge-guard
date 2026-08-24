@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.starter.frontend",
+    "name": "Frontend starter policy",
+    "version": "1.0.0",
+    "description": "For browser-facing JavaScript or TypeScript applications with a root test and production build."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "browser-storage-change",
+      "label": "Browser storage behavior changed",
+      "pathPattern": "^src/",
+      "linePattern": "localStorage|sessionStorage|indexedDB",
+      "weight": 4,
+      "check": "Run focused persistence and reload smoke coverage."
+    },
+    {
+      "id": "client-routing-change",
+      "label": "Client routing changed",
+      "pathPattern": "^src/(routes?|router|pages)/",
+      "weight": 2,
+      "check": "Exercise direct navigation, refresh, and fallback routes."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "frontend-auth",
+      "pattern": "^src/(auth|authentication)/",
+      "reason": "Authentication UI and token handling need specialized review.",
+      "requiredCheckIds": ["unit-tests", "production-build"]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "unit-tests",
+      "command": "npm test",
+      "reason": "Run the frontend unit and component suite."
+    },
+    {
+      "id": "production-build",
+      "command": "npm run build",
+      "reason": "Verify production bundling and static asset generation."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.starter.library",
+    "name": "Library starter policy",
+    "version": "1.0.0",
+    "description": "For reusable packages whose public exports and packed artifact are compatibility boundaries."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "public-api-change",
+      "label": "Public library API changed",
+      "pathPattern": "^(src/(index|public)|package\\.json)",
+      "linePattern": "export|exports|types|main",
+      "weight": 4,
+      "check": "Review exported API compatibility and generated declarations."
+    },
+    {
+      "id": "compatibility-marker-change",
+      "label": "Compatibility marker changed",
+      "pathPattern": "^(src|types)/",
+      "linePattern": "deprecated|breaking|removed",
+      "weight": 3,
+      "check": "Run consumer fixtures against the supported compatibility range."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "public-exports",
+      "pattern": "^(src/(index|public)|package\\.json)",
+      "reason": "Public exports and package metadata define the consumer contract.",
+      "requiredCheckIds": ["library-tests", "package-inspection"]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "library-tests",
+      "command": "npm test",
+      "reason": "Run the library contract and unit suites."
+    },
+    {
+      "id": "package-inspection",
+      "command": "npm pack --dry-run",
+      "reason": "Inspect the package payload without publishing it."
+    }
+  ]
+}

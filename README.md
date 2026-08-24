@@ -58,6 +58,7 @@ This version supports:
 - repository-aware suggested checks with source/reason metadata
 - npm workspace boundaries and affected-package mapping
 - a versioned, validated policy-pack schema
+- explicit frontend, backend, library, browser-game, and infrastructure starter policies
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
@@ -328,6 +329,18 @@ Schema version 1 rejects missing, malformed, legacy, future, and runtime-incompa
 
 Run `npm run test:policies` for the compatibility gate. See [the policy-pack contract](docs/policy-packs.md) and [migration rules](docs/policy-pack-migrations.md). Pack selection remains explicit; validation alone never applies policy behavior.
 
+Five starter packs are available only by explicit ID:
+
+```bash
+node src/cli.js --policy frontend examples/sample.diff
+node src/cli.js --policy backend change.diff
+node src/cli.js --policy library change.diff
+node src/cli.js --policy browser-game change.diff
+node src/cli.js --policy infrastructure change.diff
+```
+
+Selected packs add namespaced policy findings and reasoned required checks. They never execute those checks. See [starter policy packs](docs/starter-policy-packs.md) for assumptions and exact behavior.
+
 ## Rule explanations
 
 Every triggered rule includes explanation metadata so reviewers can see why a warning fired instead of guessing.
@@ -395,6 +408,7 @@ jobs:
       - uses: keepithandy/merge-guard@main
         with:
           preset: strict
+          policy: infrastructure
           comment: "true"
           fail-threshold: "5"
 ```
@@ -402,6 +416,7 @@ jobs:
 Action inputs:
 
 - `preset`: `safe`, `standard`, or `strict`.
+- `policy`: optional explicit starter policy ID (`frontend`, `backend`, `library`, `browser-game`, or `infrastructure`).
 - `comment`: post or update the stable merge-guard PR comment.
 - `fail-threshold`: optional positive integer override.
 - `diff-path`: optional path to a prebuilt diff.

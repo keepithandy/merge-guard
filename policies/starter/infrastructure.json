@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.starter.infrastructure",
+    "name": "Infrastructure starter policy",
+    "version": "1.0.0",
+    "description": "For infrastructure-as-code and deployment workflow repositories with validation and plan review."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "0.1.0",
+    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "workflow-permission-change",
+      "label": "Workflow permissions or deployment changed",
+      "pathPattern": "^\\.github/workflows/",
+      "linePattern": "permissions:|secrets\\.|environment:|deploy",
+      "weight": 5,
+      "check": "Review workflow permissions, secret exposure, and environment protections."
+    },
+    {
+      "id": "infrastructure-resource-change",
+      "label": "Infrastructure resource definition changed",
+      "pathPattern": "(^|/)(terraform|infra|k8s|helm)/",
+      "weight": 5,
+      "check": "Review a non-destructive infrastructure plan before applying."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "deployment-workflows",
+      "pattern": "^\\.github/workflows/",
+      "reason": "Deployment workflows can change privileges and production rollout behavior.",
+      "requiredCheckIds": ["configuration-validation"]
+    },
+    {
+      "id": "infrastructure-code",
+      "pattern": "(^|/)(terraform|infra|k8s|helm)/",
+      "reason": "Infrastructure changes require a reviewed non-destructive plan.",
+      "requiredCheckIds": ["configuration-validation", "plan-review"]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "configuration-validation",
+      "command": "npm run validate",
+      "reason": "Validate infrastructure and workflow configuration syntax."
+    },
+    {
+      "id": "plan-review",
+      "command": "npm run plan",
+      "reason": "Generate a non-destructive plan for human review."
+    }
+  ]
+}

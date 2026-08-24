@@ -17,6 +17,10 @@ inputs:
     description: Optional positive integer risk score that fails the action.
     required: false
     default: ""
+  policy:
+    description: "Optional starter policy: frontend, backend, library, browser-game, or infrastructure."
+    required: false
+    default: ""
   diff-path:
     description: Optional path to a prebuilt diff file. When omitted, the action generates the pull request diff.
     required: false
@@ -49,6 +53,7 @@ runs:
         MERGE_GUARD_DIFF_PATH: ${{ inputs.diff-path }}
         MERGE_GUARD_PRESET: ${{ inputs.preset }}
         MERGE_GUARD_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
+        MERGE_GUARD_POLICY: ${{ inputs.policy }}
         MERGE_GUARD_MARKDOWN: ${{ inputs.markdown }}
         MERGE_GUARD_COMMENT: ${{ inputs.comment }}
         MERGE_GUARD_PR_TITLE: ${{ github.event.pull_request.title }}
@@ -61,6 +66,11 @@ runs:
         threshold_args=()
         if [ -n "$MERGE_GUARD_FAIL_THRESHOLD" ]; then
           threshold_args=(--fail-threshold "$MERGE_GUARD_FAIL_THRESHOLD")
+        fi
+
+        policy_args=()
+        if [ -n "$MERGE_GUARD_POLICY" ]; then
+          policy_args=(--policy "$MERGE_GUARD_POLICY")
         fi
 
         output_args=()
@@ -77,7 +87,7 @@ runs:
         fi
 
         set +e
-        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
+        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
         scan_status=${PIPESTATUS[0]}
         set -e
 
