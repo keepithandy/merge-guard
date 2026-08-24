@@ -47,7 +47,7 @@ jobs:
       - name: Run report contract snapshots
         run: npm run test:snapshots
 
-      - name: Run repository-intelligence contracts
+      - name: Run repository-intelligence contracts and snapshots
         run: npm run test:repository
 
       - name: Run release-readiness suite
