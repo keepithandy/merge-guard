@@ -32,7 +32,8 @@ function event(name) {
 function assertSnapshot(name, actual) {
   const snapshotPath = path.join(snapshotRoot, `${name}.md`);
   assert(fs.existsSync(snapshotPath), `missing Markdown snapshot: ${snapshotPath}`);
-  assert.equal(actual, fs.readFileSync(snapshotPath, 'utf8').trimEnd(), `${name} snapshot mismatch`);
+  const expected = fs.readFileSync(snapshotPath, 'utf8').replace(/\r\n/g, '\n').trimEnd();
+  assert.equal(actual, expected, `${name} snapshot mismatch`);
 }
 
 assert.equal(PULL_REQUEST_SUMMARY_VERSION, 1);
