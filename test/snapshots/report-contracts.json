@@ -1,0 +1,367 @@
+{
+  "standard": {
+    "schemaVersion": 1,
+    "tool": "merge-guard",
+    "version": "0.1.0",
+    "riskLevel": "LOW",
+    "mergeReadiness": "SAFE_TO_MERGE",
+    "riskScore": 1,
+    "docsOnly": false,
+    "config": {
+      "preset": "standard",
+      "failThreshold": 7,
+      "reviewThreshold": 3,
+      "customRules": [],
+      "suppressions": []
+    },
+    "summary": {
+      "changedFiles": 2,
+      "addedLines": 3,
+      "removedLines": 0,
+      "docsOnly": false,
+      "files": [
+        "src/app.js",
+        "src/app.test.js"
+      ]
+    },
+    "files": [
+      {
+        "path": "src/app.js",
+        "riskLevel": "LOW",
+        "riskScore": 2,
+        "addedLines": 2,
+        "removedLines": 0,
+        "flags": [
+          "Routing or entry-point logic changed"
+        ],
+        "ruleIds": [
+          "routing-or-entry"
+        ]
+      },
+      {
+        "path": "src/app.test.js",
+        "riskLevel": "LOW",
+        "riskScore": 1,
+        "addedLines": 1,
+        "removedLines": 0,
+        "flags": [
+          "Routing or entry-point logic changed",
+          "Tests changed with implementation"
+        ],
+        "ruleIds": [
+          "routing-or-entry",
+          "test-change"
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "id": "routing-or-entry",
+        "custom": false,
+        "label": "Routing or entry-point logic changed",
+        "weight": 2,
+        "matchedFiles": [
+          "src/app.js",
+          "src/app.test.js"
+        ],
+        "matchedLineCount": 0
+      },
+      {
+        "id": "test-change",
+        "custom": false,
+        "label": "Tests changed with implementation",
+        "weight": -1,
+        "matchedFiles": [
+          "src/app.test.js"
+        ],
+        "matchedLineCount": 0
+      }
+    ],
+    "flags": [
+      "Routing or entry-point logic changed",
+      "Tests changed with implementation"
+    ],
+    "suggestedChecks": [
+      "Manually test the affected navigation or app entry path.",
+      "Confirm the updated tests cover the changed behavior."
+    ],
+    "customRuleWarnings": [],
+    "suppressionWarnings": [],
+    "suppressedFindings": [],
+    "prContext": null,
+    "configDiagnostics": []
+  },
+  "docsOnly": {
+    "schemaVersion": 1,
+    "tool": "merge-guard",
+    "version": "0.1.0",
+    "riskLevel": "LOW",
+    "mergeReadiness": "SAFE_TO_MERGE",
+    "riskScore": 0,
+    "docsOnly": true,
+    "config": {
+      "preset": "standard",
+      "failThreshold": 7,
+      "reviewThreshold": 3,
+      "customRules": [],
+      "suppressions": []
+    },
+    "summary": {
+      "changedFiles": 1,
+      "addedLines": 6,
+      "removedLines": 0,
+      "docsOnly": true,
+      "files": [
+        "README.md"
+      ]
+    },
+    "files": [
+      {
+        "path": "README.md",
+        "riskLevel": "LOW",
+        "riskScore": 0,
+        "addedLines": 6,
+        "removedLines": 0,
+        "flags": [
+          "Documentation/comment-only change"
+        ],
+        "ruleIds": [
+          "docs-or-comment-only-file"
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "id": "docs-only",
+        "custom": false,
+        "label": "Docs-only change detected",
+        "weight": 0,
+        "matchedFiles": [
+          "README.md"
+        ],
+        "matchedLineCount": 0
+      }
+    ],
+    "flags": [
+      "Docs-only change detected"
+    ],
+    "suggestedChecks": [
+      "Proofread documentation and verify examples or commands still match the project."
+    ],
+    "customRuleWarnings": [],
+    "suppressionWarnings": [],
+    "suppressedFindings": [],
+    "prContext": null,
+    "configDiagnostics": []
+  },
+  "customRule": {
+    "schemaVersion": 1,
+    "tool": "merge-guard",
+    "version": "0.1.0",
+    "riskLevel": "MEDIUM",
+    "mergeReadiness": "NEEDS_REVIEW",
+    "riskScore": 4,
+    "docsOnly": false,
+    "config": {
+      "preset": "standard",
+      "failThreshold": 7,
+      "reviewThreshold": 3,
+      "customRules": [
+        {
+          "id": "app-readiness-guard",
+          "label": "App readiness guard changed",
+          "weight": 3,
+          "pathPattern": "src/app",
+          "linePattern": "ready",
+          "check": "Run the app startup smoke."
+        }
+      ],
+      "suppressions": []
+    },
+    "summary": {
+      "changedFiles": 2,
+      "addedLines": 3,
+      "removedLines": 0,
+      "docsOnly": false,
+      "files": [
+        "src/app.js",
+        "src/app.test.js"
+      ]
+    },
+    "files": [
+      {
+        "path": "src/app.js",
+        "riskLevel": "MEDIUM",
+        "riskScore": 5,
+        "addedLines": 2,
+        "removedLines": 0,
+        "flags": [
+          "Routing or entry-point logic changed",
+          "App readiness guard changed"
+        ],
+        "ruleIds": [
+          "routing-or-entry",
+          "custom:app-readiness-guard"
+        ]
+      },
+      {
+        "path": "src/app.test.js",
+        "riskLevel": "LOW",
+        "riskScore": 1,
+        "addedLines": 1,
+        "removedLines": 0,
+        "flags": [
+          "Routing or entry-point logic changed",
+          "Tests changed with implementation"
+        ],
+        "ruleIds": [
+          "routing-or-entry",
+          "test-change"
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "id": "routing-or-entry",
+        "custom": false,
+        "label": "Routing or entry-point logic changed",
+        "weight": 2,
+        "matchedFiles": [
+          "src/app.js",
+          "src/app.test.js"
+        ],
+        "matchedLineCount": 0
+      },
+      {
+        "id": "test-change",
+        "custom": false,
+        "label": "Tests changed with implementation",
+        "weight": -1,
+        "matchedFiles": [
+          "src/app.test.js"
+        ],
+        "matchedLineCount": 0
+      },
+      {
+        "id": "custom:app-readiness-guard",
+        "custom": true,
+        "label": "App readiness guard changed",
+        "weight": 3,
+        "matchedFiles": [
+          "src/app.js"
+        ],
+        "matchedLineCount": 2
+      }
+    ],
+    "flags": [
+      "Routing or entry-point logic changed",
+      "Tests changed with implementation",
+      "App readiness guard changed"
+    ],
+    "suggestedChecks": [
+      "Manually test the affected navigation or app entry path.",
+      "Confirm the updated tests cover the changed behavior.",
+      "Run the app startup smoke."
+    ],
+    "customRuleWarnings": [],
+    "suppressionWarnings": [],
+    "suppressedFindings": [],
+    "prContext": null,
+    "configDiagnostics": []
+  },
+  "prContext": {
+    "schemaVersion": 1,
+    "tool": "merge-guard",
+    "version": "0.1.0",
+    "riskLevel": "LOW",
+    "mergeReadiness": "SAFE_TO_MERGE",
+    "riskScore": 1,
+    "docsOnly": false,
+    "config": {
+      "preset": "standard",
+      "failThreshold": 7,
+      "reviewThreshold": 3,
+      "customRules": [],
+      "suppressions": []
+    },
+    "summary": {
+      "changedFiles": 2,
+      "addedLines": 3,
+      "removedLines": 0,
+      "docsOnly": false,
+      "files": [
+        "src/app.js",
+        "src/app.test.js"
+      ]
+    },
+    "files": [
+      {
+        "path": "src/app.js",
+        "riskLevel": "LOW",
+        "riskScore": 2,
+        "addedLines": 2,
+        "removedLines": 0,
+        "flags": [
+          "Routing or entry-point logic changed"
+        ],
+        "ruleIds": [
+          "routing-or-entry"
+        ]
+      },
+      {
+        "path": "src/app.test.js",
+        "riskLevel": "LOW",
+        "riskScore": 1,
+        "addedLines": 1,
+        "removedLines": 0,
+        "flags": [
+          "Routing or entry-point logic changed",
+          "Tests changed with implementation"
+        ],
+        "ruleIds": [
+          "routing-or-entry",
+          "test-change"
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "id": "routing-or-entry",
+        "custom": false,
+        "label": "Routing or entry-point logic changed",
+        "weight": 2,
+        "matchedFiles": [
+          "src/app.js",
+          "src/app.test.js"
+        ],
+        "matchedLineCount": 0
+      },
+      {
+        "id": "test-change",
+        "custom": false,
+        "label": "Tests changed with implementation",
+        "weight": -1,
+        "matchedFiles": [
+          "src/app.test.js"
+        ],
+        "matchedLineCount": 0
+      }
+    ],
+    "flags": [
+      "Routing or entry-point logic changed",
+      "Tests changed with implementation"
+    ],
+    "suggestedChecks": [
+      "Manually test the affected navigation or app entry path.",
+      "Confirm the updated tests cover the changed behavior."
+    ],
+    "customRuleWarnings": [],
+    "suppressionWarnings": [],
+    "suppressedFindings": [],
+    "prContext": {
+      "title": "Harden app startup readiness",
+      "body": "Preserves startup behavior and adds focused verification."
+    },
+    "configDiagnostics": []
+  }
+}
