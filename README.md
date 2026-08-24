@@ -1,114 +1,64 @@
 # merge-guard
 
-`merge-guard` is a lightweight pull request and diff risk scanner for safer merges. It reviews changed files and creates a plain-English merge-readiness report showing what changed, what might break, which files look risky, and what checks should be run before merging.
+`merge-guard` is a deterministic pull request and diff risk scanner for safer merges. It reviews changed files and produces a plain-English merge-readiness report: what changed, what looks risky, what might break, and which checks a reviewer should consider before merging.
 
-The goal is simple: **protect the main branch before you merge.**
+It does not require an AI provider or API key, and it never runs discovered project commands.
 
-## Try It First
+[Quick start](#quick-start) · [CLI](#cli-usage) · [Configuration](#configuration) · [GitHub Action](#reusable-github-action) · [Documentation](#documentation)
 
-Install dependencies and run the bundled demo:
-
-```bash
-git clone https://github.com/keepithandy/merge-guard.git
-cd merge-guard
-npm install
-npm run demo
-```
-
-Scan the sample diff:
-
-```bash
-node src/cli.js examples/sample.diff
-```
-
-Generate Markdown output:
-
-```bash
-node src/cli.js --markdown examples/sample.diff
-```
-
-Current status: active developer-tool prototype. The current CLI is rules-based and can produce useful merge-readiness reports without requiring an API key.
+> **Pre-release status:** Merge Guard is an active developer-tool prototype. Package metadata remains at `0.1.0`, while the changelog tracks an unreleased `v0.2.0` candidate. This repository has not published an npm release or release tag yet. Use the source checkout or composite GitHub Action, and pin an immutable commit SHA when stability matters.
 
 ## What it answers
 
-`merge-guard` focuses on five questions:
+Merge Guard focuses review on five questions:
 
 1. What changed?
 2. Why does it matter?
 3. What might break?
-4. What checks should I run?
-5. Is this safe to merge?
+4. Which checks should I run?
+5. Is this ready to merge?
 
-It does not replace human review. It gives developers a second set of eyes before shipping.
+The report is decision support, not approval. Tests, human review, and repository protection rules remain authoritative.
 
-## Current version
+## Quick start
 
-This version supports:
+Merge Guard requires Node.js 18 or newer.
 
-- plain text, Markdown, and schema-versioned JSON reports
-- CI-oriented output
-- per-file risk scoring
-- docs-only detection
-- risk presets
-- rule explanations
-- project-defined custom rules
-- non-destructive rule suppressions with expiry
-- structured configuration diagnostics
-- optional pull request title/body context
-- repository-aware suggested checks with source/reason metadata
-- npm workspace boundaries and affected-package mapping
-- a versioned, validated policy-pack schema
-- explicit frontend, backend, library, browser-game, and infrastructure starter policies
-- protected-path and CODEOWNERS guidance that is separate from scoring and approval
-- deterministic monorepo policy inheritance and expiring annotation-only exceptions
-- compact pull-request summaries with expandable files, rules, and checks
-- optional deduplicated changed-line annotations and SARIF 2.1.0 generation
-- deterministic new, unchanged, and resolved finding comparisons across supplied reports
-- pull request comment update helpers
-- offline end-to-end fixtures for report, comment, annotation, SARIF, comparison, and threshold behavior
-- an accepted, machine-checkable local dashboard architecture and threat boundary
-- npm/npx-compatible package metadata
-- a reusable composite GitHub Action
+### Use the GitHub Action
 
-The next v0.6 work implements local diff/report import, exploration, accessibility, and exports within the accepted no-network boundary.
+Create `.github/workflows/merge-guard.yml` in the repository you want to scan:
 
-## Example output
+```yaml
+name: Merge Guard
 
-```txt
-merge-guard report
+on:
+  pull_request:
 
-Risk level: MEDIUM
-Merge readiness: NEEDS_REVIEW
-Risk score: 4
-Preset: standard
+permissions:
+  contents: read
 
-Summary:
-- 4 file(s) changed
-- 86 added line(s)
-- 22 removed line(s)
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-Per-file risk:
-- MEDIUM src/saveState.js - State or persistence logic changed.
-- MEDIUM package.json - Dependency or config file changed.
-- LOW README.md - Documentation-only file.
-
-Risk flags:
-- State or persistence logic changed
-- Dependency or config file changed
-- Implementation changed without matching test changes
-
-Suggested checks:
-- Run the normal test suite
-- Run smoke tests related to changed systems
-- Manually review save/load behavior
+      - uses: keepithandy/merge-guard@main
+        with:
+          preset: standard
 ```
 
-## Install locally
+`@main` is currently a moving pre-release reference. Pin a commit SHA for a reproducible workflow. See [GitHub Action](#reusable-github-action) for comments, thresholds, annotations, SARIF, and report comparison.
+
+### Run the CLI from source
+
+Clone the repository and run the bundled demo:
 
 ```bash
 git clone https://github.com/keepithandy/merge-guard.git
 cd merge-guard
-npm install
 npm run demo
 ```
 
@@ -118,176 +68,121 @@ Scan a diff file:
 node src/cli.js path/to/change.diff
 ```
 
-Pipe in your current diff:
+To scan a sibling project while preserving that project's configuration and repository context, run the CLI with the target repository as the current working directory:
 
 ```bash
-git diff | node src/cli.js
+cd ../your-project
+git diff origin/main...HEAD | node ../merge-guard/src/cli.js
 ```
 
-## npm and npx usage
-
-The package exposes the `merge-guard` executable through `bin.merge-guard` and includes the CLI, scripts, examples, Action wrapper, README, changelog, and license in the package payload.
-
-Install from a local checkout:
+Alternatively, expose the local checkout as a global command:
 
 ```bash
+cd ../merge-guard
 npm install --global .
-merge-guard --help
+cd ../your-project
+git diff | merge-guard
 ```
 
-Test an npm-style invocation without publishing:
+Inspect or exercise the npm package shape locally without publishing it:
 
 ```bash
+cd ../merge-guard
 npm pack --dry-run
 npx --package . merge-guard --help
 npx --package . merge-guard --markdown examples/sample.diff
 ```
 
-Publishing is intentionally manual. Before publishing, inspect the `npm pack --dry-run` file list and follow the release checklist in `CHANGELOG.md`.
+Merge Guard reads `merge-guard.config.json`, project metadata, package boundaries, and CODEOWNERS from the current working directory.
 
-## Compatibility checks
+## Example output
 
-Merge Guard supports Node.js 18 or newer. The repository runs its smoke and CLI contract checks on Node 18, 20, 22, and 24 across Ubuntu and Windows through GitHub Actions.
+The bundled `examples/sample.diff` currently produces this abridged report:
 
-The matrix checks:
+```text
+merge-guard report
 
-- smoke and CLI contract tests
-- deterministic report, suppression, and repository-intelligence snapshots
-- the complete release-readiness suite
-- the end-to-end GitHub review experience fixture
-- the local dashboard architecture contract
-- CLI help and sample diff analysis
-- JSON output
-- `npm pack --dry-run`
+Risk level: LOW
+Merge readiness: SAFE_TO_MERGE
+Risk score: 1
+Preset: standard
 
-The workflow installs with `npm install --no-package-lock`, uses the package metadata for npm cache configuration, and never publishes packages or creates releases. The current evidence is recorded in [the v0.2 compatibility matrix](docs/validation/V0.2_COMPATIBILITY_MATRIX.md).
+Summary:
+- 2 file(s) changed
+- 3 added line(s)
+- 0 removed line(s)
 
-## Release verification
+Changed files:
+- src/app.js
+- src/app.test.js
 
-Run the local contract gate before tagging or publishing:
-
-```bash
-npm run smoke
-npm run test:cli
-npm run test:snapshots
-npm run test:repository
-npm run test:policies
-npm run test:guidance
-npm run test:policy-resolution
-npm run test:pr-summary
-npm run test:github-review
-npm run test:finding-comparison
-npm run test:review-e2e
-npm run test:dashboard-architecture
-npm run release:check
+Risk flags:
+- Routing or entry-point logic changed
+- Tests changed with implementation
 ```
 
-See [package and release verification](docs/package-and-action.md) for the complete checklist. These commands inspect and validate artifacts; they do not publish.
+The complete report also includes per-file risk, rule explanations, suggested checks and their sources, and repository impact.
 
-## Output modes
+## Capabilities on `main`
 
-Plain text output is the default:
+- Deterministic, rules-based scoring with docs-only handling, risk presets, per-file findings, and merge-readiness labels.
+- Plain-text, Markdown, compact pull-request summary, schema-versioned JSON, changed-line annotation, and SARIF 2.1.0 outputs.
+- Project configuration for high-risk paths, suggested checks, custom rules, and non-destructive suppressions.
+- Read-only JavaScript, Python, mixed-project, and npm-workspace inspection with affected-package mapping.
+- Explicit starter policy packs, monorepo policy inheritance, protected-path guidance, and CODEOWNERS hints.
+- Pull request context, stable managed comments, immutable report comparison, and a reusable composite GitHub Action.
+- Versioned architecture and security contracts for a future local dashboard.
 
-```bash
-node src/cli.js examples/sample.diff
-```
+## How scoring works
 
-Markdown output is useful for pasting into pull requests:
+Merge Guard parses a unified diff and scores signals such as persistence changes, dependency or configuration changes, routing or entry-point changes, missing matching tests, configured high-risk paths, custom rules, and explicitly selected policy rules.
 
-```bash
-node src/cli.js --markdown examples/sample.diff
-```
+The default preset is `standard`:
 
-Compact GitHub-oriented output puts the highest-risk files first and keeps files, rules, and checks in expandable sections:
+| Preset | Review threshold | Failure threshold | Intended use |
+| --- | ---: | ---: | --- |
+| `safe` | 4 | 9 | Relaxed exploration |
+| `standard` | 3 | 7 | General pull-request review |
+| `strict` | 2 | 5 | Release branches and sensitive systems |
 
-```bash
-node src/cli.js --pr-summary examples/sample.diff
-```
+Scores at or above the review threshold produce `NEEDS_REVIEW`. Scores at or above the failure threshold produce `DO_NOT_MERGE_YET`; `--ci` also exits with status 1 at that threshold. A lower score produces `SAFE_TO_MERGE`, which means no configured high-risk threshold was reached, not that the change is proven safe.
 
-JSON output includes the same risk data, including the per-file breakdown and rule explanations. Reports declare `schemaVersion: 1` and required machine-readable fields documented in [the report contract](docs/REPORT_FORMAT.md):
+## Configuration
 
-```bash
-node src/cli.js --json examples/sample.diff
-```
-
-Optional GitHub-native projections retain only findings with valid changed-line anchors; unsupported findings stay in the normal report:
-
-```bash
-node src/cli.js --annotations examples/sample.diff > merge-guard-annotations.json
-node src/cli.js --sarif examples/sample.diff > merge-guard.sarif
-```
-
-See [GitHub annotations and SARIF](docs/github-review-outputs.md) for the versioned bundle, location semantics, Action inputs, and explicit SARIF upload boundary.
-
-Compare two immutable JSON reports from successive pushes:
-
-```bash
-node scripts/compare-reports.js \
-  --previous previous-report.json \
-  --current current-report.json \
-  --markdown
-```
-
-Missing previous history is reported as unknown with exit code 2, never as a clean zero-finding comparison. See [finding comparison across pushes](docs/finding-comparisons.md).
-
-## Local dashboard architecture
-
-v0.6 starts from a versioned local-only boundary: a planned dependency-free static server bound to `127.0.0.1`, browser File API input, dedicated-worker validation, memory-only state, no runtime remote origins, and an enforced `connect-src 'none'` Content Security Policy. Diffs are capped at 20 MiB; v1 reports are capped at 10 MiB each and at most two may be compared.
-
-This architecture issue does not ship the server or browser UI. The implementation follows in #69–#71. The machine contract, accepted ADR, and threat model are documented in [the local dashboard architecture](docs/architecture/dashboard-architecture.md). Validate it with:
-
-```bash
-npm run test:dashboard-architecture
-```
-
-CI mode prints Markdown and exits with a failure when the report reaches the configured `failThreshold`:
-
-```bash
-node src/cli.js --ci examples/sample.diff
-node src/cli.js --ci --fail-threshold 5 examples/sample.diff
-```
-
-## Pull request title and body context
-
-PR text can be included as context without changing how risk rules score the diff.
-
-```bash
-node src/cli.js \
-  --markdown \
-  --pr-title "Harden save migration boundaries" \
-  --pr-body notes/pr-body.md \
-  change.diff
-```
-
-- `--pr-title <text>` adds the title to text, Markdown, JSON, and AI-ready output.
-- `--pr-body <path>` reads the body from a UTF-8 text or Markdown file.
-- PR text is explicitly labeled **context only**.
-- Rule matches, risk score, readiness, and per-file findings continue to come from the diff and configuration.
-- When `--ai` is used, PR context is appended to the review prompt with the same diff-authority warning.
-
-## Risk presets
-
-Use `--preset` to change how sensitive the scanner should be:
-
-```bash
-node src/cli.js --preset safe examples/sample.diff
-node src/cli.js --preset standard examples/sample.diff
-node src/cli.js --preset strict examples/sample.diff
-```
-
-Presets:
-
-- `safe` - relaxed scoring, useful for casual projects or early exploration.
-- `standard` - default scoring, balanced for normal review.
-- `strict` - sharper scoring, useful for release branches or risky systems.
-
-## Custom rules
-
-Add a `customRules` array to `merge-guard.config.json` when a project has risky paths or line patterns that the built-in rules do not cover.
+Merge Guard works without configuration. When `merge-guard.config.json` exists in the current working directory, the CLI loads it automatically.
 
 ```json
 {
   "preset": "standard",
+  "highRiskPaths": [
+    "src/auth",
+    "src/payments"
+  ],
+  "testCommands": [
+    "npm test",
+    "npm run smoke"
+  ],
+  "failThreshold": 7
+}
+```
+
+| Field | Behavior |
+| --- | --- |
+| `preset` | Selects `safe`, `standard`, or `strict`. The CLI `--preset` option overrides it. |
+| `highRiskPaths` | Adds risk when a changed path starts with one of the configured values. |
+| `testCommands` | Adds project-specific commands to suggested checks. Merge Guard reports them but never executes them. |
+| `failThreshold` | Sets the positive-integer high-risk and CI failure threshold. `--fail-threshold` overrides it. |
+| `customRules` | Adds validated path and/or added-line rules with weights from 0 through 10. |
+| `suppressions` | Annotates matching findings with owner, reason, and UTC expiry metadata without changing scores or thresholds. |
+
+Start with [`examples/merge-guard.config.example.json`](examples/merge-guard.config.example.json). Invalid core fields stop the scan with structured diagnostics. Invalid custom rules and suppressions are ignored for scoring and reported as warnings.
+
+### Custom rules
+
+Add `customRules` when a project has risky paths or added-line patterns that the built-in scanner does not cover:
+
+```json
+{
   "customRules": [
     {
       "id": "payment-provider-change",
@@ -301,169 +196,115 @@ Add a `customRules` array to `merge-guard.config.json` when a project has risky 
 }
 ```
 
-Each rule supports:
+A custom rule must define `pathPattern`, `linePattern`, or both. If both are present, the same changed file must match the path and contain a matching added line. A weight of `0` records an informational match without increasing risk.
 
-- `id`: stable project-specific identifier.
-- `label`: human-readable risk flag.
-- `pathPattern`: optional case-insensitive regular expression matched against changed file paths.
-- `linePattern`: optional case-insensitive regular expression matched against added lines.
-- `weight`: integer score adjustment from `0` to `10`; negative, fractional, string, non-finite, and extreme values are rejected.
-- `check`: suggested verification command or review step.
+Advanced configuration:
 
-A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. A weight of `0` records an informational match without changing risk. Duplicate rule IDs and invalid weights are ignored without stopping the scan and are listed under **Custom rule warnings**.
+- [Custom rules](docs/custom-rules.md)
+- [Rule suppressions](docs/suppressions.md)
+- [Configuration diagnostics](docs/configuration-diagnostics.md)
+- [Policy inheritance and expiring exceptions](docs/policy-inheritance.md)
 
-See [custom rules](docs/custom-rules.md) for the authoritative field and validation contract.
+## CLI usage
 
-## Rule suppressions
+The CLI accepts a unified-diff file or stdin:
 
-Suppressions are report annotations only: they never delete findings, change risk scores, or bypass configured failure thresholds.
-
-Each suppression requires a rule ID, reason, owner, and expiration date:
-
-```json
-{
-  "suppressions": [
-    {
-      "ruleId": "custom:known-legacy-path",
-      "pathPattern": "^src/legacy/",
-      "reason": "Tracked migration with approved follow-up.",
-      "owner": "team-tools",
-      "expires": "2026-12-31"
-    }
-  ]
-}
+```bash
+merge-guard change.diff
+git diff | merge-guard
+merge-guard --help
 ```
 
-Expired, malformed, duplicate, or invalid suppressions remain visible as warnings. Matching findings appear separately in `suppressedFindings`.
+When running from a source checkout, replace `merge-guard` with `node src/cli.js`.
 
-Expiry uses UTC calendar dates. See [rule suppressions](docs/suppressions.md) for active, expired, unmatched, and malformed behavior.
+### Output modes
 
-## Configuration diagnostics
+```bash
+merge-guard --markdown change.diff
+merge-guard --json change.diff
+merge-guard --pr-summary change.diff
+merge-guard --annotations change.diff > merge-guard-annotations.json
+merge-guard --sarif change.diff > merge-guard.sarif
+```
 
-Merge Guard validates `merge-guard.config.json` before scanning. Fatal errors exit non-zero; `--json` emits an `INVALID_CONFIGURATION` error payload with structured diagnostics. Non-fatal custom-rule warnings remain in `configDiagnostics` and `customRuleWarnings`.
+`--json`, `--markdown`, `--pr-summary`, `--annotations`, and `--sarif` are mutually exclusive stdout modes. Use `--report-json` to preserve the complete schema-version 1 report alongside any projection:
 
-See [configuration diagnostics](docs/configuration-diagnostics.md) for fatal fields, warning behavior, and the diagnostic schema.
+```bash
+merge-guard --pr-summary --report-json merge-guard-report.json change.diff
+```
+
+With no explicit stdout projection, CI mode prints Markdown. It always appends a compact summary to `GITHUB_STEP_SUMMARY` when available and enforces the resolved failure threshold:
+
+```bash
+merge-guard --ci --preset strict --fail-threshold 5 change.diff
+```
+
+`--ai` adds local AI-review data to the report. JSON includes the generated prompt package; text and Markdown show the derived summary and possible breakpoints. It makes no model or network call and requires no API key:
+
+```bash
+merge-guard --json --ai change.diff > merge-guard-ai-review.json
+```
+
+### Other options
+
+| Option | Purpose |
+| --- | --- |
+| `--preset <name>` | Select `safe`, `standard`, or `strict`. |
+| `--fail-threshold <score>` | Override the high-risk and CI failure threshold with a positive integer. |
+| `--pr-title <text>` | Add a pull request title as context. |
+| `--pr-body <path>` | Read pull request body context from a UTF-8 text or Markdown file. |
+| `--policy <id>` | Explicitly apply `frontend`, `backend`, `library`, `browser-game`, or `infrastructure`. |
+| `--policy-config <path>` | Apply an explicit root/package policy manifest. It cannot be combined with `--policy`. |
+| `--report-json <path>` | Write the complete JSON report in addition to stdout. |
+| `--help`, `-h` | Show the current command contract. |
+
+Pull request title and body are context only. They appear in reports and AI-ready output but never change rules, risk scores, readiness, or failure thresholds.
 
 ## Project-specific suggested checks
 
-Before formatting a report, merge-guard performs read-only repository inspection. It never executes a discovered command.
+Before formatting a report, Merge Guard inspects the current repository without executing anything. It can suggest checks from:
 
-Detection covers:
-
-- root npm scripts for test, smoke, check, verification, lint, typecheck, build, migration, database, and deployment work;
-- root JavaScript smoke files and exact supported README commands;
+- root npm scripts, supported root smoke files, and exact README commands;
 - pytest, unittest, Ruff, Black, mypy, Flake8, Python build, and tox metadata;
-- mixed JavaScript/Python repositories with deterministic deduplication;
-- npm workspace arrays/objects, nested package roots, and common `apps/*`, `packages/*`, and `services/*` layouts;
-- modified, added, deleted, and renamed diff paths mapped to the longest owning package root.
+- mixed JavaScript/Python projects with deterministic deduplication;
+- npm workspace arrays or objects, nested packages, and common `apps/*`, `packages/*`, and `services/*` layouts.
 
-Detected commands still appear first under **Suggested checks** and remain available as the compatible `projectChecks` string array. JSON, text, and Markdown output also explain every command through `projectCheckDetails`. JSON exposes package boundaries and direct versus potential shared impact under `repository`.
+Changed paths are mapped to the longest owning package root. Repository-level changes and potential shared impact are labeled explicitly; Merge Guard does not infer dependency relationships.
 
-Repository-level files are reported explicitly. Potential shared impact never claims a dependency relationship. When no supported project command exists, the generic suggested checks remain unchanged.
+See [repository intelligence](docs/repository-intelligence.md) for the supported layouts and report fields.
 
-See [repository intelligence](docs/repository-intelligence.md) for the exact supported layouts, unsupported cases, report fields, and conformance fixtures.
+## Policy packs and review guidance
 
-## Policy-pack schema
+### Policy-pack schema
 
-Merge Guard defines a versioned reusable-policy contract for identity, compatibility, risk rules, protected paths, and required checks. Validation is read-only and does not select a pack, execute a command, or change built-in scoring defaults.
+Merge Guard validates reusable policies against the versioned [`policy-pack-v1` schema](schemas/policy-pack-v1.schema.json). Validation checks identity, compatibility, rules, protected paths, and required checks; it does not select or apply a pack. Pack selection is always explicit.
 
-```js
-import { validatePolicyPack } from './src/policyPacks.js';
+### Starter policies
 
-const result = validatePolicyPack(policyData);
-if (!result.valid) {
-  console.error(result.fatal);
-}
-```
-
-Schema version 1 rejects missing, malformed, legacy, future, and runtime-incompatible packs with structured fatal diagnostics. Unknown fields, missing descriptions, duplicate command strings, and empty behavior produce warnings. The machine-readable schema is `schemas/policy-pack-v1.schema.json`.
-
-Run `npm run test:policies` for the compatibility gate. See [the policy-pack contract](docs/policy-packs.md) and [migration rules](docs/policy-pack-migrations.md). Pack selection remains explicit; validation alone never applies policy behavior.
-
-Five starter packs are available only by explicit ID:
+Starter policies are opt-in. No policy is selected by default:
 
 ```bash
-node src/cli.js --policy frontend examples/sample.diff
-node src/cli.js --policy backend change.diff
-node src/cli.js --policy library change.diff
-node src/cli.js --policy browser-game change.diff
-node src/cli.js --policy infrastructure change.diff
+merge-guard --policy frontend change.diff
+merge-guard --policy infrastructure change.diff
 ```
 
-Selected packs add namespaced policy findings and reasoned required checks. They never execute those checks. See [starter policy packs](docs/starter-policy-packs.md) for assumptions and exact behavior.
+The five bundled packs are `frontend`, `backend`, `library`, `browser-game`, and `infrastructure`. Selected packs add namespaced findings and reasoned required checks; they never execute a command.
 
-## Protected paths and CODEOWNERS guidance
+For monorepos, `--policy-config merge-guard.policies.json` resolves explicit root and package policy scopes. Expiring exceptions are annotations only: they do not remove findings or checks, change scores, bypass thresholds, or imply approval.
 
-Merge Guard reports selected-policy protected-path matches and reads the first CODEOWNERS file found in `.github/`, the repository root, or `docs/`. Matching is case-sensitive and last-match wins. Unsupported negation, bracket ranges, escaped patterns, malformed lines, and invalid owners are skipped with warnings.
+### Expiring policy exceptions
 
-CODEOWNERS output is intentionally labeled as unverified guidance. Merge Guard does not assign reviewers, verify access, request reviews, read approvals, or claim that a requirement has been satisfied. The checked-out CODEOWNERS file may also differ from the pull request base branch used by GitHub.
+Every exception needs a narrow path expression, reason, owner, real UTC expiry date, and an existing rule, protected-path, or required-check target. Blanket, expired, and malformed exceptions are rejected.
 
-See [protected-path and CODEOWNERS guidance](docs/review-guidance.md) for the supported syntax, limitations, report fields, and fixture gate.
+Protected-path matches and CODEOWNERS results are also guidance only. Merge Guard does not assign reviewers, verify repository access, read approvals, or claim that an ownership requirement has been satisfied.
 
-## Policy inheritance
-
-Use an explicit repository policy manifest when different monorepo scopes need different starter packs:
-
-```bash
-node src/cli.js \
-  --policy-config merge-guard.policies.json \
-  change.diff
-```
-
-Resolution walks root policy, parent packages, then the longest package root. `inherit: false` clears inherited selection; an explicit package policy replaces it. Reports retain the full provenance chain and package-relative matched path. Duplicate package scopes and simultaneous `--policy`/`--policy-config` selection fail clearly.
-
-## Expiring policy exceptions
-
-Policy exceptions require a narrow path expression, reason, owner, real UTC expiry date, and an existing rule/protected-path/check target. Blanket and expired exceptions are rejected. Active exceptions are annotations only: they never remove findings or checks, alter scores, bypass thresholds, or imply approval.
-
-See [policy inheritance and expiring exceptions](docs/policy-inheritance.md) for the manifest schema, precedence, provenance, validation, and fixtures.
-
-## Rule explanations
-
-Every triggered rule includes explanation metadata so reviewers can see why a warning fired instead of guessing.
-
-## Pull request comment mode
-
-Create a compact summary, then use the comment helper to post or update it in a pull request discussion:
-
-```bash
-node src/cli.js --pr-summary pr.diff > merge-guard-report.md
-node scripts/pr-comment.js --report merge-guard-report.md
-```
-
-Preview the comment body without calling GitHub:
-
-```bash
-node scripts/pr-comment.js --report merge-guard-report.md --dry-run
-```
-
-The stable managed-comment marker is unchanged, so reruns update one comment. Comment mode in the composite Action selects this summary automatically. The Action's `comment-dry-run: "true"` input renders the complete comment path without a GitHub write for fixture validation. See [compact pull-request summaries](docs/pull-request-summaries.md), [review experience fixtures](docs/review-experience-fixtures.md), `docs/GITHUB_ACTIONS.md`, and `examples/actions-report-mode.yml`.
+See [starter policy packs](docs/starter-policy-packs.md), [policy inheritance](docs/policy-inheritance.md), and [protected-path/CODEOWNERS guidance](docs/review-guidance.md).
 
 ## Reusable GitHub Action
 
-The repository root contains a composite `action.yml`. A consuming workflow must check out the pull request with enough history for a base comparison.
+The root [`action.yml`](action.yml) wraps the same CLI. When it builds the pull-request diff, the consuming checkout needs full history (`fetch-depth: 0`). Supplying `diff-path` makes the caller responsible for the diff and removes that requirement from Merge Guard itself.
 
-Minimal report-only usage:
-
-```yaml
-name: Merge Guard
-
-on:
-  pull_request:
-
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: keepithandy/merge-guard@main
-        with:
-          preset: standard
-```
-
-Strict usage with a PR comment and explicit failure score:
+Enable a stable managed pull-request comment and a strict threshold like this:
 
 ```yaml
 name: Strict Merge Guard
@@ -482,6 +323,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: keepithandy/merge-guard@main
         with:
           preset: strict
@@ -490,35 +332,103 @@ jobs:
           fail-threshold: "5"
 ```
 
-Action inputs:
+Live comments require `pull-requests: write`. Report-only mode does not. To render a comment without writing to GitHub, set both `comment: "true"` and `comment-dry-run: "true"`; that dry-run combination does not need write permission.
 
-- `preset`: `safe`, `standard`, or `strict`.
-- `policy`: optional explicit starter policy ID (`frontend`, `backend`, `library`, `browser-game`, or `infrastructure`).
-- `policy-config`: optional repository-relative path to an explicit root/package policy manifest; conflicts with `policy`.
-- `comment`: post or update the stable merge-guard PR comment.
-- `comment-dry-run`: render comment mode without calling GitHub; intended for fixture and workflow validation.
-- `fail-threshold`: optional positive integer override.
-- `annotations`: emit deduplicated changed-line workflow annotations.
-- `sarif`: generate `merge-guard.sarif` without uploading it.
-- `compare`: compare the current report with an explicitly supplied previous report.
-- `previous-report`: path to the immutable previous report used by comparison.
-- `diff-path`: optional path to a prebuilt diff.
-- `markdown`: retained for compatibility; CI and comment reports are Markdown.
+### Inputs
 
-When live comment mode is enabled, the workflow needs `pull-requests: write`. Dry-run comment mode does not. The Action records the scan result, posts or renders the report, and then enforces the failure exit code so high-risk reports are not lost.
+| Input | Default | Purpose |
+| --- | --- | --- |
+| `preset` | `standard` | Risk preset. |
+| `policy` | empty | Explicit starter policy ID. |
+| `policy-config` | empty | Repository-relative policy manifest; conflicts with `policy`. |
+| `comment` | `false` | Post or update the managed pull-request comment. |
+| `comment-dry-run` | `false` | With `comment: "true"`, render comment mode without a GitHub write. |
+| `fail-threshold` | empty | Positive-integer override. |
+| `annotations` | `false` | Emit eligible deduplicated changed-line workflow annotations. |
+| `sarif` | `false` | Generate `merge-guard.sarif`; it is not uploaded automatically. |
+| `compare` | `false` | Compare the current report with an explicitly supplied prior report. |
+| `previous-report` | empty | Optional immutable prior JSON report. If omitted while comparison is enabled, history is reported as unavailable. |
+| `diff-path` | empty | Path to a caller-created diff. |
+| `markdown` | `true` | Compatibility input; CI and comment reports remain Markdown. |
 
-On `pull_request` events, the Action automatically forwards the event title and body as context. PR prose appears in reports but never changes diff-based scoring or thresholds. See [GitHub Actions and composite Action behavior](docs/GITHUB_ACTIONS.md).
+### Outputs
 
-## Per-file risk scoring
+| Output | Meaning |
+| --- | --- |
+| `report-path` | Complete JSON report generated from the authoritative diff. |
+| `annotations-path` | Annotation bundle path when annotations are enabled. |
+| `sarif-path` | SARIF file path when SARIF generation is enabled. |
+| `comparison-path` | Finding-comparison JSON path when comparison is enabled. |
+| `comparison-status` | `compared`, `history-unavailable`, or `report-unavailable`; empty when comparison is disabled. |
 
-Every report includes a `files` breakdown. Each changed file receives:
+The Action generates the report and optional projections before enforcing the scan exit code, so evidence remains available when the threshold fails. It can generate annotations and SARIF together, even though their direct CLI stdout flags are mutually exclusive.
 
-- `path`
-- `riskLevel`
-- `riskScore`
-- `reason`
-- added and removed line counts
-- matched file-specific flags
-- matched file-specific rules
+On `pull_request` events, the Action forwards the event title and body as context only. Comparison is also explicit: Merge Guard never searches workflow history or downloads a previous artifact. Missing previous history is reported as unknown, not clean.
 
-The text and Markdown reports show the riskiest files first.
+See [GitHub Actions behavior](docs/GITHUB_ACTIONS.md), [pull-request summaries](docs/pull-request-summaries.md), [GitHub annotations and SARIF](docs/github-review-outputs.md), and [finding comparison](docs/finding-comparisons.md).
+
+## Finding comparison
+
+From the Merge Guard source checkout, compare two immutable schema-version 1 reports from successive pushes:
+
+```bash
+node scripts/compare-reports.js \
+  --previous previous-report.json \
+  --current current-report.json \
+  --output merge-guard-comparison.json \
+  --markdown
+```
+
+Findings are classified as new, unchanged, or resolved using stable identities. Comparison does not change either report, scoring, readiness, or the scanner's threshold/CI outcome. If `--previous` is omitted, the comparison helper emits `history-unavailable` and exits with status 2.
+
+## Safety boundaries
+
+- Merge Guard analyzes diffs; it does not replace tests, reviewers, branch protection, or deployment controls.
+- Discovered and configured commands are suggestions only and are never executed.
+- PR prose is context only; the diff and explicit configuration remain authoritative.
+- Suppressions and policy exceptions annotate evidence but never lower scores or bypass thresholds.
+- CODEOWNERS and protected paths provide unverified guidance, not proof of approval.
+- SARIF generation is local; upload and code-scanning permissions remain the caller's responsibility.
+- The planned dashboard currently consists only of versioned architecture, threat-model, and conformance artifacts. No server or browser UI ships on `main`.
+
+The dashboard boundary is documented in [the architecture overview](docs/architecture/dashboard-architecture.md).
+
+## Development and verification
+
+Run the focused contract suites before release work:
+
+```bash
+npm run smoke
+npm run test:cli
+npm run test:snapshots
+npm run test:repository
+npm run test:policies
+npm run test:guidance
+npm run test:policy-resolution
+npm run test:pr-summary
+npm run test:github-review
+npm run test:finding-comparison
+npm run test:review-e2e
+npm run test:dashboard-architecture
+npm run release:check
+```
+
+`npm run release:check` validates package metadata, required files, Action wiring, CLI execution, sample reports, smoke coverage, and an npm package dry run. These commands inspect artifacts; they do not publish packages, create tags, or create releases.
+
+The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows. See the [live Node matrix](.github/workflows/node-lts.yml) and the [v0.2 compatibility record](docs/validation/V0.2_COMPATIBILITY_MATRIX.md).
+
+## Documentation
+
+| Topic | Reference |
+| --- | --- |
+| Report schema and semantics | [Report format](docs/REPORT_FORMAT.md) |
+| Composite Action | [GitHub Actions](docs/GITHUB_ACTIONS.md) |
+| Package and release checks | [Package and Action verification](docs/package-and-action.md) |
+| Repository-aware checks | [Repository intelligence](docs/repository-intelligence.md) |
+| Reusable policies | [Policy-pack contract](docs/policy-packs.md) |
+| GitHub review projections | [Annotations and SARIF](docs/github-review-outputs.md) |
+| Cross-push findings | [Finding comparison](docs/finding-comparisons.md) |
+| Dashboard boundary | [Local dashboard architecture](docs/architecture/dashboard-architecture.md) |
+| Release history | [Changelog](CHANGELOG.md) |
+| Contributing | [Contributing guide](CONTRIBUTING.md) |
+| License | [MIT License](LICENSE) |
