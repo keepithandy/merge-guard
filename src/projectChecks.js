@@ -322,11 +322,20 @@ export function detectProjectChecks(cwd = process.cwd()) {
 }
 
 export function applyProjectChecks(report, checks) {
-  const detected = Array.isArray(checks)
-    ? uniq(checks.filter((check) => typeof check === 'string' && check.trim()).map((check) => check.trim()))
-    : [];
+  const values = Array.isArray(checks) ? checks : [];
+  const details = mergeDetails(
+    values.filter((check) => check && typeof check === 'object' && !Array.isArray(check))
+  ).filter((detail) => detail.sources.length);
+  const legacyCommands = values
+    .filter((check) => typeof check === 'string' && check.trim())
+    .map((check) => check.trim());
+  const detected = uniq([
+    ...details.map((detail) => detail.command),
+    ...legacyCommands
+  ]);
 
   report.projectChecks = detected;
+  report.projectCheckDetails = details;
 
   if (detected.length) {
     report.suggestedChecks = uniq([
