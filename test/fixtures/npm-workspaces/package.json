@@ -5,6 +5,8 @@
     "packages/*",
     "apps/*",
     "packages/*/tools/*",
-    "!packages/ignored"
+    "!packages/ignored",
+    "../outside/*",
+    42
   ]
 }
