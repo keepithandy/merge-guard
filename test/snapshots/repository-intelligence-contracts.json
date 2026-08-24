@@ -1,0 +1,338 @@
+{
+  "layouts": {
+    "npmWorkspaces": {
+      "kind": "npm-workspaces",
+      "rootPackage": ".",
+      "workspacePatterns": [
+        "packages/*",
+        "apps/*",
+        "packages/*/tools/*",
+        "!packages/ignored"
+      ],
+      "packageRoots": [
+        "apps/web",
+        "packages/core",
+        "packages/core/tools/cli"
+      ],
+      "warningPaths": [
+        "package.json#workspaces[4]",
+        "package.json#workspaces[5]",
+        "packages/broken/package.json"
+      ]
+    },
+    "npmWorkspacesObject": {
+      "kind": "npm-workspaces",
+      "rootPackage": ".",
+      "workspacePatterns": [
+        "modules/*"
+      ],
+      "packageRoots": [
+        "modules/api"
+      ],
+      "warningPaths": []
+    },
+    "fallbackLayout": {
+      "kind": "npm-monorepo-layout",
+      "rootPackage": ".",
+      "workspacePatterns": [],
+      "packageRoots": [
+        "packages/service"
+      ],
+      "warningPaths": []
+    },
+    "singlePackage": {
+      "kind": "single-package",
+      "rootPackage": ".",
+      "workspacePatterns": [],
+      "packageRoots": [],
+      "warningPaths": []
+    },
+    "empty": {
+      "kind": "unknown",
+      "rootPackage": null,
+      "workspacePatterns": [],
+      "packageRoots": [],
+      "warningPaths": []
+    },
+    "malformedPackage": {
+      "kind": "unknown",
+      "rootPackage": null,
+      "workspacePatterns": [],
+      "packageRoots": [],
+      "warningPaths": [
+        "package.json"
+      ]
+    }
+  },
+  "checks": {
+    "node": [
+      {
+        "command": "npm run smoke",
+        "category": "test",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.smoke — npm script \"smoke\" is defined"
+        ]
+      },
+      {
+        "command": "npm test",
+        "category": "test",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.test — npm script \"test\" is defined"
+        ]
+      },
+      {
+        "command": "npm run build",
+        "category": "build",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.build — npm script \"build\" is defined"
+        ]
+      },
+      {
+        "command": "npm run verify:content",
+        "category": "lint",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.verify:content — npm script \"verify:content\" is defined"
+        ]
+      },
+      {
+        "command": "node smoke_save.mjs",
+        "category": "test",
+        "ecosystem": "node",
+        "sources": [
+          "smoke_save.mjs — root smoke file is present"
+        ]
+      },
+      {
+        "command": "npm run verify",
+        "category": "lint",
+        "ecosystem": "node",
+        "sources": [
+          "README.md:2 — verification command is documented in the root README"
+        ]
+      },
+      {
+        "command": "node smoke_readme.js",
+        "category": "test",
+        "ecosystem": "node",
+        "sources": [
+          "README.md:3 — verification command is documented in the root README"
+        ]
+      }
+    ],
+    "python": [
+      {
+        "command": "python -m pytest",
+        "category": "test",
+        "ecosystem": "python",
+        "sources": [
+          "README.md:2 — verification command is documented in the root README",
+          "pyproject.toml#tool.pytest.ini_options — pytest configuration is present"
+        ]
+      },
+      {
+        "command": "python -m ruff check .",
+        "category": "lint",
+        "ecosystem": "python",
+        "sources": [
+          "pyproject.toml#tool.ruff — Ruff configuration is present"
+        ]
+      },
+      {
+        "command": "python -m black --check .",
+        "category": "lint",
+        "ecosystem": "python",
+        "sources": [
+          "pyproject.toml#tool.black — Black configuration is present"
+        ]
+      },
+      {
+        "command": "python -m mypy .",
+        "category": "lint",
+        "ecosystem": "python",
+        "sources": [
+          "pyproject.toml#tool.mypy — mypy configuration is present"
+        ]
+      },
+      {
+        "command": "python -m flake8",
+        "category": "lint",
+        "ecosystem": "python",
+        "sources": [
+          "setup.cfg#flake8 — Flake8 configuration is present"
+        ]
+      },
+      {
+        "command": "python -m build",
+        "category": "build",
+        "ecosystem": "python",
+        "sources": [
+          "pyproject.toml#build-system — Python build metadata is present"
+        ]
+      },
+      {
+        "command": "python -m tox",
+        "category": "test",
+        "ecosystem": "python",
+        "sources": [
+          "tox.ini — tox environment configuration is present"
+        ]
+      },
+      {
+        "command": "python -m unittest discover -s tests",
+        "category": "test",
+        "ecosystem": "python",
+        "sources": [
+          "README.md:3 — verification command is documented in the root README"
+        ]
+      }
+    ],
+    "mixed": [
+      {
+        "command": "npm test",
+        "category": "test",
+        "ecosystem": "node",
+        "sources": [
+          "README.md:4 — verification command is documented in the root README",
+          "package.json#scripts.test — npm script \"test\" is defined"
+        ]
+      },
+      {
+        "command": "npm run lint",
+        "category": "lint",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.lint — npm script \"lint\" is defined"
+        ]
+      },
+      {
+        "command": "npm run build",
+        "category": "build",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.build — npm script \"build\" is defined"
+        ]
+      },
+      {
+        "command": "npm run deploy:staging",
+        "category": "deployment",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.deploy:staging — npm script \"deploy:staging\" is defined"
+        ]
+      },
+      {
+        "command": "npm run migrate:db",
+        "category": "migration",
+        "ecosystem": "node",
+        "sources": [
+          "package.json#scripts.migrate:db — npm script \"migrate:db\" is defined"
+        ]
+      },
+      {
+        "command": "python -m pytest",
+        "category": "test",
+        "ecosystem": "python",
+        "sources": [
+          "README.md:5 — verification command is documented in the root README",
+          "pyproject.toml#tool.pytest.ini_options — pytest configuration is present"
+        ]
+      },
+      {
+        "command": "python -m ruff check .",
+        "category": "lint",
+        "ecosystem": "python",
+        "sources": [
+          "pyproject.toml#tool.ruff — Ruff configuration is present"
+        ]
+      },
+      {
+        "command": "python -m build",
+        "category": "build",
+        "ecosystem": "python",
+        "sources": [
+          "README.md:6 — verification command is documented in the root README",
+          "pyproject.toml#build-system — Python build metadata is present"
+        ]
+      }
+    ],
+    "empty": [],
+    "malformedPython": []
+  },
+  "affectedPackages": {
+    "changedFiles": [
+      {
+        "path": "apps/web/src/moved.js",
+        "previousPath": "packages/core/src/legacy.js",
+        "status": "renamed"
+      },
+      {
+        "path": "package.json",
+        "previousPath": null,
+        "status": "modified"
+      },
+      {
+        "path": "packages/core/src/index.js",
+        "previousPath": null,
+        "status": "modified"
+      },
+      {
+        "path": "packages/core/tools/cli/src/removed.js",
+        "previousPath": null,
+        "status": "deleted"
+      }
+    ],
+    "directPackages": [
+      {
+        "root": "apps/web",
+        "files": [
+          {
+            "path": "apps/web/src/moved.js",
+            "status": "renamed",
+            "role": "current"
+          }
+        ]
+      },
+      {
+        "root": "packages/core",
+        "files": [
+          {
+            "path": "packages/core/src/index.js",
+            "status": "modified",
+            "role": "current"
+          },
+          {
+            "path": "packages/core/src/legacy.js",
+            "status": "renamed",
+            "role": "previous"
+          }
+        ]
+      },
+      {
+        "root": "packages/core/tools/cli",
+        "files": [
+          {
+            "path": "packages/core/tools/cli/src/removed.js",
+            "status": "deleted",
+            "role": "previous"
+          }
+        ]
+      }
+    ],
+    "sharedFiles": [
+      {
+        "path": "package.json",
+        "status": "modified",
+        "role": "current"
+      }
+    ],
+    "sharedImpactPackageRoots": [
+      "apps/web",
+      "packages/core",
+      "packages/core/tools/cli"
+    ]
+  }
+}
