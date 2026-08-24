@@ -1,0 +1,7 @@
+* @valid-owner
+!secret/** @invalid-negation
+[ab].js @invalid-range
+\#literal @invalid-escaped-comment
+src/** not-an-owner
+src//broken @broken
+docs/** @valid-owner # supported trailing comment

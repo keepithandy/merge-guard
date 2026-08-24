@@ -243,6 +243,7 @@ for (const packagePath of [
   'docs/policy-packs.md',
   'docs/policy-pack-migrations.md',
   'docs/starter-policy-packs.md',
+  'docs/review-guidance.md',
   'action.yml',
   'README.md',
   'CHANGELOG.md',
@@ -272,8 +273,10 @@ assert(fs.existsSync('src/affectedPackages.js'), 'Affected-package mapper should
 assert(fs.existsSync('src/repositoryIntelligence.js'), 'Repository-intelligence composer should exist');
 assert(fs.existsSync('src/policyPacks.js'), 'Policy-pack validator should exist');
 assert(fs.existsSync('src/starterPolicies.js'), 'Starter-policy loader should exist');
+assert(fs.existsSync('src/reviewGuidance.js'), 'Review-guidance module should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(packageMetadata.scripts?.['test:policies'], 'Package should expose the policy conformance gate');
+assert(packageMetadata.scripts?.['test:guidance'], 'Package should expose the review-guidance gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -289,6 +292,7 @@ assert(readme.includes('--pr-title'), 'README should document PR title context')
 assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
 assert(readme.includes('Policy-pack schema'), 'README should document the policy-pack contract');
 assert(readme.includes('--policy frontend'), 'README should document explicit starter-policy selection');
+assert(readme.includes('CODEOWNERS guidance'), 'README should document guidance-only ownership suggestions');
 
 const fixtureRoot = path.resolve('test/fixtures');
 const affectedFixtureDiff = fs.readFileSync(

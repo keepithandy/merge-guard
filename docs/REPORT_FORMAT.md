@@ -48,6 +48,7 @@ Normal CLI reports also expose:
 - `repository`
 - `policyPacks`
 - `policyRequiredChecks`
+- `reviewGuidance`
 - `prContext`
 
 `prContext` is `null` when no title or body was supplied. Context never changes risk scoring.
@@ -57,6 +58,8 @@ Normal CLI reports also expose:
 `repository` contains detected package-layout metadata, warnings, and `affectedPackages`. Direct ownership, repository-level shared files, and potential shared-impact packages are separate. Potential shared impact does not assert a dependency graph. See `docs/repository-intelligence.md`.
 
 `policyPacks` and `policyRequiredChecks` appear only after explicit policy selection. Policy findings use namespaced IDs, retain their pack ID/version, and are separate from project custom rules. Required checks are suggestions with reasons; they are never executed automatically. See `docs/starter-policy-packs.md`.
+
+`reviewGuidance` separates selected-policy protected-path matches and unverified CODEOWNERS suggestions from scoring. It includes unmatched/unowned paths, parser warnings, and an explicit no-assignment/no-approval disclaimer. See `docs/review-guidance.md`.
 
 ## Files and rules
 

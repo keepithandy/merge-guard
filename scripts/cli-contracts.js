@@ -30,6 +30,10 @@ assert(
 );
 assert.equal(jsonReport.repository.kind, 'single-package', 'JSON should expose the detected repository layout');
 assert(jsonReport.repository.affectedPackages, 'JSON should expose affected-package mapping');
+assert(jsonReport.reviewGuidance, 'JSON should expose review guidance separately');
+assert.equal(jsonReport.reviewGuidance.codeOwners.sourcePath, null);
+assert.deepEqual(jsonReport.reviewGuidance.codeOwners.suggestions, []);
+assert(jsonReport.reviewGuidance.disclaimer.includes('do not prove assignment'));
 const policyRun = run(['--json', '--policy', 'frontend', 'examples/sample.diff']);
 assert.equal(policyRun.status, 0, 'explicit starter policy selection should succeed');
 const policyReport = JSON.parse(policyRun.stdout);

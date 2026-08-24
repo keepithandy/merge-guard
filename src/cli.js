@@ -10,6 +10,7 @@ import { applyRepositoryIntelligence, inspectRepository } from './repositoryInte
 import { applySuppressions } from './suppressions.js';
 import { ConfigurationError, formatDiagnostics, validateConfig } from './configDiagnostics.js';
 import { applyPolicyPack, loadStarterPolicyPack } from './starterPolicies.js';
+import { applyReviewGuidance, inspectReviewGuidance } from './reviewGuidance.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -53,6 +54,7 @@ Config:
   Suggested checks are enriched from JavaScript/Python metadata, root checks, and README commands.
   Workspace ownership and potential shared impact are reported without dependency inference.
   Starter policies are never selected unless --policy is supplied.
+  CODEOWNERS and protected-path matches are guidance only and never prove approval.
 `);
 }
 
@@ -237,9 +239,16 @@ async function main() {
     ),
     prContext
   );
+  const selectedPolicies = [];
   if (policyId) {
-    report = applyPolicyPack(report, diffText, loadStarterPolicyPack(policyId));
+    const policy = loadStarterPolicyPack(policyId);
+    selectedPolicies.push(policy);
+    report = applyPolicyPack(report, diffText, policy);
   }
+  report = applyReviewGuidance(
+    report,
+    inspectReviewGuidance(diffText, selectedPolicies)
+  );
   report.schemaVersion = 1;
   report.configDiagnostics = Array.isArray(config.__configWarnings) ? config.__configWarnings : [];
 

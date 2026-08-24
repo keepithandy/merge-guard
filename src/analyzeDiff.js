@@ -685,6 +685,31 @@ export function formatReport(report) {
     }
   }
 
+  if (
+    report.reviewGuidance
+    && (
+      report.reviewGuidance.protectedPaths?.length
+      || report.reviewGuidance.codeOwners?.suggestions?.length
+      || report.reviewGuidance.codeOwners?.warnings?.length
+    )
+  ) {
+    lines.push('');
+    lines.push('Review guidance:');
+    for (const match of report.reviewGuidance.protectedPaths || []) {
+      const checks = match.requiredChecks.length
+        ? ` Required checks: ${match.requiredChecks.map((check) => check.command).join(', ')}.`
+        : '';
+      lines.push(`- Protected path ${match.path}: ${match.reason}${checks}`);
+    }
+    for (const suggestion of report.reviewGuidance.codeOwners?.suggestions || []) {
+      lines.push(`- CODEOWNERS suggestion for ${suggestion.path}: ${suggestion.owners.join(', ')} (${suggestion.sourcePath}:${suggestion.line})`);
+    }
+    for (const item of report.reviewGuidance.codeOwners?.warnings || []) {
+      lines.push(`- CODEOWNERS warning ${item.sourcePath}${item.line ? `:${item.line}` : ''}: ${item.message}`);
+    }
+    lines.push(`- ${report.reviewGuidance.disclaimer}`);
+  }
+
   if (report.aiReview) {
     lines.push('');
     lines.push('AI review summary:');
@@ -784,6 +809,32 @@ export function formatMarkdownReport(report) {
       lines.push(`- **${policy.name}** (\`${policy.id}@${policy.version}\`, schema ${policy.schemaVersion})`);
     }
     lines.push('- Selection is explicit; listed packs add policy findings and checks without changing built-in preset definitions.');
+  }
+
+  if (
+    report.reviewGuidance
+    && (
+      report.reviewGuidance.protectedPaths?.length
+      || report.reviewGuidance.codeOwners?.suggestions?.length
+      || report.reviewGuidance.codeOwners?.warnings?.length
+    )
+  ) {
+    lines.push('');
+    lines.push('## Review guidance');
+    lines.push('');
+    for (const match of report.reviewGuidance.protectedPaths || []) {
+      const checks = match.requiredChecks.length
+        ? ` Required checks: ${match.requiredChecks.map((check) => `\`${check.command}\``).join(', ')}.`
+        : '';
+      lines.push(`- **Protected path \`${match.path}\`:** ${match.reason}${checks}`);
+    }
+    for (const suggestion of report.reviewGuidance.codeOwners?.suggestions || []) {
+      lines.push(`- **CODEOWNERS suggestion for \`${suggestion.path}\`:** ${suggestion.owners.join(', ')} (\`${suggestion.sourcePath}:${suggestion.line}\`)`);
+    }
+    for (const item of report.reviewGuidance.codeOwners?.warnings || []) {
+      lines.push(`- **CODEOWNERS warning \`${item.sourcePath}${item.line ? `:${item.line}` : ''}\`:** ${item.message}`);
+    }
+    lines.push(`- ${report.reviewGuidance.disclaimer}`);
   }
 
   if (report.aiReview) {

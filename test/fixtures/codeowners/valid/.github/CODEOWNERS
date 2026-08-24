@@ -1,0 +1,7 @@
+# Global fallback comes first because the last matching entry wins.
+* @global-owner
+*.js @javascript-owner
+/docs/ @docs-team docs@example.com
+src/auth/** @security-owner @octo/auth-team
+src/auth/special.js @specialist
+src/auth/generated/**
