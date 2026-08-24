@@ -55,7 +55,8 @@ This version supports:
 - non-destructive rule suppressions with expiry
 - structured configuration diagnostics
 - optional pull request title/body context
-- repository-aware suggested checks
+- repository-aware suggested checks with source/reason metadata
+- npm workspace boundaries and affected-package mapping
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
@@ -143,7 +144,7 @@ Merge Guard supports Node.js 18 or newer. The repository runs its smoke and CLI 
 The matrix checks:
 
 - smoke and CLI contract tests
-- deterministic report and suppression snapshots
+- deterministic report, suppression, and repository-intelligence snapshots
 - the complete release-readiness suite
 - CLI help and sample diff analysis
 - JSON output
@@ -159,6 +160,7 @@ Run the local contract gate before tagging or publishing:
 npm run smoke
 npm run test:cli
 npm run test:snapshots
+npm run test:repository
 npm run release:check
 ```
 
@@ -290,16 +292,22 @@ See [configuration diagnostics](docs/configuration-diagnostics.md) for fatal fie
 
 ## Project-specific suggested checks
 
-Before formatting a report, merge-guard inspects the current repository for likely verification commands. Detection is read-only and never executes a command.
+Before formatting a report, merge-guard performs read-only repository inspection. It never executes a discovered command.
 
-It looks for:
+Detection covers:
 
-- `package.json` scripts named or containing `smoke`, `test`, `check`, `verify`, or `validate`;
-- common supporting scripts such as `lint` and `build`;
-- root files matching `smoke*.js`, `smoke*.mjs`, or `smoke*.cjs`;
-- exact `npm test`, `npm run ...`, and `node smoke...` commands documented in a root README.
+- root npm scripts for test, smoke, check, verification, lint, typecheck, build, migration, database, and deployment work;
+- root JavaScript smoke files and exact supported README commands;
+- pytest, unittest, Ruff, Black, mypy, Flake8, Python build, and tox metadata;
+- mixed JavaScript/Python repositories with deterministic deduplication;
+- npm workspace arrays/objects, nested package roots, and common `apps/*`, `packages/*`, and `services/*` layouts;
+- modified, added, deleted, and renamed diff paths mapped to the longest owning package root.
 
-Detected commands appear first under **Suggested checks** and are exposed as `projectChecks` in JSON output. When no project-specific command is found, the existing generic suggested checks remain unchanged.
+Detected commands still appear first under **Suggested checks** and remain available as the compatible `projectChecks` string array. JSON, text, and Markdown output also explain every command through `projectCheckDetails`. JSON exposes package boundaries and direct versus potential shared impact under `repository`.
+
+Repository-level files are reported explicitly. Potential shared impact never claims a dependency relationship. When no supported project command exists, the generic suggested checks remain unchanged.
+
+See [repository intelligence](docs/repository-intelligence.md) for the exact supported layouts, unsupported cases, report fields, and conformance fixtures.
 
 ## Rule explanations
 
