@@ -144,13 +144,13 @@ async function githubRequest({ method, url, token, body }) {
   return response.json();
 }
 
-async function listIssueComments({ repository, pullRequestNumber, token }) {
+async function listIssueComments({ repository, pullRequestNumber, token, request }) {
   const comments = [];
   let page = 1;
 
   while (true) {
     const url = `https://api.github.com/repos/${repository}/issues/${pullRequestNumber}/comments?per_page=100&page=${page}`;
-    const pageItems = await githubRequest({ method: 'GET', url, token });
+    const pageItems = await request({ method: 'GET', url, token });
 
     comments.push(...pageItems);
 
@@ -161,18 +161,24 @@ async function listIssueComments({ repository, pullRequestNumber, token }) {
   return comments;
 }
 
-async function upsertPullRequestComment({ repository, pullRequestNumber, token, body }) {
-  const comments = await listIssueComments({ repository, pullRequestNumber, token });
+export async function upsertPullRequestComment({
+  repository,
+  pullRequestNumber,
+  token,
+  body,
+  request = githubRequest
+}) {
+  const comments = await listIssueComments({ repository, pullRequestNumber, token, request });
   const existingComment = findMergeGuardComment(comments);
 
   if (existingComment) {
     const url = `https://api.github.com/repos/${repository}/issues/comments/${existingComment.id}`;
-    await githubRequest({ method: 'PATCH', url, token, body: { body } });
+    await request({ method: 'PATCH', url, token, body: { body } });
     return { action: 'updated', commentId: existingComment.id };
   }
 
   const url = `https://api.github.com/repos/${repository}/issues/${pullRequestNumber}/comments`;
-  const created = await githubRequest({ method: 'POST', url, token, body: { body } });
+  const created = await request({ method: 'POST', url, token, body: { body } });
   return { action: 'created', commentId: created.id };
 }
 

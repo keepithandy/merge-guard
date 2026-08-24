@@ -253,6 +253,7 @@ for (const packagePath of [
   'docs/pull-request-summaries.md',
   'docs/github-review-outputs.md',
   'docs/finding-comparisons.md',
+  'docs/review-experience-fixtures.md',
   'action.yml',
   'README.md',
   'CHANGELOG.md',
@@ -270,7 +271,7 @@ assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-polic
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'fail-threshold:', 'policy:', 'policy-config:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'report-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'diff-path:', '--pr-summary', '--report-json', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js']) {
+for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'report-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'diff-path:', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -287,6 +288,11 @@ assert(fs.existsSync('src/policyResolution.js'), 'Policy-resolution module shoul
 assert(fs.existsSync('src/pullRequestSummary.js'), 'Pull-request summary module should exist');
 assert(fs.existsSync('src/githubReviewOutputs.js'), 'GitHub review-output module should exist');
 assert(fs.existsSync('src/findingComparison.js'), 'Finding-comparison module should exist');
+assert(fs.existsSync('scripts/review-experience-e2e.js'), 'Review experience fixture runner should exist');
+assert(fs.existsSync('.github/workflows/review-experience-fixture.yml'), 'Review experience workflow should exist');
+assert(fs.existsSync('test/fixtures/review-e2e/push-1.diff'), 'First-push review fixture should exist');
+assert(fs.existsSync('test/fixtures/review-e2e/push-2.diff'), 'Second-push review fixture should exist');
+assert(fs.existsSync('test/snapshots/review-experience-e2e.json'), 'Review experience snapshot should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
 assert(fs.existsSync('schemas/github-review-output-v1.schema.json'), 'GitHub review-output JSON schema should exist');
@@ -297,6 +303,7 @@ assert(packageMetadata.scripts?.['test:policy-resolution'], 'Package should expo
 assert(packageMetadata.scripts?.['test:pr-summary'], 'Package should expose the pull-request summary gate');
 assert(packageMetadata.scripts?.['test:github-review'], 'Package should expose the GitHub review-output gate');
 assert(packageMetadata.scripts?.['test:finding-comparison'], 'Package should expose the finding-comparison gate');
+assert(packageMetadata.scripts?.['test:review-e2e'], 'Package should expose the end-to-end review gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -319,6 +326,16 @@ assert(readme.includes('--pr-summary'), 'README should document compact pull-req
 assert(readme.includes('--annotations'), 'README should document changed-line annotation output');
 assert(readme.includes('--sarif'), 'README should document optional SARIF output');
 assert(readme.includes('compare-reports.js'), 'README should document immutable finding comparison');
+assert(readme.includes('npm run test:review-e2e'), 'README should document end-to-end review validation');
+
+const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
+assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');
+assert(reviewWorkflow.includes('comment: "true"'), 'Review workflow should exercise comment mode');
+assert(reviewWorkflow.includes('comment-dry-run: "true"'), 'Review workflow comment mode should avoid GitHub writes');
+assert(reviewWorkflow.includes('annotations: "true"'), 'Review workflow should enable annotations');
+assert(reviewWorkflow.includes('sarif: "true"'), 'Review workflow should enable SARIF');
+assert(reviewWorkflow.includes('previous-report:'), 'Review workflow should compare successive reports');
+assert(!reviewWorkflow.includes('secrets.'), 'Review workflow should not require repository or third-party secrets');
 
 const fixtureRoot = path.resolve('test/fixtures');
 const affectedFixtureDiff = fs.readFileSync(

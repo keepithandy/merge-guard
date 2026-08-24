@@ -22,6 +22,7 @@ Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 - Versioned compact pull-request summaries with risk-first files and expandable deterministic detail.
 - Deduplicated changed-line workflow annotations and optional fingerprinted SARIF 2.1.0 generation.
 - Versioned stable finding identity and immutable report comparison with explicit missing-history semantics.
+- End-to-end two-push GitHub review fixtures covering report/comment modes, annotations, SARIF, comparison, managed-comment updates, and threshold exits.
 
 ### Changed
 
@@ -79,6 +80,7 @@ Before cutting a release:
 - run `npm run test:pr-summary`
 - run `npm run test:github-review`
 - run `npm run test:finding-comparison`
+- run `npm run test:review-e2e`
 - run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`

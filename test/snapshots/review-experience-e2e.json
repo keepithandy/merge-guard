@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "events": {
+    "pullRequestNumber": 63,
+    "actions": [
+      "opened",
+      "synchronize"
+    ],
+    "heads": [
+      "2222222222222222222222222222222222222222",
+      "3333333333333333333333333333333333333333"
+    ]
+  },
+  "modes": {
+    "reportOnly": {
+      "exitCode": 0,
+      "riskScore": 7
+    },
+    "comment": {
+      "exitCode": 0,
+      "riskScore": 6
+    }
+  },
+  "reviewOutputs": {
+    "annotationSchemaVersion": 1,
+    "annotations": 4,
+    "unsupported": 0,
+    "sarifVersion": "2.1.0",
+    "sarifResults": 4
+  },
+  "comparison": {
+    "status": "compared",
+    "summary": {
+      "new": 2,
+      "unchanged": 2,
+      "resolved": 2
+    }
+  },
+  "missingHistory": {
+    "exitCode": 2,
+    "status": "history-unavailable",
+    "classificationAvailable": false
+  },
+  "threshold": {
+    "exitCode": 1,
+    "reportProduced": true
+  },
+  "commentUpsert": {
+    "actions": [
+      "created",
+      "updated"
+    ],
+    "commentId": 9001,
+    "managedComments": 1,
+    "requestMethods": [
+      "GET",
+      "POST",
+      "GET",
+      "PATCH"
+    ]
+  }
+}

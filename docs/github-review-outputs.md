@@ -70,4 +70,4 @@ The helper rejects symbolic-link inputs, limits report input to 10 MB and diff i
 npm run test:github-review
 ```
 
-Fixtures cover changed-line parsing, CRLF input, quoted paths, line-only rules, deletion-only unsupported locations, duplicate rule records, workflow-command escaping, SARIF locations and fingerprints, immutable score/report data, helper file output, schema metadata, and deterministic snapshots. The composite Action fixture enables both outputs without third-party services.
+Fixtures cover changed-line parsing, CRLF input, quoted paths, line-only rules, deletion-only unsupported locations, duplicate rule records, workflow-command escaping, SARIF locations and fingerprints, immutable score/report data, helper file output, schema metadata, and deterministic snapshots. The end-to-end review workflow enables both outputs on its second cumulative diff and asserts four annotations and four SARIF results without third-party services or upload permissions.

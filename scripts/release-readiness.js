@@ -65,7 +65,7 @@ function actionContract() {
   check('action.yml has a composite runtime', content.includes('using: composite'));
   check('Action targets the CLI', content.includes('src/cli.js'));
   check('Action targets the PR comment helper', content.includes('scripts/pr-comment.js'));
-  check('Action exposes release-relevant inputs', ['preset:', 'comment:', 'fail-threshold:', 'diff-path:'].every((item) => content.includes(item)));
+  check('Action exposes release-relevant inputs', ['preset:', 'comment:', 'comment-dry-run:', 'fail-threshold:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'diff-path:'].every((item) => content.includes(item)));
 }
 
 function changelogContract(metadata) {

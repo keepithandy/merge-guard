@@ -65,10 +65,11 @@ This version supports:
 - optional deduplicated changed-line annotations and SARIF 2.1.0 generation
 - deterministic new, unchanged, and resolved finding comparisons across supplied reports
 - pull request comment update helpers
+- offline end-to-end fixtures for report, comment, annotation, SARIF, comparison, and threshold behavior
 - npm/npx-compatible package metadata
 - a reusable composite GitHub Action
 
-Future versions can add inline annotations, push-to-push comparisons, and a local review dashboard.
+Future versions can add richer check-run publishing, durable history retrieval, and a local review dashboard.
 
 ## Example output
 
@@ -152,6 +153,7 @@ The matrix checks:
 - smoke and CLI contract tests
 - deterministic report, suppression, and repository-intelligence snapshots
 - the complete release-readiness suite
+- the end-to-end GitHub review experience fixture
 - CLI help and sample diff analysis
 - JSON output
 - `npm pack --dry-run`
@@ -173,6 +175,7 @@ npm run test:policy-resolution
 npm run test:pr-summary
 npm run test:github-review
 npm run test:finding-comparison
+npm run test:review-e2e
 npm run release:check
 ```
 
@@ -421,7 +424,7 @@ Preview the comment body without calling GitHub:
 node scripts/pr-comment.js --report merge-guard-report.md --dry-run
 ```
 
-The stable managed-comment marker is unchanged, so reruns update one comment. Comment mode in the composite Action selects this summary automatically. See [compact pull-request summaries](docs/pull-request-summaries.md), `docs/GITHUB_ACTIONS.md`, and `examples/actions-report-mode.yml`.
+The stable managed-comment marker is unchanged, so reruns update one comment. Comment mode in the composite Action selects this summary automatically. The Action's `comment-dry-run: "true"` input renders the complete comment path without a GitHub write for fixture validation. See [compact pull-request summaries](docs/pull-request-summaries.md), [review experience fixtures](docs/review-experience-fixtures.md), `docs/GITHUB_ACTIONS.md`, and `examples/actions-report-mode.yml`.
 
 ## Reusable GitHub Action
 
@@ -480,11 +483,16 @@ Action inputs:
 - `policy`: optional explicit starter policy ID (`frontend`, `backend`, `library`, `browser-game`, or `infrastructure`).
 - `policy-config`: optional repository-relative path to an explicit root/package policy manifest; conflicts with `policy`.
 - `comment`: post or update the stable merge-guard PR comment.
+- `comment-dry-run`: render comment mode without calling GitHub; intended for fixture and workflow validation.
 - `fail-threshold`: optional positive integer override.
+- `annotations`: emit deduplicated changed-line workflow annotations.
+- `sarif`: generate `merge-guard.sarif` without uploading it.
+- `compare`: compare the current report with an explicitly supplied previous report.
+- `previous-report`: path to the immutable previous report used by comparison.
 - `diff-path`: optional path to a prebuilt diff.
 - `markdown`: retained for compatibility; CI and comment reports are Markdown.
 
-When comment mode is enabled, the workflow needs `pull-requests: write`. The Action records the scan result, posts the report, and then enforces the failure exit code so high-risk reports are not lost.
+When live comment mode is enabled, the workflow needs `pull-requests: write`. Dry-run comment mode does not. The Action records the scan result, posts or renders the report, and then enforces the failure exit code so high-risk reports are not lost.
 
 On `pull_request` events, the Action automatically forwards the event title and body as context. PR prose appears in reports but never changes diff-based scoring or thresholds. See [GitHub Actions and composite Action behavior](docs/GITHUB_ACTIONS.md).
 

@@ -68,6 +68,9 @@ jobs:
       - name: Run finding comparison contracts
         run: npm run test:finding-comparison
 
+      - name: Run end-to-end review experience fixture
+        run: npm run test:review-e2e
+
       - name: Run release-readiness suite
         run: npm run release:check
 

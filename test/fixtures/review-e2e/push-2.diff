@@ -1,0 +1,19 @@
+diff --git a/src/api.js b/src/api.js
+new file mode 100644
+index 0000000..3333333
+--- /dev/null
++++ b/src/api.js
+@@ -0,0 +1,4 @@
++export async function fetchUser(id) {
++  const response = await fetch(`/users/${id}`);
++  return response.json();
++}
+diff --git a/src/app.js b/src/app.js
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/app.js
+@@ -0,0 +1,3 @@
++export function renderApp() {
++  return render('home');
++}
