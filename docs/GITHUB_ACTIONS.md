@@ -36,6 +36,7 @@ Full history is required when the Action creates the pull request diff. If `diff
 
 - `preset`: `safe`, `standard`, or `strict`; default `standard`.
 - `policy`: optional explicit starter policy ID: `frontend`, `backend`, `library`, `browser-game`, or `infrastructure`.
+- `policy-config`: optional repository-relative policy manifest path; cannot be combined with `policy`.
 - `comment`: post or update the stable Merge Guard pull request comment; default `false`.
 - `fail-threshold`: optional positive integer that overrides the preset failure score.
 - `diff-path`: optional path to a prebuilt diff.

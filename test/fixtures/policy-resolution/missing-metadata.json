@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "policy": "frontend",
+    "exceptions": [
+      {
+        "id": "missing-metadata",
+        "target": {
+          "type": "rule",
+          "id": "client-routing-change"
+        },
+        "pathPattern": "^src/routes/legacy/"
+      }
+    ]
+  }
+}

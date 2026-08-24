@@ -68,7 +68,7 @@ function selectedPackRecord(policy) {
   };
 }
 
-export function applyPolicyPack(report, diffText, policy) {
+export function applyPolicyPack(report, diffText, policy, options = {}) {
   if (!policy?.identity?.id || !Array.isArray(policy.rules) || !Array.isArray(policy.requiredChecks)) {
     throw new PolicyPackSelectionError('applyPolicyPack requires a validated policy pack.');
   }
@@ -96,7 +96,9 @@ export function applyPolicyPack(report, diffText, policy) {
       policyPackId: selected.id,
       policyPackVersion: selected.version
     },
-    reasonContext: `policy pack ${selected.id}@${selected.version}`
+    reasonContext: `policy pack ${selected.id}@${selected.version}`,
+    scopePaths: Array.isArray(options.scopePaths) ? options.scopePaths : null,
+    pathAliases: options.pathAliases
   });
 
   const requiredChecks = policy.requiredChecks.map((check) => ({

@@ -685,6 +685,25 @@ export function formatReport(report) {
     }
   }
 
+  if (report.policyResolution) {
+    lines.push('');
+    lines.push('Policy resolution:');
+    for (const assignment of report.policyResolution.assignments || []) {
+      lines.push(`- ${assignment.path}: ${assignment.policyPackId ? `${assignment.policyPackId}@${assignment.policyPackVersion}` : 'no policy'} via ${assignment.sourceRoot || 'explicit opt-out'} (matched as ${assignment.relativePath})`);
+    }
+    for (const item of report.policyResolution.warnings || []) {
+      lines.push(`- Resolution warning: ${item.message}`);
+    }
+  }
+
+  if (report.policyExceptions?.active?.length || report.policyExceptions?.unmatched?.length) {
+    lines.push('');
+    lines.push('Policy exceptions (annotations only):');
+    for (const exception of [...(report.policyExceptions.active || []), ...(report.policyExceptions.unmatched || [])]) {
+      lines.push(`- ${exception.id}: ${exception.target.type}/${exception.target.id}; owner ${exception.owner}; expires ${exception.expires}; paths ${exception.paths.join(', ') || 'none'}. ${exception.reason}`);
+    }
+  }
+
   if (
     report.reviewGuidance
     && (
@@ -809,6 +828,28 @@ export function formatMarkdownReport(report) {
       lines.push(`- **${policy.name}** (\`${policy.id}@${policy.version}\`, schema ${policy.schemaVersion})`);
     }
     lines.push('- Selection is explicit; listed packs add policy findings and checks without changing built-in preset definitions.');
+  }
+
+  if (report.policyResolution) {
+    lines.push('');
+    lines.push('## Policy resolution');
+    lines.push('');
+    for (const assignment of report.policyResolution.assignments || []) {
+      lines.push(`- \`${assignment.path}\`: ${assignment.policyPackId ? `\`${assignment.policyPackId}@${assignment.policyPackVersion}\`` : 'no policy'} via \`${assignment.sourceRoot || 'explicit opt-out'}\` (matched as \`${assignment.relativePath}\`)`);
+    }
+    for (const item of report.policyResolution.warnings || []) {
+      lines.push(`- **Resolution warning:** ${item.message}`);
+    }
+  }
+
+  if (report.policyExceptions?.active?.length || report.policyExceptions?.unmatched?.length) {
+    lines.push('');
+    lines.push('## Policy exceptions');
+    lines.push('');
+    lines.push('- Exceptions are annotations only; they do not remove findings, checks, guidance, or score.');
+    for (const exception of [...(report.policyExceptions.active || []), ...(report.policyExceptions.unmatched || [])]) {
+      lines.push(`- **${exception.id}** (\`${exception.target.type}/${exception.target.id}\`): owner ${exception.owner}; expires ${exception.expires}; paths ${exception.paths.length ? exception.paths.map((filePath) => `\`${filePath}\``).join(', ') : 'none'}. ${exception.reason}`);
+    }
   }
 
   if (

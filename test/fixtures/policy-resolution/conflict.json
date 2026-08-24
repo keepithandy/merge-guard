@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "policy": "frontend"
+  },
+  "packages": [
+    {
+      "root": "apps/web",
+      "policy": "frontend"
+    },
+    {
+      "root": "apps/web",
+      "policy": "backend"
+    }
+  ]
+}

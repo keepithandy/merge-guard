@@ -60,6 +60,7 @@ This version supports:
 - a versioned, validated policy-pack schema
 - explicit frontend, backend, library, browser-game, and infrastructure starter policies
 - protected-path and CODEOWNERS guidance that is separate from scoring and approval
+- deterministic monorepo policy inheritance and expiring annotation-only exceptions
 - structured review summaries
 - pull request comment update helpers
 - npm/npx-compatible package metadata
@@ -166,6 +167,7 @@ npm run test:snapshots
 npm run test:repository
 npm run test:policies
 npm run test:guidance
+npm run test:policy-resolution
 npm run release:check
 ```
 
@@ -351,6 +353,24 @@ CODEOWNERS output is intentionally labeled as unverified guidance. Merge Guard d
 
 See [protected-path and CODEOWNERS guidance](docs/review-guidance.md) for the supported syntax, limitations, report fields, and fixture gate.
 
+## Policy inheritance
+
+Use an explicit repository policy manifest when different monorepo scopes need different starter packs:
+
+```bash
+node src/cli.js \
+  --policy-config merge-guard.policies.json \
+  change.diff
+```
+
+Resolution walks root policy, parent packages, then the longest package root. `inherit: false` clears inherited selection; an explicit package policy replaces it. Reports retain the full provenance chain and package-relative matched path. Duplicate package scopes and simultaneous `--policy`/`--policy-config` selection fail clearly.
+
+## Expiring policy exceptions
+
+Policy exceptions require a narrow path expression, reason, owner, real UTC expiry date, and an existing rule/protected-path/check target. Blanket and expired exceptions are rejected. Active exceptions are annotations only: they never remove findings or checks, alter scores, bypass thresholds, or imply approval.
+
+See [policy inheritance and expiring exceptions](docs/policy-inheritance.md) for the manifest schema, precedence, provenance, validation, and fixtures.
+
 ## Rule explanations
 
 Every triggered rule includes explanation metadata so reviewers can see why a warning fired instead of guessing.
@@ -427,6 +447,7 @@ Action inputs:
 
 - `preset`: `safe`, `standard`, or `strict`.
 - `policy`: optional explicit starter policy ID (`frontend`, `backend`, `library`, `browser-game`, or `infrastructure`).
+- `policy-config`: optional repository-relative path to an explicit root/package policy manifest; conflicts with `policy`.
 - `comment`: post or update the stable merge-guard PR comment.
 - `fail-threshold`: optional positive integer override.
 - `diff-path`: optional path to a prebuilt diff.

@@ -11,6 +11,12 @@ import { applySuppressions } from './suppressions.js';
 import { ConfigurationError, formatDiagnostics, validateConfig } from './configDiagnostics.js';
 import { applyPolicyPack, loadStarterPolicyPack } from './starterPolicies.js';
 import { applyReviewGuidance, inspectReviewGuidance } from './reviewGuidance.js';
+import {
+  applyPolicyExceptions,
+  applyResolvedPolicies,
+  loadAndResolvePolicyManifest,
+  PolicyManifestError
+} from './policyResolution.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -22,10 +28,18 @@ const KNOWN_OPTIONS = new Set([
   '--pr-title',
   '--pr-body',
   '--policy',
+  '--policy-config',
   '--help',
   '-h'
 ]);
-const VALUE_OPTIONS = new Set(['--preset', '--fail-threshold', '--pr-title', '--pr-body', '--policy']);
+const VALUE_OPTIONS = new Set([
+  '--preset',
+  '--fail-threshold',
+  '--pr-title',
+  '--pr-body',
+  '--policy',
+  '--policy-config'
+]);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
 function printHelp() {
@@ -46,6 +60,7 @@ Options:
   --pr-title <text>         Include pull request title as report context
   --pr-body <path>          Include pull request body from a UTF-8 text or Markdown file
   --policy <starter-id>     Apply frontend, backend, library, browser-game, or infrastructure explicitly
+  --policy-config <path>    Apply an explicit root/package policy manifest
   --help                    Show this help message
 
 Config:
@@ -201,6 +216,10 @@ async function main() {
   const ciMode = args.includes('--ci');
   const aiMode = args.includes('--ai');
   const policyId = getOptionValue(args, '--policy');
+  const policyConfigPath = getOptionValue(args, '--policy-config');
+  if (policyId && policyConfigPath) {
+    throw new Error('--policy and --policy-config conflict; select one policy source.');
+  }
   const fileArg = findFileArg(args);
 
   let diffText = '';
@@ -240,15 +259,24 @@ async function main() {
     prContext
   );
   const selectedPolicies = [];
+  let policyResolution = null;
   if (policyId) {
     const policy = loadStarterPolicyPack(policyId);
     selectedPolicies.push(policy);
     report = applyPolicyPack(report, diffText, policy);
+  } else if (policyConfigPath) {
+    policyResolution = loadAndResolvePolicyManifest(policyConfigPath, diffText);
+    const applied = applyResolvedPolicies(report, diffText, policyResolution);
+    report = applied.report;
+    selectedPolicies.push(...applied.policyScopes);
   }
   report = applyReviewGuidance(
     report,
     inspectReviewGuidance(diffText, selectedPolicies)
   );
+  if (policyResolution) {
+    report = applyPolicyExceptions(report, policyResolution);
+  }
   report.schemaVersion = 1;
   report.configDiagnostics = Array.isArray(config.__configWarnings) ? config.__configWarnings : [];
 
@@ -295,6 +323,18 @@ main().catch((error) => {
       console.error(JSON.stringify(output, null, 2));
     } else {
       console.error(`merge-guard configuration error: ${error.message}`);
+      console.error(formatDiagnostics(error.diagnostics));
+    }
+  } else if (error instanceof PolicyManifestError) {
+    const output = {
+      error: error.message,
+      code: 'INVALID_POLICY_MANIFEST',
+      diagnostics: error.diagnostics
+    };
+    if (process.argv.includes('--json')) {
+      console.error(JSON.stringify(output, null, 2));
+    } else {
+      console.error(`merge-guard policy manifest error: ${error.message}`);
       console.error(formatDiagnostics(error.diagnostics));
     }
   } else {

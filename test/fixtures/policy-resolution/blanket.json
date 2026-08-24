@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "root": {
+    "policy": "frontend",
+    "exceptions": [
+      {
+        "id": "blanket-route",
+        "target": {
+          "type": "rule",
+          "id": "client-routing-change"
+        },
+        "pathPattern": ".*",
+        "reason": "Blanket fixture.",
+        "owner": "@frontend-maintainers",
+        "expires": "2026-12-31"
+      }
+    ]
+  }
+}
