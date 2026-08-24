@@ -52,6 +52,7 @@ npm run smoke
 npm run test:cli
 npm run test:snapshots
 npm run test:review-e2e
+npm run test:dashboard-architecture
 npm run release:check
 npm run demo
 node src/cli.js --markdown examples/sample.diff
@@ -59,7 +60,7 @@ node src/cli.js --json examples/sample.diff
 npm pack --dry-run
 ```
 
-`npm run release:check` validates package metadata, required files, the Action contract, changelog readiness, CLI execution, report modes, smoke coverage, and the package dry run. `npm run test:review-e2e` separately validates the complete GitHub review path without network access. Neither command publishes.
+`npm run release:check` validates package metadata, required files, the Action contract, changelog readiness, CLI execution, report modes, smoke coverage, and the package dry run. `npm run test:review-e2e` separately validates the complete GitHub review path, while `npm run test:dashboard-architecture` validates the accepted local browser/process/file/network boundary. These commands do not publish.
 
 The GitHub compatibility matrix runs these contracts on Node 18, 20, 22, and 24 across Ubuntu and Windows. See `docs/validation/V0.2_COMPATIBILITY_MATRIX.md`.
 

@@ -23,6 +23,7 @@ Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 - Deduplicated changed-line workflow annotations and optional fingerprinted SARIF 2.1.0 generation.
 - Versioned stable finding identity and immutable report comparison with explicit missing-history semantics.
 - End-to-end two-push GitHub review fixtures covering report/comment modes, annotations, SARIF, comparison, managed-comment updates, and threshold exits.
+- Versioned local dashboard architecture, accepted ADR, threat model, bounded input contract, and no-network/no-persistence conformance gate.
 
 ### Changed
 
@@ -81,6 +82,7 @@ Before cutting a release:
 - run `npm run test:github-review`
 - run `npm run test:finding-comparison`
 - run `npm run test:review-e2e`
+- run `npm run test:dashboard-architecture`
 - run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`

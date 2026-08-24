@@ -66,10 +66,11 @@ This version supports:
 - deterministic new, unchanged, and resolved finding comparisons across supplied reports
 - pull request comment update helpers
 - offline end-to-end fixtures for report, comment, annotation, SARIF, comparison, and threshold behavior
+- an accepted, machine-checkable local dashboard architecture and threat boundary
 - npm/npx-compatible package metadata
 - a reusable composite GitHub Action
 
-Future versions can add richer check-run publishing, durable history retrieval, and a local review dashboard.
+The next v0.6 work implements local diff/report import, exploration, accessibility, and exports within the accepted no-network boundary.
 
 ## Example output
 
@@ -154,6 +155,7 @@ The matrix checks:
 - deterministic report, suppression, and repository-intelligence snapshots
 - the complete release-readiness suite
 - the end-to-end GitHub review experience fixture
+- the local dashboard architecture contract
 - CLI help and sample diff analysis
 - JSON output
 - `npm pack --dry-run`
@@ -176,6 +178,7 @@ npm run test:pr-summary
 npm run test:github-review
 npm run test:finding-comparison
 npm run test:review-e2e
+npm run test:dashboard-architecture
 npm run release:check
 ```
 
@@ -226,6 +229,16 @@ node scripts/compare-reports.js \
 ```
 
 Missing previous history is reported as unknown with exit code 2, never as a clean zero-finding comparison. See [finding comparison across pushes](docs/finding-comparisons.md).
+
+## Local dashboard architecture
+
+v0.6 starts from a versioned local-only boundary: a planned dependency-free static server bound to `127.0.0.1`, browser File API input, dedicated-worker validation, memory-only state, no runtime remote origins, and an enforced `connect-src 'none'` Content Security Policy. Diffs are capped at 20 MiB; v1 reports are capped at 10 MiB each and at most two may be compared.
+
+This architecture issue does not ship the server or browser UI. The implementation follows in #69–#71. The machine contract, accepted ADR, and threat model are documented in [the local dashboard architecture](docs/architecture/dashboard-architecture.md). Validate it with:
+
+```bash
+npm run test:dashboard-architecture
+```
 
 CI mode prints Markdown and exits with a failure when the report reaches the configured `failThreshold`:
 
