@@ -44,6 +44,9 @@ jobs:
       - name: Run CLI contract suite
         run: npm run test:cli
 
+      - name: Run report contract snapshots
+        run: npm run test:snapshots
+
       - name: Run release-readiness suite
         run: npm run release:check
 
