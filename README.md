@@ -45,13 +45,15 @@ It does not replace human review. It gives developers a second set of eyes befor
 
 This version supports:
 
-- plain text, Markdown, and JSON reports
+- plain text, Markdown, and schema-versioned JSON reports
 - CI-oriented output
 - per-file risk scoring
 - docs-only detection
 - risk presets
 - rule explanations
 - project-defined custom rules
+- non-destructive rule suppressions with expiry
+- structured configuration diagnostics
 - optional pull request title/body context
 - repository-aware suggested checks
 - structured review summaries
@@ -140,13 +142,27 @@ Merge Guard supports Node.js 18 or newer. The repository runs its smoke and CLI 
 
 The matrix checks:
 
-- smoke tests
-- CLI help
-- sample diff analysis
+- smoke and CLI contract tests
+- deterministic report and suppression snapshots
+- the complete release-readiness suite
+- CLI help and sample diff analysis
 - JSON output
 - `npm pack --dry-run`
 
-The workflow installs with `npm install --no-package-lock`, uses the package metadata for npm cache configuration, and never publishes packages or creates releases.
+The workflow installs with `npm install --no-package-lock`, uses the package metadata for npm cache configuration, and never publishes packages or creates releases. The current evidence is recorded in [the v0.2 compatibility matrix](docs/validation/V0.2_COMPATIBILITY_MATRIX.md).
+
+## Release verification
+
+Run the local contract gate before tagging or publishing:
+
+```bash
+npm run smoke
+npm run test:cli
+npm run test:snapshots
+npm run release:check
+```
+
+See [package and release verification](docs/package-and-action.md) for the complete checklist. These commands inspect and validate artifacts; they do not publish.
 
 ## Output modes
 
@@ -162,7 +178,7 @@ Markdown output is useful for pasting into pull requests:
 node src/cli.js --markdown examples/sample.diff
 ```
 
-JSON output includes the same risk data, including the per-file breakdown and rule explanations:
+JSON output includes the same risk data, including the per-file breakdown and rule explanations. Reports declare `schemaVersion: 1` and required machine-readable fields documented in [the report contract](docs/REPORT_FORMAT.md):
 
 ```bash
 node src/cli.js --json examples/sample.diff
@@ -240,6 +256,8 @@ Each rule supports:
 
 A rule must define `pathPattern`, `linePattern`, or both. When both are present, the same changed file must match the path and contain a matching added line. Triggered custom rules appear in the normal `rules`, flags, file breakdown, and suggested-check output. A weight of `0` records an informational match without changing risk. Duplicate rule IDs and invalid weights are ignored without stopping the scan and are listed under **Custom rule warnings**.
 
+See [custom rules](docs/custom-rules.md) for the authoritative field and validation contract.
+
 ## Rule suppressions
 
 Suppressions are report annotations only: they never delete findings, change risk scores, or bypass configured failure thresholds.
@@ -261,6 +279,14 @@ Each suppression requires a rule ID, reason, owner, and expiration date:
 ```
 
 Expired, malformed, duplicate, or invalid suppressions remain visible as warnings. Matching findings appear separately in `suppressedFindings`.
+
+Expiry uses UTC calendar dates. See [rule suppressions](docs/suppressions.md) for active, expired, unmatched, and malformed behavior.
+
+## Configuration diagnostics
+
+Merge Guard validates `merge-guard.config.json` before scanning. Fatal errors exit non-zero; `--json` emits an `INVALID_CONFIGURATION` error payload with structured diagnostics. Non-fatal custom-rule warnings remain in `configDiagnostics` and `customRuleWarnings`.
+
+See [configuration diagnostics](docs/configuration-diagnostics.md) for fatal fields, warning behavior, and the diagnostic schema.
 
 ## Project-specific suggested checks
 
@@ -355,6 +381,8 @@ Action inputs:
 - `markdown`: retained for compatibility; CI and comment reports are Markdown.
 
 When comment mode is enabled, the workflow needs `pull-requests: write`. The Action records the scan result, posts the report, and then enforces the failure exit code so high-risk reports are not lost.
+
+On `pull_request` events, the Action automatically forwards the event title and body as context. PR prose appears in reports but never changes diff-based scoring or thresholds. See [GitHub Actions and composite Action behavior](docs/GITHUB_ACTIONS.md).
 
 ## Per-file risk scoring
 
