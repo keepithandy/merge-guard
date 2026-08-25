@@ -1,5 +1,7 @@
 # merge-guard
 
+![Merge Guard — deterministic pull request risk analysis](docs/assets/merge-guard-latest-commits-cover-v4.png)
+
 `merge-guard` is a deterministic pull request and diff risk scanner for safer merges. It reviews changed files and produces a plain-English merge-readiness report: what changed, what looks risky, what might break, and which checks a reviewer should consider before merging.
 
 It does not require an AI provider or API key, and it never runs discovered project commands.
