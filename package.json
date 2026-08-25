@@ -13,6 +13,7 @@
     "policies/",
     "schemas/",
     "dashboard/",
+    "docs/assets/",
     "docs/policy-packs.md",
     "docs/policy-pack-migrations.md",
     "docs/starter-policy-packs.md",
