@@ -415,6 +415,7 @@ npm run test:review-e2e
 npm run test:dashboard-architecture
 npm run test:dashboard-import
 npm run test:dashboard-explorer
+npm run test:dashboard-accessibility
 npm run release:check
 ```
 
