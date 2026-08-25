@@ -10,7 +10,7 @@ Machine contract: `dashboard/architecture-boundary.v1.json`
 
 The v0.6 dashboard will be a local browser application served by a minimal dependency-free Node.js static server bound only to `127.0.0.1` on an ephemeral port. User-selected diffs and reports remain inside browser memory. The server serves a fixed set of packaged assets and never receives, parses, stores, or proxies selected files.
 
-This issue defines the boundary; it does not ship the server or interface. #69 implements input handling and the constrained loopback runtime, #70 adds the viewer, and #71 adds accessibility and export behavior.
+Issue #68 defined this boundary. Issue #69 implements the constrained loopback runtime and local import validation; it does not yet ship the file-risk explorer, checklist, or exports planned for #70 and #71.
 
 ```mermaid
 flowchart LR

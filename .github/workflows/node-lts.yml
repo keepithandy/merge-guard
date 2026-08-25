@@ -74,6 +74,9 @@ jobs:
       - name: Run local dashboard architecture contracts
         run: npm run test:dashboard-architecture
 
+      - name: Run local dashboard import contracts
+        run: npm run test:dashboard-import
+
       - name: Run release-readiness suite
         run: npm run release:check
 

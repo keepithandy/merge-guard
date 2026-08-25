@@ -47,6 +47,7 @@
     "test:finding-comparison": "node scripts/finding-comparison-contracts.js",
     "test:review-e2e": "node scripts/review-experience-e2e.js",
     "test:dashboard-architecture": "node scripts/dashboard-architecture-contracts.js",
+    "test:dashboard-import": "node scripts/dashboard-import-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },
