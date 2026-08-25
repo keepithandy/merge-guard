@@ -1,0 +1,1 @@
+body { font: 16px system-ui, sans-serif; margin: 2rem; color: #17202a; } main { max-width: 48rem; } #drop-zone { display: block; border: 2px dashed #506b87; padding: 2rem; border-radius: .5rem; cursor: pointer; } #files { display: block; margin-top: 1rem; } [data-state="error"] { color: #a61b1b; font-weight: 600; }

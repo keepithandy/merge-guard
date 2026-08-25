@@ -24,7 +24,7 @@ const threatModel = read(threatModelPath);
 
 assert.equal(manifest.schemaVersion, 1);
 assert.equal(manifest.status, 'accepted');
-assert.equal(manifest.implementationStatus, 'architecture-only');
+assert.equal(manifest.implementationStatus, 'implemented');
 assert.equal(manifest.$schema, '../schemas/dashboard-boundary-v1.schema.json');
 assert.equal(schema.properties.schemaVersion.const, 1);
 assert.equal(schema.properties.status.const, 'accepted');
@@ -152,7 +152,7 @@ for (const section of [
 }
 assert(architecture.includes("connect-src 'none'"));
 assert(architecture.includes('No selected string is evaluated'));
-assert(architecture.includes('does not ship the server or interface'));
+assert(architecture.includes('implements the constrained loopback runtime and local import validation'));
 assert(decision.includes('Status: Accepted'));
 assert(decision.includes('## Alternatives considered'));
 assert(decision.includes('machine-readable'));

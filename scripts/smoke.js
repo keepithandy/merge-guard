@@ -300,6 +300,8 @@ assert(fs.existsSync('test/snapshots/review-experience-e2e.json'), 'Review exper
 assert(fs.existsSync('dashboard/architecture-boundary.v1.json'), 'Dashboard boundary manifest should exist');
 assert(fs.existsSync('schemas/dashboard-boundary-v1.schema.json'), 'Dashboard boundary schema should exist');
 assert(fs.existsSync('scripts/dashboard-architecture-contracts.js'), 'Dashboard architecture gate should exist');
+assert(fs.existsSync('scripts/dashboard-import-contracts.js'), 'Dashboard import gate should exist');
+assert(fs.existsSync('dashboard/server.js'), 'Dashboard loopback server should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
 assert(fs.existsSync('schemas/github-review-output-v1.schema.json'), 'GitHub review-output JSON schema should exist');
@@ -312,6 +314,7 @@ assert(packageMetadata.scripts?.['test:github-review'], 'Package should expose t
 assert(packageMetadata.scripts?.['test:finding-comparison'], 'Package should expose the finding-comparison gate');
 assert(packageMetadata.scripts?.['test:review-e2e'], 'Package should expose the end-to-end review gate');
 assert(packageMetadata.scripts?.['test:dashboard-architecture'], 'Package should expose the dashboard architecture gate');
+assert(packageMetadata.scripts?.['test:dashboard-import'], 'Package should expose the dashboard import gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -336,6 +339,7 @@ assert(readme.includes('--sarif'), 'README should document optional SARIF output
 assert(readme.includes('compare-reports.js'), 'README should document immutable finding comparison');
 assert(readme.includes('npm run test:review-e2e'), 'README should document end-to-end review validation');
 assert(readme.includes('npm run test:dashboard-architecture'), 'README should document the dashboard architecture gate');
+assert(readme.includes('npm run test:dashboard-import'), 'README should document the dashboard import gate');
 
 const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
 assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');

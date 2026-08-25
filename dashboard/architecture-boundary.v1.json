@@ -2,7 +2,7 @@
   "$schema": "../schemas/dashboard-boundary-v1.schema.json",
   "schemaVersion": 1,
   "status": "accepted",
-  "implementationStatus": "architecture-only",
+  "implementationStatus": "implemented",
   "runtime": {
     "plannedEntrypoint": "node dashboard/server.js",
     "server": {
