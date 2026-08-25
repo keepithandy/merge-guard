@@ -35,6 +35,11 @@ function renderReport(item) {
   const summary = element('p', `${report.riskLevel} · score ${report.riskScore} · ${report.mergeReadiness}`);
   summary.className = 'summary';
   section.append(heading, summary);
+  const exports = element('div');
+  exports.className = 'exports';
+  exports.append(exportButton('Download JSON', `${item.name}.json`, JSON.stringify(report, null, 2) + '\n'));
+  exports.append(exportButton('Download Markdown', `${item.name}.md`, markdownReport(report)));
+  section.append(exports);
 
   const filesHeading = element('h3', 'Files by reported risk');
   const files = element('ul');
@@ -76,6 +81,32 @@ function renderReport(item) {
   addList('Warnings', [...(report.customRuleWarnings || []), ...(report.suppressionWarnings || []), ...(report.configDiagnostics || [])], 'No warnings reported.');
   addList('Suppressions', report.suppressedFindings || [], 'No suppressions reported.');
   output.append(section);
+}
+
+function exportButton(label, filename, content) {
+  const button = element('button', label);
+  button.type = 'button';
+  button.addEventListener('click', () => {
+    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
+    const link = element('a');
+    link.href = url; link.download = filename; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  });
+  return button;
+}
+
+function markdownReport(report) {
+  const lines = [
+    '# Merge Guard report', '',
+    `- Risk level: ${report.riskLevel}`,
+    `- Merge readiness: ${report.mergeReadiness}`,
+    `- Risk score: ${report.riskScore}`,
+    '', '## Files'
+  ];
+  for (const file of report.files || []) lines.push(`- **${file.riskLevel || 'UNSPECIFIED'}** ${file.path} — score ${file.riskScore ?? 'n/a'}: ${file.reason || 'No explanation supplied.'}`);
+  lines.push('', '## Suggested checks');
+  for (const check of report.suggestedChecks || []) lines.push(`- [ ] ${check}`);
+  return lines.join('\n') + '\n';
 }
 
 async function importFiles(files) {

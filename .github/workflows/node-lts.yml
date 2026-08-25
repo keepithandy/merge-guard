@@ -80,6 +80,9 @@ jobs:
       - name: Run local dashboard explorer contracts
         run: npm run test:dashboard-explorer
 
+      - name: Run local dashboard accessibility contracts
+        run: npm run test:dashboard-accessibility
+
       - name: Run release-readiness suite
         run: npm run release:check
 
