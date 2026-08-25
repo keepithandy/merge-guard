@@ -391,7 +391,8 @@ Findings are classified as new, unchanged, or resolved using stable identities. 
 - Suppressions and policy exceptions annotate evidence but never lower scores or bypass thresholds.
 - CODEOWNERS and protected paths provide unverified guidance, not proof of approval.
 - SARIF generation is local; upload and code-scanning permissions remain the caller's responsibility.
-- The local dashboard accepts selected `.diff`, `.patch`, and Merge Guard v1 `.json` report files through a browser file picker or drag-and-drop. It validates them in a dedicated worker, keeps them in memory, and serves only bundled assets from loopback; it does not upload, persist, execute, or render a report explorer yet.
+- The local dashboard accepts selected `.diff`, `.patch`, and Merge Guard v1 `.json` report files through a browser file picker or drag-and-drop. It validates them in a dedicated worker, keeps them in memory, and serves only bundled assets from loopback; it does not upload, persist, or execute anything.
+- Imported reports are displayed as read-only risk-ranked file and rule evidence with suggested checks, warnings, and suppressions. Checklist state is local UI state and never changes report scores or readiness.
 
 The dashboard boundary is documented in [the architecture overview](docs/architecture/dashboard-architecture.md).
 
@@ -413,6 +414,7 @@ npm run test:finding-comparison
 npm run test:review-e2e
 npm run test:dashboard-architecture
 npm run test:dashboard-import
+npm run test:dashboard-explorer
 npm run release:check
 ```
 
