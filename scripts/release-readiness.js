@@ -104,6 +104,7 @@ check('Plugin worker gate exists', Boolean(read('scripts/plugin-worker-contracts
 check('Plugin attestation gate exists', Boolean(read('scripts/plugin-attestation-contracts.js')));
 check('Plugin conformance gate exists', Boolean(read('scripts/plugin-conformance-contracts.js')));
 check('Installation validation gate exists', Boolean(read('scripts/installation-contracts.js')));
+check('Security validation gate exists', Boolean(read('scripts/security-contracts.js')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
 check('README exists', Boolean(read('README.md')));
 check('CHANGELOG exists', Boolean(read('CHANGELOG.md')));
@@ -125,6 +126,7 @@ if (metadata) {
   check('plugin attestation script is configured', Boolean(metadata.scripts?.['test:plugin-attestation']));
 check('plugin conformance script is configured', Boolean(metadata.scripts?.['test:plugin-conformance']));
 check('installation script is configured', Boolean(metadata.scripts?.['test:installation']));
+check('security script is configured', Boolean(metadata.scripts?.['test:security']));
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
     check(`package includes ${entry}`, Array.isArray(metadata.files) && metadata.files.includes(entry));
