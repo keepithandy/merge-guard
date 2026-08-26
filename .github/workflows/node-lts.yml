@@ -113,6 +113,8 @@ jobs:
         run: npm run test:release-candidate
       - name: Validate release artifact flow
         run: npm run test:release-artifacts
+      - name: Validate distribution listings
+        run: npm run test:distribution
 
       - name: Run release-readiness suite
         run: npm run release:check
