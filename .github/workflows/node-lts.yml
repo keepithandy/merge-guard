@@ -98,6 +98,9 @@ jobs:
       - name: Run isolated plugin worker contracts
         run: npm run test:plugin-worker
 
+      - name: Run plugin attestation contracts
+        run: npm run test:plugin-attestation
+
       - name: Run release-readiness suite
         run: npm run release:check
 

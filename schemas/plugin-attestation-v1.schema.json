@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/plugin-attestation-v1.schema.json",
+  "title": "Merge Guard plugin attestation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "attestationId", "createdAt", "core", "plugin", "configurationSha256", "input", "output"],
+  "properties": {
+    "schemaVersion": { "const": 1 }, "attestationId": { "$ref": "#/$defs/hash" }, "createdAt": { "type": "string", "format": "date-time" },
+    "core": { "type": "object", "additionalProperties": false, "required": ["tool", "version"], "properties": { "tool": { "const": "merge-guard" }, "version": { "type": "string", "minLength": 1 } } },
+    "plugin": { "type": "object", "additionalProperties": false, "required": ["id", "version", "manifestSha256", "sourceSha256"], "properties": { "id": { "type": "string", "minLength": 1 }, "version": { "$ref": "#/$defs/version" }, "manifestSha256": { "$ref": "#/$defs/hash" }, "sourceSha256": { "$ref": "#/$defs/hash" } } },
+    "configurationSha256": { "$ref": "#/$defs/hash" }, "input": { "type": "object", "additionalProperties": false, "required": ["kind", "sha256"], "properties": { "kind": { "enum": ["diff", "report"] }, "sha256": { "$ref": "#/$defs/hash" } } },
+    "output": { "type": "object", "additionalProperties": false, "required": ["findingsSha256", "findingsCount"], "properties": { "findingsSha256": { "$ref": "#/$defs/hash" }, "findingsCount": { "type": ["integer", "null"], "minimum": 0 } } }
+  },
+  "$defs": { "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" } }
+}
