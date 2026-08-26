@@ -86,6 +86,9 @@ jobs:
       - name: Run immutable artifact manifest contracts
         run: npm run test:artifact-manifest
 
+      - name: Run accepted legacy risk contracts
+        run: npm run test:legacy-risk
+
       - name: Run release-readiness suite
         run: npm run release:check
 

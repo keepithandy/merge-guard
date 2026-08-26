@@ -417,6 +417,7 @@ npm run test:dashboard-import
 npm run test:dashboard-explorer
 npm run test:dashboard-accessibility
 npm run test:artifact-manifest
+npm run test:legacy-risk
 npm run release:check
 ```
 
@@ -436,6 +437,7 @@ The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24
 | GitHub review projections | [Annotations and SARIF](docs/github-review-outputs.md) |
 | Cross-push findings | [Finding comparison](docs/finding-comparisons.md) |
 | Immutable provenance | [Artifact manifests](docs/artifact-manifests.md) |
+| Accepted legacy risk | [Legacy risk](docs/legacy-risk.md) |
 | Dashboard boundary | [Local dashboard architecture](docs/architecture/dashboard-architecture.md) |
 | Release history | [Changelog](CHANGELOG.md) |
 | Contributing | [Contributing guide](CONTRIBUTING.md) |

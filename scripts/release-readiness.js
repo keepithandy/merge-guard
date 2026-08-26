@@ -97,6 +97,7 @@ check('Dashboard import gate exists', Boolean(read('scripts/dashboard-import-con
 check('Dashboard explorer gate exists', Boolean(read('scripts/dashboard-explorer-contracts.js')));
 check('Dashboard accessibility gate exists', Boolean(read('scripts/dashboard-accessibility-contracts.js')));
 check('Artifact manifest gate exists', Boolean(read('scripts/artifact-manifest-contracts.js')));
+check('Legacy risk gate exists', Boolean(read('scripts/legacy-risk-contracts.js')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
 check('README exists', Boolean(read('README.md')));
 check('CHANGELOG exists', Boolean(read('CHANGELOG.md')));
@@ -111,6 +112,7 @@ if (metadata) {
   check('dashboard explorer script is configured', Boolean(metadata.scripts?.['test:dashboard-explorer']));
   check('dashboard accessibility script is configured', Boolean(metadata.scripts?.['test:dashboard-accessibility']));
   check('artifact manifest script is configured', Boolean(metadata.scripts?.['test:artifact-manifest']));
+  check('legacy risk script is configured', Boolean(metadata.scripts?.['test:legacy-risk']));
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
     check(`package includes ${entry}`, Array.isArray(metadata.files) && metadata.files.includes(entry));
