@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -20,26 +21,43 @@ function read(relativePath) {
   return fs.readFileSync(absolutePath, 'utf8');
 }
 
-function run(label, command, args) {
-  const result = spawnSync(command, args, { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+function run(label, command, args, options = {}) {
+  const result = spawnSync(command, args, {
+    cwd: root,
+    encoding: 'utf8',
+    env: options.env || process.env,
+    stdio: 'pipe'
+  });
   const detail = result.error?.message || (result.status === 0 ? 'completed successfully' : `exit code ${result.status}`);
   check(label, result.status === 0, detail);
 }
 
 function runNpmPack() {
   const args = ['pack', '--dry-run', '--json'];
+  const npmCache = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-npm-cache-'));
+  const env = {
+    ...process.env,
+    npm_config_audit: 'false',
+    npm_config_cache: npmCache,
+    npm_config_fund: 'false',
+    npm_config_update_notifier: 'false'
+  };
 
-  if (process.env.npm_execpath) {
-    run('npm pack dry run', process.execPath, [process.env.npm_execpath, ...args]);
-    return;
+  try {
+    if (process.env.npm_execpath) {
+      run('npm pack dry run', process.execPath, [process.env.npm_execpath, ...args], { env });
+      return;
+    }
+
+    if (process.platform === 'win32') {
+      run('npm pack dry run', process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `npm ${args.join(' ')}`], { env });
+      return;
+    }
+
+    run('npm pack dry run', 'npm', args, { env });
+  } finally {
+    fs.rmSync(npmCache, { recursive: true, force: true });
   }
-
-  if (process.platform === 'win32') {
-    run('npm pack dry run', process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', `npm ${args.join(' ')}`]);
-    return;
-  }
-
-  run('npm pack dry run', 'npm', args);
 }
 
 function packageMetadata() {
