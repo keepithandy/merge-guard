@@ -59,6 +59,7 @@
     "test:plugin-conformance": "node scripts/plugin-conformance-contracts.js",
     "test:installation": "node scripts/installation-contracts.js",
     "test:security": "node scripts/security-contracts.js",
+    "test:performance": "node scripts/performance-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },

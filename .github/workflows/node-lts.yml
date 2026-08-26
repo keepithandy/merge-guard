@@ -107,6 +107,8 @@ jobs:
         run: npm run test:installation
       - name: Validate security and provenance baseline
         run: npm run test:security
+      - name: Validate performance budgets and soak
+        run: npm run test:performance
 
       - name: Run release-readiness suite
         run: npm run release:check
