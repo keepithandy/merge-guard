@@ -307,6 +307,7 @@ assert(fs.existsSync('scripts/artifact-manifest-contracts.js'), 'Artifact manife
 assert(fs.existsSync('schemas/artifact-manifest-v1.schema.json'), 'Artifact manifest schema should exist');
 assert(fs.existsSync('scripts/legacy-risk-contracts.js'), 'Legacy risk gate should exist');
 assert(fs.existsSync('schemas/legacy-risk-v1.schema.json'), 'Legacy risk schema should exist');
+assert(fs.existsSync('scripts/report-trends-contracts.js'), 'Report trends gate should exist');
 assert(fs.existsSync('dashboard/server.js'), 'Dashboard loopback server should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
@@ -325,6 +326,7 @@ assert(packageMetadata.scripts?.['test:dashboard-explorer'], 'Package should exp
 assert(packageMetadata.scripts?.['test:dashboard-accessibility'], 'Package should expose the dashboard accessibility gate');
 assert(packageMetadata.scripts?.['test:artifact-manifest'], 'Package should expose the artifact manifest gate');
 assert(packageMetadata.scripts?.['test:legacy-risk'], 'Package should expose the legacy risk gate');
+assert(packageMetadata.scripts?.['test:report-trends'], 'Package should expose the report trends gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -354,6 +356,7 @@ assert(readme.includes('npm run test:dashboard-explorer'), 'README should docume
 assert(readme.includes('npm run test:dashboard-accessibility'), 'README should document the dashboard accessibility gate');
 assert(readme.includes('npm run test:artifact-manifest'), 'README should document the artifact manifest gate');
 assert(readme.includes('npm run test:legacy-risk'), 'README should document the legacy risk gate');
+assert(readme.includes('npm run test:report-trends'), 'README should document the report trends gate');
 
 const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
 assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');

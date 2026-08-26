@@ -89,6 +89,9 @@ jobs:
       - name: Run accepted legacy risk contracts
         run: npm run test:legacy-risk
 
+      - name: Run report trend and retention contracts
+        run: npm run test:report-trends
+
       - name: Run release-readiness suite
         run: npm run release:check
 
