@@ -54,6 +54,7 @@
     "test:legacy-risk": "node scripts/legacy-risk-contracts.js",
     "test:report-trends": "node scripts/report-trends-contracts.js",
     "test:plugin-manifest": "node scripts/plugin-manifest-contracts.js",
+    "test:plugin-worker": "node scripts/plugin-worker-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },
