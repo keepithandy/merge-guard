@@ -50,6 +50,7 @@
     "test:dashboard-import": "node scripts/dashboard-import-contracts.js",
     "test:dashboard-explorer": "node scripts/dashboard-explorer-contracts.js",
     "test:dashboard-accessibility": "node scripts/dashboard-accessibility-contracts.js",
+    "test:artifact-manifest": "node scripts/artifact-manifest-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },

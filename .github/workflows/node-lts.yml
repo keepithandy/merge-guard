@@ -83,6 +83,9 @@ jobs:
       - name: Run local dashboard accessibility contracts
         run: npm run test:dashboard-accessibility
 
+      - name: Run immutable artifact manifest contracts
+        run: npm run test:artifact-manifest
+
       - name: Run release-readiness suite
         run: npm run release:check
 

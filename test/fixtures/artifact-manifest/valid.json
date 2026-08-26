@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "artifactId": "d29f2607d8d2adedae33c22bb3409f80247e2a8ccda9567ff1b56e66b470faea",
+  "generated": { "at": "2026-08-25T00:00:00.000Z", "tool": "merge-guard", "toolVersion": "0.1.0" },
+  "evidence": { "repository": "example/project", "commit": "abc123", "inputType": "report", "branch": "main", "configuration": { "preset": "standard", "failThreshold": 7 } },
+  "contentHashes": { "report": "4256e00abb0d3630bf6ae8a4a2d48d40a57a456f424396c7d2a0cb51939d4103", "configuration": "140b4c1d1a8a1ce4c0be70ae2b644f520e9131e637c4c0b74c190bb6fd886f28", "evidence": "b24f6ecee99cf90dc4a3570e0870bdd95823cd5d81d4e688eddf92abad84d3c3" },
+  "report": { "schemaVersion": 1, "contentHash": "4256e00abb0d3630bf6ae8a4a2d48d40a57a456f424396c7d2a0cb51939d4103" }
+}
