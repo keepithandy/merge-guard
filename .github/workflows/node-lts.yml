@@ -101,6 +101,9 @@ jobs:
       - name: Run plugin attestation contracts
         run: npm run test:plugin-attestation
 
+      - name: Run plugin conformance contracts
+        run: npm run test:plugin-conformance
+
       - name: Run release-readiness suite
         run: npm run release:check
 
