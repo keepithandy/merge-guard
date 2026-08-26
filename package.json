@@ -1,6 +1,6 @@
 {
   "name": "merge-guard",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "AI-ready pull request risk scanner for safer merges.",
   "type": "module",
   "bin": {
@@ -13,19 +13,7 @@
     "policies/",
     "schemas/",
     "dashboard/",
-    "docs/assets/",
-    "docs/policy-packs.md",
-    "docs/policy-pack-migrations.md",
-    "docs/starter-policy-packs.md",
-    "docs/review-guidance.md",
-    "docs/policy-inheritance.md",
-    "docs/pull-request-summaries.md",
-    "docs/github-review-outputs.md",
-    "docs/finding-comparisons.md",
-    "docs/review-experience-fixtures.md",
-    "docs/architecture/dashboard-architecture.md",
-    "docs/architecture/dashboard-threat-model.md",
-    "docs/architecture/decisions/0001-local-dashboard-boundary.md",
+    "docs/",
     "action.yml",
     "README.md",
     "CHANGELOG.md",
@@ -80,6 +68,14 @@
   ],
   "author": "keepithandy",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keepithandy/merge-guard.git"
+  },
+  "homepage": "https://github.com/keepithandy/merge-guard#readme",
+  "bugs": {
+    "url": "https://github.com/keepithandy/merge-guard/issues"
+  },
   "engines": {
     "node": ">=18"
   }

@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased — v0.2.0 candidate
+## Unreleased
+
+No changes yet.
+
+## 1.0.0 - 2026-08-25
 
 Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 
@@ -45,7 +49,8 @@ Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
 
 - Requires Node.js 18 or newer.
 - Preserves built-in scoring intent and preset thresholds.
-- No package, tag, or GitHub release has been published for v0.2.0.
+- Public CLI, JSON report, policy, plugin, artifact, and Action contracts are frozen for v1.0.
+- Release publication remains manually owner-gated.
 
 ## 0.1.0 - MVP CLI foundation
 

@@ -4,6 +4,10 @@ description: Run merge-guard against a pull request diff, enforce a risk thresho
 
 author: keepithandy
 
+branding:
+  icon: shield
+  color: blue
+
 inputs:
   preset:
     description: "Risk preset to use: safe, standard, or strict."
