@@ -308,6 +308,8 @@ assert(fs.existsSync('schemas/artifact-manifest-v1.schema.json'), 'Artifact mani
 assert(fs.existsSync('scripts/legacy-risk-contracts.js'), 'Legacy risk gate should exist');
 assert(fs.existsSync('schemas/legacy-risk-v1.schema.json'), 'Legacy risk schema should exist');
 assert(fs.existsSync('scripts/report-trends-contracts.js'), 'Report trends gate should exist');
+assert(fs.existsSync('scripts/plugin-manifest-contracts.js'), 'Plugin manifest gate should exist');
+assert(fs.existsSync('schemas/plugin-manifest-v1.schema.json'), 'Plugin manifest schema should exist');
 assert(fs.existsSync('dashboard/server.js'), 'Dashboard loopback server should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
@@ -327,6 +329,7 @@ assert(packageMetadata.scripts?.['test:dashboard-accessibility'], 'Package shoul
 assert(packageMetadata.scripts?.['test:artifact-manifest'], 'Package should expose the artifact manifest gate');
 assert(packageMetadata.scripts?.['test:legacy-risk'], 'Package should expose the legacy risk gate');
 assert(packageMetadata.scripts?.['test:report-trends'], 'Package should expose the report trends gate');
+assert(packageMetadata.scripts?.['test:plugin-manifest'], 'Package should expose the plugin manifest gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -357,6 +360,7 @@ assert(readme.includes('npm run test:dashboard-accessibility'), 'README should d
 assert(readme.includes('npm run test:artifact-manifest'), 'README should document the artifact manifest gate');
 assert(readme.includes('npm run test:legacy-risk'), 'README should document the legacy risk gate');
 assert(readme.includes('npm run test:report-trends'), 'README should document the report trends gate');
+assert(readme.includes('npm run test:plugin-manifest'), 'README should document the plugin manifest gate');
 
 const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
 assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/plugin-manifest-v1.schema.json",
+  "title": "Merge Guard local rule plugin manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "identity", "compatibility", "entryPoint", "explicitInstallation", "permissions", "checksums", "checks"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "identity": { "$ref": "#/$defs/identity" },
+    "compatibility": { "$ref": "#/$defs/compatibility" },
+    "entryPoint": { "type": "string", "pattern": "^\\./[^.].*" },
+    "explicitInstallation": { "const": true },
+    "permissions": { "type": "array", "uniqueItems": true, "items": { "enum": ["read-diff", "read-report"] } },
+    "checksums": { "type": "object", "additionalProperties": false, "required": ["entryPointSha256"], "properties": { "entryPointSha256": { "$ref": "#/$defs/hash" } } },
+    "checks": { "type": "object", "additionalProperties": false, "required": ["deterministic", "timeoutMs", "maxFindings"], "properties": { "deterministic": { "const": true }, "timeoutMs": { "type": "integer", "minimum": 1 }, "maxFindings": { "type": "integer", "minimum": 1 } } }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "identity": { "type": "object", "additionalProperties": false, "required": ["id", "name", "version"], "properties": { "id": { "type": "string", "minLength": 1 }, "name": { "type": "string", "minLength": 1 }, "version": { "$ref": "#/$defs/version" } } },
+    "compatibility": { "type": "object", "additionalProperties": false, "required": ["pluginApiVersion", "mergeGuard"], "properties": { "pluginApiVersion": { "const": 1 }, "mergeGuard": { "type": "object", "additionalProperties": false, "required": ["min", "maxExclusive"], "properties": { "min": { "$ref": "#/$defs/version" }, "maxExclusive": { "$ref": "#/$defs/version" } } } } }
+  }
+}

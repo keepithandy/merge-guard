@@ -92,6 +92,9 @@ jobs:
       - name: Run report trend and retention contracts
         run: npm run test:report-trends
 
+      - name: Run plugin manifest contracts
+        run: npm run test:plugin-manifest
+
       - name: Run release-readiness suite
         run: npm run release:check
 

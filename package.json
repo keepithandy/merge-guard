@@ -53,6 +53,7 @@
     "test:artifact-manifest": "node scripts/artifact-manifest-contracts.js",
     "test:legacy-risk": "node scripts/legacy-risk-contracts.js",
     "test:report-trends": "node scripts/report-trends-contracts.js",
+    "test:plugin-manifest": "node scripts/plugin-manifest-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },

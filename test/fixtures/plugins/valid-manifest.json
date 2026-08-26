@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "identity": { "id": "example.rules", "name": "Example Rules", "version": "1.0.0" },
+  "compatibility": { "pluginApiVersion": 1, "mergeGuard": { "min": "0.1.0", "maxExclusive": "1.0.0" } },
+  "entryPoint": "./plugin.js",
+  "explicitInstallation": true,
+  "permissions": ["read-diff"],
+  "checksums": { "entryPointSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+  "checks": { "deterministic": true, "timeoutMs": 1000, "maxFindings": 100 }
+}
