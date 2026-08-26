@@ -430,6 +430,7 @@ npm run test:release-candidate
 npm run test:public-contracts
 npm run test:release-artifacts
 npm run test:distribution
+npm run test:support
 npm run release:check
 ```
 
@@ -462,6 +463,7 @@ The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24
 | Public contracts | [Contract freeze](docs/public-contracts.md) |
 | Release artifacts | [Artifact flow](docs/release-artifacts.md) |
 | Distribution listings | [Distribution listings](docs/distribution-listings.md) |
+| Support and maintenance | [Support process](docs/support-process.md) |
 | Dashboard boundary | [Local dashboard architecture](docs/architecture/dashboard-architecture.md) |
 | Release history | [Changelog](CHANGELOG.md) |
 | Contributing | [Contributing guide](CONTRIBUTING.md) |
