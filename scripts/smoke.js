@@ -263,7 +263,10 @@ for (const packagePath of [
   'CHANGELOG.md',
   'LICENSE'
 ]) {
-  assert(packageMetadata.files.includes(packagePath), `package files should include ${packagePath}`);
+  assert(
+    packageMetadata.files.includes(packagePath) || (packagePath.startsWith('docs/') && packageMetadata.files.includes('docs/')),
+    `package files should include ${packagePath}`
+  );
 }
 
 const cliSource = fs.readFileSync('src/cli.js', 'utf8');
