@@ -427,6 +427,7 @@ npm run test:installation
 npm run test:security
 npm run test:performance
 npm run test:release-candidate
+npm run test:public-contracts
 npm run release:check
 ```
 
@@ -456,6 +457,7 @@ The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24
 | Security and provenance | [Security baseline](docs/security/threat-model.md) |
 | Performance budgets | [Performance validation](docs/performance-validation.md) |
 | Release candidate | [Release-candidate gate](docs/release-candidate.md) |
+| Public contracts | [Contract freeze](docs/public-contracts.md) |
 | Dashboard boundary | [Local dashboard architecture](docs/architecture/dashboard-architecture.md) |
 | Release history | [Changelog](CHANGELOG.md) |
 | Contributing | [Contributing guide](CONTRIBUTING.md) |
