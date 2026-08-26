@@ -109,6 +109,8 @@ jobs:
         run: npm run test:security
       - name: Validate performance budgets and soak
         run: npm run test:performance
+      - name: Validate release-candidate package
+        run: npm run test:release-candidate
 
       - name: Run release-readiness suite
         run: npm run release:check
