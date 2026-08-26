@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const packageJson = JSON.parse(read('package.json'));
+const sbom = JSON.parse(read('docs/security/sbom.json'));
+assert.equal(Object.keys(packageJson.dependencies || {}).length, 0, 'runtime dependencies must remain empty');
+assert.equal(Object.keys(packageJson.devDependencies || {}).length, 0, 'development dependencies must remain empty');
+assert.equal(sbom.bomFormat, 'CycloneDX');
+assert.equal(sbom.specVersion, '1.5');
+assert(sbom.components.some((component) => component.name === packageJson.name), 'SBOM must identify the package');
+for (const file of ['docs/security/threat-model.md', 'docs/security/release-provenance.md', 'docs/security/vulnerability-response.md']) assert(fs.existsSync(path.join(root, file)), `${file} must exist`);
+const scan = execFileSync(process.execPath, ['src/cli.js', '--json', 'examples/sample.diff'], { cwd: root, encoding: 'utf8', env: { ...process.env, GITHUB_TOKEN: 'must-not-be-read' } });
+assert(!scan.includes('must-not-be-read'), 'normal scanning must not expose secrets');
+assert(read('docs/security/release-provenance.md').includes('SHA-256') && read('docs/security/release-provenance.md').includes('approval'), 'provenance flow must define checksums and approval');
+console.log('security and provenance contracts passed');
