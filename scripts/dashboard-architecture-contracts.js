@@ -167,7 +167,10 @@ for (const packagePath of [
   decisionPath,
   threatModelPath
 ]) {
-  assert(packageMetadata.files.includes(packagePath), `package files should include ${packagePath}`);
+  assert(
+    packageMetadata.files.includes(packagePath) || (packagePath.startsWith('docs/') && packageMetadata.files.includes('docs/')),
+    `package files should include ${packagePath}`
+  );
 }
 assert.equal(
   packageMetadata.scripts?.['test:dashboard-architecture'],
