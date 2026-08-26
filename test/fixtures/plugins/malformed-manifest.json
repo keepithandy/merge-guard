@@ -1,0 +1,1 @@
+{ "schemaVersion": 1, "identity": { "id": "bad" }, "entryPoint": "https://example.invalid/plugin.js", "explicitInstallation": false, "permissions": ["network"], "checksums": {}, "checks": { "deterministic": false } }
