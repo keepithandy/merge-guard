@@ -303,6 +303,8 @@ assert(fs.existsSync('scripts/dashboard-architecture-contracts.js'), 'Dashboard 
 assert(fs.existsSync('scripts/dashboard-import-contracts.js'), 'Dashboard import gate should exist');
 assert(fs.existsSync('scripts/dashboard-explorer-contracts.js'), 'Dashboard explorer gate should exist');
 assert(fs.existsSync('scripts/dashboard-accessibility-contracts.js'), 'Dashboard accessibility gate should exist');
+assert(fs.existsSync('scripts/artifact-manifest-contracts.js'), 'Artifact manifest gate should exist');
+assert(fs.existsSync('schemas/artifact-manifest-v1.schema.json'), 'Artifact manifest schema should exist');
 assert(fs.existsSync('dashboard/server.js'), 'Dashboard loopback server should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
@@ -319,6 +321,7 @@ assert(packageMetadata.scripts?.['test:dashboard-architecture'], 'Package should
 assert(packageMetadata.scripts?.['test:dashboard-import'], 'Package should expose the dashboard import gate');
 assert(packageMetadata.scripts?.['test:dashboard-explorer'], 'Package should expose the dashboard explorer gate');
 assert(packageMetadata.scripts?.['test:dashboard-accessibility'], 'Package should expose the dashboard accessibility gate');
+assert(packageMetadata.scripts?.['test:artifact-manifest'], 'Package should expose the artifact manifest gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -346,6 +349,7 @@ assert(readme.includes('npm run test:dashboard-architecture'), 'README should do
 assert(readme.includes('npm run test:dashboard-import'), 'README should document the dashboard import gate');
 assert(readme.includes('npm run test:dashboard-explorer'), 'README should document the dashboard explorer gate');
 assert(readme.includes('npm run test:dashboard-accessibility'), 'README should document the dashboard accessibility gate');
+assert(readme.includes('npm run test:artifact-manifest'), 'README should document the artifact manifest gate');
 
 const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
 assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/artifact-manifest-v1.schema.json",
+  "title": "Merge Guard immutable artifact manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "artifactId", "generated", "evidence", "contentHashes", "report"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "artifactId": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated": { "$ref": "#/$defs/generated" },
+    "evidence": { "$ref": "#/$defs/evidence" },
+    "contentHashes": { "$ref": "#/$defs/hashes" },
+    "report": { "type": "object", "additionalProperties": false, "required": ["schemaVersion", "contentHash"], "properties": { "schemaVersion": { "const": 1 }, "contentHash": { "$ref": "#/$defs/hash" } } }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "generated": { "type": "object", "additionalProperties": false, "required": ["at", "tool", "toolVersion"], "properties": { "at": { "type": "string", "format": "date-time" }, "tool": { "const": "merge-guard" }, "toolVersion": { "type": "string", "minLength": 1 } } },
+    "evidence": { "type": "object", "additionalProperties": false, "required": ["repository", "commit", "inputType", "configuration"], "properties": { "repository": { "type": "string", "minLength": 1 }, "commit": { "type": "string", "minLength": 1 }, "inputType": { "enum": ["diff", "report"] }, "configuration": { "type": "object" }, "branch": { "type": "string" } } },
+    "hashes": { "type": "object", "additionalProperties": false, "required": ["report", "configuration", "evidence"], "properties": { "report": { "$ref": "#/$defs/hash" }, "configuration": { "$ref": "#/$defs/hash" }, "evidence": { "$ref": "#/$defs/hash" } } }
+  }
+}
