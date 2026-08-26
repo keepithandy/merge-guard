@@ -57,6 +57,7 @@
     "test:plugin-worker": "node scripts/plugin-worker-contracts.js",
     "test:plugin-attestation": "node scripts/plugin-attestation-contracts.js",
     "test:plugin-conformance": "node scripts/plugin-conformance-contracts.js",
+    "test:installation": "node scripts/installation-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },

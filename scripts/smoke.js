@@ -314,6 +314,7 @@ assert(fs.existsSync('scripts/plugin-worker-contracts.js'), 'Plugin worker gate 
 assert(fs.existsSync('scripts/plugin-attestation-contracts.js'), 'Plugin attestation gate should exist');
 assert(fs.existsSync('schemas/plugin-attestation-v1.schema.json'), 'Plugin attestation schema should exist');
 assert(fs.existsSync('scripts/plugin-conformance-contracts.js'), 'Plugin conformance gate should exist');
+assert(fs.existsSync('scripts/installation-contracts.js'), 'Installation validation gate should exist');
 assert(fs.existsSync('dashboard/server.js'), 'Dashboard loopback server should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
@@ -337,6 +338,7 @@ assert(packageMetadata.scripts?.['test:plugin-manifest'], 'Package should expose
 assert(packageMetadata.scripts?.['test:plugin-worker'], 'Package should expose the plugin worker gate');
 assert(packageMetadata.scripts?.['test:plugin-attestation'], 'Package should expose the plugin attestation gate');
 assert(packageMetadata.scripts?.['test:plugin-conformance'], 'Package should expose the plugin conformance gate');
+assert(packageMetadata.scripts?.['test:installation'], 'Package should expose the installation gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }

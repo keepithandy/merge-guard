@@ -103,6 +103,8 @@ jobs:
 
       - name: Run plugin conformance contracts
         run: npm run test:plugin-conformance
+      - name: Validate installation and packaging
+        run: npm run test:installation
 
       - name: Run release-readiness suite
         run: npm run release:check
