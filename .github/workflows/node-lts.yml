@@ -115,6 +115,8 @@ jobs:
         run: npm run test:release-artifacts
       - name: Validate distribution listings
         run: npm run test:distribution
+      - name: Validate support process
+        run: npm run test:support
 
       - name: Run release-readiness suite
         run: npm run release:check
