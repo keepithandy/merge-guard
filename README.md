@@ -442,6 +442,7 @@ The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24
 
 | Topic | Reference |
 | --- | --- |
+| Project direction | [Post-v1 roadmap](ROADMAP.md) |
 | Report schema and semantics | [Report format](docs/REPORT_FORMAT.md) |
 | Composite Action | [GitHub Actions](docs/GITHUB_ACTIONS.md) |
 | Package and release checks | [Package and Action verification](docs/package-and-action.md) |
