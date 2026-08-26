@@ -62,6 +62,7 @@
     "test:performance": "node scripts/performance-contracts.js",
     "test:release-candidate": "node scripts/release-candidate-contracts.js",
     "test:public-contracts": "node scripts/public-contracts.js",
+    "test:release-artifacts": "node scripts/artifact-release-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },
