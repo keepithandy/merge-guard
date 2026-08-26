@@ -11,7 +11,13 @@ const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-install-'));
 const env = { ...process.env, npm_config_update_notifier: 'false', npm_config_fund: 'false', npm_config_audit: 'false', npm_config_cache: path.join(temp, 'npm-cache') };
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const node = process.execPath;
-const run = (command, args, cwd = root) => execFileSync(command, args, { cwd, env, shell: process.platform === 'win32', encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const run = (command, args, cwd = root) => {
+  const options = { cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] };
+  if (process.platform === 'win32') {
+    return execFileSync(process.env.ComSpec || 'cmd.exe', ['/d', '/s', '/c', command, ...args], options);
+  }
+  return execFileSync(command, args, options);
+};
 const json = (text) => JSON.parse(text);
 const packageName = 'merge-guard';
 
