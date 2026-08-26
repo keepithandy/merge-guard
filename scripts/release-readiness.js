@@ -108,6 +108,7 @@ check('Security validation gate exists', Boolean(read('scripts/security-contract
 check('Performance validation gate exists', Boolean(read('scripts/performance-contracts.js')));
 check('Release-candidate validation gate exists', Boolean(read('scripts/release-candidate-contracts.js')));
 check('Public contract gate exists', Boolean(read('scripts/public-contracts.js')));
+check('Release artifact gate exists', Boolean(read('scripts/artifact-release-contracts.js')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
 check('README exists', Boolean(read('README.md')));
 check('CHANGELOG exists', Boolean(read('CHANGELOG.md')));
@@ -133,6 +134,7 @@ check('security script is configured', Boolean(metadata.scripts?.['test:security
 check('performance script is configured', Boolean(metadata.scripts?.['test:performance']));
 check('release-candidate script is configured', Boolean(metadata.scripts?.['test:release-candidate']));
 check('public-contract script is configured', Boolean(metadata.scripts?.['test:public-contracts']));
+check('release-artifacts script is configured', Boolean(metadata.scripts?.['test:release-artifacts']));
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
     check(`package includes ${entry}`, Array.isArray(metadata.files) && metadata.files.includes(entry));

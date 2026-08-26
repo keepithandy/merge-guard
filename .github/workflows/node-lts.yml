@@ -111,6 +111,8 @@ jobs:
         run: npm run test:performance
       - name: Validate release-candidate package
         run: npm run test:release-candidate
+      - name: Validate release artifact flow
+        run: npm run test:release-artifacts
 
       - name: Run release-readiness suite
         run: npm run release:check
