@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/legacy-risk-v1.schema.json",
+  "title": "Merge Guard accepted legacy risk v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "entries"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "entries": { "type": "array", "items": { "$ref": "#/$defs/entry" } }
+  },
+  "$defs": {
+    "entry": { "type": "object", "additionalProperties": false, "required": ["findingIdentity", "reason", "owner", "expiresOn"], "properties": { "findingIdentity": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "reason": { "type": "string", "minLength": 1 }, "owner": { "type": "string", "minLength": 1 }, "expiresOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" } } }
+  }
+}
