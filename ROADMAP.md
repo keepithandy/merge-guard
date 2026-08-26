@@ -1,35 +1,80 @@
 # Merge Guard Roadmap
 
-This roadmap tracks the path from the current developer-tool prototype to a stable v1.0 release.
+This is the canonical roadmap for work after the v1.0 release candidate. It describes direction and sequencing, not a promise to ship on a particular date.
+
+## Current state
+
+The `1.0.0` release candidate is prepared on `main`. Tagging, publishing to npm, creating a GitHub release, and moving a major-version Action tag remain manual owner decisions.
+
+The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md).
 
 ## Active priority
 
-### v0.2 — Stabilization and integration
+### v1.0 launch gate — publish deliberately
 
-Tracking issue: [#38](https://github.com/keepithandy/merge-guard/issues/38)
+Validate the release candidate from its immutable commit, rehearse install and rollback paths, and assemble the owner approval packet. Validation must never publish, tag, or move a release reference by itself.
 
-Prove that the merged CLI, configuration diagnostics, suppressions, JSON schema, release checks, project fixtures, and GitHub Actions workflows operate reliably together.
+Exit gate: the documented release checks pass against the exact candidate, artifacts and checksums are reproducible, rollback is rehearsed, and an owner explicitly approves each external release action.
 
 ## Planned milestones
 
-| Version | Focus | Tracking |
+| Version | Focus | Outcome |
 | --- | --- | --- |
-| v0.3 | Repository intelligence | [#39](https://github.com/keepithandy/merge-guard/issues/39) |
-| v0.4 | Reusable policy packs | [#40](https://github.com/keepithandy/merge-guard/issues/40) |
-| v0.5 | GitHub review experience | [#41](https://github.com/keepithandy/merge-guard/issues/41) |
-| v0.6 | Local review dashboard | [#42](https://github.com/keepithandy/merge-guard/issues/42) |
-| v0.7 | Baselines and regression tracking | [#43](https://github.com/keepithandy/merge-guard/issues/43) |
-| v0.8 | Extensible rule system | [#44](https://github.com/keepithandy/merge-guard/issues/44) |
-| v0.9 | Release candidate | [#45](https://github.com/keepithandy/merge-guard/issues/45) |
-| v1.0 | Stable release | [#46](https://github.com/keepithandy/merge-guard/issues/46) |
+| v1.1 | Adoption and diagnostics | New users can install, configure, and troubleshoot Merge Guard from actionable, privacy-safe output. |
+| v1.2 | Repository impact fidelity | Explicit repository metadata can improve affected-package reasoning without executing project code or guessing dependency edges. |
+| v1.3 | Durable review evidence | Teams can carry immutable Merge Guard evidence across pull-request pushes and CI runs with clear provenance and failure semantics. |
+| v1.4 | Trusted extension lifecycle | Locally installed policies and rule plugins have explicit discovery, compatibility, integrity, and upgrade workflows. |
 
-The umbrella tracker is [#47](https://github.com/keepithandy/merge-guard/issues/47).
+Milestone versions are directional. Patch releases may ship independently when they are compatible, narrowly scoped fixes.
+
+## Milestone boundaries
+
+### v1.1 — Adoption and diagnostics
+
+- Reconcile install, Action, dashboard, migration, and troubleshooting journeys around the published v1 contract.
+- Add deterministic `doctor`-style diagnostics for runtime, configuration, policy, plugin, and repository-context problems.
+- Expand representative consumer fixtures and failure messages based on real adoption blockers.
+- Define a privacy-preserving feedback process; the CLI and dashboard remain telemetry-free by default.
+
+Exit gate: clean-machine and representative-repository fixtures cover the supported setup paths, diagnostics name the failed contract and next action, and the v1 public schemas remain compatible.
+
+### v1.2 — Repository impact fidelity
+
+- Accept explicit, versioned dependency and ownership metadata for supported monorepos.
+- Explain direct, transitive, shared-file, and unknown impact as separate states with source provenance.
+- Improve rename, generated-file, binary, submodule, and large-diff handling without hiding uncertainty.
+- Preserve the current read-only rule: discovered commands and changed project code are never executed.
+
+Exit gate: every impact claim is deterministic and traceable to checked-in evidence; absent or invalid metadata degrades to an explicit unknown state rather than an inferred graph.
+
+### v1.3 — Durable review evidence
+
+- Define an explicit workflow for selecting prior immutable reports and artifact manifests.
+- Make comparison, annotations, SARIF, and managed comments resilient to reruns, forks, missing permissions, and unavailable history.
+- Add auditable retention and handoff guidance without silently deleting, uploading, or rewriting artifacts.
+- Exercise the workflow in end-to-end multi-push and failure-injection fixtures.
+
+Exit gate: a reviewer can identify the exact current and prior evidence, understand unavailable or untrusted history, and reproduce comparison output locally.
+
+### v1.4 — Trusted extension lifecycle
+
+- Add explicit local discovery and selection for policy packs and rule plugins.
+- Verify compatibility, checksums, attestations, permissions, and limits before execution.
+- Define install, upgrade, rollback, and conformance workflows without automatic remote code retrieval.
+- Keep third-party code outside the core trust boundary and make unsupported guarantees clear.
+
+Exit gate: extensions are never fetched or activated implicitly, incompatible or unverifiable inputs fail closed, and the conformance kit covers lifecycle and isolation failures.
+
+## v2 decision checkpoint
+
+A v2 roadmap begins only when accumulated evidence shows that a breaking contract is necessary. Collaboration, hosted storage, automatic remote discovery, durable dashboard workspaces, native packaging, or automatic command execution each require a separate architecture decision, security and privacy review, migration plan, and explicit user consent model.
 
 ## Roadmap rules
 
-- A milestone begins only after the prior milestone's exit gate is satisfied.
-- Delivery work should be split into narrow, testable issues.
-- Risk scoring changes require explicit fixtures and compatibility notes.
-- Detected project commands remain read-only until explicitly configured.
-- Merge Guard must not require AI, hosted storage, or external services.
-- Breaking report, policy, or plugin changes require a schema-version change and migration guidance.
+- A milestone begins only after the preceding exit gate is satisfied or an explicit exception is documented.
+- Delivery work is split into narrow issues with deterministic acceptance criteria and rollback notes.
+- Additive v1 changes preserve frozen CLI, report, policy, plugin, artifact, and Action contracts.
+- Risk-scoring changes require fixtures, compatibility notes, and a clear explanation of score movement.
+- Unknown, unavailable, and untrusted evidence must remain distinct from clean or safe evidence.
+- Merge Guard remains useful without AI, hosted storage, telemetry, or external services.
+- Publishing, tagging, permissions, network access, persistence, and code execution always require explicit authorization.
