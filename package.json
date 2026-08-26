@@ -63,6 +63,7 @@
     "test:release-candidate": "node scripts/release-candidate-contracts.js",
     "test:public-contracts": "node scripts/public-contracts.js",
     "test:release-artifacts": "node scripts/artifact-release-contracts.js",
+    "test:distribution": "node scripts/distribution-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "release:check": "node scripts/release-readiness.js"
   },
