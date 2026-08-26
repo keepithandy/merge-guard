@@ -1,0 +1,13 @@
+name: Merge Guard example
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: keepithandy/merge-guard@main
+        with:
+          diff: examples/sample.diff
+          comment: 'false'
