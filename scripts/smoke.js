@@ -340,6 +340,7 @@ assert(packageMetadata.scripts?.['test:plugin-attestation'], 'Package should exp
 assert(packageMetadata.scripts?.['test:plugin-conformance'], 'Package should expose the plugin conformance gate');
 assert(packageMetadata.scripts?.['test:installation'], 'Package should expose the installation gate');
 assert(packageMetadata.scripts?.['test:security'], 'Package should expose the security gate');
+assert(packageMetadata.scripts?.['test:performance'], 'Package should expose the performance gate');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }

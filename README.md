@@ -425,6 +425,7 @@ npm run test:plugin-attestation
 npm run test:plugin-conformance
 npm run test:installation
 npm run test:security
+npm run test:performance
 npm run release:check
 ```
 
@@ -452,6 +453,7 @@ The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24
 | Plugin compatibility | [Plugin conformance](docs/plugin-conformance.md) |
 | Installation and packaging | [Installation validation](docs/installation-validation.md) |
 | Security and provenance | [Security baseline](docs/security/threat-model.md) |
+| Performance budgets | [Performance validation](docs/performance-validation.md) |
 | Dashboard boundary | [Local dashboard architecture](docs/architecture/dashboard-architecture.md) |
 | Release history | [Changelog](CHANGELOG.md) |
 | Contributing | [Contributing guide](CONTRIBUTING.md) |
