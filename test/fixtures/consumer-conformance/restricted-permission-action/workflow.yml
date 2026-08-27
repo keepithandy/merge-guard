@@ -1,0 +1,18 @@
+name: Restricted Merge Guard fixture
+
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: keepithandy/merge-guard@main
+        with:
+          comment: "false"
+          annotations: "true"
+          sarif: "true"
+          diff-path: changes/pr.diff

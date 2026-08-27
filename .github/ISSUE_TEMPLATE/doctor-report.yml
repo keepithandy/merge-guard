@@ -1,0 +1,43 @@
+name: Doctor diagnostic report
+description: Share a redacted deterministic setup-diagnostic result.
+title: "doctor: "
+labels:
+  - diagnostics
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Run `merge-guard --doctor --json` locally. Share only check IDs and statuses plus a redacted description. Do not paste input values, tokens, secrets, private URLs, absolute paths, repository content, or customer data.
+  - type: input
+    id: merge_guard_version
+    attributes:
+      label: Merge Guard version or reviewed source commit
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node.js version
+    validations:
+      required: true
+  - type: textarea
+    id: check_statuses
+    attributes:
+      label: Doctor check IDs and statuses
+      description: Example: `configuration: error`, `repository-context: pass`.
+    validations:
+      required: true
+  - type: textarea
+    id: next_action
+    attributes:
+      label: Next action tried and result
+      description: Describe the result without sharing configuration values or local paths.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed tokens, secrets, private URLs, absolute paths, repository content, and customer data.
+          required: true

@@ -1,0 +1,9 @@
+{
+  "preset": "standard",
+  "highRiskPaths": [
+    "src/auth/"
+  ],
+  "testCommands": [
+    "npm test"
+  ]
+}

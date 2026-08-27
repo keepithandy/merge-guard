@@ -19,6 +19,7 @@ import {
 } from './policyResolution.js';
 import { formatPullRequestSummary } from './pullRequestSummary.js';
 import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutputs.js';
+import { formatDoctor, inspectDoctor } from './doctor.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -35,6 +36,9 @@ const KNOWN_OPTIONS = new Set([
   '--annotations',
   '--sarif',
   '--report-json',
+  '--doctor',
+  '--plugin-manifest',
+  '--action-inputs',
   '--help',
   '-h'
 ]);
@@ -45,7 +49,9 @@ const VALUE_OPTIONS = new Set([
   '--pr-body',
   '--policy',
   '--policy-config',
-  '--report-json'
+  '--report-json',
+  '--plugin-manifest',
+  '--action-inputs'
 ]);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
@@ -72,6 +78,9 @@ Options:
   --annotations             Print a versioned changed-line annotation bundle as JSON
   --sarif                   Print optional SARIF 2.1.0 output for eligible changed-line findings
   --report-json <path>      Also write the complete JSON report to a file
+  --doctor                  Inspect the local runtime and setup without analyzing a diff
+  --plugin-manifest <path>  Validate one explicit local plugin manifest in doctor mode
+  --action-inputs <path>    Validate one JSON Action-input file in doctor mode
   --help                    Show this help message
 
 Config:
@@ -81,6 +90,11 @@ Config:
   Workspace ownership and potential shared impact are reported without dependency inference.
   Starter policies are never selected unless --policy is supplied.
   CODEOWNERS and protected-path matches are guidance only and never prove approval.
+
+Diagnostics:
+  merge-guard --doctor
+  merge-guard --doctor --json --policy-config merge-guard.policy.json
+  merge-guard --doctor --json --plugin-manifest plugin.json --action-inputs action-inputs.json
 `);
 }
 
@@ -163,6 +177,24 @@ function validateOptions(args) {
   }
 }
 
+function runDoctor(args) {
+  const allowed = new Set(['--doctor', '--json', '--policy-config', '--plugin-manifest', '--action-inputs']);
+  const incompatible = args.filter((arg) => arg.startsWith('--') && !allowed.has(arg));
+  if (incompatible.length) {
+    throw new Error(`--doctor cannot be combined with: ${incompatible.join(', ')}`);
+  }
+  if (findFileArg(args)) {
+    throw new Error('--doctor does not accept a diff file; run it from the repository you want to inspect.');
+  }
+  const result = inspectDoctor({
+    policyConfigPath: getOptionValue(args, '--policy-config'),
+    pluginManifestPath: getOptionValue(args, '--plugin-manifest'),
+    actionInputsPath: getOptionValue(args, '--action-inputs')
+  });
+  console.log(args.includes('--json') ? JSON.stringify(result, null, 2) : formatDoctor(result));
+  if (!result.healthy) process.exitCode = 1;
+}
+
 function resolveConfig(args) {
   const config = loadConfig();
   const preset = getOptionValue(args, '--preset');
@@ -221,6 +253,11 @@ async function main() {
   }
 
   validateOptions(args);
+
+  if (args.includes('--doctor')) {
+    runDoctor(args);
+    return;
+  }
 
   const jsonMode = args.includes('--json');
   const markdownMode = args.includes('--markdown');

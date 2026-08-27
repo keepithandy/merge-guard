@@ -1,0 +1,14 @@
+{
+  "preset": "standard",
+  "comment": "false",
+  "comment-dry-run": "false",
+  "fail-threshold": "8",
+  "policy": "",
+  "policy-config": "",
+  "annotations": "true",
+  "sarif": "true",
+  "compare": "true",
+  "previous-report": "reports/previous.json",
+  "diff-path": "changes/pr.diff",
+  "markdown": "true"
+}

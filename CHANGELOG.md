@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Reject unsafe repository-controlled regular expressions in custom rules, suppressions, policy packs, and policy exceptions before matching.
+- Add a read-only `merge-guard --doctor` command with deterministic human-readable and JSON diagnostics for runtime, package identity, configuration, explicit policy/plugin manifests, repository context, and Action inputs.
+- Add supported adoption journeys, public consumer conformance fixtures, least-privilege Action guidance, privacy-safe feedback templates, and no-telemetry troubleshooting guidance.
 
 ## 1.0.0 - Release candidate (unpublished)
 

@@ -62,6 +62,7 @@ Clone the repository and run the bundled demo:
 git clone https://github.com/keepithandy/merge-guard.git
 cd merge-guard
 npm run demo
+node src/cli.js --doctor
 ```
 
 Scan a diff file:
@@ -96,6 +97,15 @@ npx --package . merge-guard --markdown examples/sample.diff
 ```
 
 Merge Guard reads `merge-guard.config.json`, project metadata, package boundaries, and CODEOWNERS from the current working directory.
+
+If a setup does not behave as expected, run the read-only diagnostic command before sharing any details:
+
+```bash
+node src/cli.js --doctor
+node src/cli.js --doctor --json
+```
+
+It checks the runtime, package/SBOM identity, configuration, explicitly selected policy/plugin manifests, repository context, and optional local Action inputs without running project commands or uploading data. See [adoption and diagnostics](docs/adoption-and-diagnostics.md).
 
 ## Example output
 
@@ -217,6 +227,7 @@ The CLI accepts a unified-diff file or stdin:
 merge-guard change.diff
 git diff | merge-guard
 merge-guard --help
+merge-guard --doctor
 ```
 
 When running from a source checkout, replace `merge-guard` with `node src/cli.js`.
@@ -258,6 +269,9 @@ merge-guard --json --ai change.diff > merge-guard-ai-review.json
 | `--pr-title <text>` | Add a pull request title as context. |
 | `--pr-body <path>` | Read pull request body context from a UTF-8 text or Markdown file. |
 | `--policy <id>` | Explicitly apply `frontend`, `backend`, `library`, `browser-game`, or `infrastructure`. |
+| `--doctor` | Inspect local setup without requiring or analyzing a diff. Use `--doctor --json` for structured diagnostics. |
+| `--plugin-manifest <path>` | Select an explicit local plugin manifest for doctor validation. |
+| `--action-inputs <path>` | Select a secret-free JSON Action-input object for doctor validation. |
 | `--policy-config <path>` | Apply an explicit root/package policy manifest. It cannot be combined with `--policy`. |
 | `--report-json <path>` | Write the complete JSON report in addition to stdout. |
 | `--help`, `-h` | Show the current command contract. |
@@ -434,6 +448,8 @@ npm run test:release-artifacts
 npm run test:distribution
 npm run test:support
 npm run test:version
+npm run test:doctor
+npm run test:consumer-fixtures
 npm run release:check
 ```
 
@@ -448,6 +464,7 @@ After committing a reviewed candidate, `npm run release:stage -- release/v1.0.0`
 | Project direction | [Post-v1 roadmap](ROADMAP.md) |
 | v1.0 release status | [Release decision packet](docs/releases/V1.0.0_RELEASE_DECISION.md) |
 | v1.0 release notes | [Candidate release notes](docs/releases/V1.0.0_RELEASE_NOTES.md) |
+| Installation and diagnostics | [Supported journeys and doctor](docs/adoption-and-diagnostics.md) |
 | Report schema and semantics | [Report format](docs/REPORT_FORMAT.md) |
 | Composite Action | [GitHub Actions](docs/GITHUB_ACTIONS.md) |
 | Package and release checks | [Package and Action verification](docs/package-and-action.md) |
