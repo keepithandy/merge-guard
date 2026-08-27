@@ -82,7 +82,7 @@ try {
   const npmVersion = runNpm(['--version'], checkout, env);
   fs.writeFileSync(checksPath, [`sourceCommit=${sourceCommit}`, `node=${process.version}`, `npm=${npmVersion}`, `platform=${process.platform}`, `arch=${process.arch}`, '', readinessOutput, ''].join('\n'), 'utf8');
   fs.writeFileSync(packetPath, [
-    '# Merge Guard v1.0.0 owner decision packet', '',
+    `# Merge Guard v${packageJson.version} owner decision packet`, '',
     'Status: **PREPARED — APPROVAL, SIGNING, PUBLICATION, AND VERIFICATION PENDING**', '',
     'This packet is non-publishing evidence. Passing checks do not authorize any external action.', '',
     '## Candidate identity', '',

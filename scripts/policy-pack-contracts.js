@@ -32,7 +32,7 @@ function codes(result, severity) {
 
 assert.equal(POLICY_PACK_SCHEMA_VERSION, 1);
 assert.equal(REPORT_SCHEMA_VERSION, 1);
-assert.equal(MERGE_GUARD_VERSION, '1.0.0');
+assert.equal(MERGE_GUARD_VERSION, JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).version);
 
 const validFixture = fixture('valid');
 const validFixtureBefore = JSON.stringify(validFixture);

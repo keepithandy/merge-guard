@@ -14,7 +14,7 @@ Merge Guard v1.1 focuses on a predictable first-use path. It is local-first: it 
 | Policy manifest | An explicit local JSON manifest | Doctor validates it with `--policy-config <file>` | Invalid or expired policy contract: doctor names the failing field; fix or select a valid manifest | Remove the manifest selection or restore the last reviewed manifest |
 | Plugin manifest | An explicit local JSON manifest | Doctor validates it with `--plugin-manifest <file>` | Incompatible or malformed manifest: doctor names the failed plugin contract; do not activate it | Leave the plugin unselected or restore the last reviewed local plugin |
 
-The current v1.0 candidate is prepared but not published. Source checkout, local package, and immutable Action-commit paths are usable now; a public npm package path is deliberately pending a separate release decision.
+The current v1.1.0 source version is unpublished. The earlier v1.0 candidate remains prepared but not published. Source checkout, local package, and immutable Action-commit paths are usable now; a public npm package path is deliberately pending a separate release decision.
 
 ## Doctor command
 
@@ -35,7 +35,7 @@ Human output identifies each check as `PASS`, `WARNING`, `ERROR`, or `NOT-CONFIG
 {
   "schemaVersion": 1,
   "tool": "merge-guard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "command": "doctor",
   "healthy": true,
   "checks": [
