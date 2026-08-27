@@ -1,0 +1,122 @@
+sourceCommit=636a1e9812bb017dae69be122b36555b89db5e77
+node=v24.16.0
+npm=11.13.0
+platform=win32
+arch=x64
+
+> merge-guard@1.0.0 release:check
+> node scripts/release-readiness.js
+
+merge-guard release readiness
+
+Result: READY
+Checks: 108/108 passed
+
+[PASS] package.json is valid JSON
+[PASS] CLI entrypoint exists
+[PASS] Smoke script exists
+[PASS] Dashboard architecture contract exists
+[PASS] Dashboard architecture gate exists
+[PASS] Dashboard import gate exists
+[PASS] Dashboard explorer gate exists
+[PASS] Dashboard accessibility gate exists
+[PASS] Artifact manifest gate exists
+[PASS] Legacy risk gate exists
+[PASS] Report trends gate exists
+[PASS] Plugin manifest gate exists
+[PASS] Plugin worker gate exists
+[PASS] Plugin attestation gate exists
+[PASS] Plugin conformance gate exists
+[PASS] Installation validation gate exists
+[PASS] Security validation gate exists
+[PASS] Performance validation gate exists
+[PASS] Release-candidate validation gate exists
+[PASS] Public contract gate exists
+[PASS] Release artifact gate exists
+[PASS] Distribution gate exists
+[PASS] Support gate exists
+[PASS] Version consistency gate exists
+[PASS] Release staging script exists
+[PASS] Release provenance schema exists
+[PASS] Demo diff exists
+[PASS] README exists
+[PASS] CHANGELOG exists
+[PASS] LICENSE exists
+[PASS] release:check script is configured
+[PASS] smoke script is configured
+[PASS] demo script is configured
+[PASS] dashboard architecture script is configured
+[PASS] dashboard import script is configured
+[PASS] dashboard explorer script is configured
+[PASS] dashboard accessibility script is configured
+[PASS] artifact manifest script is configured
+[PASS] legacy risk script is configured
+[PASS] report trends script is configured
+[PASS] plugin manifest script is configured
+[PASS] plugin worker script is configured
+[PASS] plugin attestation script is configured
+[PASS] plugin conformance script is configured
+[PASS] installation script is configured
+[PASS] security script is configured
+[PASS] performance script is configured
+[PASS] release-candidate script is configured
+[PASS] public-contract script is configured
+[PASS] release-artifacts script is configured
+[PASS] distribution script is configured
+[PASS] support script is configured
+[PASS] version consistency script is configured
+[PASS] release staging script is configured
+[PASS] package exposes the CLI binary
+[PASS] package includes src/
+[PASS] package includes scripts/
+[PASS] package includes examples/
+[PASS] package includes action.yml
+[PASS] package includes README.md
+[PASS] package includes CHANGELOG.md
+[PASS] package includes LICENSE
+[PASS] action.yml exists
+[PASS] action.yml has a composite runtime
+[PASS] Action targets the CLI
+[PASS] Action targets the PR comment helper
+[PASS] Action exposes release-relevant inputs
+[PASS] CHANGELOG.md exists
+[PASS] Unreleased changelog section exists
+[PASS] Release checklist mentions this command
+[PASS] Package version is present — 1.0.0
+[PASS] CLI contracts — completed successfully
+[PASS] Snapshot contracts — completed successfully
+[PASS] Repository intelligence contracts — completed successfully
+[PASS] Repository intelligence snapshots — completed successfully
+[PASS] Policy-pack contracts — completed successfully
+[PASS] Review-guidance contracts — completed successfully
+[PASS] Policy-resolution contracts — completed successfully
+[PASS] Pull-request summary contracts — completed successfully
+[PASS] GitHub review contracts — completed successfully
+[PASS] Finding-comparison contracts — completed successfully
+[PASS] Review experience fixture — completed successfully
+[PASS] Dashboard architecture contracts — completed successfully
+[PASS] Dashboard import contracts — completed successfully
+[PASS] Dashboard explorer contracts — completed successfully
+[PASS] Dashboard accessibility contracts — completed successfully
+[PASS] Artifact-manifest contracts — completed successfully
+[PASS] Legacy-risk contracts — completed successfully
+[PASS] Report-trend contracts — completed successfully
+[PASS] Plugin-manifest contracts — completed successfully
+[PASS] Plugin-worker contracts — completed successfully
+[PASS] Plugin-attestation contracts — completed successfully
+[PASS] Plugin-conformance contracts — completed successfully
+[PASS] Installation contracts — completed successfully
+[PASS] Security contracts — completed successfully
+[PASS] Performance contracts — completed successfully
+[PASS] Release-candidate contracts — completed successfully
+[PASS] Public-contract contracts — completed successfully
+[PASS] Release-artifact contracts — completed successfully
+[PASS] Distribution contracts — completed successfully
+[PASS] Support contracts — completed successfully
+[PASS] Version consistency contracts — completed successfully
+[PASS] CLI help command — completed successfully
+[PASS] Smoke test suite — completed successfully
+[PASS] Demo report generation — completed successfully
+[PASS] Markdown report generation — completed successfully
+[PASS] JSON report generation — completed successfully
+[PASS] npm pack dry run — completed successfully
