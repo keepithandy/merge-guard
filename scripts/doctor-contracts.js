@@ -62,4 +62,8 @@ assert(!invalidAction.stdout.includes('this-must-not-appear'), 'doctor should re
 
 const incompatible = run(['--doctor', '--markdown']);
 assert.equal(incompatible.status, 1, 'doctor should reject diff output modes');
+assert.equal(run(['--doctor', 'examples/sample.diff']).status, 1, 'doctor should reject a diff positional argument');
+const traversal = run(['--doctor', '--json', '--action-inputs', 'test/fixtures/doctor/action-inputs-traversal.json']);
+assert.equal(traversal.status, 1, 'doctor should reject parent-directory Action paths');
+assert.equal(JSON.parse(traversal.stdout).checks.find((entry) => entry.id === 'action-inputs').status, 'error');
 console.log('doctor contracts passed');

@@ -1,0 +1,4 @@
+{
+  "preset": "standard",
+  "policy-config": "../outside.json"
+}

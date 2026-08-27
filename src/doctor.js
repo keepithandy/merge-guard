@@ -53,7 +53,7 @@ function isSafeRepositoryPath(value) {
   const normalized = value.replaceAll('\\', '/');
   return !normalized.startsWith('/')
     && !/^[a-z]:\//i.test(normalized)
-    && !normalized.includes('..')
+    && !normalized.split('/').includes('..')
     && !/^[a-z][a-z+.-]*:/i.test(normalized);
 }
 

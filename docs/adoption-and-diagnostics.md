@@ -27,7 +27,7 @@ merge-guard --doctor --json --policy-config merge-guard.policy.json
 merge-guard --doctor --json --plugin-manifest plugin.json --action-inputs action-inputs.json
 ```
 
-Doctor checks the Node runtime, Merge Guard package and SBOM identity, local configuration, explicitly supplied policy/plugin manifests, current-directory repository markers, bundled Action inputs, and an optionally supplied JSON object representing caller Action inputs. It is read-only: it does not analyze a diff, run project code, change files, access the network, read parent directories, or contact GitHub.
+Doctor checks the Node runtime, Merge Guard package and SBOM identity, local configuration, explicitly supplied policy/plugin manifests, current-directory repository markers, bundled Action inputs, and an optionally supplied JSON object representing caller Action inputs. It is read-only: it does not analyze a diff, run project code, change files, access the network, discover parent directories, or contact GitHub.
 
 Human output identifies each check as `PASS`, `WARNING`, `ERROR`, or `NOT-CONFIGURED` and includes a next action when one is useful. `--json` produces the versioned `doctor` schema:
 
