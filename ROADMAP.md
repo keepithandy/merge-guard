@@ -4,7 +4,7 @@ This is the canonical roadmap for work after the v1.0 release candidate. It desc
 
 ## Current state
 
-The `1.0.0` release candidate is prepared on `main`. Tagging, publishing to npm, creating a GitHub release, and moving a major-version Action tag remain manual owner decisions.
+The v1.0 launch gate is active; no `1.0.0` candidate is currently declared prepared on `main`. The prior `9fc0891743d27d65a889fc93fab5d8bca67e8cde` main commit passed its configured CI matrix but was rejected as a release candidate after package inspection found stale `0.1.0` runtime and compatibility identifiers beside `1.0.0` package metadata. A fresh immutable candidate must pass the strengthened version, package, and release-evidence gates before it can be prepared for owner review. Tagging, publishing to npm, creating a GitHub release, and moving a major-version Action tag remain manual owner decisions.
 
 The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md).
 

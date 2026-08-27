@@ -4,7 +4,7 @@
     "report": {
       "schemaVersion": 1,
       "tool": "merge-guard",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "riskScore": 8,
       "riskLevel": "HIGH",
       "mergeReadiness": "DO_NOT_MERGE_YET"

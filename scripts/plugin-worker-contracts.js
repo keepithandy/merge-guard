@@ -4,7 +4,7 @@ import path from 'node:path';
 import { runPluginIsolated } from '../src/pluginWorker.js';
 
 const root = path.resolve('test/fixtures/plugins');
-const manifest = { schemaVersion: 1, identity: { id: 'example.rules', name: 'Example Rules', version: '1.0.0' }, compatibility: { pluginApiVersion: 1, mergeGuard: { min: '0.1.0', maxExclusive: '1.0.0' } }, entryPoint: './plugin.js', explicitInstallation: true, permissions: ['read-diff'], checksums: { entryPointSha256: 'a'.repeat(64) }, checks: { deterministic: true, timeoutMs: 1000, maxFindings: 2 } };
+const manifest = { schemaVersion: 1, identity: { id: 'example.rules', name: 'Example Rules', version: '1.0.0' }, compatibility: { pluginApiVersion: 1, mergeGuard: { min: '1.0.0', maxExclusive: '2.0.0' } }, entryPoint: './plugin.js', explicitInstallation: true, permissions: ['read-diff'], checksums: { entryPointSha256: 'a'.repeat(64) }, checks: { deterministic: true, timeoutMs: 1000, maxFindings: 2 } };
 const run = (name, options = {}) => runPluginIsolated({ pluginPath: path.join(root, name), manifest: { ...manifest, checks: { ...manifest.checks, ...options } }, input: { diff: 'diff --git a/a b/a' } });
 assert.equal((await run('valid-plugin.js')).status, 'ok');
 assert.equal((await run('valid-plugin.js')).findings.length, 1);

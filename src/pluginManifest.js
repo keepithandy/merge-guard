@@ -1,3 +1,5 @@
+import { MERGE_GUARD_VERSION } from './version.js';
+
 export const PLUGIN_MANIFEST_SCHEMA_VERSION = 1;
 export const PLUGIN_API_VERSION = 1;
 const HASH = /^[a-f0-9]{64}$/;
@@ -8,7 +10,7 @@ function text(value) { return typeof value === 'string' && value.trim() ? value.
 function issue(path, code, message) { return { path, code, message }; }
 function compare(left, right) { const a = left.split('.').map(Number); const b = right.split('.').map(Number); return a[0] - b[0] || a[1] - b[1] || a[2] - b[2]; }
 
-export function validatePluginManifest(manifest, { mergeGuardVersion = '0.1.0', pluginApiVersion = PLUGIN_API_VERSION } = {}) {
+export function validatePluginManifest(manifest, { mergeGuardVersion = MERGE_GUARD_VERSION, pluginApiVersion = PLUGIN_API_VERSION } = {}) {
   const diagnostics = [];
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) return { valid: false, diagnostics: [issue('$', 'malformed-manifest', 'manifest must be an object')] };
   if (manifest.schemaVersion !== PLUGIN_MANIFEST_SCHEMA_VERSION) diagnostics.push(issue('$.schemaVersion', manifest.schemaVersion > PLUGIN_MANIFEST_SCHEMA_VERSION ? 'future-schema' : 'unsupported-schema', 'only plugin manifest schema version 1 is supported'));

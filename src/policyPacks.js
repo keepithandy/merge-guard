@@ -1,8 +1,9 @@
 import { compileSafeRegex, SAFE_REGEX_MAX_LENGTH } from './safeRegex.js';
+import { MERGE_GUARD_VERSION } from './version.js';
 
 export const POLICY_PACK_SCHEMA_VERSION = 1;
 export const REPORT_SCHEMA_VERSION = 1;
-export const MERGE_GUARD_VERSION = '0.1.0';
+export { MERGE_GUARD_VERSION };
 
 const TOP_LEVEL_FIELDS = new Set([
   'schemaVersion',

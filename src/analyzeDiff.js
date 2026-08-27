@@ -1,3 +1,5 @@
+import { MERGE_GUARD_VERSION } from './version.js';
+
 const DEFAULT_CONFIG = {
   highRiskPaths: [],
   testCommands: [],
@@ -567,7 +569,7 @@ export function analyzeDiff(diffText, userConfig = {}) {
 
   return {
     tool: 'merge-guard',
-    version: '0.1.0',
+    version: MERGE_GUARD_VERSION,
     riskLevel: levelFromScore(risk.score, config),
     mergeReadiness: readinessFromScore(risk.score, config),
     riskScore: risk.score,

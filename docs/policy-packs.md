@@ -18,8 +18,8 @@ Validation is read-only. It does not select a pack, execute commands, modify sco
     "description": "Review policy for a browser-facing application."
   },
   "compatibility": {
-    "minimumMergeGuardVersion": "0.1.0",
-    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "minimumMergeGuardVersion": "1.0.0",
+    "maximumMergeGuardVersionExclusive": "2.0.0",
     "reportSchemaVersion": 1
   },
   "rules": [

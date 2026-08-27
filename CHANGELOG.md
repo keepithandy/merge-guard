@@ -4,9 +4,11 @@
 
 - Reject unsafe repository-controlled regular expressions in custom rules, suppressions, policy packs, and policy exceptions before matching.
 
-## 1.0.0 - 2026-08-25
+## 1.0.0 - Release candidate (unpublished)
 
-Release decision: `docs/releases/V0.2.0_RELEASE_DECISION.md`.
+Status: prepared for explicit owner review; not approved, signed, tagged, published, or post-publication verified.
+
+Release decision: [docs/releases/V1.0.0_RELEASE_DECISION.md](docs/releases/V1.0.0_RELEASE_DECISION.md). Candidate release notes: [docs/releases/V1.0.0_RELEASE_NOTES.md](docs/releases/V1.0.0_RELEASE_NOTES.md).
 
 ### Added
 
@@ -88,10 +90,12 @@ Before cutting a release:
 - run `npm run test:finding-comparison`
 - run `npm run test:review-e2e`
 - run `npm run test:dashboard-architecture`
+- run `npm run test:version`
 - run `npm run release:check`
 - run `npm run demo`
 - verify `node src/cli.js --markdown examples/sample.diff`
 - verify `node src/cli.js --json examples/sample.diff`
 - confirm README usage still matches CLI behavior
 - update this changelog
+- stage an immutable candidate with `npm run release:stage -- release/v1.0.0-next`
 - do not publish automatically from an issue pass

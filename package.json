@@ -53,7 +53,9 @@
     "test:release-artifacts": "node scripts/artifact-release-contracts.js",
     "test:distribution": "node scripts/distribution-contracts.js",
     "test:support": "node scripts/support-contracts.js",
+    "test:version": "node scripts/version-contracts.js",
     "compare": "node scripts/compare-reports.js",
+    "release:stage": "node scripts/stage-release.js",
     "release:check": "node scripts/release-readiness.js"
   },
   "keywords": [

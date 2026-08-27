@@ -13,7 +13,7 @@ Every CLI JSON report contains:
 ```json
 {
   "tool": "merge-guard",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "schemaVersion": 1
 }
 ```
