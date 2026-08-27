@@ -1,3 +1,5 @@
+import { compileSafeRegex, SAFE_REGEX_MAX_LENGTH } from './safeRegex.js';
+
 export const POLICY_PACK_SCHEMA_VERSION = 1;
 export const REPORT_SCHEMA_VERSION = 1;
 export const MERGE_GUARD_VERSION = '0.1.0';
@@ -305,7 +307,7 @@ function validateCompatibility(value, fatal, warnings, runtime) {
 }
 
 function validatePattern(value, path, fatal) {
-  const pattern = requireString(value, path, fatal, `regular expression <= ${MAX_PATTERN_LENGTH} characters`);
+  const pattern = requireString(value, path, fatal, `safe regular expression <= ${MAX_PATTERN_LENGTH} characters`);
   if (!pattern) return null;
   if (pattern.length > MAX_PATTERN_LENGTH) {
     addDiagnostic(fatal, {
@@ -318,14 +320,14 @@ function validatePattern(value, path, fatal) {
     return null;
   }
   try {
-    new RegExp(pattern, 'i');
+    compileSafeRegex(pattern, 'i');
   } catch (error) {
     addDiagnostic(fatal, {
       path,
-      code: 'invalid-pattern',
-      message: `${path} is not a valid regular expression: ${error.message}`,
+      code: error.code || 'invalid-pattern',
+      message: `${path} is not a safe, valid regular expression: ${error.message}`,
       value,
-      expected: 'valid case-insensitive JavaScript regular expression'
+      expected: `safe case-insensitive regular expression <= ${SAFE_REGEX_MAX_LENGTH} characters`
     });
     return null;
   }

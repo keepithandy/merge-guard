@@ -21,8 +21,8 @@ Projects can add lightweight risk detection in `merge-guard.config.json` without
 
 - `id`: required stable, unique identifier.
 - `label`: required human-readable finding label.
-- `pathPattern`: optional case-insensitive regular expression for changed paths.
-- `linePattern`: optional case-insensitive regular expression for added lines.
+- `pathPattern`: optional case-insensitive safe regular expression for changed paths.
+- `linePattern`: optional case-insensitive safe regular expression for added lines.
 - `weight`: required integer from `0` through `10`.
 - `check`: optional suggested verification step.
 
@@ -42,6 +42,8 @@ A weight of `0` records an informational match without changing the score.
 
 ## Validation and safety
 
-Negative, fractional, string, non-finite, and greater-than-10 weights are rejected. Duplicate IDs, invalid regular expressions, malformed entries, and missing required fields are ignored safely and reported through configuration or custom-rule warnings.
+Negative, fractional, string, non-finite, and greater-than-10 weights are rejected. Duplicate IDs, unsafe or invalid regular expressions, malformed entries, and missing required fields are ignored safely and reported through configuration or custom-rule warnings.
+
+Patterns are limited to 500 characters and a linear-time-oriented subset: literals, anchors, character classes, alternation, grouping, escapes, up to eight bounded `?` quantifiers, and at most one unrestricted `.*` wildcard. Backreferences, lookarounds, extended groups, `+`, counted repetition, and other `*` repetition are rejected before matching. This prevents repository-controlled configuration from triggering catastrophic regular-expression backtracking in CI.
 
 Custom rules cannot execute commands, make network calls, or replace built-in rules. Built-in scoring and preset thresholds continue to apply.

@@ -200,6 +200,8 @@ Add `customRules` when a project has risky paths or added-line patterns that the
 
 A custom rule must define `pathPattern`, `linePattern`, or both. If both are present, the same changed file must match the path and contain a matching added line. A weight of `0` records an informational match without increasing risk.
 
+Repository-controlled patterns use a bounded, safe regular-expression subset. Expressions with backreferences, lookarounds, or unsafe repetition are rejected before matching so a configuration change cannot stall CI through catastrophic backtracking.
+
 Advanced configuration:
 
 - [Custom rules](docs/custom-rules.md)

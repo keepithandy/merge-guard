@@ -87,7 +87,7 @@ Every exception requires:
 
 - a globally unique lowercase `id`;
 - an existing `rule`, `protectedPath`, or `requiredCheck` target in the effective policy;
-- a package-relative `pathPattern` no longer than 500 characters;
+- a package-relative `pathPattern` using the safe regular-expression subset and no longer than 500 characters;
 - a non-empty `reason` and `owner`;
 - a real UTC `expires` date in `YYYY-MM-DD` form.
 
