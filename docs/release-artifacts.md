@@ -1,6 +1,6 @@
-# v1.0 release artifacts
+# v1.1.0 release artifacts
 
-The v1.0 artifact flow separates preparation, approval, publication, and verification. A locally built package may be prepared and validated without being approved, signed, or distributable. The current decision template is [the v1.0 packet](releases/V1.0.0_RELEASE_DECISION.md).
+The v1.1.0 artifact flow separates preparation, approval, publication, and verification. A locally built package may be prepared and validated without being approved, signed, or distributable. The current decision template is [the v1.1.0 packet](releases/V1.1.0_RELEASE_DECISION.md). The earlier v1.0 candidate packet remains immutable historical evidence.
 
 ## Prepare from an immutable source
 
@@ -13,7 +13,7 @@ The v1.0 artifact flow separates preparation, approval, publication, and verific
 After the reviewed source is committed, stage into a new output path:
 
 ```bash
-npm run release:stage -- release/v1.0.0
+npm run release:stage -- release/v1.1.0
 ```
 
 The command refuses tracked changes and an existing output path. It creates a detached checkout, runs the complete release gate, produces two package builds, records their byte identity, and writes a subject manifest and provenance. It does not sign, tag, publish, move an Action reference, or infer owner approval.
