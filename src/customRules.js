@@ -1,3 +1,5 @@
+import { compileSafeRegex } from './safeRegex.js';
+
 export const CUSTOM_RULE_WEIGHT_MIN = 0;
 export const CUSTOM_RULE_WEIGHT_MAX = 10;
 
@@ -36,9 +38,9 @@ function compilePattern(value, fieldName, ruleId, warnings) {
   if (!source) return null;
 
   try {
-    return new RegExp(source, 'i');
+    return compileSafeRegex(source, 'i');
   } catch (error) {
-    warnings.push(`Custom rule ${ruleId} ignored: invalid ${fieldName} regular expression (${error.message}).`);
+    warnings.push(`Custom rule ${ruleId} ignored: unsafe or invalid ${fieldName} (${error.message}).`);
     return false;
   }
 }

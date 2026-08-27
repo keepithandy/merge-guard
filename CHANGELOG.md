@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-No changes yet.
+- Reject unsafe repository-controlled regular expressions in custom rules, suppressions, policy packs, and policy exceptions before matching.
 
 ## 1.0.0 - 2026-08-25
 

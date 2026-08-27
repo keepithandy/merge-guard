@@ -23,7 +23,7 @@ Suppressions annotate known findings without changing Merge Guard's risk decisio
 - `owner`: person or team responsible for removing it.
 - `expires`: ISO date in `YYYY-MM-DD` form.
 
-`pathPattern` is optional. When present, at least one file matched by the finding must satisfy the case-insensitive regular expression.
+`pathPattern` is optional. When present, at least one file matched by the finding must satisfy the case-insensitive safe regular-expression subset documented in [custom rules](custom-rules.md). Unsafe expressions are ignored and reported in `suppressionWarnings`.
 
 ## Active suppressions
 

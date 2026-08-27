@@ -76,7 +76,7 @@ Policy rules use the same behavior fields as project custom rules:
 - integer `weight` from `0` through `10`;
 - a non-empty suggested `check`.
 
-Patterns are case-insensitive JavaScript regular expressions and are limited to 500 characters. Malformed rules are fatal for the pack; they are not silently skipped.
+Patterns use the case-insensitive safe regular-expression subset documented in [custom rules](custom-rules.md) and are limited to 500 characters. Unsafe or malformed rules are fatal for the pack; they are not silently skipped.
 
 Validation only proves the pack contract. Applying rules and selecting starter packs are separate, explicit operations.
 

@@ -1,3 +1,5 @@
+import { compileSafeRegex } from './safeRegex.js';
+
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 function warning(path, message) {
@@ -47,8 +49,14 @@ function normalizeSuppressions(value) {
 
     let compiledPath = null;
     if (pathPattern) {
-      try { compiledPath = new RegExp(pathPattern, 'i'); }
-      catch { warnings.push(warning(`${base}.pathPattern`, 'invalid regular expression')); continue; }
+      try { compiledPath = compileSafeRegex(pathPattern, 'i'); }
+      catch (error) {
+        const message = error.code === 'unsafe-pattern' || error.code === 'pattern-too-long'
+          ? `unsafe regular expression: ${error.message}`
+          : 'invalid regular expression';
+        warnings.push(warning(`${base}.pathPattern`, message));
+        continue;
+      }
     }
 
     seen.add(key);

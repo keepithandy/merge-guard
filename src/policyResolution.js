@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseDiffFileChanges } from './affectedPackages.js';
 import { applyPolicyPack, loadStarterPolicyPack, STARTER_POLICY_IDS } from './starterPolicies.js';
+import { compileSafeRegex, SAFE_REGEX_MAX_LENGTH } from './safeRegex.js';
 
 export const POLICY_MANIFEST_SCHEMA_VERSION = 1;
 
@@ -111,28 +112,28 @@ function todayString(today) {
 }
 
 function compileBoundedPattern(value, fieldPath, fatal) {
-  const source = requireString(value, fieldPath, fatal, 'non-blanket regular expression <= 500 characters');
+  const source = requireString(value, fieldPath, fatal, `non-blanket safe regular expression <= ${SAFE_REGEX_MAX_LENGTH} characters`);
   if (!source) return null;
-  if (source.length > 500) {
+  if (source.length > SAFE_REGEX_MAX_LENGTH) {
     fatal.push(diagnostic({
       path: fieldPath,
       code: 'pattern-too-long',
-      message: `${fieldPath} exceeds 500 characters.`,
+      message: `${fieldPath} exceeds ${SAFE_REGEX_MAX_LENGTH} characters.`,
       value,
-      expected: 'regular expression <= 500 characters'
+      expected: `regular expression <= ${SAFE_REGEX_MAX_LENGTH} characters`
     }));
     return null;
   }
   let matcher;
   try {
-    matcher = new RegExp(source, 'i');
+    matcher = compileSafeRegex(source, 'i');
   } catch (error) {
     fatal.push(diagnostic({
       path: fieldPath,
-      code: 'invalid-pattern',
-      message: `${fieldPath} is not a valid regular expression: ${error.message}`,
+      code: error.code || 'invalid-pattern',
+      message: `${fieldPath} is not a safe, valid regular expression: ${error.message}`,
       value,
-      expected: 'valid JavaScript regular expression'
+      expected: 'safe case-insensitive regular expression'
     }));
     return null;
   }
@@ -529,7 +530,7 @@ function resolveExceptions(assignments, manifest, warnings) {
 
   for (const scope of scopes) {
     for (const exception of scope.exceptions || []) {
-      const matcher = new RegExp(exception.pathPattern, 'i');
+      const matcher = compileSafeRegex(exception.pathPattern, 'i');
       const paths = assignments
         .filter((assignment) =>
           assignment.starterPolicyId === exception.starterPolicyId
