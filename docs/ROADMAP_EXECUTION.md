@@ -50,7 +50,7 @@ Acceptance:
 
 ## Next queue — v1.1 adoption and diagnostics
 
-Preparation evidence: source commit `c9fc6be3ec0c0543cea6e722f0c67a2ca5b458f3` passed local `npm run release:check` with 114/114 checks. The implementation is ready for a final pull-request Node 18/20/22/24 × Ubuntu/Windows run. It does not claim a public npm installation result because v1.0 publication remains unapproved and unpublished. See [v1.1 preparation evidence](validation/V1.1_ADOPTION_DIAGNOSTICS.md).
+Preparation evidence: source commit `8a8bba0b697699571fc8f6814d79c87c15ad069b` passed local `npm run release:check` with 114/114 checks and the pull-request Node 18/20/22/24 × Ubuntu/Windows matrix, smoke, composite-Action, and review-experience workflows. It does not claim a public npm installation result because v1.0 publication remains unapproved and unpublished. See [v1.1 preparation evidence](validation/V1.1_ADOPTION_DIAGNOSTICS.md).
 
 ### Supported journey matrix
 
