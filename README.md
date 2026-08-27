@@ -8,7 +8,7 @@ It does not require an AI provider or API key, and it never runs discovered proj
 
 [Quick start](#quick-start) · [CLI](#cli-usage) · [Configuration](#configuration) · [GitHub Action](#reusable-github-action) · [Documentation](#documentation)
 
-> **Pre-release status:** Merge Guard is an active developer-tool prototype. Package metadata remains at `0.1.0`, while the changelog tracks an unreleased `v0.2.0` candidate. This repository has not published an npm release or release tag yet. Use the source checkout or composite GitHub Action, and pin an immutable commit SHA when stability matters.
+> **v1.0 candidate status:** The repository and package metadata identify `1.0.0`. The candidate remains unsigned and has not been approved, tagged, published to npm, or published as a GitHub release. Until the [v1.0 decision record](docs/releases/V1.0.0_RELEASE_DECISION.md) records those later states, use a reviewed source checkout or composite Action commit SHA.
 
 ## What it answers
 
@@ -433,18 +433,21 @@ npm run test:public-contracts
 npm run test:release-artifacts
 npm run test:distribution
 npm run test:support
+npm run test:version
 npm run release:check
 ```
 
-`npm run release:check` validates package metadata, required files, Action wiring, CLI execution, sample reports, smoke coverage, and an npm package dry run. These commands inspect artifacts; they do not publish packages, create tags, or create releases.
+`npm run release:check` runs the full contract suite, including package/runtime/SBOM consistency, local/global/npx-style installation, security, performance, public-contract, artifact, distribution, and support gates, then validates the Action, sample reports, and package dry run. It does not publish packages, create tags, sign artifacts, or create releases.
 
-The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows. See the [live Node matrix](.github/workflows/node-lts.yml) and the [v0.2 compatibility record](docs/validation/V0.2_COMPATIBILITY_MATRIX.md).
+After committing a reviewed candidate, `npm run release:stage -- release/v1.0.0` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.0 decision packet](docs/releases/V1.0.0_RELEASE_DECISION.md).
 
 ## Documentation
 
 | Topic | Reference |
 | --- | --- |
 | Project direction | [Post-v1 roadmap](ROADMAP.md) |
+| v1.0 release status | [Release decision packet](docs/releases/V1.0.0_RELEASE_DECISION.md) |
+| v1.0 release notes | [Candidate release notes](docs/releases/V1.0.0_RELEASE_NOTES.md) |
 | Report schema and semantics | [Report format](docs/REPORT_FORMAT.md) |
 | Composite Action | [GitHub Actions](docs/GITHUB_ACTIONS.md) |
 | Package and release checks | [Package and Action verification](docs/package-and-action.md) |

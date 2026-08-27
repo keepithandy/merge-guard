@@ -2,10 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { validatePluginManifest } from './pluginManifest.js';
 import { runPluginIsolated } from './pluginWorker.js';
+import { MERGE_GUARD_VERSION } from './version.js';
 
 export const PLUGIN_CONFORMANCE_KIT_VERSION = 1;
 
-export async function runPluginConformance({ manifest, pluginPath, coreVersion = '0.1.0', diff = 'diff --git a/a b/a' }) {
+export async function runPluginConformance({ manifest, pluginPath, coreVersion = MERGE_GUARD_VERSION, diff = 'diff --git a/a b/a' }) {
   const checks = [];
   const manifestResult = validatePluginManifest(manifest, { mergeGuardVersion: coreVersion });
   checks.push({ name: 'manifest', passed: manifestResult.valid, detail: manifestResult.valid ? 'compatible manifest' : manifestResult.diagnostics });

@@ -129,6 +129,9 @@ check('Public contract gate exists', Boolean(read('scripts/public-contracts.js')
 check('Release artifact gate exists', Boolean(read('scripts/artifact-release-contracts.js')));
 check('Distribution gate exists', Boolean(read('scripts/distribution-contracts.js')));
 check('Support gate exists', Boolean(read('scripts/support-contracts.js')));
+check('Version consistency gate exists', Boolean(read('scripts/version-contracts.js')));
+check('Release staging script exists', Boolean(read('scripts/stage-release.js')));
+check('Release provenance schema exists', Boolean(read('schemas/release-provenance-v1.schema.json')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
 check('README exists', Boolean(read('README.md')));
 check('CHANGELOG exists', Boolean(read('CHANGELOG.md')));
@@ -157,6 +160,8 @@ check('public-contract script is configured', Boolean(metadata.scripts?.['test:p
 check('release-artifacts script is configured', Boolean(metadata.scripts?.['test:release-artifacts']));
 check('distribution script is configured', Boolean(metadata.scripts?.['test:distribution']));
 check('support script is configured', Boolean(metadata.scripts?.['test:support']));
+check('version consistency script is configured', metadata.scripts?.['test:version'] === 'node scripts/version-contracts.js');
+check('release staging script is configured', metadata.scripts?.['release:stage'] === 'node scripts/stage-release.js');
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
     check(`package includes ${entry}`, Array.isArray(metadata.files) && metadata.files.includes(entry));
@@ -165,6 +170,39 @@ check('support script is configured', Boolean(metadata.scripts?.['test:support']
 
 actionContract();
 changelogContract(metadata);
+for (const [label, script] of [
+  ['CLI contracts', 'scripts/cli-contracts.js'],
+  ['Snapshot contracts', 'scripts/snapshot-contracts.js'],
+  ['Repository intelligence contracts', 'scripts/repository-intelligence-contracts.js'],
+  ['Repository intelligence snapshots', 'scripts/repository-intelligence-snapshots.js'],
+  ['Policy-pack contracts', 'scripts/policy-pack-contracts.js'],
+  ['Review-guidance contracts', 'scripts/review-guidance-contracts.js'],
+  ['Policy-resolution contracts', 'scripts/policy-resolution-contracts.js'],
+  ['Pull-request summary contracts', 'scripts/pr-summary-contracts.js'],
+  ['GitHub review contracts', 'scripts/github-review-contracts.js'],
+  ['Finding-comparison contracts', 'scripts/finding-comparison-contracts.js'],
+  ['Review experience fixture', 'scripts/review-experience-e2e.js'],
+  ['Dashboard architecture contracts', 'scripts/dashboard-architecture-contracts.js'],
+  ['Dashboard import contracts', 'scripts/dashboard-import-contracts.js'],
+  ['Dashboard explorer contracts', 'scripts/dashboard-explorer-contracts.js'],
+  ['Dashboard accessibility contracts', 'scripts/dashboard-accessibility-contracts.js'],
+  ['Artifact-manifest contracts', 'scripts/artifact-manifest-contracts.js'],
+  ['Legacy-risk contracts', 'scripts/legacy-risk-contracts.js'],
+  ['Report-trend contracts', 'scripts/report-trends-contracts.js'],
+  ['Plugin-manifest contracts', 'scripts/plugin-manifest-contracts.js'],
+  ['Plugin-worker contracts', 'scripts/plugin-worker-contracts.js'],
+  ['Plugin-attestation contracts', 'scripts/plugin-attestation-contracts.js'],
+  ['Plugin-conformance contracts', 'scripts/plugin-conformance-contracts.js'],
+  ['Installation contracts', 'scripts/installation-contracts.js'],
+  ['Security contracts', 'scripts/security-contracts.js'],
+  ['Performance contracts', 'scripts/performance-contracts.js'],
+  ['Release-candidate contracts', 'scripts/release-candidate-contracts.js'],
+  ['Public-contract contracts', 'scripts/public-contracts.js'],
+  ['Release-artifact contracts', 'scripts/artifact-release-contracts.js'],
+  ['Distribution contracts', 'scripts/distribution-contracts.js'],
+  ['Support contracts', 'scripts/support-contracts.js'],
+  ['Version consistency contracts', 'scripts/version-contracts.js']
+]) run(label, process.execPath, [script]);
 run('CLI help command', process.execPath, ['src/cli.js', '--help']);
 run('Smoke test suite', process.execPath, ['scripts/smoke.js']);
 run('Demo report generation', process.execPath, ['src/cli.js', 'examples/sample.diff']);

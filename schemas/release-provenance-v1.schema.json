@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/release-provenance-v1.schema.json",
+  "title": "Merge Guard release provenance v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "schema", "package", "source", "subjects", "build", "reproducibility", "releaseReadiness", "signature", "approval", "publication"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "schema": { "type": "string", "format": "uri" },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "const": "merge-guard" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "commit", "trackedChanges"],
+      "properties": {
+        "repository": { "type": "string", "format": "uri" },
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "trackedChanges": { "const": "clean" }
+      }
+    },
+    "subjects": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "digest"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "digest": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sha256"],
+            "properties": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+          }
+        }
+      }
+    },
+    "build": { "type": "object" },
+    "reproducibility": { "type": "object", "required": ["verified", "scope", "firstSha256", "secondSha256"] },
+    "releaseReadiness": { "type": "object" },
+    "signature": { "type": "object" },
+    "approval": { "type": "object" },
+    "publication": { "type": "object" }
+  }
+}

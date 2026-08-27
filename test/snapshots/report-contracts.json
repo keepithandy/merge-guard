@@ -2,7 +2,7 @@
   "standard": {
     "schemaVersion": 1,
     "tool": "merge-guard",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "riskLevel": "LOW",
     "mergeReadiness": "SAFE_TO_MERGE",
     "riskScore": 1,
@@ -94,7 +94,7 @@
   "docsOnly": {
     "schemaVersion": 1,
     "tool": "merge-guard",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "riskLevel": "LOW",
     "mergeReadiness": "SAFE_TO_MERGE",
     "riskScore": 0,
@@ -157,7 +157,7 @@
   "customRule": {
     "schemaVersion": 1,
     "tool": "merge-guard",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "riskLevel": "MEDIUM",
     "mergeReadiness": "NEEDS_REVIEW",
     "riskScore": 4,
@@ -272,7 +272,7 @@
   "prContext": {
     "schemaVersion": 1,
     "tool": "merge-guard",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "riskLevel": "LOW",
     "mergeReadiness": "SAFE_TO_MERGE",
     "riskScore": 1,

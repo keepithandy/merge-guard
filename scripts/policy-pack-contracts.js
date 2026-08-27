@@ -32,7 +32,7 @@ function codes(result, severity) {
 
 assert.equal(POLICY_PACK_SCHEMA_VERSION, 1);
 assert.equal(REPORT_SCHEMA_VERSION, 1);
-assert.equal(MERGE_GUARD_VERSION, '0.1.0');
+assert.equal(MERGE_GUARD_VERSION, '1.0.0');
 
 const validFixture = fixture('valid');
 const validFixtureBefore = JSON.stringify(validFixture);
@@ -90,7 +90,7 @@ assert(formatPolicyDiagnostics(warningResult.warnings).includes('[WARNING]'));
 
 const tooOldRuntime = validatePolicyPack(validFixture, { mergeGuardVersion: '0.0.9' });
 assert(codes(tooOldRuntime, 'fatal').includes('incompatible-merge-guard-version'));
-const tooNewRuntime = validatePolicyPack(validFixture, { mergeGuardVersion: '1.0.0' });
+const tooNewRuntime = validatePolicyPack(validFixture, { mergeGuardVersion: '2.0.0' });
 assert(codes(tooNewRuntime, 'fatal').includes('incompatible-merge-guard-version'));
 
 const emptyPolicy = structuredClone(validFixture);

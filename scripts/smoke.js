@@ -349,6 +349,8 @@ assert(packageMetadata.scripts?.['test:public-contracts'], 'Package should expos
 assert(packageMetadata.scripts?.['test:release-artifacts'], 'Package should expose the artifact gate');
 assert(packageMetadata.scripts?.['test:distribution'], 'Package should expose the distribution gate');
 assert(packageMetadata.scripts?.['test:support'], 'Package should expose the support gate');
+assert(packageMetadata.scripts?.['test:version'], 'Package should expose the version-consistency gate');
+assert(packageMetadata.scripts?.['release:stage'], 'Package should expose the non-publishing release-staging command');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }

@@ -7,8 +7,8 @@
     "description": "For API or service repositories with automated tests and reviewable database migrations."
   },
   "compatibility": {
-    "minimumMergeGuardVersion": "0.1.0",
-    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "minimumMergeGuardVersion": "1.0.0",
+    "maximumMergeGuardVersionExclusive": "2.0.0",
     "reportSchemaVersion": 1
   },
   "rules": [

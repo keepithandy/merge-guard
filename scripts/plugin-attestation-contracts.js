@@ -2,13 +2,13 @@
 import assert from 'node:assert/strict';
 import { createPluginAttestation, verifyPluginAttestation } from '../src/pluginAttestation.js';
 
-const manifest = { schemaVersion: 1, identity: { id: 'example.rules', name: 'Example Rules', version: '1.0.0' }, compatibility: { pluginApiVersion: 1, mergeGuard: { min: '0.1.0', maxExclusive: '1.0.0' } }, entryPoint: './plugin.js', explicitInstallation: true, permissions: ['read-diff'], checksums: { entryPointSha256: 'a'.repeat(64) }, checks: { deterministic: true, timeoutMs: 1000, maxFindings: 100 } };
+const manifest = { schemaVersion: 1, identity: { id: 'example.rules', name: 'Example Rules', version: '1.0.0' }, compatibility: { pluginApiVersion: 1, mergeGuard: { min: '1.0.0', maxExclusive: '2.0.0' } }, entryPoint: './plugin.js', explicitInstallation: true, permissions: ['read-diff'], checksums: { entryPointSha256: 'a'.repeat(64) }, checks: { deterministic: true, timeoutMs: 1000, maxFindings: 100 } };
 const source = 'export function analyze(input) { return { findings: [] }; }';
 const configuration = { preset: 'standard', failThreshold: 7 };
 const input = 'diff --git a/a b/a';
 const findings = [{ id: 'example.rule', weight: 1 }];
-const first = createPluginAttestation({ coreVersion: '0.1.0', manifest, source, configuration, input, findings, createdAt: '2026-08-25T00:00:00.000Z' });
-const second = createPluginAttestation({ coreVersion: '0.1.0', manifest, source, configuration, input, findings, createdAt: '2026-08-25T00:00:00.000Z' });
+const first = createPluginAttestation({ coreVersion: '1.0.0', manifest, source, configuration, input, findings, createdAt: '2026-08-25T00:00:00.000Z' });
+const second = createPluginAttestation({ coreVersion: '1.0.0', manifest, source, configuration, input, findings, createdAt: '2026-08-25T00:00:00.000Z' });
 assert.deepEqual(first, second, 'identical inputs must produce identical attestation identity');
 assert.equal(verifyPluginAttestation(first, { manifest, source, configuration, input, findings }).valid, true);
 assert.equal(verifyPluginAttestation(first, { manifest, source: `${source}\n`, configuration, input, findings }).valid, false);

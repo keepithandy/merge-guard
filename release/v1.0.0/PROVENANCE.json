@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "schema": "https://raw.githubusercontent.com/keepithandy/merge-guard/636a1e9812bb017dae69be122b36555b89db5e77/schemas/release-provenance-v1.schema.json",
+  "package": {
+    "name": "merge-guard",
+    "version": "1.0.0"
+  },
+  "source": {
+    "repository": "https://github.com/keepithandy/merge-guard",
+    "commit": "636a1e9812bb017dae69be122b36555b89db5e77",
+    "trackedChanges": "clean"
+  },
+  "subjects": [
+    {
+      "name": "merge-guard-1.0.0.tgz",
+      "digest": {
+        "sha256": "04638057316224a49720f1bcd96be614deb9bf27c272800e12e20314218ee890"
+      }
+    },
+    {
+      "name": "SBOM.cdx.json",
+      "digest": {
+        "sha256": "bc16fdfa9c1e8b82e6cba48c4589e7439519b5491f155a9336892103d75a9cad"
+      }
+    },
+    {
+      "name": "RELEASE_NOTES.md",
+      "digest": {
+        "sha256": "bc40feb5d27e53c40bd6f2df056e478cc05071639dc87ff4eb2ac6a1f0f45169"
+      }
+    },
+    {
+      "name": "RELEASE_DECISION.md",
+      "digest": {
+        "sha256": "193b7b9dd54dd41c2eaf187e10c3e1a1cdc10613ff9d00ebe778e494f5707bef"
+      }
+    },
+    {
+      "name": "RELEASE_CHECKS.txt",
+      "digest": {
+        "sha256": "553d17aa37fc74e1bbe661f9b46389b806e422e420b17655fe6ed8856ac07150"
+      }
+    },
+    {
+      "name": "OWNER_DECISION_PACKET.md",
+      "digest": {
+        "sha256": "c1c6c15a695c31a7f61262191d11fb9f8a8cd397eaf282a889324cb1ee23a5bf"
+      }
+    }
+  ],
+  "build": {
+    "command": "npm pack --ignore-scripts",
+    "checkout": "detached git worktree",
+    "environment": {
+      "node": "v24.16.0",
+      "npm": "11.13.0",
+      "platform": "win32",
+      "arch": "x64"
+    },
+    "textPolicy": "* text=auto eol=lf",
+    "sourceCommitVerification": {
+      "provider": "GitHub API",
+      "verified": false,
+      "reason": "unsigned"
+    }
+  },
+  "reproducibility": {
+    "verified": true,
+    "scope": "two clean package builds from the same immutable checkout and toolchain",
+    "firstSha256": "04638057316224a49720f1bcd96be614deb9bf27c272800e12e20314218ee890",
+    "secondSha256": "04638057316224a49720f1bcd96be614deb9bf27c272800e12e20314218ee890"
+  },
+  "releaseReadiness": {
+    "command": "npm run release:check",
+    "passed": 108,
+    "total": 108,
+    "evidence": "RELEASE_CHECKS.txt",
+    "platformMatrix": {
+      "provider": "GitHub Actions",
+      "runId": 33117775736,
+      "runUrl": "https://github.com/keepithandy/merge-guard/actions/runs/33117775736",
+      "sourceCommit": "636a1e9812bb017dae69be122b36555b89db5e77",
+      "result": "8/8 passed",
+      "jobs": [
+        "Node 18.x on ubuntu-latest",
+        "Node 18.x on windows-latest",
+        "Node 20.x on ubuntu-latest",
+        "Node 20.x on windows-latest",
+        "Node 22.x on ubuntu-latest",
+        "Node 22.x on windows-latest",
+        "Node 24.x on ubuntu-latest",
+        "Node 24.x on windows-latest"
+      ]
+    }
+  },
+  "signature": {
+    "status": "unsigned",
+    "signer": null,
+    "signatureFile": null
+  },
+  "approval": {
+    "required": true,
+    "status": "pending",
+    "owner": null
+  },
+  "publication": {
+    "status": "blocked-pending-owner-approval-and-registry-authentication"
+  }
+}

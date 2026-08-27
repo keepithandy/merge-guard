@@ -7,7 +7,8 @@ const valid = JSON.parse(fs.readFileSync('test/fixtures/plugins/valid-manifest.j
 const malformed = JSON.parse(fs.readFileSync('test/fixtures/plugins/malformed-manifest.json', 'utf8'));
 const future = JSON.parse(fs.readFileSync('test/fixtures/plugins/future-manifest.json', 'utf8'));
 assert.equal(validatePluginManifest(valid).valid, true);
-assert.equal(validatePluginManifest(valid, { mergeGuardVersion: '1.0.0' }).valid, false);
+assert.equal(validatePluginManifest(valid, { mergeGuardVersion: '1.0.0' }).valid, true);
+assert.equal(validatePluginManifest(valid, { mergeGuardVersion: '0.1.0' }).valid, false);
 assert.equal(validatePluginManifest(malformed).valid, false);
 assert(validatePluginManifest(malformed).diagnostics.some((item) => item.code === 'invalid-entry-point'));
 assert.equal(validatePluginManifest(future).valid, false);

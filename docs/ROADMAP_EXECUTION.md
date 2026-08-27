@@ -19,6 +19,8 @@ Only one milestone is active at a time. Documentation, fixtures, and design work
 
 Outcome: the exact release-candidate commit passes the full release, installation, security, performance, public-contract, artifact, distribution, and support gates.
 
+Evidence status: `9fc0891743d27d65a889fc93fab5d8bca67e8cde` is not a v1.0 candidate. Although its configured Node/OS workflow passed, exact package inspection found stale `0.1.0` runtime and compatibility identifiers. A new candidate requires a clean v1.0 runtime-identity repair, fresh artifact hashes, and fresh validation; passing older checks does not carry forward.
+
 Acceptance:
 
 - the candidate commit and generated artifact hashes are recorded;

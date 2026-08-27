@@ -20,9 +20,10 @@ const run = (command, args, cwd = root) => {
 };
 const json = (text) => JSON.parse(text);
 const packageName = 'merge-guard';
+const sourcePackage = json(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 
 try {
-  const pack = json(run(npm, ['pack', '--json'], root));
+  const pack = json(run(npm, ['pack', '--ignore-scripts', '--json'], root));
   assert.equal(pack.length, 1, 'npm pack should produce one artifact');
   const tarball = path.resolve(root, pack[0].filename);
   assert(fs.existsSync(tarball), 'packed artifact should exist');
@@ -34,6 +35,15 @@ try {
   const global = path.join(temp, 'global');
   fs.mkdirSync(local); fs.mkdirSync(global);
   run(npm, ['install', '--prefix', local, '--ignore-scripts', tarball]);
+  const installedPackageRoot = path.join(local, 'node_modules', packageName);
+  const installedPackage = json(fs.readFileSync(path.join(installedPackageRoot, 'package.json'), 'utf8'));
+  const installedSbom = json(fs.readFileSync(path.join(installedPackageRoot, 'docs', 'security', 'sbom.json'), 'utf8'));
+  assert.equal(installedPackage.name, sourcePackage.name, 'packed package name must match source package metadata');
+  assert.equal(installedPackage.version, sourcePackage.version, 'packed package version must match source package metadata');
+  assert.equal(installedSbom.metadata?.component?.name, sourcePackage.name, 'packed SBOM name must match package metadata');
+  assert.equal(installedSbom.metadata?.component?.version, sourcePackage.version, 'packed SBOM metadata version must match package metadata');
+  assert.equal(installedSbom.components?.[0]?.version, sourcePackage.version, 'packed SBOM component version must match package metadata');
+  assert.equal(installedSbom.components?.[0]?.purl, `pkg:npm/${sourcePackage.name}@${sourcePackage.version}`, 'packed SBOM purl must match package metadata');
   const localBin = path.join(local, 'node_modules', '.bin', process.platform === 'win32' ? 'merge-guard.cmd' : 'merge-guard');
   assert(fs.existsSync(localBin), 'local install should expose the executable');
   const help = run(localBin, ['--help'], root);
@@ -52,7 +62,7 @@ try {
 
   const npxStyle = run(npm, ['exec', '--yes', '--package', tarball, '--', 'merge-guard', '--help'], root);
   assert(npxStyle.includes('Usage:'), 'npx-style execution should work from the packed artifact');
-  console.log(JSON.stringify({ platform: process.platform, arch: process.arch, node: process.version, package: pack[0].filename, local: true, global: true, npx: true, published: false }, null, 2));
+  console.log(JSON.stringify({ platform: process.platform, arch: process.arch, node: process.version, package: pack[0].filename, packageVersion: installedPackage.version, sbomVersion: installedSbom.metadata.component.version, local: true, global: true, npx: true, published: false }, null, 2));
 } finally {
   fs.rmSync(temp, { recursive: true, force: true });
   for (const file of fs.readdirSync(root).filter((entry) => entry.startsWith(`${packageName}-`) && entry.endsWith('.tgz'))) fs.rmSync(path.join(root, file), { force: true });

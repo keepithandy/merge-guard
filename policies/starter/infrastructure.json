@@ -7,8 +7,8 @@
     "description": "For infrastructure-as-code and deployment workflow repositories with validation and plan review."
   },
   "compatibility": {
-    "minimumMergeGuardVersion": "0.1.0",
-    "maximumMergeGuardVersionExclusive": "1.0.0",
+    "minimumMergeGuardVersion": "1.0.0",
+    "maximumMergeGuardVersionExclusive": "2.0.0",
     "reportSchemaVersion": 1
   },
   "rules": [
