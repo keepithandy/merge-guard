@@ -130,6 +130,8 @@ check('Release artifact gate exists', Boolean(read('scripts/artifact-release-con
 check('Distribution gate exists', Boolean(read('scripts/distribution-contracts.js')));
 check('Support gate exists', Boolean(read('scripts/support-contracts.js')));
 check('Version consistency gate exists', Boolean(read('scripts/version-contracts.js')));
+check('Doctor gate exists', Boolean(read('scripts/doctor-contracts.js')));
+check('Consumer conformance fixture gate exists', Boolean(read('scripts/consumer-conformance-contracts.js')));
 check('Release staging script exists', Boolean(read('scripts/stage-release.js')));
 check('Release provenance schema exists', Boolean(read('schemas/release-provenance-v1.schema.json')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
@@ -161,6 +163,8 @@ check('release-artifacts script is configured', Boolean(metadata.scripts?.['test
 check('distribution script is configured', Boolean(metadata.scripts?.['test:distribution']));
 check('support script is configured', Boolean(metadata.scripts?.['test:support']));
 check('version consistency script is configured', metadata.scripts?.['test:version'] === 'node scripts/version-contracts.js');
+check('doctor script is configured', metadata.scripts?.['test:doctor'] === 'node scripts/doctor-contracts.js');
+check('consumer fixture script is configured', metadata.scripts?.['test:consumer-fixtures'] === 'node scripts/consumer-conformance-contracts.js');
 check('release staging script is configured', metadata.scripts?.['release:stage'] === 'node scripts/stage-release.js');
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
@@ -201,7 +205,9 @@ for (const [label, script] of [
   ['Release-artifact contracts', 'scripts/artifact-release-contracts.js'],
   ['Distribution contracts', 'scripts/distribution-contracts.js'],
   ['Support contracts', 'scripts/support-contracts.js'],
-  ['Version consistency contracts', 'scripts/version-contracts.js']
+  ['Version consistency contracts', 'scripts/version-contracts.js'],
+  ['Doctor contracts', 'scripts/doctor-contracts.js'],
+  ['Consumer conformance fixtures', 'scripts/consumer-conformance-contracts.js']
 ]) run(label, process.execPath, [script]);
 run('CLI help command', process.execPath, ['src/cli.js', '--help']);
 run('Smoke test suite', process.execPath, ['scripts/smoke.js']);

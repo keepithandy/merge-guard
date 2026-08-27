@@ -108,6 +108,13 @@ jobs:
 
       - name: Validate v1 runtime, package, and SBOM identity
         run: npm run test:version
+
+      - name: Validate deterministic diagnostics
+        run: npm run test:doctor
+
+      - name: Validate consumer conformance fixtures
+        run: npm run test:consumer-fixtures
+
       - name: Validate security and provenance baseline
         run: npm run test:security
       - name: Validate performance budgets and soak

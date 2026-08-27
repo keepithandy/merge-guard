@@ -21,6 +21,7 @@ After local installation:
 merge-guard examples/sample.diff
 merge-guard --markdown examples/sample.diff
 merge-guard --json examples/sample.diff
+merge-guard --doctor
 ```
 
 After a future npm publication, the intended package invocation is:
@@ -54,6 +55,8 @@ npm run test:snapshots
 npm run test:review-e2e
 npm run test:dashboard-architecture
 npm run test:version
+npm run test:doctor
+npm run test:consumer-fixtures
 npm run release:check
 npm run demo
 node src/cli.js --markdown examples/sample.diff

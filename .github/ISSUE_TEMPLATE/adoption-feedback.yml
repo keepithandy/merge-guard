@@ -1,0 +1,59 @@
+name: Adoption feedback
+description: Share a privacy-safe first-use or upgrade obstacle.
+title: "adoption: "
+labels:
+  - adoption
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merge Guard does not collect telemetry. Please share only information you are comfortable making public. Do not include tokens, secrets, private URLs, absolute paths, repository contents, or customer data.
+  - type: input
+    id: merge_guard_version
+    attributes:
+      label: Merge Guard version or reviewed source commit
+      description: Package version or immutable commit, without any local path.
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node.js version
+      description: For example, v20.x.
+    validations:
+      required: true
+  - type: dropdown
+    id: journey
+    attributes:
+      label: Supported journey
+      options:
+        - Source checkout
+        - Local package archive
+        - npm package
+        - GitHub Action
+        - Local dashboard
+        - Policy manifest
+        - Plugin manifest
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Describe the expected outcome without sensitive project content.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and redacted reproduction
+      description: Include only a minimal, redacted reproduction. Do not paste a full diff, configuration, report, or log.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed tokens, secrets, private URLs, absolute paths, repository content, and customer data.
+          required: true

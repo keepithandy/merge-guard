@@ -2,6 +2,15 @@
 
 Merge Guard validates `merge-guard.config.json` before analyzing a diff.
 
+For a complete local setup check, use the read-only [doctor command](adoption-and-diagnostics.md#doctor-command):
+
+```bash
+merge-guard --doctor
+merge-guard --doctor --json
+```
+
+Doctor checks the runtime, package/SBOM identity, current-directory configuration, explicitly selected policy/plugin manifests, repository markers, and optional Action inputs without analyzing a diff or executing project commands. Its `--json` result is a separate, stable diagnostic schema; it does not change the report schema.
+
 ## Fatal diagnostics
 
 The CLI exits non-zero when:

@@ -49,6 +49,32 @@ Full history is required when the Action creates the pull request diff. If `diff
 
 When live `comment: "true"` is used, grant `pull-requests: write`. The Action captures the scan output, posts or updates the report, and then enforces the CLI exit code. `comment-dry-run: "true"` prints the marker-prefixed body and performs no API request, so it does not need write permission.
 
+## Least-privilege adoption path
+
+Start with a report-only workflow. It needs only `contents: read`; comments, uploads, and external services remain disabled:
+
+```yaml
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: keepithandy/merge-guard@<reviewed-commit-sha>
+        with:
+          comment: "false"
+          annotations: "true"
+          sarif: "true"
+```
+
+Use an immutable reviewed commit while the v1.0 publication decision remains pending. Enable `comment: "true"` only after separately deciding to grant `pull-requests: write`; passing a scan or doctor check does not grant or imply that permission.
+
+For an offline configuration review, create a secret-free JSON object with the intended Action inputs and run `merge-guard --doctor --json --action-inputs action-inputs.json`. Doctor validates the input contract locally; it does not read a live workflow, invoke the Action, or inspect credentials.
+
 ## Pull request context
 
 On `pull_request` events, the Action passes `github.event.pull_request.title` and `github.event.pull_request.body` to the CLI. The body is written to a UTF-8 file before being passed through `--pr-body`.
