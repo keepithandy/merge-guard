@@ -11,7 +11,7 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 5. Add an explicit, trustworthy extension lifecycle in v1.4.
 6. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
 
-Only one milestone is active at a time. Documentation, fixtures, and design work for the next milestone may proceed when they do not freeze an implementation contract early.
+Only one milestone is active at a time. Documentation, fixtures, and design work for the next milestone may proceed when they do not freeze an implementation contract early. Owner-directed v1.1 preparation is recorded below, but v1.0 remains the active release priority until its separate external decisions are made.
 
 ## Active queue — v1.0 launch gate
 
@@ -50,21 +50,31 @@ Acceptance:
 
 ## Next queue — v1.1 adoption and diagnostics
 
+Preparation evidence: source commit `c9fc6be3ec0c0543cea6e722f0c67a2ca5b458f3` passed local `npm run release:check` with 114/114 checks. The implementation is ready for a final pull-request Node 18/20/22/24 × Ubuntu/Windows run. It does not claim a public npm installation result because v1.0 publication remains unapproved and unpublished. See [v1.1 preparation evidence](validation/V1.1_ADOPTION_DIAGNOSTICS.md).
+
 ### Supported journey matrix
 
 Cover source checkout, local package, npm package, GitHub Action, dashboard, policy, and plugin entry points. Each journey names prerequisites, successful output, common failures, and uninstall or rollback steps.
+
+Implemented in `docs/adoption-and-diagnostics.md`, including an explicit distinction between available local/source/Action paths and the not-yet-published npm path.
 
 ### Deterministic diagnostics
 
 Design a read-only diagnostic command that checks the Node runtime, package identity, configuration, policy manifests, plugin manifests, repository context, and Action inputs. Output must be stable, actionable, redacted, and available as both human-readable text and structured data.
 
+Implemented as `merge-guard --doctor` and `merge-guard --doctor --json`, with contract tests for ordering, failures, selected inputs, and output redaction.
+
 ### Consumer conformance fixtures
 
 Add small public fixtures for a standalone Node project, npm workspace, Python project, mixed project, forked pull request, and restricted-permission Action. Keep all examples secret-free and non-publishing.
 
+Implemented under `test/fixtures/consumer-conformance/`, with a metadata-only contract gate that does not run fixture project code.
+
 ### Feedback and support loop
 
 Define issue templates and troubleshooting data that users may choose to share. Do not add telemetry or upload repository data; diagnostics should make sensitive fields easy to omit.
+
+Implemented with privacy-safe issue templates, a no-telemetry support process, and doctor guidance that omits supplied values and absolute paths.
 
 ## Later queue — v1.2 repository impact fidelity
 
