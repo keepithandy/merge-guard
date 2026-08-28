@@ -51,9 +51,9 @@ The current implementation validates and reports the metadata only. It does not 
 }
 ```
 
-`packages` declares stable lowercase IDs, repository-relative roots, and optional direct dependency IDs. Every dependency and every ID referenced by `ownership` or `generatedPaths` must be declared in `packages`. A package cannot depend on itself; IDs, roots, and path records are unique.
+`packages` declares stable lowercase IDs, exact repository-relative roots (or `.` for the repository root), and optional direct dependency IDs. Package roots cannot contain glob syntax. Every dependency and every ID referenced by `ownership` or `generatedPaths` must be declared in `packages`. A package cannot depend on itself; IDs, roots, and path records are unique.
 
-`ownership` maps a repository-relative path or glob to one or more declared package IDs. `generatedPaths` maps one generated path or glob to its owning package and names its human-readable source. `repositoryWidePaths` lists files or globs whose impact may span package boundaries. Paths must stay inside the repository; symbolic links, files outside the repository, and metadata larger than 256 KiB are rejected.
+`ownership` maps a repository-relative path or glob to one or more declared package IDs. `generatedPaths` maps one generated path or glob to its owning package and names its human-readable source. `repositoryWidePaths` lists files or globs whose impact may span package boundaries. Paths must stay inside the repository; drive-qualified paths, URL-like values, symbolic links (including symlinked parent directories), files outside the repository, and metadata larger than 256 KiB are rejected.
 
 The contract does not infer edges from lockfiles, imports, package-manager configuration, or repository conventions. If metadata is omitted or rejected, affected dependency state remains unknown. The source is included in the JSON report as `repository.impactMetadata` so a reviewer can trace the input and diagnostics.
 

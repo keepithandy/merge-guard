@@ -67,6 +67,8 @@ function normalizePathPattern(value, fieldPath, diagnostics) {
     normalized.length > MAX_PATH_PATTERN_LENGTH
     || !normalized
     || normalized.startsWith('/')
+    || /^[a-z]:\//i.test(normalized)
+    || /^[a-z][a-z+.-]*:/i.test(normalized)
     || normalized.includes('\0')
     || normalized.split('/').some((part) => !part || part === '..')
   ) {
@@ -81,6 +83,22 @@ function normalizePathPattern(value, fieldPath, diagnostics) {
   }
 
   return normalized;
+}
+
+function normalizePackageRoot(value, fieldPath, diagnostics) {
+  const root = normalizePathPattern(value, fieldPath, diagnostics);
+  if (!root) return null;
+  if (root !== '.' && /[*?\[\]{}]/.test(root)) {
+    diagnostics.push(diagnostic({
+      path: fieldPath,
+      code: 'invalid-package-root',
+      message: `${fieldPath} must identify one exact package directory, not a glob.`,
+      value,
+      expected: 'exact repository-relative package root or .'
+    }));
+    return null;
+  }
+  return root;
 }
 
 function normalizePackageId(value, fieldPath, diagnostics) {
@@ -178,7 +196,7 @@ function normalizePackages(value, diagnostics) {
     }
     unknownFields(candidate, new Set(['id', 'root', 'dependsOn']), base, diagnostics);
     const id = normalizePackageId(candidate.id, `${base}.id`, diagnostics);
-    const root = normalizePathPattern(candidate.root, `${base}.root`, diagnostics);
+    const root = normalizePackageRoot(candidate.root, `${base}.root`, diagnostics);
     const dependsOn = candidate.dependsOn === undefined
       ? []
       : normalizeStringArray(candidate.dependsOn, `${base}.dependsOn`, diagnostics, normalizePackageId, 'unique package identifiers');
@@ -364,13 +382,42 @@ export function validateImpactMetadata(value) {
   };
 }
 
+function leavesRoot(relative) {
+  return relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative);
+}
+
 function safeSourcePath(cwd, requestedPath) {
   if (typeof requestedPath !== 'string' || !requestedPath.trim()) return null;
   const root = path.resolve(cwd);
   const resolved = path.resolve(root, requestedPath);
   const relative = path.relative(root, resolved);
-  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return null;
+  if (!relative || leavesRoot(relative)) return null;
   return { absolute: resolved, display: relative.split(path.sep).join('/') };
+}
+
+function realPathStaysInside(root, candidate) {
+  try {
+    const realRoot = fs.realpathSync(root);
+    const realCandidate = fs.realpathSync(candidate);
+    const relative = path.relative(realRoot, realCandidate);
+    return Boolean(relative) && !leavesRoot(relative);
+  } catch {
+    return false;
+  }
+}
+
+function sourcePathContainsSymbolicLink(root, candidate) {
+  const relative = path.relative(root, candidate);
+  let current = root;
+  try {
+    for (const part of relative.split(path.sep)) {
+      current = path.join(current, part);
+      if (fs.lstatSync(current).isSymbolicLink()) return true;
+    }
+    return false;
+  } catch {
+    return true;
+  }
 }
 
 export function loadImpactMetadata(cwd = process.cwd(), requestedPath = null) {
@@ -399,7 +446,13 @@ export function loadImpactMetadata(cwd = process.cwd(), requestedPath = null) {
       expected: 'existing repository-relative JSON file'
     })]);
   }
-  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > IMPACT_METADATA_MAX_BYTES) {
+  if (
+    !stat.isFile()
+    || stat.isSymbolicLink()
+    || stat.size > IMPACT_METADATA_MAX_BYTES
+    || sourcePathContainsSymbolicLink(path.resolve(cwd), source.absolute)
+    || !realPathStaysInside(path.resolve(cwd), source.absolute)
+  ) {
     return emptyMetadata('invalid', source.display, [diagnostic({
       path: '$source',
       code: 'unsafe-source-file',

@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { loadImpactMetadata, validateImpactMetadata } from '../src/impactMetadata.js';
 import { inspectRepository } from '../src/repositoryIntelligence.js';
@@ -63,6 +64,31 @@ assert.equal(duplicate.metadata.status, 'invalid');
 assert.deepEqual(duplicate.metadata.packages, []);
 assert(duplicate.metadata.diagnostics.some((entry) => entry.code === 'self-dependency'));
 assert(duplicate.metadata.diagnostics.some((entry) => entry.code === 'duplicate-package-id'));
+
+const unsafeRoots = validateImpactMetadata({
+  schemaVersion: 1,
+  packages: [
+    { id: 'glob', root: 'packages/*' },
+    { id: 'drive', root: 'C:/outside' }
+  ]
+});
+assert.equal(unsafeRoots.valid, false);
+assert.deepEqual(unsafeRoots.metadata.packages, []);
+assert(unsafeRoots.metadata.diagnostics.some((entry) => entry.code === 'invalid-package-root'));
+assert(unsafeRoots.metadata.diagnostics.some((entry) => entry.code === 'invalid-path-pattern'));
+
+const symlinkRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-impact-root-'));
+const externalRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-impact-external-'));
+try {
+  fs.copyFileSync(validPath, path.join(externalRoot, 'valid.json'));
+  fs.symlinkSync(externalRoot, path.join(symlinkRoot, 'linked'), process.platform === 'win32' ? 'junction' : 'dir');
+  const escaped = loadImpactMetadata(symlinkRoot, 'linked/valid.json');
+  assert.equal(escaped.status, 'invalid');
+  assert.equal(escaped.diagnostics[0].code, 'unsafe-source-file');
+} finally {
+  fs.rmSync(symlinkRoot, { recursive: true, force: true });
+  fs.rmSync(externalRoot, { recursive: true, force: true });
+}
 
 const repository = inspectRepository(
   fs.readFileSync(path.join(root, 'examples', 'sample.diff'), 'utf8'),
