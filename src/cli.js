@@ -39,6 +39,7 @@ const KNOWN_OPTIONS = new Set([
   '--doctor',
   '--plugin-manifest',
   '--action-inputs',
+  '--impact-metadata',
   '--help',
   '-h'
 ]);
@@ -51,7 +52,8 @@ const VALUE_OPTIONS = new Set([
   '--policy-config',
   '--report-json',
   '--plugin-manifest',
-  '--action-inputs'
+  '--action-inputs',
+  '--impact-metadata'
 ]);
 const VALID_PRESETS = new Set(['safe', 'standard', 'strict']);
 
@@ -81,6 +83,7 @@ Options:
   --doctor                  Inspect the local runtime and setup without analyzing a diff
   --plugin-manifest <path>  Validate one explicit local plugin manifest in doctor mode
   --action-inputs <path>    Validate one JSON Action-input file in doctor mode
+  --impact-metadata <path>  Load one explicit local impact-metadata JSON file
   --help                    Show this help message
 
 Config:
@@ -88,6 +91,7 @@ Config:
   The optional customRules array adds project-specific path and added-line rules.
   Suggested checks are enriched from JavaScript/Python metadata, root checks, and README commands.
   Workspace ownership and potential shared impact are reported without dependency inference.
+  Impact metadata is only read from an explicit local file; it never executes project code.
   Starter policies are never selected unless --policy is supplied.
   CODEOWNERS and protected-path matches are guidance only and never prove approval.
 
@@ -95,6 +99,7 @@ Diagnostics:
   merge-guard --doctor
   merge-guard --doctor --json --policy-config merge-guard.policy.json
   merge-guard --doctor --json --plugin-manifest plugin.json --action-inputs action-inputs.json
+  merge-guard examples/sample.diff --impact-metadata .merge-guard/impact.json --json
 `);
 }
 
@@ -304,7 +309,11 @@ async function main() {
 
   const config = resolveConfig(args);
   const prContext = resolvePrContext(args);
-  const repositoryIntelligence = inspectRepository(diffText);
+  const repositoryIntelligence = inspectRepository(
+    diffText,
+    process.cwd(),
+    getOptionValue(args, '--impact-metadata')
+  );
   let report = applyPrContext(
     applyRepositoryIntelligence(
       applySuppressions(

@@ -27,6 +27,7 @@
     "test:cli": "node scripts/cli-contracts.js",
     "test:snapshots": "node scripts/snapshot-contracts.js",
     "test:repository": "node scripts/repository-intelligence-contracts.js && node scripts/repository-intelligence-snapshots.js",
+    "test:impact-metadata": "node scripts/impact-metadata-contracts.js",
     "test:policies": "node scripts/policy-pack-contracts.js",
     "test:guidance": "node scripts/review-guidance-contracts.js",
     "test:policy-resolution": "node scripts/policy-resolution-contracts.js",

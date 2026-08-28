@@ -13,6 +13,8 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 
 Only one milestone is active at a time. Documentation, fixtures, and design work for the next milestone may proceed when they do not freeze an implementation contract early. Owner-directed v1.1 preparation is recorded below, but v1.0 remains the active release priority until its separate external decisions are made.
 
+Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through reviewed GitHub pull requests and approved merges. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
+
 ## Active queue — v1.0 launch gate
 
 ### Candidate validation
@@ -81,6 +83,8 @@ Implemented with privacy-safe issue templates, a no-telemetry support process, a
 ### Impact metadata contract
 
 Define a versioned, optional checked-in format for package dependencies, ownership, generated paths, and repository-wide paths. Validate it without executing package managers or project scripts.
+
+Implemented by the source-only v1.2 contract slice: `--impact-metadata <path>` validates one explicitly selected repository-relative JSON file and reports valid, invalid, or not-provided state. It deliberately does not yet calculate dependency impact; see [impact metadata](impact-metadata.md).
 
 ### Explainable impact graph
 

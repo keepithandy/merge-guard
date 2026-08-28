@@ -57,7 +57,7 @@ Normal CLI reports also expose:
 
 `projectChecks` remains the ordered string-command compatibility field. `projectCheckDetails` adds category, ecosystem, and `sources[]` records containing a repository-relative path and reason for every detected CLI command.
 
-`repository` contains detected package-layout metadata, warnings, and `affectedPackages`. Direct ownership, repository-level shared files, and potential shared-impact packages are separate. Potential shared impact does not assert a dependency graph. See `docs/repository-intelligence.md`.
+`repository` contains detected package-layout metadata, warnings, `affectedPackages`, and optional `impactMetadata`. Direct ownership, repository-level shared files, and potential shared-impact packages are separate. Potential shared impact does not assert a dependency graph. `impactMetadata` is `not-provided`, `invalid`, or `valid`; only an explicit local file can make it valid, and its first v1.2 contract slice does not yet infer dependency impact. See `docs/repository-intelligence.md` and `docs/impact-metadata.md`.
 
 `policyPacks` and `policyRequiredChecks` appear only after explicit policy selection. Policy findings use namespaced IDs, retain their pack ID/version, and are separate from project custom rules. Required checks are suggestions with reasons; they are never executed automatically. See `docs/starter-policy-packs.md`.
 

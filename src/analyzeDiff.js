@@ -677,6 +677,12 @@ export function formatReport(report) {
     lines.push(`- Direct packages: ${affected.directPackages.length ? affected.directPackages.map(packageDisplayName).join(', ') : 'none'}`);
     lines.push(`- Shared files: ${affected.sharedFiles.length ? affected.sharedFiles.map((file) => file.path).join(', ') : 'none'}`);
     lines.push(`- Potential shared-impact packages: ${affected.sharedImpactPackages.length ? affected.sharedImpactPackages.map(packageDisplayName).join(', ') : 'none'}`);
+    const impactMetadata = report.repository.impactMetadata;
+    if (impactMetadata?.status === 'valid') {
+      lines.push(`- Impact metadata: valid schema ${impactMetadata.schemaVersion} from ${impactMetadata.sourcePath}; dependency impact is not yet inferred.`);
+    } else if (impactMetadata?.status === 'invalid') {
+      lines.push(`- Impact metadata: unavailable from ${impactMetadata.sourcePath || 'the requested path'} (${impactMetadata.diagnostics?.length || 0} diagnostic(s)); dependency impact remains unknown.`);
+    }
   }
 
   if (report.policyPacks?.length) {
@@ -819,6 +825,12 @@ export function formatMarkdownReport(report) {
     lines.push(`- **Potential shared-impact packages:** ${affected.sharedImpactPackages.length ? affected.sharedImpactPackages.map(packageDisplayName).join(', ') : 'none'}`);
     if (affected.sharedImpactPackages.length) {
       lines.push('- Shared impact is potential only; no dependency relationship is inferred.');
+    }
+    const impactMetadata = report.repository.impactMetadata;
+    if (impactMetadata?.status === 'valid') {
+      lines.push(`- **Impact metadata:** valid schema ${impactMetadata.schemaVersion} from \`${impactMetadata.sourcePath}\`; dependency impact is not yet inferred.`);
+    } else if (impactMetadata?.status === 'invalid') {
+      lines.push(`- **Impact metadata:** unavailable from \`${impactMetadata.sourcePath || 'the requested path'}\` (${impactMetadata.diagnostics?.length || 0} diagnostic(s)); dependency impact remains unknown.`);
     }
   }
 

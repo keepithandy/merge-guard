@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../schemas/impact-metadata-v1.schema.json",
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "id": "web",
+      "root": "packages/web",
+      "dependsOn": ["shared"]
+    },
+    {
+      "id": "shared",
+      "root": "packages/shared"
+    }
+  ],
+  "ownership": [
+    {
+      "path": "config/**",
+      "packages": ["web", "shared"]
+    }
+  ],
+  "generatedPaths": [
+    {
+      "path": "packages/web/generated/**",
+      "package": "web",
+      "source": "web API generator"
+    }
+  ],
+  "repositoryWidePaths": [
+    ".github/workflows/**",
+    "package.json"
+  ]
+}

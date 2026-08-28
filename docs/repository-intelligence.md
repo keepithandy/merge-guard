@@ -10,6 +10,7 @@ Normal CLI JSON reports retain the schema-version 1 `projectChecks` string array
 
 - `projectCheckDetails`: ordered command records with `command`, `category`, `ecosystem`, and one or more `sources`.
 - `repository`: detected layout metadata, warnings, package boundaries, and `affectedPackages`.
+- `repository.impactMetadata`: the status, normalized values, and diagnostics for one explicitly selected impact-metadata file. A missing or invalid file is unavailable input, never an inferred dependency graph.
 - `repository.affectedPackages.directPackages`: packages that directly own changed paths.
 - `repository.affectedPackages.sharedFiles`: changed paths outside detected package roots.
 - `repository.affectedPackages.sharedImpactPackages`: packages potentially affected by repository-level files.
@@ -17,6 +18,18 @@ Normal CLI JSON reports retain the schema-version 1 `projectChecks` string array
 Each source contains a repository-relative metadata path and a plain-language reason. Text and Markdown reports show the same command explanations and a concise repository-impact section.
 
 These fields are additive under `schemaVersion: 1`. Existing field names, types, nesting, scoring, and failure semantics are unchanged.
+
+## Explicit impact metadata
+
+The first v1.2 slice accepts a checked-in metadata file only when the caller explicitly selects it:
+
+```bash
+merge-guard changes.diff --impact-metadata .merge-guard/impact.json --json
+```
+
+It validates the versioned contract, preserves deterministic source diagnostics, and does not execute a package manager, a build tool, project scripts, or changed code. It also does not yet calculate transitive impact; that follow-on slice consumes only `status: "valid"` metadata. `not-provided` and `invalid` are explicit unavailable states that downstream output must treat as unknown, not clean or safe.
+
+See [impact metadata](impact-metadata.md) for the full v1 contract and [the JSON schema](../schemas/impact-metadata-v1.schema.json) for editor integration.
 
 ## Supported JavaScript layouts
 

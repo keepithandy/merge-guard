@@ -98,6 +98,14 @@ npx --package . merge-guard --markdown examples/sample.diff
 
 Merge Guard reads `merge-guard.config.json`, project metadata, package boundaries, and CODEOWNERS from the current working directory.
 
+For a checked-in, explicit description of package relationships, ownership, generated files, and repository-wide files, supply an impact-metadata file. It is read-only input and does not run project code:
+
+```bash
+node src/cli.js path/to/change.diff --impact-metadata .merge-guard/impact.json --json
+```
+
+See [impact metadata](docs/impact-metadata.md) for its versioned contract. This first v1.2 slice validates the input; it does not yet infer transitive impact.
+
 If a setup does not behave as expected, run the read-only diagnostic command before sharing any details:
 
 ```bash

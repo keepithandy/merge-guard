@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/impact-metadata-v1.schema.json",
+  "title": "Merge Guard impact metadata v1",
+  "description": "Explicit, checked-in repository impact metadata. It is read-only input and never causes project code to run.",
+  "type": "object",
+  "required": ["schemaVersion", "packages"],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "schemaVersion": { "const": 1 },
+    "packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "root"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$" },
+          "root": { "type": "string", "minLength": 1 },
+          "dependsOn": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$" },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "ownership": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "packages"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "packages": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$" },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "generatedPaths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "package", "source"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "package": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$" },
+          "source": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "repositoryWidePaths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

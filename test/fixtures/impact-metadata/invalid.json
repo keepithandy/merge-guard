@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "id": "web",
+      "root": "packages/web",
+      "dependsOn": ["missing"]
+    }
+  ],
+  "ownership": [
+    {
+      "path": "../outside/**",
+      "packages": ["web"]
+    }
+  ],
+  "generatedPaths": [
+    {
+      "path": "packages/web/generated/**",
+      "package": "missing",
+      "source": "generator"
+    }
+  ]
+}
