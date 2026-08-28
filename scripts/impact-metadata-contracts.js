@@ -12,6 +12,7 @@ const root = process.cwd();
 const fixture = (name) => path.join(root, 'test', 'fixtures', 'impact-metadata', name);
 const validPath = fixture('valid.json');
 const invalidPath = fixture('invalid.json');
+const malformedPath = fixture('malformed.json');
 
 const valid = loadImpactMetadata(root, path.relative(root, validPath));
 assert.equal(valid.status, 'valid');
@@ -42,6 +43,13 @@ const missing = loadImpactMetadata(root, 'test/fixtures/impact-metadata/missing.
 assert.equal(missing.status, 'invalid');
 assert.equal(missing.sourcePath, 'test/fixtures/impact-metadata/missing.json');
 assert.equal(missing.diagnostics[0].code, 'unreadable-source');
+assert(!JSON.stringify(missing).includes(root), 'missing-file diagnostics must not disclose the absolute checkout path');
+
+const malformed = loadImpactMetadata(root, path.relative(root, malformedPath));
+assert.equal(malformed.status, 'invalid');
+assert.equal(malformed.diagnostics[0].code, 'invalid-json');
+assert.equal(malformed.diagnostics[0].message, 'Impact metadata is not valid JSON.');
+assert(!JSON.stringify(malformed).includes(root), 'invalid-JSON diagnostics must not disclose the absolute checkout path');
 
 const traversal = loadImpactMetadata(root, '../outside.json');
 assert.equal(traversal.status, 'invalid');

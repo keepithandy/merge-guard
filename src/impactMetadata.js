@@ -438,11 +438,11 @@ export function loadImpactMetadata(cwd = process.cwd(), requestedPath = null) {
   let stat;
   try {
     stat = fs.lstatSync(source.absolute);
-  } catch (error) {
+  } catch {
     return emptyMetadata('invalid', source.display, [diagnostic({
       path: '$source',
       code: 'unreadable-source',
-      message: `Could not read impact metadata: ${error.message}`,
+      message: 'Could not read impact metadata from the selected repository-relative path.',
       value: requestedPath,
       expected: 'existing repository-relative JSON file'
     })]);
@@ -463,14 +463,27 @@ export function loadImpactMetadata(cwd = process.cwd(), requestedPath = null) {
     })]);
   }
 
+  let content;
+  try {
+    content = fs.readFileSync(source.absolute, 'utf8');
+  } catch {
+    return emptyMetadata('invalid', source.display, [diagnostic({
+      path: '$source',
+      code: 'unreadable-source',
+      message: 'Could not read impact metadata from the selected repository-relative path.',
+      value: requestedPath,
+      expected: 'readable repository-relative JSON file'
+    })]);
+  }
+
   let parsed;
   try {
-    parsed = JSON.parse(fs.readFileSync(source.absolute, 'utf8'));
-  } catch (error) {
+    parsed = JSON.parse(content);
+  } catch {
     return emptyMetadata('invalid', source.display, [diagnostic({
       path: '$',
       code: 'invalid-json',
-      message: `Impact metadata is not valid JSON: ${error.message}`,
+      message: 'Impact metadata is not valid JSON.',
       value: 'invalid-json',
       expected: 'valid JSON object'
     })]);
