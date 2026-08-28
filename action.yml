@@ -33,6 +33,10 @@ inputs:
     description: Optional repository-relative path to an explicit root/package policy manifest.
     required: false
     default: ""
+  impact-metadata:
+    description: Optional repository-relative path to explicit checked-in repository impact metadata.
+    required: false
+    default: ""
   annotations:
     description: Emit deduplicated GitHub changed-line annotations for eligible findings.
     required: false
@@ -100,6 +104,7 @@ runs:
         MERGE_GUARD_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
         MERGE_GUARD_POLICY: ${{ inputs.policy }}
         MERGE_GUARD_POLICY_CONFIG: ${{ inputs.policy-config }}
+        MERGE_GUARD_IMPACT_METADATA: ${{ inputs.impact-metadata }}
         MERGE_GUARD_MARKDOWN: ${{ inputs.markdown }}
         MERGE_GUARD_COMMENT: ${{ inputs.comment }}
         MERGE_GUARD_PR_TITLE: ${{ github.event.pull_request.title }}
@@ -124,6 +129,11 @@ runs:
           policy_args=(--policy-config "$MERGE_GUARD_POLICY_CONFIG")
         fi
 
+        impact_metadata_args=()
+        if [ -n "$MERGE_GUARD_IMPACT_METADATA" ]; then
+          impact_metadata_args=(--impact-metadata "$MERGE_GUARD_IMPACT_METADATA")
+        fi
+
         output_args=()
         if [ "$MERGE_GUARD_COMMENT" = "true" ]; then
           output_args=(--pr-summary)
@@ -140,7 +150,7 @@ runs:
         fi
 
         set +e
-        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --report-json merge-guard-report.json --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
+        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --report-json merge-guard-report.json --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${impact_metadata_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
         scan_status=${PIPESTATUS[0]}
         set -e
 

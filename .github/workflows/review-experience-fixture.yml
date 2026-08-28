@@ -35,6 +35,7 @@ jobs:
           comment: "false"
           annotations: "true"
           sarif: "true"
+          impact-metadata: test/fixtures/impact-metadata/valid.json
           fail-threshold: "99"
           diff-path: test/fixtures/review-e2e/push-1.diff
 
@@ -55,6 +56,7 @@ jobs:
           comment-dry-run: "true"
           annotations: "true"
           sarif: "true"
+          impact-metadata: test/fixtures/impact-metadata/valid.json
           compare: "true"
           previous-report: review-fixture-push-1.json
           fail-threshold: "99"
@@ -74,7 +76,7 @@ jobs:
           test -s "$SARIF_PATH"
           test -s "$COMPARISON_PATH"
           test "$COMPARISON_STATUS" = "compared"
-          node -e "const fs=require('fs'); const a=JSON.parse(fs.readFileSync(process.env.ANNOTATIONS_PATH)); const s=JSON.parse(fs.readFileSync(process.env.SARIF_PATH)); const c=JSON.parse(fs.readFileSync(process.env.COMPARISON_PATH)); if(a.annotations.length!==4 || s.runs[0].results.length!==4 || c.summary.new!==2 || c.summary.unchanged!==2 || c.summary.resolved!==2) process.exit(1)"
+          node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.env.REPORT_PATH)); const a=JSON.parse(fs.readFileSync(process.env.ANNOTATIONS_PATH)); const s=JSON.parse(fs.readFileSync(process.env.SARIF_PATH)); const c=JSON.parse(fs.readFileSync(process.env.COMPARISON_PATH)); if(r.repository.impactMetadata.status!=='valid' || a.annotations.length!==4 || s.runs[0].results.length!==4 || c.summary.new!==2 || c.summary.unchanged!==2 || c.summary.resolved!==2) process.exit(1)"
 
       - name: Run threshold failure contract
         id: threshold

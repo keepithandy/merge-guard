@@ -5,6 +5,7 @@
   "fail-threshold": "8",
   "policy": "",
   "policy-config": "",
+  "impact-metadata": ".merge-guard/impact.json",
   "annotations": "true",
   "sarif": "true",
   "compare": "true",

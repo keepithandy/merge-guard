@@ -37,6 +37,7 @@ Full history is required when the Action creates the pull request diff. If `diff
 - `preset`: `safe`, `standard`, or `strict`; default `standard`.
 - `policy`: optional explicit starter policy ID: `frontend`, `backend`, `library`, `browser-game`, or `infrastructure`.
 - `policy-config`: optional repository-relative policy manifest path; cannot be combined with `policy`.
+- `impact-metadata`: optional repository-relative path to explicit, checked-in impact metadata. It is read only and does not infer dependency impact yet.
 - `comment`: post or update the stable Merge Guard pull request comment; default `false`.
 - `comment-dry-run`: render comment mode without calling GitHub; default `false` and intended for fixture/workflow validation.
 - `fail-threshold`: optional positive integer that overrides the preset failure score.
@@ -72,6 +73,16 @@ jobs:
 ```
 
 Use an immutable reviewed commit while the v1.0 publication decision remains pending. Enable `comment: "true"` only after separately deciding to grant `pull-requests: write`; passing a scan or doctor check does not grant or imply that permission.
+
+To include explicit repository-impact metadata in an Action report, keep the file in the checked-out repository and select it directly:
+
+```yaml
+      - uses: keepithandy/merge-guard@<reviewed-commit-sha>
+        with:
+          impact-metadata: .merge-guard/impact.json
+```
+
+Invalid or unavailable metadata remains explicit unknown evidence in the report; the Action does not discover another file, fetch metadata, or execute a package manager. See [impact metadata](impact-metadata.md).
 
 For an offline configuration review, create a secret-free JSON object with the intended Action inputs and run `merge-guard --doctor --json --action-inputs action-inputs.json`. Doctor validates the input contract locally; it does not read a live workflow, invoke the Action, or inspect credentials.
 

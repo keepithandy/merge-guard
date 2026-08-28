@@ -14,6 +14,7 @@ const ACTION_INPUTS = [
   'compare',
   'diff-path',
   'fail-threshold',
+  'impact-metadata',
   'markdown',
   'policy',
   'policy-config',
@@ -224,7 +225,7 @@ function inspectActionInputs(cwd, actionInputsPath) {
   if (inputs.policy && inputs['policy-config']) {
     return check('action-inputs', 'error', 'Action policy and policy-config cannot be selected together.', 'Select one policy source.');
   }
-  for (const name of ['policy-config', 'previous-report', 'diff-path']) {
+  for (const name of ['policy-config', 'impact-metadata', 'previous-report', 'diff-path']) {
     if (inputs[name] && !isSafeRepositoryPath(inputs[name])) {
       return check('action-inputs', 'error', `Action input ${name} must be a repository-relative path.`, 'Use a relative path without URLs or parent-directory traversal.');
     }

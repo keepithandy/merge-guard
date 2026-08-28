@@ -278,7 +278,7 @@ assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-polic
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'report-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'diff-path:', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js']) {
+for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'impact-metadata:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'report-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'diff-path:', '--impact-metadata', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -388,6 +388,7 @@ assert(readme.includes('npm run test:plugin-conformance'), 'README should docume
 
 const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
 assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');
+assert(reviewWorkflow.includes('impact-metadata: test/fixtures/impact-metadata/valid.json'), 'Review workflow should exercise explicit impact-metadata Action input');
 assert(reviewWorkflow.includes('comment: "true"'), 'Review workflow should exercise comment mode');
 assert(reviewWorkflow.includes('comment-dry-run: "true"'), 'Review workflow comment mode should avoid GitHub writes');
 assert(reviewWorkflow.includes('annotations: "true"'), 'Review workflow should enable annotations');

@@ -1,4 +1,4 @@
 {
   "preset": "standard",
-  "policy-config": "../outside.json"
+  "impact-metadata": "../outside.json"
 }
