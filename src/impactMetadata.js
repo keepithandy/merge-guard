@@ -388,6 +388,7 @@ function leavesRoot(relative) {
 
 function safeSourcePath(cwd, requestedPath) {
   if (typeof requestedPath !== 'string' || !requestedPath.trim()) return null;
+  if (path.isAbsolute(requestedPath) || /^[a-z]:[\\/]/i.test(requestedPath)) return null;
   const root = path.resolve(cwd);
   const resolved = path.resolve(root, requestedPath);
   const relative = path.relative(root, resolved);

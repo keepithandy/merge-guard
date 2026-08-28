@@ -48,6 +48,11 @@ assert.equal(traversal.status, 'invalid');
 assert.equal(traversal.sourcePath, null);
 assert.equal(traversal.diagnostics[0].code, 'unsafe-source-path');
 
+const absolute = loadImpactMetadata(root, validPath);
+assert.equal(absolute.status, 'invalid');
+assert.equal(absolute.sourcePath, null);
+assert.equal(absolute.diagnostics[0].code, 'unsafe-source-path');
+
 const notProvided = loadImpactMetadata(root);
 assert.equal(notProvided.status, 'not-provided');
 assert.deepEqual(notProvided.diagnostics, []);
@@ -64,6 +69,15 @@ assert.equal(duplicate.metadata.status, 'invalid');
 assert.deepEqual(duplicate.metadata.packages, []);
 assert(duplicate.metadata.diagnostics.some((entry) => entry.code === 'self-dependency'));
 assert(duplicate.metadata.diagnostics.some((entry) => entry.code === 'duplicate-package-id'));
+
+const forwardCompatible = validateImpactMetadata({
+  schemaVersion: 1,
+  futureRootField: true,
+  packages: [{ id: 'web', root: 'packages/web', futurePackageField: 'ignored' }]
+});
+assert.equal(forwardCompatible.valid, true);
+assert.equal(forwardCompatible.metadata.status, 'valid');
+assert.deepEqual(forwardCompatible.metadata.diagnostics.map((entry) => entry.code), ['unknown-field', 'unknown-field']);
 
 const unsafeRoots = validateImpactMetadata({
   schemaVersion: 1,
