@@ -1,12 +1,16 @@
 # Finding comparison across pull-request pushes
 
-Tracking: #41 and #65
+Tracking: #41, #65, and #140
 
 Merge Guard compares two immutable JSON reports and classifies rule findings as new, unchanged, or resolved:
 
 ```bash
 node scripts/compare-reports.js \
   --previous previous-report.json \
+  --previous-manifest previous-report.manifest.json \
+  --expected-repository owner/repository \
+  --expected-branch main \
+  --expected-commit abc123 \
   --current current-report.json \
   --output merge-guard-comparison.json \
   --markdown
@@ -30,6 +34,21 @@ Reason text, check text, weight, matched-line count, and exception annotations r
 The comparator does not mutate either report. It canonicalizes every JSON object by sorted keys and records a SHA-256 content hash for the complete previous and current reports. Hashes make the exact comparison inputs auditable; they do not sign or authenticate those files.
 
 Both inputs must be Merge Guard report schema version 1. Missing, malformed, future, or mismatched schemas fail with structured diagnostics instead of guessing.
+
+## Verified prior-evidence selection
+
+Supplying `--previous-manifest` enables the v1.3 verification path. Merge Guard validates the manifest identity, binds its report hash to the selected previous report, and optionally checks `--expected-repository`, `--expected-branch`, and `--expected-commit`. It never searches for an artifact or fills in an expected identity automatically.
+
+The additive `priorEvidence.status` is one of:
+
+- `verified`: the report and manifest match, and every supplied identity assertion matches;
+- `missing`: neither prior input was supplied;
+- `stale`: the manifest commit differs from the explicitly expected prior commit;
+- `cross-branch`: the repository or branch differs from the explicit expectation;
+- `incompatible`: the selected report or manifest uses an unsupported contract;
+- `unverifiable`: an input is absent, malformed, or fails its identity or content hash.
+
+Only `verified` evidence is classified. Every other status produces `history-unavailable`, null counts, empty classification arrays, and a non-clean exit. The legacy report-only path remains supported for v1 compatibility, but it does not claim manifest verification.
 
 ## Classification semantics
 
@@ -67,6 +86,6 @@ Merge Guard does not search workflow history, download artifacts, or choose a pr
 npm run test:finding-comparison
 ```
 
-Fixtures cover new, unchanged, resolved, global, custom, and policy findings; changed details under stable identity; canonical report hashes; duplicate records; malformed and future schemas; missing-history exit behavior; deterministic JSON snapshots; Markdown output; and the file-based CLI helper. No network access, external service, or secret is required.
+Fixtures cover new, unchanged, resolved, global, custom, and policy findings; changed details under stable identity; canonical report hashes; duplicate records; malformed and future schemas; missing, verified, stale, cross-branch, incompatible, and unverifiable prior evidence; deterministic JSON snapshots; Markdown output; and the file-based CLI helper. No network access, external service, or secret is required.
 
 `npm run test:review-e2e` adds a complete two-push path: each report is generated from a cumulative diff, the first immutable report is supplied to the second comparison, and exact `2 new / 2 unchanged / 2 resolved` classifications are locked in the committed review snapshot.

@@ -73,6 +73,8 @@ Normal CLI reports also expose:
 
 Finding comparison output uses schema version 1 and identity version 1. It records canonical hashes of the complete previous/current reports and classifies stable rule/source/path identities as new, unchanged, or resolved. Missing history produces explicit unknown classifications and a distinct exit code. See `docs/finding-comparisons.md`.
 
+When the caller supplies a previous artifact manifest, comparison output adds `priorEvidence`. Its status distinguishes verified, missing, stale, cross-branch, incompatible, and unverifiable evidence. Classification is available only for verified evidence; unavailable states retain null counts and cannot be interpreted as clean.
+
 The complete projection path is exercised by the deterministic two-push fixture described in `docs/review-experience-fixtures.md`; the fixture does not introduce another report schema.
 
 ## Files and rules

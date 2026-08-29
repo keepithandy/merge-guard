@@ -306,6 +306,10 @@ export function formatFindingComparisonMarkdown(comparison) {
   if (comparison.status === 'history-unavailable') {
     lines.push('**History unavailable — finding changes are unknown.**');
     lines.push('');
+    if (comparison.priorEvidence) {
+      lines.push(`Prior evidence status: **${escapeHtml(comparison.priorEvidence.status)}**.`);
+      lines.push('');
+    }
     lines.push(comparison.warning);
     return lines.join('\n');
   }
@@ -317,6 +321,9 @@ export function formatFindingComparisonMarkdown(comparison) {
   lines.push('');
   lines.push(`Previous report: <code>${comparison.previous.contentHash}</code>`);
   lines.push(`Current report: <code>${comparison.current.contentHash}</code>`);
+  if (comparison.priorEvidence?.status === 'verified') {
+    lines.push(`Prior evidence: verified artifact <code>${escapeHtml(comparison.priorEvidence.artifactId)}</code>`);
+  }
 
   for (const [label, findings] of [
     ['New findings', comparison.findings.new],
