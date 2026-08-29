@@ -32,9 +32,9 @@ Dependency injection changes only transport during the fixture. Production calls
 
 - runs the offline end-to-end contract;
 - invokes the local composite Action in report mode for push 1;
-- preserves the first immutable report;
+- preserves the first immutable report and its generated artifact manifest;
 - invokes the Action in dry-run comment mode for push 2;
-- enables and asserts annotations, SARIF, and report comparison outputs;
+- enables and asserts annotations, SARIF, verified prior-evidence, and report comparison outputs;
 - proves a low threshold still fails after review outputs are produced.
 
 The workflow grants only `contents: read`. `comment-dry-run: "true"` renders the real marker-prefixed comment body but returns before token, event, or GitHub API handling. The workflow does not use third-party secrets or services, post comments, upload SARIF, retrieve workflow history, publish packages, or create releases.

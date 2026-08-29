@@ -43,9 +43,12 @@ jobs:
         shell: bash
         env:
           REPORT_PATH: ${{ steps.first_push.outputs.report-path }}
+          MANIFEST_PATH: ${{ steps.first_push.outputs.manifest-path }}
         run: |
           test -s "$REPORT_PATH"
+          test -s "$MANIFEST_PATH"
           cp "$REPORT_PATH" review-fixture-push-1.json
+          cp "$MANIFEST_PATH" review-fixture-push-1.manifest.json
 
       - name: Run second-push comment mode without GitHub writes
         id: second_push
@@ -59,6 +62,10 @@ jobs:
           impact-metadata: test/fixtures/impact-metadata/valid.json
           compare: "true"
           previous-report: review-fixture-push-1.json
+          previous-manifest: review-fixture-push-1.manifest.json
+          expected-previous-repository: ${{ github.repository }}
+          expected-previous-branch: ${{ github.head_ref || github.ref_name }}
+          expected-previous-commit: ${{ github.event.pull_request.head.sha || github.sha }}
           fail-threshold: "99"
           diff-path: test/fixtures/review-e2e/push-2.diff
 
@@ -66,16 +73,20 @@ jobs:
         shell: bash
         env:
           REPORT_PATH: ${{ steps.second_push.outputs.report-path }}
+          MANIFEST_PATH: ${{ steps.second_push.outputs.manifest-path }}
           ANNOTATIONS_PATH: ${{ steps.second_push.outputs.annotations-path }}
           SARIF_PATH: ${{ steps.second_push.outputs.sarif-path }}
           COMPARISON_PATH: ${{ steps.second_push.outputs.comparison-path }}
           COMPARISON_STATUS: ${{ steps.second_push.outputs.comparison-status }}
+          PRIOR_EVIDENCE_STATUS: ${{ steps.second_push.outputs.prior-evidence-status }}
         run: |
           test -s "$REPORT_PATH"
+          test -s "$MANIFEST_PATH"
           test -s "$ANNOTATIONS_PATH"
           test -s "$SARIF_PATH"
           test -s "$COMPARISON_PATH"
           test "$COMPARISON_STATUS" = "compared"
+          test "$PRIOR_EVIDENCE_STATUS" = "verified"
           node -e "const fs=require('fs'); const r=JSON.parse(fs.readFileSync(process.env.REPORT_PATH)); const a=JSON.parse(fs.readFileSync(process.env.ANNOTATIONS_PATH)); const s=JSON.parse(fs.readFileSync(process.env.SARIF_PATH)); const c=JSON.parse(fs.readFileSync(process.env.COMPARISON_PATH)); if(r.repository.impactMetadata.status!=='valid' || a.annotations.length!==4 || s.runs[0].results.length!==4 || c.summary.new!==2 || c.summary.unchanged!==2 || c.summary.resolved!==2) process.exit(1)"
 
       - name: Run threshold failure contract

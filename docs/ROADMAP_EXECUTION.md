@@ -112,6 +112,8 @@ Implemented by #140 with opt-in report-to-manifest verification and explicit rep
 
 Provide least-privilege examples for storing and retrieving evidence in caller-owned CI. Merge Guard must not silently search, upload, retain, or delete workflow artifacts.
 
+Implemented by #142 with Action-generated manifests, strict prior-evidence wiring, and a caller-owned example that selects one exact run ID and artifact name. The composite Action performs no artifact storage or retrieval.
+
 ### Review projection resilience
 
 Exercise managed comments, annotations, SARIF, comparisons, and threshold results across reruns, fork permissions, canceled jobs, duplicate events, and partial failures.

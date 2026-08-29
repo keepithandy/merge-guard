@@ -1,0 +1,66 @@
+name: Merge Guard explicit evidence handoff
+
+on:
+  workflow_dispatch:
+    inputs:
+      prior_run_id:
+        description: Exact workflow run ID containing the selected prior evidence
+        required: true
+        type: string
+      prior_artifact_name:
+        description: Exact artifact name in that workflow run
+        required: true
+        type: string
+      prior_commit:
+        description: Exact commit recorded by the selected prior evidence
+        required: true
+        type: string
+      review_branch:
+        description: Branch identity expected in the selected prior evidence
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download one explicitly selected prior artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRIOR_RUN_ID: ${{ inputs.prior_run_id }}
+          PRIOR_ARTIFACT_NAME: ${{ inputs.prior_artifact_name }}
+        run: gh run download "$PRIOR_RUN_ID" --name "$PRIOR_ARTIFACT_NAME" --dir .merge-guard-prior
+
+      - name: Verify and compare selected evidence
+        id: merge_guard
+        uses: keepithandy/merge-guard@<reviewed-commit-sha>
+        with:
+          compare: "true"
+          previous-report: .merge-guard-prior/merge-guard-report.json
+          previous-manifest: .merge-guard-prior/merge-guard-report.manifest.json
+          expected-previous-repository: ${{ github.repository }}
+          expected-previous-branch: ${{ inputs.review_branch }}
+          expected-previous-commit: ${{ inputs.prior_commit }}
+
+      - name: Require verified prior evidence
+        env:
+          PRIOR_EVIDENCE_STATUS: ${{ steps.merge_guard.outputs.prior-evidence-status }}
+        run: test "$PRIOR_EVIDENCE_STATUS" = verified
+
+      - name: Upload caller-owned current evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-guard-evidence-${{ github.run_id }}
+          path: |
+            ${{ steps.merge_guard.outputs.report-path }}
+            ${{ steps.merge_guard.outputs.manifest-path }}
+          if-no-files-found: error
+          retention-days: 14

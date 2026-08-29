@@ -86,6 +86,9 @@ jobs:
       - name: Run immutable artifact manifest contracts
         run: npm run test:artifact-manifest
 
+      - name: Run caller-owned evidence handoff contracts
+        run: npm run test:evidence-handoff
+
       - name: Run accepted legacy risk contracts
         run: npm run test:legacy-risk
 
