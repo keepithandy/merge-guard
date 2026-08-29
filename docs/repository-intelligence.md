@@ -11,6 +11,7 @@ Normal CLI JSON reports retain the schema-version 1 `projectChecks` string array
 - `projectCheckDetails`: ordered command records with `command`, `category`, `ecosystem`, and one or more `sources`.
 - `repository`: detected layout metadata, warnings, package boundaries, and `affectedPackages`.
 - `repository.impactMetadata`: the status, normalized values, and diagnostics for one explicitly selected impact-metadata file. A missing or invalid file is unavailable input, never an inferred dependency graph.
+- `repository.impactGraph`: direct, transitive, repository-wide, generated, and unknown impact derived only from valid explicit metadata, with edge provenance and diagnostics.
 - `repository.affectedPackages.directPackages`: packages that directly own changed paths.
 - `repository.affectedPackages.sharedFiles`: changed paths outside detected package roots.
 - `repository.affectedPackages.sharedImpactPackages`: packages potentially affected by repository-level files.
@@ -27,7 +28,7 @@ The first v1.2 slice accepts a checked-in metadata file only when the caller exp
 merge-guard changes.diff --impact-metadata .merge-guard/impact.json --json
 ```
 
-It validates the versioned contract, preserves deterministic source diagnostics, and does not execute a package manager, a build tool, project scripts, or changed code. It also does not yet calculate transitive impact; that follow-on slice consumes only `status: "valid"` metadata. `not-provided` and `invalid` are explicit unavailable states that downstream output must treat as unknown, not clean or safe.
+It validates the versioned contract, preserves deterministic source diagnostics, and does not execute a package manager, a build tool, project scripts, or changed code. Valid metadata now supplies the only package roots, ownership rules, generated-path declarations, repository-wide paths, and dependency edges used by `impactGraph`. `not-provided` and `invalid` remain explicit unavailable states that downstream output treats as unknown, not clean or safe.
 
 See [impact metadata](impact-metadata.md) for the full v1 contract and [the JSON schema](../schemas/impact-metadata-v1.schema.json) for editor integration.
 

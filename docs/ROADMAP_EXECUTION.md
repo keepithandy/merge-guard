@@ -90,6 +90,8 @@ Implemented by the source-only v1.2 contract slice: `--impact-metadata <path>` v
 
 Report direct, transitive, shared, and unknown impact separately. Every edge includes its source and reason; cycles, missing nodes, and ambiguous ownership produce diagnostics rather than guessed results.
 
+Implemented by #138 using only valid, explicitly selected impact metadata. The additive graph preserves existing v1 ownership output and scoring.
+
 ### Diff edge cases
 
 Add deterministic contracts for renames, copies, binary changes, submodules, generated files, oversized diffs, and partial history. Preserve evidence when analysis is intentionally incomplete.

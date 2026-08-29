@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { loadImpactMetadata, validateImpactMetadata } from '../src/impactMetadata.js';
+import { buildImpactGraph } from '../src/impactGraph.js';
 import { inspectRepository } from '../src/repositoryIntelligence.js';
 
 const root = process.cwd();
@@ -64,6 +65,7 @@ assert.equal(absolute.diagnostics[0].code, 'unsafe-source-path');
 const notProvided = loadImpactMetadata(root);
 assert.equal(notProvided.status, 'not-provided');
 assert.deepEqual(notProvided.diagnostics, []);
+assert.equal(buildImpactGraph('diff --git a/a b/a', notProvided).status, 'not-provided');
 
 const duplicate = validateImpactMetadata({
   schemaVersion: 1,
@@ -99,6 +101,60 @@ assert.deepEqual(unsafeRoots.metadata.packages, []);
 assert(unsafeRoots.metadata.diagnostics.some((entry) => entry.code === 'invalid-package-root'));
 assert(unsafeRoots.metadata.diagnostics.some((entry) => entry.code === 'invalid-path-pattern'));
 
+const sharedChange = fs.readFileSync(fixture('shared-change.diff'), 'utf8');
+const completeGraph = buildImpactGraph(sharedChange, valid);
+assert.equal(completeGraph.status, 'complete');
+assert.deepEqual(completeGraph.directPackages.map((entry) => entry.id), ['shared']);
+assert.deepEqual(completeGraph.transitivePackages.map((entry) => entry.id), ['web']);
+assert.deepEqual(completeGraph.repositoryWidePackages, []);
+assert.deepEqual(completeGraph.edges, [{
+  from: 'web',
+  to: 'shared',
+  source: 'test/fixtures/impact-metadata/valid.json',
+  reason: 'web explicitly declares dependsOn shared'
+}]);
+assert.deepEqual(buildImpactGraph(sharedChange, valid), completeGraph, 'impact graph must be deterministic');
+
+const mixedGraph = buildImpactGraph(fs.readFileSync(fixture('mixed-impact.diff'), 'utf8'), valid);
+assert.equal(mixedGraph.status, 'partial');
+assert.deepEqual(mixedGraph.directPackages.map((entry) => entry.id), ['shared', 'web']);
+assert.deepEqual(mixedGraph.repositoryWidePackages.map((entry) => entry.id), ['shared', 'web']);
+assert.deepEqual(mixedGraph.generatedFiles.map((entry) => [entry.path, entry.package]), [['packages/web/generated/client.js', 'web']]);
+assert.deepEqual(mixedGraph.unknownFiles.map((entry) => entry.path), ['unowned/file.txt']);
+
+const ambiguousMetadata = validateImpactMetadata({
+  schemaVersion: 1,
+  packages: [
+    { id: 'api', root: 'packages/api' },
+    { id: 'web', root: 'packages/web' }
+  ],
+  ownership: [
+    { path: 'config/**', packages: ['api'] },
+    { path: 'config/*.json', packages: ['web'] }
+  ]
+}).metadata;
+ambiguousMetadata.sourcePath = 'inline-ambiguous.json';
+const ambiguousGraph = buildImpactGraph('diff --git a/config/app.json b/config/app.json\n--- a/config/app.json\n+++ b/config/app.json', ambiguousMetadata);
+assert.equal(ambiguousGraph.status, 'partial');
+assert.equal(ambiguousGraph.diagnostics[0].code, 'ambiguous-ownership');
+assert.deepEqual(ambiguousGraph.directPackages, []);
+
+const cyclicMetadata = validateImpactMetadata({
+  schemaVersion: 1,
+  packages: [
+    { id: 'api', root: 'packages/api', dependsOn: ['web'] },
+    { id: 'web', root: 'packages/web', dependsOn: ['api'] }
+  ]
+}).metadata;
+cyclicMetadata.sourcePath = 'inline-cycle.json';
+const cyclicGraph = buildImpactGraph('diff --git a/packages/api/a.js b/packages/api/a.js\n--- a/packages/api/a.js\n+++ b/packages/api/a.js', cyclicMetadata);
+assert.equal(cyclicGraph.status, 'partial');
+assert(cyclicGraph.diagnostics.some((entry) => entry.code === 'dependency-cycle'));
+
+const invalidGraph = buildImpactGraph(sharedChange, invalid);
+assert.equal(invalidGraph.status, 'unknown');
+assert.equal(invalidGraph.diagnostics[0].code, 'impact-metadata-invalid');
+
 const symlinkRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-impact-root-'));
 const externalRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-impact-external-'));
 try {
@@ -118,6 +174,7 @@ const repository = inspectRepository(
   path.relative(root, validPath)
 );
 assert.equal(repository.impactMetadata.status, 'valid');
+assert(repository.impactGraph);
 
 const cliOutput = execFileSync(process.execPath, [
   'src/cli.js',
@@ -129,6 +186,7 @@ const cliOutput = execFileSync(process.execPath, [
 const cliReport = JSON.parse(cliOutput);
 assert.equal(cliReport.repository.impactMetadata.status, 'valid');
 assert.equal(cliReport.repository.impactMetadata.sourcePath, 'test/fixtures/impact-metadata/valid.json');
+assert(['complete', 'partial'].includes(cliReport.repository.impactGraph.status));
 
 const markdownOutput = execFileSync(process.execPath, [
   'src/cli.js',
@@ -137,7 +195,8 @@ const markdownOutput = execFileSync(process.execPath, [
   '--impact-metadata',
   path.relative(root, validPath)
 ], { cwd: root, encoding: 'utf8' });
-assert(markdownOutput.includes('**Impact metadata:** valid schema 1'), 'Markdown should expose valid impact metadata without inferring dependencies');
+assert(markdownOutput.includes('**Impact metadata:** valid schema 1'), 'Markdown should expose valid impact metadata');
+assert(markdownOutput.includes('**Explicit direct impact:**'), 'Markdown should expose direct graph impact');
 
 const invalidOutput = execFileSync(process.execPath, [
   'src/cli.js',
@@ -150,6 +209,9 @@ assert(invalidOutput.includes('Impact metadata: unavailable'), 'Text output shou
 const implementation = fs.readFileSync(path.join(root, 'src', 'impactMetadata.js'), 'utf8');
 assert(!implementation.includes('node:child_process'), 'impact metadata loading must remain read-only');
 assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(implementation), 'impact metadata loading must not execute commands');
+const graphImplementation = fs.readFileSync(path.join(root, 'src', 'impactGraph.js'), 'utf8');
+assert(!graphImplementation.includes('node:child_process'), 'impact graph construction must remain read-only');
+assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(graphImplementation), 'impact graph construction must not execute commands');
 
 console.log('impact metadata contracts passed');
 console.log(`diagnostics=${invalid.diagnostics.length}`);

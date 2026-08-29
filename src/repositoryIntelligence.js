@@ -1,10 +1,12 @@
 import { mapChangedFilesToPackages } from './affectedPackages.js';
+import { buildImpactGraph } from './impactGraph.js';
 import { loadImpactMetadata } from './impactMetadata.js';
 import { applyProjectChecks, detectProjectCheckDetails } from './projectChecks.js';
 import { detectNpmWorkspaces } from './workspaces.js';
 
 export function inspectRepository(diffText, cwd = process.cwd(), impactMetadataPath = null) {
   const workspaceModel = detectNpmWorkspaces(cwd);
+  const impactMetadata = loadImpactMetadata(cwd, impactMetadataPath);
 
   return {
     kind: workspaceModel.kind,
@@ -12,7 +14,8 @@ export function inspectRepository(diffText, cwd = process.cwd(), impactMetadataP
     workspacePatterns: workspaceModel.workspacePatterns,
     packages: workspaceModel.packages,
     warnings: workspaceModel.warnings,
-    impactMetadata: loadImpactMetadata(cwd, impactMetadataPath),
+    impactMetadata,
+    impactGraph: buildImpactGraph(diffText, impactMetadata),
     affectedPackages: mapChangedFilesToPackages(diffText, workspaceModel),
     projectCheckDetails: detectProjectCheckDetails(cwd)
   };
@@ -39,6 +42,17 @@ export function applyRepositoryIntelligence(report, intelligence) {
       repositoryWidePaths: [],
       diagnostics: []
     },
+    impactGraph = {
+      status: 'not-provided',
+      sourcePath: null,
+      directPackages: [],
+      transitivePackages: [],
+      repositoryWidePackages: [],
+      generatedFiles: [],
+      unknownFiles: [],
+      edges: [],
+      diagnostics: []
+    },
     affectedPackages = {
       changedFiles: [],
       directPackages: [],
@@ -54,6 +68,7 @@ export function applyRepositoryIntelligence(report, intelligence) {
     packages,
     warnings,
     impactMetadata,
+    impactGraph,
     affectedPackages
   };
 

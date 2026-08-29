@@ -679,9 +679,18 @@ export function formatReport(report) {
     lines.push(`- Potential shared-impact packages: ${affected.sharedImpactPackages.length ? affected.sharedImpactPackages.map(packageDisplayName).join(', ') : 'none'}`);
     const impactMetadata = report.repository.impactMetadata;
     if (impactMetadata?.status === 'valid') {
-      lines.push(`- Impact metadata: valid schema ${impactMetadata.schemaVersion} from ${impactMetadata.sourcePath}; dependency impact is not yet inferred.`);
+      lines.push(`- Impact metadata: valid schema ${impactMetadata.schemaVersion} from ${impactMetadata.sourcePath}.`);
     } else if (impactMetadata?.status === 'invalid') {
       lines.push(`- Impact metadata: unavailable from ${impactMetadata.sourcePath || 'the requested path'} (${impactMetadata.diagnostics?.length || 0} diagnostic(s)); dependency impact remains unknown.`);
+    }
+    const impactGraph = report.repository.impactGraph;
+    if (impactGraph?.status && impactGraph.status !== 'not-provided') {
+      lines.push(`- Explicit impact graph: ${impactGraph.status}.`);
+      lines.push(`- Explicit direct impact: ${impactGraph.directPackages.length ? impactGraph.directPackages.map((entry) => entry.id).join(', ') : 'none'}`);
+      lines.push(`- Explicit transitive impact: ${impactGraph.transitivePackages.length ? impactGraph.transitivePackages.map((entry) => entry.id).join(', ') : 'none'}`);
+      lines.push(`- Explicit repository-wide impact: ${impactGraph.repositoryWidePackages.length ? impactGraph.repositoryWidePackages.map((entry) => entry.id).join(', ') : 'none'}`);
+      lines.push(`- Unknown explicit impact paths: ${impactGraph.unknownFiles.length ? impactGraph.unknownFiles.map((entry) => entry.path).join(', ') : 'none'}`);
+      if (impactGraph.diagnostics.length) lines.push(`- Impact graph diagnostics: ${impactGraph.diagnostics.length}`);
     }
   }
 
@@ -828,9 +837,18 @@ export function formatMarkdownReport(report) {
     }
     const impactMetadata = report.repository.impactMetadata;
     if (impactMetadata?.status === 'valid') {
-      lines.push(`- **Impact metadata:** valid schema ${impactMetadata.schemaVersion} from \`${impactMetadata.sourcePath}\`; dependency impact is not yet inferred.`);
+      lines.push(`- **Impact metadata:** valid schema ${impactMetadata.schemaVersion} from \`${impactMetadata.sourcePath}\`.`);
     } else if (impactMetadata?.status === 'invalid') {
       lines.push(`- **Impact metadata:** unavailable from \`${impactMetadata.sourcePath || 'the requested path'}\` (${impactMetadata.diagnostics?.length || 0} diagnostic(s)); dependency impact remains unknown.`);
+    }
+    const impactGraph = report.repository.impactGraph;
+    if (impactGraph?.status && impactGraph.status !== 'not-provided') {
+      lines.push(`- **Explicit impact graph:** ${impactGraph.status}.`);
+      lines.push(`- **Explicit direct impact:** ${impactGraph.directPackages.length ? impactGraph.directPackages.map((entry) => `\`${entry.id}\``).join(', ') : 'none'}`);
+      lines.push(`- **Explicit transitive impact:** ${impactGraph.transitivePackages.length ? impactGraph.transitivePackages.map((entry) => `\`${entry.id}\``).join(', ') : 'none'}`);
+      lines.push(`- **Explicit repository-wide impact:** ${impactGraph.repositoryWidePackages.length ? impactGraph.repositoryWidePackages.map((entry) => `\`${entry.id}\``).join(', ') : 'none'}`);
+      lines.push(`- **Unknown explicit impact paths:** ${impactGraph.unknownFiles.length ? impactGraph.unknownFiles.map((entry) => `\`${entry.path}\``).join(', ') : 'none'}`);
+      if (impactGraph.diagnostics.length) lines.push(`- **Impact graph diagnostics:** ${impactGraph.diagnostics.length}`);
     }
   }
 
