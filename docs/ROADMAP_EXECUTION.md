@@ -96,6 +96,8 @@ Implemented by #138 using only valid, explicitly selected impact metadata. The a
 
 Add deterministic contracts for renames, copies, binary changes, submodules, generated files, oversized diffs, and partial history. Preserve evidence when analysis is intentionally incomplete.
 
+Implemented by #144 with bounded diff evidence, explicit rename/copy/binary/submodule records, retained generated sources, and partial diagnostics for oversized or header-incomplete inputs.
+
 ### Compatibility and performance gate
 
 Prove that repositories without impact metadata retain v1 behavior and that large explicit graphs stay within documented time and memory budgets.

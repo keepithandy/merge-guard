@@ -11,6 +11,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - An additive explainable impact graph that separates direct, transitive, repository-wide, generated, and unknown impact using only valid explicit metadata, with edge provenance and deterministic diagnostics.
 - Opt-in v1.3 prior-evidence verification that binds an explicitly supplied previous report to its artifact manifest and distinguishes verified, missing, stale, cross-branch, incompatible, and unverifiable evidence before comparison.
 - Caller-owned v1.3 CI evidence handoff with Action-generated report manifests, strict prior-evidence inputs/status, and a least-privilege explicit run-ID download/upload example.
+- Deterministic v1.2 impact evidence for rename, copy, binary, submodule, generated, oversized, and partial-history diff cases without inspecting changed contents or remote history.
 
 ## 1.1.0 - 2026-08-27 (unpublished source version)
 

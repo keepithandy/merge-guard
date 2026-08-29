@@ -63,11 +63,13 @@ Supported suggestions include pytest, unittest discovery, Ruff, Black, mypy, Fla
 
 ## Affected-package mapping
 
-Diff parsing recognizes modified, added, deleted, and renamed paths. Rename endpoints are mapped independently, so a cross-package move records both the previous and current owning packages.
+Diff parsing recognizes modified, added, deleted, renamed, copied, binary, and submodule paths. Rename endpoints are mapped independently, so a cross-package move records both the previous and current owning packages. Copies retain their source path as provenance while impact is assigned to the destination. Binary and submodule markers are evidence only; their contents are never inspected or executed.
 
 Ownership uses the longest matching detected package root. This gives nested packages precedence over their parent package. In a single-package repository, the root package owns repository paths.
 
 Paths outside detected package roots are reported as shared files. Every detected package is then listed as potentially shared-impact only. Merge Guard does not infer a dependency edge, transitive impact, build graph, or required execution order.
+
+The explicit impact graph adds a bounded evidence parser. Inputs above 2,000,000 bytes and partial patches that contain file markers without git file headers produce deterministic diagnostics and a `partial` graph. Missing provenance is never synthesized from the checkout or a remote.
 
 ## Fallback and unsupported cases
 

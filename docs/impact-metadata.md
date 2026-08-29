@@ -65,4 +65,6 @@ Direct packages own a changed path. Transitive packages are reverse dependents r
 
 `repository.impactGraph.status` is `not-provided`, `unknown`, `complete`, or `partial`. `partial` means at least one path or graph condition could not be classified conclusively. The graph never defines build order or changes the scanner score.
 
+Diff evidence preserves rename endpoints, copy source/destination provenance, binary markers, submodule markers, and generated-file declarations without inspecting their contents. Impact-graph parsing is capped at 2,000,000 bytes. Larger inputs and file markers without git headers produce `partial` graphs with deterministic diagnostics rather than guessed ownership. The existing v1 affected-package mapper remains unchanged for ordinary supported diffs.
+
 Use [`schemas/impact-metadata-v1.schema.json`](../schemas/impact-metadata-v1.schema.json) for editor validation. Merge Guard additionally enforces the runtime safety and cross-reference rules described here.
