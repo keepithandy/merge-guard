@@ -8,4 +8,5 @@ assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'policy schema m
 assert(fs.existsSync('schemas/plugin-manifest-v1.schema.json'), 'plugin schema must exist');
 assert(fs.existsSync('schemas/artifact-manifest-v1.schema.json'), 'artifact schema must exist');
 assert(fs.existsSync('schemas/impact-metadata-v1.schema.json'), 'impact metadata schema must exist');
+assert(fs.existsSync('schemas/review-projection-v1.schema.json'), 'review projection schema must exist');
 console.log('public contract freeze passed');

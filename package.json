@@ -36,6 +36,7 @@
     "test:github-review": "node scripts/github-review-contracts.js",
     "test:finding-comparison": "node scripts/finding-comparison-contracts.js",
     "test:review-e2e": "node scripts/review-experience-e2e.js",
+    "test:review-projection": "node scripts/review-projection-contracts.js",
     "test:dashboard-architecture": "node scripts/dashboard-architecture-contracts.js",
     "test:dashboard-import": "node scripts/dashboard-import-contracts.js",
     "test:dashboard-explorer": "node scripts/dashboard-explorer-contracts.js",

@@ -74,6 +74,9 @@ jobs:
       - name: Run end-to-end review experience fixture
         run: npm run test:review-e2e
 
+      - name: Run review projection resilience contracts
+        run: npm run test:review-projection
+
       - name: Run local dashboard architecture contracts
         run: npm run test:dashboard-architecture
 

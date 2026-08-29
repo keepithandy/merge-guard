@@ -278,7 +278,7 @@ assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-polic
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'impact-metadata:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'previous-manifest:', 'expected-previous-repository:', 'expected-previous-branch:', 'expected-previous-commit:', 'report-path:', 'manifest-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'prior-evidence-status:', 'diff-path:', '--impact-metadata', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js', 'scripts/create-artifact-manifest.js']) {
+for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'impact-metadata:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'previous-manifest:', 'expected-previous-repository:', 'expected-previous-branch:', 'expected-previous-commit:', 'report-path:', 'manifest-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'prior-evidence-status:', 'projection-path:', 'projection-status:', 'diff-path:', '--impact-metadata', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js', 'scripts/create-artifact-manifest.js', 'scripts/create-review-projection.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -296,6 +296,8 @@ assert(fs.existsSync('src/pullRequestSummary.js'), 'Pull-request summary module 
 assert(fs.existsSync('src/githubReviewOutputs.js'), 'GitHub review-output module should exist');
 assert(fs.existsSync('src/findingComparison.js'), 'Finding-comparison module should exist');
 assert(fs.existsSync('scripts/review-experience-e2e.js'), 'Review experience fixture runner should exist');
+assert(fs.existsSync('scripts/review-projection-contracts.js'), 'Review projection resilience gate should exist');
+assert(fs.existsSync('schemas/review-projection-v1.schema.json'), 'Review projection schema should exist');
 assert(fs.existsSync('.github/workflows/review-experience-fixture.yml'), 'Review experience workflow should exist');
 assert(fs.existsSync('test/fixtures/review-e2e/push-1.diff'), 'First-push review fixture should exist');
 assert(fs.existsSync('test/fixtures/review-e2e/push-2.diff'), 'Second-push review fixture should exist');
@@ -331,6 +333,7 @@ assert(packageMetadata.scripts?.['test:pr-summary'], 'Package should expose the 
 assert(packageMetadata.scripts?.['test:github-review'], 'Package should expose the GitHub review-output gate');
 assert(packageMetadata.scripts?.['test:finding-comparison'], 'Package should expose the finding-comparison gate');
 assert(packageMetadata.scripts?.['test:review-e2e'], 'Package should expose the end-to-end review gate');
+assert(packageMetadata.scripts?.['test:review-projection'], 'Package should expose the review projection resilience gate');
 assert(packageMetadata.scripts?.['test:dashboard-architecture'], 'Package should expose the dashboard architecture gate');
 assert(packageMetadata.scripts?.['test:dashboard-import'], 'Package should expose the dashboard import gate');
 assert(packageMetadata.scripts?.['test:dashboard-explorer'], 'Package should expose the dashboard explorer gate');
@@ -377,6 +380,7 @@ assert(readme.includes('--annotations'), 'README should document changed-line an
 assert(readme.includes('--sarif'), 'README should document optional SARIF output');
 assert(readme.includes('compare-reports.js'), 'README should document immutable finding comparison');
 assert(readme.includes('npm run test:review-e2e'), 'README should document end-to-end review validation');
+assert(readme.includes('npm run test:review-projection'), 'README should document review projection resilience validation');
 assert(readme.includes('npm run test:dashboard-architecture'), 'README should document the dashboard architecture gate');
 assert(readme.includes('npm run test:dashboard-import'), 'README should document the dashboard import gate');
 assert(readme.includes('npm run test:dashboard-explorer'), 'README should document the dashboard explorer gate');
