@@ -16,6 +16,9 @@ Creation requires an explicit commit, repository, input type, configuration, rep
 
 Manifests are portable JSON metadata. They do not upload, retain, or authenticate the report; users remain responsible for local storage, explicit upload, access control, and retention. Hashes provide integrity checks, not signatures or proof that the evidence is trustworthy.
 
+For reproducibility, callers may supply `--generated-at` explicitly. Production's default current timestamp at `generated.at` and the resulting `artifactId` are the only documented generated-metadata variability; report, configuration, and evidence content hashes remain stable. See [durable review evidence reproducibility](evidence-reproducibility.md).
+
 ```bash
 npm run test:artifact-manifest
+npm run test:evidence-reproducibility
 ```

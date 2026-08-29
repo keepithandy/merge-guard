@@ -130,6 +130,10 @@ Implemented by #148 with a versioned channel-by-channel projection result, non-d
 
 Given the same current and prior evidence, local and CI comparison results must be byte-stable apart from explicitly documented generated metadata.
 
+Implemented by #150 with three isolated generation lanes, ten byte-compared durable-review artifacts, committed SHA-256 baselines, and the full Node 18/20/22/24 × Ubuntu/Windows release matrix. Only `manifest.generated.at` and its derived `manifest.artifactId` are documented as variable when a caller does not provide an explicit timestamp.
+
+v1.3 durable review evidence is complete: all four roadmap slices are implemented, release-gated, and preserve the frozen v1 behavior.
+
 ## Later queue — v1.4 trusted extension lifecycle
 
 ### Local extension inventory

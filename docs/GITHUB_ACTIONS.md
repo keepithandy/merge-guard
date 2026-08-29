@@ -132,6 +132,8 @@ Remove `--dry-run` inside an authenticated GitHub Actions job to create or updat
 
 `npm run test:review-projection` adds duplicate-event, rerun, fork/read-only permission, canceled-attempt recovery, partial projection failure, and retained-threshold-evidence contracts.
 
+`npm run test:evidence-reproducibility` regenerates reports, manifests, annotations, SARIF, comparisons, and projection results in isolated local, CI-style, and repeat lanes. Their raw bytes and committed SHA-256 baselines must match on every supported Node/OS job. See [durable review evidence reproducibility](evidence-reproducibility.md).
+
 `.github/workflows/review-experience-fixture.yml` also invokes the composite Action in report mode and dry-run comment mode. It supplies the first report explicitly to the second Action invocation, enables annotations and SARIF, and asserts all outputs. The workflow has only `contents: read`, uses no third-party secret or service, never uploads SARIF, and never writes a pull-request comment. See [review experience fixtures](review-experience-fixtures.md).
 
 ## Optional AI-ready summary

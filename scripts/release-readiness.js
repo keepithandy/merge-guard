@@ -136,6 +136,7 @@ check('Impact metadata gate exists', Boolean(read('scripts/impact-metadata-contr
 check('Impact compatibility and performance gate exists', Boolean(read('scripts/impact-compatibility-performance-contracts.js')));
 check('Evidence handoff gate exists', Boolean(read('scripts/evidence-handoff-contracts.js')));
 check('Review projection resilience gate exists', Boolean(read('scripts/review-projection-contracts.js')));
+check('Evidence reproducibility gate exists', Boolean(read('scripts/evidence-reproducibility-contracts.js')));
 check('Release staging script exists', Boolean(read('scripts/stage-release.js')));
 check('Release provenance schema exists', Boolean(read('schemas/release-provenance-v1.schema.json')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
@@ -173,6 +174,7 @@ check('impact metadata script is configured', metadata.scripts?.['test:impact-me
 check('impact compatibility script is configured', metadata.scripts?.['test:impact-compatibility'] === 'node scripts/impact-compatibility-performance-contracts.js');
 check('evidence handoff script is configured', metadata.scripts?.['test:evidence-handoff'] === 'node scripts/evidence-handoff-contracts.js');
 check('review projection script is configured', metadata.scripts?.['test:review-projection'] === 'node scripts/review-projection-contracts.js');
+check('evidence reproducibility script is configured', metadata.scripts?.['test:evidence-reproducibility'] === 'node scripts/evidence-reproducibility-contracts.js');
 check('release staging script is configured', metadata.scripts?.['release:stage'] === 'node scripts/stage-release.js');
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
@@ -197,6 +199,7 @@ for (const [label, script] of [
   ['Finding-comparison contracts', 'scripts/finding-comparison-contracts.js'],
   ['Review experience fixture', 'scripts/review-experience-e2e.js'],
   ['Review projection resilience contracts', 'scripts/review-projection-contracts.js'],
+  ['Evidence reproducibility contracts', 'scripts/evidence-reproducibility-contracts.js'],
   ['Dashboard architecture contracts', 'scripts/dashboard-architecture-contracts.js'],
   ['Dashboard import contracts', 'scripts/dashboard-import-contracts.js'],
   ['Dashboard explorer contracts', 'scripts/dashboard-explorer-contracts.js'],

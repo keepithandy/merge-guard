@@ -91,3 +91,5 @@ npm run test:finding-comparison
 Fixtures cover new, unchanged, resolved, global, custom, and policy findings; changed details under stable identity; canonical report hashes; duplicate records; malformed and future schemas; missing, verified, stale, cross-branch, incompatible, and unverifiable prior evidence; deterministic JSON snapshots; Markdown output; and the file-based CLI helper. No network access, external service, or secret is required.
 
 `npm run test:review-e2e` adds a complete two-push path: each report is generated from a cumulative diff, the first immutable report is supplied to the second comparison, and exact `2 new / 2 unchanged / 2 resolved` classifications are locked in the committed review snapshot.
+
+`npm run test:evidence-reproducibility` additionally locks comparison JSON and Markdown bytes across isolated local, CI-style, repeat, Node, and operating-system lanes.
