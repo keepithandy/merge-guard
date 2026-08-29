@@ -346,6 +346,7 @@ assert(packageMetadata.scripts?.['test:plugin-conformance'], 'Package should exp
 assert(packageMetadata.scripts?.['test:installation'], 'Package should expose the installation gate');
 assert(packageMetadata.scripts?.['test:security'], 'Package should expose the security gate');
 assert(packageMetadata.scripts?.['test:performance'], 'Package should expose the performance gate');
+assert(packageMetadata.scripts?.['test:impact-compatibility'], 'Package should expose the impact compatibility gate');
 assert(packageMetadata.scripts?.['test:release-candidate'], 'Package should expose the release-candidate gate');
 assert(packageMetadata.scripts?.['test:public-contracts'], 'Package should expose the public-contract gate');
 assert(packageMetadata.scripts?.['test:release-artifacts'], 'Package should expose the artifact gate');

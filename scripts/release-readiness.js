@@ -133,6 +133,7 @@ check('Version consistency gate exists', Boolean(read('scripts/version-contracts
 check('Doctor gate exists', Boolean(read('scripts/doctor-contracts.js')));
 check('Consumer conformance fixture gate exists', Boolean(read('scripts/consumer-conformance-contracts.js')));
 check('Impact metadata gate exists', Boolean(read('scripts/impact-metadata-contracts.js')));
+check('Impact compatibility and performance gate exists', Boolean(read('scripts/impact-compatibility-performance-contracts.js')));
 check('Evidence handoff gate exists', Boolean(read('scripts/evidence-handoff-contracts.js')));
 check('Release staging script exists', Boolean(read('scripts/stage-release.js')));
 check('Release provenance schema exists', Boolean(read('schemas/release-provenance-v1.schema.json')));
@@ -168,6 +169,7 @@ check('version consistency script is configured', metadata.scripts?.['test:versi
 check('doctor script is configured', metadata.scripts?.['test:doctor'] === 'node scripts/doctor-contracts.js');
 check('consumer fixture script is configured', metadata.scripts?.['test:consumer-fixtures'] === 'node scripts/consumer-conformance-contracts.js');
 check('impact metadata script is configured', metadata.scripts?.['test:impact-metadata'] === 'node scripts/impact-metadata-contracts.js');
+check('impact compatibility script is configured', metadata.scripts?.['test:impact-compatibility'] === 'node scripts/impact-compatibility-performance-contracts.js');
 check('evidence handoff script is configured', metadata.scripts?.['test:evidence-handoff'] === 'node scripts/evidence-handoff-contracts.js');
 check('release staging script is configured', metadata.scripts?.['release:stage'] === 'node scripts/stage-release.js');
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
@@ -184,6 +186,7 @@ for (const [label, script] of [
   ['Repository intelligence contracts', 'scripts/repository-intelligence-contracts.js'],
   ['Repository intelligence snapshots', 'scripts/repository-intelligence-snapshots.js'],
   ['Impact metadata contracts', 'scripts/impact-metadata-contracts.js'],
+  ['Impact compatibility and performance contracts', 'scripts/impact-compatibility-performance-contracts.js'],
   ['Policy-pack contracts', 'scripts/policy-pack-contracts.js'],
   ['Review-guidance contracts', 'scripts/review-guidance-contracts.js'],
   ['Policy-resolution contracts', 'scripts/policy-resolution-contracts.js'],

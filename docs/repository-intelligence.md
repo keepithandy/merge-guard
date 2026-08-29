@@ -71,6 +71,8 @@ Paths outside detected package roots are reported as shared files. Every detecte
 
 The explicit impact graph adds a bounded evidence parser. Inputs above 2,000,000 bytes and partial patches that contain file markers without git file headers produce deterministic diagnostics and a `partial` graph. Missing provenance is never synthesized from the checkout or a remote.
 
+Release certification also proves that explicit metadata does not change established v1 scoring, readiness, findings, checks, or affected-package output. A deterministic 750-package graph soak enforces a 3,000 ms and 128 MB heap-growth budget on every supported Node/OS combination.
+
 ## Fallback and unsupported cases
 
 When no supported command is found, `projectChecks` and `projectCheckDetails` are empty and the existing generic suggested checks remain unchanged.
