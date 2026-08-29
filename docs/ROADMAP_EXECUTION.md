@@ -102,6 +102,10 @@ Implemented by #144 with bounded diff evidence, explicit rename/copy/binary/subm
 
 Prove that repositories without impact metadata retain v1 behavior and that large explicit graphs stay within documented time and memory budgets.
 
+Implemented by #146 with a release-blocking compatibility projection and a three-run, 750-package explicit-graph soak capped at 3,000 ms and 128 MB heap growth per run. The gate runs across Node 18/20/22/24 on Ubuntu and Windows.
+
+v1.2 repository impact fidelity is complete: all four roadmap slices are implemented and release-gated.
+
 ## Later queue — v1.3 durable review evidence
 
 ### Prior-evidence selection

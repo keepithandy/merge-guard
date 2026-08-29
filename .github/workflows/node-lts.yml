@@ -50,6 +50,9 @@ jobs:
       - name: Run repository-intelligence contracts and snapshots
         run: npm run test:repository
 
+      - name: Certify impact compatibility and large-graph budgets
+        run: npm run test:impact-compatibility
+
       - name: Run policy-pack contracts
         run: npm run test:policies
 

@@ -68,3 +68,9 @@ Direct packages own a changed path. Transitive packages are reverse dependents r
 Diff evidence preserves rename endpoints, copy source/destination provenance, binary markers, submodule markers, and generated-file declarations without inspecting their contents. Impact-graph parsing is capped at 2,000,000 bytes. Larger inputs and file markers without git headers produce `partial` graphs with deterministic diagnostics rather than guessed ownership. The existing v1 affected-package mapper remains unchanged for ordinary supported diffs.
 
 Use [`schemas/impact-metadata-v1.schema.json`](../schemas/impact-metadata-v1.schema.json) for editor validation. Merge Guard additionally enforces the runtime safety and cross-reference rules described here.
+
+## Compatibility and performance budgets
+
+Impact metadata is additive. A release-blocking contract compares the established v1 score, readiness, summary, per-file findings, rules, flags, suggested checks, configuration, and affected-package output with and without valid impact metadata. Repositories that omit metadata retain explicit `not-provided` evidence and the same v1 behavior.
+
+The large-graph gate traverses a 750-package explicit dependency chain three times. Every run must finish within 3,000 ms, grow the JavaScript heap by no more than 128 MB, produce all 749 transitive packages and edges, and match the prior run as structured data. This gate runs on every supported Node 18/20/22/24 and Ubuntu/Windows combination.
