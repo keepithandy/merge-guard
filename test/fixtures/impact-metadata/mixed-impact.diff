@@ -1,0 +1,24 @@
+diff --git a/config/app.json b/config/app.json
+--- a/config/app.json
++++ b/config/app.json
+@@ -1 +1 @@
+-{}
++{"enabled":true}
+diff --git a/packages/web/generated/client.js b/packages/web/generated/client.js
+--- a/packages/web/generated/client.js
++++ b/packages/web/generated/client.js
+@@ -1 +1 @@
+-export const version = 1;
++export const version = 2;
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -1 +1 @@
+-{"private":true}
++{"private":true,"type":"module"}
+diff --git a/unowned/file.txt b/unowned/file.txt
+--- a/unowned/file.txt
++++ b/unowned/file.txt
+@@ -1 +1 @@
+-old
++new

@@ -37,7 +37,7 @@ Full history is required when the Action creates the pull request diff. If `diff
 - `preset`: `safe`, `standard`, or `strict`; default `standard`.
 - `policy`: optional explicit starter policy ID: `frontend`, `backend`, `library`, `browser-game`, or `infrastructure`.
 - `policy-config`: optional repository-relative policy manifest path; cannot be combined with `policy`.
-- `impact-metadata`: optional repository-relative path to explicit, checked-in impact metadata. It is read only and does not infer dependency impact yet.
+- `impact-metadata`: optional repository-relative path to explicit, checked-in impact metadata. It is read only and supplies the only dependency edges used by the explainable impact graph.
 - `comment`: post or update the stable Merge Guard pull request comment; default `false`.
 - `comment-dry-run`: render comment mode without calling GitHub; default `false` and intended for fixture/workflow validation.
 - `fail-threshold`: optional positive integer that overrides the preset failure score.

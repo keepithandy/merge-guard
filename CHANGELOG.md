@@ -8,6 +8,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 - An opt-in, read-only v1 impact-metadata contract for explicitly selected checked-in JSON files. It validates declared package roots and direct dependencies, ownership paths, generated paths, and repository-wide paths without executing project code or inferring a graph.
 - Additive `repository.impactMetadata` report evidence with deterministic valid, invalid, and not-provided states. Invalid metadata is unavailable input and leaves dependency impact unknown.
+- An additive explainable impact graph that separates direct, transitive, repository-wide, generated, and unknown impact using only valid explicit metadata, with edge provenance and deterministic diagnostics.
 
 ## 1.1.0 - 2026-08-27 (unpublished source version)
 

@@ -1,0 +1,6 @@
+diff --git a/packages/shared/src/index.js b/packages/shared/src/index.js
+--- a/packages/shared/src/index.js
++++ b/packages/shared/src/index.js
+@@ -1 +1 @@
+-export const value = 1;
++export const value = 2;

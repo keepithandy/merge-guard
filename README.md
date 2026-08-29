@@ -104,7 +104,7 @@ For a checked-in, explicit description of package relationships, ownership, gene
 node src/cli.js path/to/change.diff --impact-metadata .merge-guard/impact.json --json
 ```
 
-See [impact metadata](docs/impact-metadata.md) for its versioned contract. This first v1.2 slice validates the input; it does not yet infer transitive impact.
+See [impact metadata](docs/impact-metadata.md) for its versioned contract. Valid, explicitly selected metadata now produces an explainable direct, transitive, repository-wide, generated, and unknown impact graph without discovering or executing project code.
 
 If a setup does not behave as expected, run the read-only diagnostic command before sharing any details:
 
