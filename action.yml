@@ -100,6 +100,12 @@ outputs:
   prior-evidence-status:
     description: verified, missing, stale, cross-branch, incompatible, unverifiable, or empty for report-only comparison.
     value: ${{ steps.finding_comparison.outputs.prior_evidence_status }}
+  projection-path:
+    description: Path to the machine-readable review projection result.
+    value: ${{ steps.review_projection.outputs.review_projection_path }}
+  projection-status:
+    description: complete, degraded, failed, or incomplete review projection status.
+    value: ${{ steps.review_projection.outputs.review_projection_status }}
 
 runs:
   using: composite
@@ -297,6 +303,7 @@ runs:
         node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write('prior_evidence_status='+(value.priorEvidence?.status || '')+'\n')" "$comparison_path" >> "$GITHUB_OUTPUT"
 
     - name: Comment on pull request
+      id: pr_comment
       if: ${{ inputs.comment == 'true' && (github.event_name == 'pull_request' || inputs.comment-dry-run == 'true') }}
       shell: bash
       env:
@@ -307,7 +314,46 @@ runs:
         if [ "$MERGE_GUARD_COMMENT_DRY_RUN" = "true" ]; then
           comment_args+=(--dry-run)
         fi
+        set +e
         node "$GITHUB_ACTION_PATH/scripts/pr-comment.js" "${comment_args[@]}"
+        comment_exit=$?
+        set -e
+        if [ "$comment_exit" -ne 0 ]; then
+          echo "::warning title=Merge Guard comment::Managed comment publication was unavailable; generated review evidence remains valid."
+          echo "comment_status=unavailable" >> "$GITHUB_OUTPUT"
+          echo "comment_result=" >> "$GITHUB_OUTPUT"
+        elif [ "$MERGE_GUARD_COMMENT_DRY_RUN" = "true" ]; then
+          echo "comment_status=produced" >> "$GITHUB_OUTPUT"
+          echo "comment_result=previewed" >> "$GITHUB_OUTPUT"
+        else
+          echo "comment_status=produced" >> "$GITHUB_OUTPUT"
+          echo "comment_result=published" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Record review projection result
+      id: review_projection
+      if: ${{ always() }}
+      shell: bash
+      env:
+        MERGE_GUARD_PROJECTION_PATH: merge-guard-review-projection.json
+        MERGE_GUARD_ATTEMPT_OUTCOME: completed
+        MERGE_GUARD_SCAN_EXIT_CODE: ${{ steps.scan.outputs.exit_code }}
+        MERGE_GUARD_REPORT_PATH: ${{ steps.scan.outputs.report_path }}
+        MERGE_GUARD_MANIFEST_PATH: ${{ steps.evidence.outputs.manifest_path }}
+        MERGE_GUARD_ANNOTATIONS_REQUESTED: ${{ inputs.annotations }}
+        MERGE_GUARD_ANNOTATIONS_PATH: ${{ steps.github_review.outputs.annotations_path }}
+        MERGE_GUARD_SARIF_REQUESTED: ${{ inputs.sarif }}
+        MERGE_GUARD_SARIF_PATH: ${{ steps.github_review.outputs.sarif_path }}
+        MERGE_GUARD_REVIEW_OUTCOME: ${{ steps.github_review.outcome }}
+        MERGE_GUARD_COMPARISON_REQUESTED: ${{ inputs.compare }}
+        MERGE_GUARD_COMPARISON_PATH: ${{ steps.finding_comparison.outputs.comparison_path }}
+        MERGE_GUARD_COMPARISON_STATUS: ${{ steps.finding_comparison.outputs.comparison_status }}
+        MERGE_GUARD_COMPARISON_OUTCOME: ${{ steps.finding_comparison.outcome }}
+        MERGE_GUARD_COMMENT_REQUESTED: ${{ inputs.comment }}
+        MERGE_GUARD_COMMENT_ELIGIBLE: ${{ github.event_name == 'pull_request' || inputs.comment-dry-run == 'true' }}
+        MERGE_GUARD_COMMENT_STATUS: ${{ steps.pr_comment.outputs.comment_status }}
+        MERGE_GUARD_COMMENT_RESULT: ${{ steps.pr_comment.outputs.comment_result }}
+      run: node "$GITHUB_ACTION_PATH/scripts/create-review-projection.js" >> "$GITHUB_OUTPUT"
 
     - name: Enforce merge-guard result
       if: ${{ steps.scan.outputs.exit_code != '0' }}

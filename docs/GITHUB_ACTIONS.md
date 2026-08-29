@@ -102,6 +102,8 @@ Set `compare: "true"` and pass `previous-report` to classify current findings ag
 
 Every successful scan also exposes `manifest-path`, an immutable artifact manifest bound to `report-path`. Storage remains caller-owned: the composite Action does not upload, download, retain, search, or delete workflow artifacts. The [explicit evidence handoff example](examples/github-actions-explicit-evidence-handoff.yml) grants only `contents: read` and `actions: read`, downloads one exact run ID and artifact name, asserts the expected prior commit, and uploads the new report/manifest pair with caller-selected retention.
 
+The Action exposes `projection-path` and `projection-status` for a schema-version 1 review-projection document. It records produced, skipped, unavailable, failed, or incomplete state for the report, manifest, comment, annotations, SARIF, comparison, and threshold channels. A comment permission failure emits a warning and a degraded projection while preserving local evidence. A canceled job cannot promise a finalizer ran, so that attempt is incomplete; the next rerun deterministically reconstructs its outputs and updates the one marker-owned comment.
+
 ## Direct CI mode
 
 The equivalent CLI mode is:
@@ -127,6 +129,8 @@ Remove `--dry-run` inside an authenticated GitHub Actions job to create or updat
 ## End-to-end fixture
 
 `npm run test:review-e2e` replays opened and synchronize events with two cumulative pull-request diffs. It validates report and comment rendering, changed-line annotations, SARIF, new/unchanged/resolved comparison, missing-history exit 2, threshold exit 1 with a retained report, and create-then-update comment behavior through an injected offline request adapter.
+
+`npm run test:review-projection` adds duplicate-event, rerun, fork/read-only permission, canceled-attempt recovery, partial projection failure, and retained-threshold-evidence contracts.
 
 `.github/workflows/review-experience-fixture.yml` also invokes the composite Action in report mode and dry-run comment mode. It supplies the first report explicitly to the second Action invocation, enables annotations and SARIF, and asserts all outputs. The workflow has only `contents: read`, uses no third-party secret or service, never uploads SARIF, and never writes a pull-request comment. See [review experience fixtures](review-experience-fixtures.md).
 

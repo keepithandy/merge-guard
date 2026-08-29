@@ -392,8 +392,12 @@ Live comments require `pull-requests: write`. Report-only mode does not. To rend
 | `comparison-path` | Finding-comparison JSON path when comparison is enabled. |
 | `comparison-status` | `compared`, `history-unavailable`, or `report-unavailable`; empty when comparison is disabled. |
 | `prior-evidence-status` | Strict prior-evidence status; empty for report-only comparison. |
+| `projection-path` | Versioned machine-readable status for every review-output channel. |
+| `projection-status` | `complete`, `degraded`, `failed`, or `incomplete`. |
 
 The Action generates the report and optional projections before enforcing the scan exit code, so evidence remains available when the threshold fails. It can generate annotations and SARIF together, even though their direct CLI stdout flags are mutually exclusive.
+
+Every run also produces a review-projection document covering the report, manifest, managed comment, annotations, SARIF, comparison, and threshold result. Missing comment permissions degrade publication without erasing valid local evidence. Canceled attempts make no completeness claim; a rerun reconstructs projection state from immutable inputs.
 
 On `pull_request` events, the Action forwards the event title and body as context only. Comparison is also explicit: Merge Guard never searches workflow history or downloads a previous artifact. Missing previous history is reported as unknown, not clean.
 
@@ -446,6 +450,7 @@ npm run test:pr-summary
 npm run test:github-review
 npm run test:finding-comparison
 npm run test:review-e2e
+npm run test:review-projection
 npm run test:dashboard-architecture
 npm run test:dashboard-import
 npm run test:dashboard-explorer

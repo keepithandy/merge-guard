@@ -124,6 +124,8 @@ Implemented by #142 with Action-generated manifests, strict prior-evidence wirin
 
 Exercise managed comments, annotations, SARIF, comparisons, and threshold results across reruns, fork permissions, canceled jobs, duplicate events, and partial failures.
 
+Implemented by #148 with a versioned channel-by-channel projection result, non-destructive comment permission degradation, one-comment duplicate/rerun convergence, retained threshold evidence, and explicit canceled-attempt recovery semantics.
+
 ### Reproducibility gate
 
 Given the same current and prior evidence, local and CI comparison results must be byte-stable apart from explicitly documented generated metadata.

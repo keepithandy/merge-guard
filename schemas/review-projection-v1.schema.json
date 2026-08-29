@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/review-projection-v1.schema.json",
+  "title": "Merge Guard review projection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "attemptOutcome", "channels", "semantics"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "status": { "enum": ["complete", "degraded", "failed", "incomplete"] },
+    "attemptOutcome": { "enum": ["completed", "cancelled"] },
+    "channels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report", "manifest", "comment", "annotations", "sarif", "comparison", "threshold"],
+      "properties": {
+        "report": { "$ref": "#/$defs/channel" },
+        "manifest": { "$ref": "#/$defs/channel" },
+        "comment": { "$ref": "#/$defs/channel" },
+        "annotations": { "$ref": "#/$defs/channel" },
+        "sarif": { "$ref": "#/$defs/channel" },
+        "comparison": { "$ref": "#/$defs/channel" },
+        "threshold": { "$ref": "#/$defs/channel" }
+      }
+    },
+    "semantics": { "type": "string", "minLength": 1 }
+  },
+  "$defs": {
+    "channel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "path", "reason", "result"],
+      "properties": {
+        "status": { "enum": ["produced", "skipped", "unavailable", "failed", "incomplete"] },
+        "path": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] },
+        "result": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

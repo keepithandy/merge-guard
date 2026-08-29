@@ -6,6 +6,7 @@ Merge Guard locks its complete pull-request review experience with deterministic
 
 ```bash
 npm run test:review-e2e
+npm run test:review-projection
 ```
 
 ## Two-push scenario
@@ -36,9 +37,12 @@ Dependency injection changes only transport during the fixture. Production calls
 - invokes the Action in dry-run comment mode for push 2;
 - enables and asserts annotations, SARIF, verified prior-evidence, and report comparison outputs;
 - proves a low threshold still fails after review outputs are produced.
+- asserts the versioned review-projection result and dry-run managed-comment outcome.
 
 The workflow grants only `contents: read`. `comment-dry-run: "true"` renders the real marker-prefixed comment body but returns before token, event, or GitHub API handling. The workflow does not use third-party secrets or services, post comments, upload SARIF, retrieve workflow history, publish packages, or create releases.
 
 ## Boundaries
 
 The fixture proves deterministic integration behavior, not hosted GitHub availability. Live comment permissions, code-scanning eligibility, artifact retention, and selection of a prior workflow report remain repository-owner responsibilities. Missing prior history stays explicit and cannot be interpreted as a clean comparison.
+
+The resilience contract separately models duplicate delivery, reruns, fork/read-only comment failures, canceled attempts, and individual projection failures. Cancellation is explicitly incomplete because GitHub may terminate a job before finalization; recovery is guaranteed by reconstructing the next attempt from immutable inputs, not by claiming cleanup ran.
