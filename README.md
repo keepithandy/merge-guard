@@ -451,6 +451,7 @@ npm run test:github-review
 npm run test:finding-comparison
 npm run test:review-e2e
 npm run test:review-projection
+npm run test:evidence-reproducibility
 npm run test:dashboard-architecture
 npm run test:dashboard-import
 npm run test:dashboard-explorer

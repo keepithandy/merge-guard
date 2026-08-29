@@ -1,0 +1,12 @@
+{
+  "previous-report.json": "fde3ddbae150d3d63bee55b2029ec0682e3052482de29344f141852cfa00480e",
+  "current-report.json": "7cfd79c546693e2f20d65dcaba1fbc525b4ddb72626e9c6e3559b4420d32b591",
+  "current-report.md": "ac36d7ca55e54d657c2674f5c04ac8f3a6e1d3744f540bd807fe780721325fc8",
+  "previous-report.manifest.json": "94cbfaaa16b4c617ca0d57ac8173a157f70dc69ed0c7158384be64ae24dabdc5",
+  "current-report.manifest.json": "99519d2864912bcab44b3a0aabb2aa87fde1d332b88bc4912a734b83b9fc8f7c",
+  "annotations.json": "b63b5b8c2d0e064e555b0646934322be35150b678ec50b333f89a72752809ece",
+  "merge-guard.sarif": "736a2ed1ea6584a58e4b94eca2a810015520c675b3818161c7b5753aca8c7c52",
+  "comparison.json": "1a93b6b651cd9da9e3a1b200d1dd6ea6334dc9c41a80c9f72c03b47d66b7bf0f",
+  "comparison.md": "146055674c9521a31005563938416f926ca1714f01493492e309a0fed0387454",
+  "review-projection.json": "c399771b9b7423890e5afbf9c639482af54281065559391c693e9a6478ef47ea"
+}

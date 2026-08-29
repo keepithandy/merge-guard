@@ -12,6 +12,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - Opt-in v1.3 prior-evidence verification that binds an explicitly supplied previous report to its artifact manifest and distinguishes verified, missing, stale, cross-branch, incompatible, and unverifiable evidence before comparison.
 - Caller-owned v1.3 CI evidence handoff with Action-generated report manifests, strict prior-evidence inputs/status, and a least-privilege explicit run-ID download/upload example.
 - Versioned v1.3 review-projection evidence for reruns, duplicate events, fork/read-only permissions, canceled attempts, threshold failures, and partial output failures without weakening scan results.
+- A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
 - Deterministic v1.2 impact evidence for rename, copy, binary, submodule, generated, oversized, and partial-history diff cases without inspecting changed contents or remote history.
 - A release-blocking v1.2 compatibility and performance gate proving additive v1 behavior and deterministic 750-package explicit graphs across the supported Node/OS matrix.
 
