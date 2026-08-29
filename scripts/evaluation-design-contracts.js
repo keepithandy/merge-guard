@@ -39,6 +39,7 @@ assert(design.indexOf('1. `validate`') < design.indexOf('2. `run`'), 'corpus val
 assert(design.includes('Every metric includes its numerator, denominator, excluded cases, and exclusion reasons.'));
 assert(design.includes('Thresholds may be revised only before the held-out run'));
 assert(design.includes('the next work targets the measured failure rather than adding extension infrastructure'));
+assert(design.includes('harness implementation accepted'), 'evaluation design must record the implemented harness state');
 
 console.log('historical PR evaluation harness design contracts passed');
-console.log('status=design-accepted,implementation-pending');
+console.log('status=design-accepted,harness-implemented,pilot-pending');

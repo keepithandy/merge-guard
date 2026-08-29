@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/historical-pr-corpus-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "corpusId", "cases"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "corpusId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$" },
+    "cases": { "type": "array", "minItems": 1, "maxItems": 500, "items": { "$ref": "#/$defs/case" } }
+  },
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "repositoryAlias", "partition", "directory", "setupMinutes", "repositoryShape", "ecosystem", "changeCategory", "diffSize"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$" },
+        "repositoryAlias": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$" },
+        "partition": { "enum": ["calibration", "held-out"] },
+        "directory": { "type": "string" },
+        "diff": { "type": "string" },
+        "labels": { "type": "string" },
+        "config": { "type": "string" },
+        "setupMinutes": { "type": "number", "minimum": 0, "maximum": 240 },
+        "repositoryShape": { "type": "string", "maxLength": 80 },
+        "ecosystem": { "type": "string", "maxLength": 80 },
+        "changeCategory": { "type": "string", "maxLength": 80 },
+        "diffSize": { "enum": ["small", "medium", "large"] }
+      }
+    }
+  }
+}

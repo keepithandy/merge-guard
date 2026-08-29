@@ -83,6 +83,9 @@ jobs:
       - name: Validate historical PR evaluation design
         run: npm run test:evaluation-design
 
+      - name: Run historical PR evaluation harness contracts
+        run: npm run test:historical-pr-evaluation
+
       - name: Run local dashboard architecture contracts
         run: npm run test:dashboard-architecture
 

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/historical-pr-labels-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "repositoryAlias", "lowRisk", "labelers", "adjudication", "concerns"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "caseId": { "type": "string" },
+    "repositoryAlias": { "type": "string" },
+    "lowRisk": { "type": "boolean" },
+    "labelers": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "object", "additionalProperties": false, "required": ["alias", "decision"], "properties": { "alias": { "type": "string" }, "decision": { "enum": ["include", "exclude"] } } } },
+    "adjudication": { "type": "object", "additionalProperties": false, "required": ["status"], "properties": { "status": { "enum": ["agreed", "resolved", "disputed"] } } },
+    "concerns": { "type": "array", "items": { "$ref": "#/$defs/concern" } }
+  },
+  "$defs": { "concern": { "type": "object", "additionalProperties": false, "required": ["id", "severity", "ruleFamilies", "paths", "provenance", "rationale"], "properties": { "id": { "type": "string" }, "severity": { "enum": ["low", "medium", "high"] }, "ruleFamilies": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "paths": { "type": "array", "items": { "type": "string" } }, "provenance": { "enum": ["incident", "review-comment", "maintainer-judgment", "synthetic-control"] }, "rationale": { "type": "string", "maxLength": 240 } } } }
+}

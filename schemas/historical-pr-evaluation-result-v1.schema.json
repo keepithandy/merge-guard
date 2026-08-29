@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/historical-pr-evaluation-result-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "tool", "toolVersion", "corpus", "metrics", "excludedCases", "runtimeMs", "semantics"],
+  "properties": { "schemaVersion": { "const": 1 }, "tool": { "const": "merge-guard" }, "toolVersion": { "type": "string" }, "corpus": { "type": "object" }, "metrics": { "type": "object" }, "excludedCases": { "type": "array" }, "runtimeMs": { "type": "number" }, "semantics": { "type": "string" } }
+}

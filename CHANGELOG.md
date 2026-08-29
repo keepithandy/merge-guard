@@ -13,6 +13,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - Caller-owned v1.3 CI evidence handoff with Action-generated report manifests, strict prior-evidence inputs/status, and a least-privilege explicit run-ID download/upload example.
 - Versioned v1.3 review-projection evidence for reruns, duplicate events, fork/read-only permissions, canceled attempts, threshold failures, and partial output failures without weakening scan results.
 - A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
+- An opt-in, local historical-PR evaluation harness with versioned corpus/result contracts, independent labels, calibration/held-out leakage controls, deterministic matching and aggregate metrics, and content-free outputs. It never uploads, fetches, executes changed code, or overwrites prior results.
 
 ## 1.3.0-beta.1 - 2026-08-29 (unpublished beta source version)
 

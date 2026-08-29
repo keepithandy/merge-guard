@@ -453,6 +453,7 @@ npm run test:review-e2e
 npm run test:review-projection
 npm run test:evidence-reproducibility
 npm run test:evaluation-design
+npm run test:historical-pr-evaluation
 npm run test:dashboard-architecture
 npm run test:dashboard-import
 npm run test:dashboard-explorer
@@ -479,7 +480,7 @@ npm run test:consumer-fixtures
 npm run release:check
 ```
 
-`npm run release:check` runs the full contract suite, including package/runtime/SBOM consistency, local/global/npx-style installation, security, performance, public-contract, artifact, distribution, and support gates, then validates the Action, sample reports, and package dry run. It does not publish packages, create tags, sign artifacts, or create releases.
+`npm run release:check` runs the full contract suite, including package/runtime/SBOM consistency, local historical-PR evaluation, local/global/npx-style installation, security, performance, public-contract, artifact, distribution, and support gates, then validates the Action, sample reports, and package dry run. It does not publish packages, create tags, sign artifacts, or create releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for the opt-in local corpus command and its privacy boundary.
 
 After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.1` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md).
 

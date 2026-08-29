@@ -146,7 +146,7 @@ Implemented by #152 as `1.3.0-beta.1`, with prerelease-aware version contracts a
 
 Implement the accepted [evaluation harness design](EVALUATION_HARNESS_DESIGN.md): a bounded local corpus, independent labels, calibration/held-out partitions, deterministic matching, and content-free aggregate results.
 
-Design accepted by #152 with preregistered corpus size, usefulness/noise/setup/runtime thresholds, privacy boundaries, leakage controls, and an explicit implementation deliverable list. Harness implementation and corpus results remain pending.
+Implemented by #154 with versioned corpus, labels, case-result, and aggregate schemas; path-safe bounded local loading; independent-label controls; deterministic exact matching; content-free JSON results; and release-blocking privacy, safety, and cross-platform contracts. A caller-owned pilot corpus and its results remain pending.
 
 ### Golden-path GitHub experience
 

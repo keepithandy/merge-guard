@@ -1,0 +1,5 @@
+diff --git a/src/client.js b/src/client.js
+--- a/src/client.js
++++ b/src/client.js
+@@ -1,1 +1,2 @@
++export async function load() { return fetch('/data'); }

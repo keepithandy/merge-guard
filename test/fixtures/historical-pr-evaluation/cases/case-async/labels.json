@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "caseId": "case-async",
+  "repositoryAlias": "repo-bravo",
+  "lowRisk": false,
+  "labelers": [{ "alias": "labeler-c", "decision": "include" }, { "alias": "labeler-d", "decision": "include" }],
+  "adjudication": { "status": "resolved" },
+  "concerns": [{ "id": "async-change", "severity": "high", "ruleFamilies": ["async-or-network"], "paths": ["src/client.js"], "provenance": "incident", "rationale": "network failure path changed" }]
+}

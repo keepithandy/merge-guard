@@ -1,0 +1,5 @@
+diff --git a/src/router.js b/src/router.js
+--- a/src/router.js
++++ b/src/router.js
+@@ -1,1 +1,2 @@
++export function navigate(path) { return path; }

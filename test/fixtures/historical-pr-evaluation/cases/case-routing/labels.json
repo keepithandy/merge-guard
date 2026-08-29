@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "caseId": "case-routing",
+  "repositoryAlias": "repo-alpha",
+  "lowRisk": false,
+  "labelers": [{ "alias": "labeler-a", "decision": "include" }, { "alias": "labeler-b", "decision": "include" }],
+  "adjudication": { "status": "agreed" },
+  "concerns": [{ "id": "routing-change", "severity": "medium", "ruleFamilies": ["routing-or-entry"], "paths": ["src/router.js"], "provenance": "review-comment", "rationale": "routing behavior changed" }]
+}

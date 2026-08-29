@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/historical-pr-case-result-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "caseId", "repositoryAlias", "partition", "inputHash", "configurationHash", "riskLevel", "mergeReadiness", "findingCount", "matchedFindingCount", "unmatchedPositiveFindingCount", "concernCount", "supportedConcernCount", "matchedConcernIds", "runtimeMs", "setupMinutes", "coverage"],
+  "properties": {
+    "schemaVersion": { "const": 1 }, "caseId": { "type": "string" }, "repositoryAlias": { "type": "string" }, "partition": { "enum": ["calibration", "held-out"] }, "inputHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "configurationHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }, "riskLevel": { "enum": ["LOW", "MEDIUM", "HIGH"] }, "mergeReadiness": { "type": "string" }, "findingCount": { "type": "integer", "minimum": 0 }, "matchedFindingCount": { "type": "integer", "minimum": 0 }, "unmatchedPositiveFindingCount": { "type": "integer", "minimum": 0 }, "concernCount": { "type": "integer", "minimum": 0 }, "supportedConcernCount": { "type": "integer", "minimum": 0 }, "matchedConcernIds": { "type": "array", "items": { "type": "string" } }, "runtimeMs": { "type": "number", "minimum": 0 }, "setupMinutes": { "type": "number", "minimum": 0 }, "coverage": { "type": "object" }
+  }
+}
