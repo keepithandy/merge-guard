@@ -8,14 +8,14 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 2. Remove adoption blockers and improve diagnostics in v1.1.
 3. Add evidence-based repository impact fidelity in v1.2.
 4. Make review evidence durable across CI runs in v1.3.
-5. Add an explicit, trustworthy extension lifecycle in v1.4.
+5. Validate usefulness and adoption readiness with a labeled historical-PR beta evaluation.
 6. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
 
-Only one milestone is active at a time. Documentation, fixtures, and design work for the next milestone may proceed when they do not freeze an implementation contract early. Owner-directed v1.1 preparation is recorded below, but v1.0 remains the active release priority until its separate external decisions are made.
+Only one milestone is active at a time. Beta field validation is active. Historical release evidence remains preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
 
 Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through reviewed GitHub pull requests and approved merges. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
 
-## Active queue — v1.0 launch gate
+## Historical queue — v1.0 launch gate
 
 ### Candidate validation
 
@@ -50,7 +50,7 @@ Acceptance:
 - the packet distinguishes prepared, approved, published, and verified states;
 - the launch gate closes only after the owner records an explicit decision.
 
-## Next queue — v1.1 adoption and diagnostics
+## Completed queue — v1.1 adoption and diagnostics
 
 Preparation evidence: source commit `8a8bba0b697699571fc8f6814d79c87c15ad069b` passed local `npm run release:check` with 114/114 checks and the pull-request Node 18/20/22/24 × Ubuntu/Windows matrix, smoke, composite-Action, and review-experience workflows. It does not claim a public npm installation result because v1.0 publication remains unapproved and unpublished. See [v1.1 preparation evidence](validation/V1.1_ADOPTION_DIAGNOSTICS.md).
 
@@ -78,7 +78,7 @@ Define issue templates and troubleshooting data that users may choose to share. 
 
 Implemented with privacy-safe issue templates, a no-telemetry support process, and doctor guidance that omits supplied values and absolute paths.
 
-## Later queue — v1.2 repository impact fidelity
+## Completed queue — v1.2 repository impact fidelity
 
 ### Impact metadata contract
 
@@ -106,7 +106,7 @@ Implemented by #146 with a release-blocking compatibility projection and a three
 
 v1.2 repository impact fidelity is complete: all four roadmap slices are implemented and release-gated.
 
-## Later queue — v1.3 durable review evidence
+## Completed queue — v1.3 durable review evidence
 
 ### Prior-evidence selection
 
@@ -134,23 +134,27 @@ Implemented by #150 with three isolated generation lanes, ten byte-compared dura
 
 v1.3 durable review evidence is complete: all four roadmap slices are implemented, release-gated, and preserve the frozen v1 behavior.
 
-## Later queue — v1.4 trusted extension lifecycle
+## Active queue — beta field validation and adoption readiness
 
-### Local extension inventory
+### Beta identity and packaging
 
-List explicitly installed policy packs and plugins with identity, source path, compatibility, permissions, checksums, and conformance state. Inventory is local and read-only.
+Align package, runtime, report, SBOM, release notes, decision packet, staging path, and current documentation to one explicit unpublished beta identity. No source change authorizes publication.
 
-### Install and upgrade contract
+Implemented by #152 as `1.3.0-beta.1`, with prerelease-aware version contracts and preserved historical identities. Publication remains pending a separate owner decision.
 
-Define caller-driven install, upgrade, rollback, and removal procedures. Merge Guard must not discover or fetch executable code from a remote registry.
+### Historical-PR evaluation harness
 
-### Verification and isolation
+Implement the accepted [evaluation harness design](EVALUATION_HARNESS_DESIGN.md): a bounded local corpus, independent labels, calibration/held-out partitions, deterministic matching, and content-free aggregate results.
 
-Enforce compatibility, checksum, attestation, permission, resource-limit, and worker-boundary checks before execution. Failures quarantine the extension without weakening core analysis.
+Design accepted by #152 with preregistered corpus size, usefulness/noise/setup/runtime thresholds, privacy boundaries, leakage controls, and an explicit implementation deliverable list. Harness implementation and corpus results remain pending.
 
-### Ecosystem conformance
+### Golden-path GitHub experience
 
-Expand the conformance kit with lifecycle, tampering, downgrade, timeout, malformed-output, and incompatible-runtime fixtures.
+Use pilot evidence to reduce default setup and review noise while keeping advanced evidence available and frozen v1 behavior compatible.
+
+### Pilot and calibration gate
+
+Run the preregistered held-out evaluation, publish a content-free results report, and choose improve, proceed, or stop without moving thresholds after results are known.
 
 ## Definition of ready
 
@@ -178,5 +182,5 @@ A delivery issue is done when:
 - Documentation and fixtures may run alongside implementation.
 - v1.2 graph work waits for the impact metadata contract.
 - v1.3 CI retrieval examples wait for immutable evidence-selection semantics.
-- v1.4 activation waits for inventory, compatibility, and integrity checks.
+- Extension lifecycle work is deferred until field evidence shows repeated demand and the beta usefulness gate passes.
 - No milestone may weaken CLI determinism, local usefulness, or the frozen v1 contracts to accelerate delivery.

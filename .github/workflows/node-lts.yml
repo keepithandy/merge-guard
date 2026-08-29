@@ -80,6 +80,9 @@ jobs:
       - name: Certify durable review evidence reproducibility
         run: npm run test:evidence-reproducibility
 
+      - name: Validate historical PR evaluation design
+        run: npm run test:evaluation-design
+
       - name: Run local dashboard architecture contracts
         run: npm run test:dashboard-architecture
 

@@ -256,6 +256,7 @@ for (const packagePath of [
   'docs/finding-comparisons.md',
   'docs/review-experience-fixtures.md',
   'docs/evidence-reproducibility.md',
+  'docs/EVALUATION_HARNESS_DESIGN.md',
   'docs/architecture/dashboard-architecture.md',
   'docs/architecture/dashboard-threat-model.md',
   'docs/architecture/decisions/0001-local-dashboard-boundary.md',
@@ -299,6 +300,7 @@ assert(fs.existsSync('src/findingComparison.js'), 'Finding-comparison module sho
 assert(fs.existsSync('scripts/review-experience-e2e.js'), 'Review experience fixture runner should exist');
 assert(fs.existsSync('scripts/review-projection-contracts.js'), 'Review projection resilience gate should exist');
 assert(fs.existsSync('scripts/evidence-reproducibility-contracts.js'), 'Evidence reproducibility gate should exist');
+assert(fs.existsSync('scripts/evaluation-design-contracts.js'), 'Historical PR evaluation design gate should exist');
 assert(fs.existsSync('test/snapshots/evidence-reproducibility-v1.json'), 'Evidence reproducibility hash snapshot should exist');
 assert(fs.existsSync('schemas/review-projection-v1.schema.json'), 'Review projection schema should exist');
 assert(fs.existsSync('.github/workflows/review-experience-fixture.yml'), 'Review experience workflow should exist');
@@ -338,6 +340,7 @@ assert(packageMetadata.scripts?.['test:finding-comparison'], 'Package should exp
 assert(packageMetadata.scripts?.['test:review-e2e'], 'Package should expose the end-to-end review gate');
 assert(packageMetadata.scripts?.['test:review-projection'], 'Package should expose the review projection resilience gate');
 assert(packageMetadata.scripts?.['test:evidence-reproducibility'], 'Package should expose the evidence reproducibility gate');
+assert(packageMetadata.scripts?.['test:evaluation-design'], 'Package should expose the historical PR evaluation design gate');
 assert(packageMetadata.scripts?.['test:dashboard-architecture'], 'Package should expose the dashboard architecture gate');
 assert(packageMetadata.scripts?.['test:dashboard-import'], 'Package should expose the dashboard import gate');
 assert(packageMetadata.scripts?.['test:dashboard-explorer'], 'Package should expose the dashboard explorer gate');
@@ -386,6 +389,7 @@ assert(readme.includes('compare-reports.js'), 'README should document immutable 
 assert(readme.includes('npm run test:review-e2e'), 'README should document end-to-end review validation');
 assert(readme.includes('npm run test:review-projection'), 'README should document review projection resilience validation');
 assert(readme.includes('npm run test:evidence-reproducibility'), 'README should document durable evidence reproducibility validation');
+assert(readme.includes('npm run test:evaluation-design'), 'README should document the historical PR evaluation design gate');
 assert(readme.includes('npm run test:dashboard-architecture'), 'README should document the dashboard architecture gate');
 assert(readme.includes('npm run test:dashboard-import'), 'README should document the dashboard import gate');
 assert(readme.includes('npm run test:dashboard-explorer'), 'README should document the dashboard explorer gate');

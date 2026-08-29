@@ -8,7 +8,7 @@ It does not require an AI provider or API key, and it never runs discovered proj
 
 [Quick start](#quick-start) · [CLI](#cli-usage) · [Configuration](#configuration) · [GitHub Action](#reusable-github-action) · [Documentation](#documentation)
 
-> **v1.1.0 source status:** The current repository, package, runtime, report, and SBOM identify `1.1.0`. This source version is unpublished and has not been approved, tagged, signed, or published to npm or GitHub. The earlier [v1.0 candidate record](docs/releases/V1.0.0_RELEASE_DECISION.md) remains historical evidence, not publication authorization. Use a reviewed source checkout or composite Action commit SHA.
+> **v1.3.0-beta.1 source status:** The current repository, package, runtime, report, and SBOM identify `1.3.0-beta.1`. This beta source is unpublished and has not been approved, tagged, signed, or published to npm or GitHub. Earlier candidate records remain historical evidence, not publication authorization. Use a reviewed source checkout or composite Action commit SHA.
 
 ## What it answers
 
@@ -452,6 +452,7 @@ npm run test:finding-comparison
 npm run test:review-e2e
 npm run test:review-projection
 npm run test:evidence-reproducibility
+npm run test:evaluation-design
 npm run test:dashboard-architecture
 npm run test:dashboard-import
 npm run test:dashboard-explorer
@@ -480,15 +481,15 @@ npm run release:check
 
 `npm run release:check` runs the full contract suite, including package/runtime/SBOM consistency, local/global/npx-style installation, security, performance, public-contract, artifact, distribution, and support gates, then validates the Action, sample reports, and package dry run. It does not publish packages, create tags, sign artifacts, or create releases.
 
-After committing a reviewed candidate, `npm run release:stage -- release/v1.1.0` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.1.0 decision packet](docs/releases/V1.1.0_RELEASE_DECISION.md).
+After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.1` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md).
 
 ## Documentation
 
 | Topic | Reference |
 | --- | --- |
 | Project direction | [Post-v1 roadmap](ROADMAP.md) |
-| Current source version | [v1.1.0 decision packet](docs/releases/V1.1.0_RELEASE_DECISION.md) |
-| Current source notes | [v1.1.0 release notes](docs/releases/V1.1.0_RELEASE_NOTES.md) |
+| Current source version | [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md) |
+| Current source notes | [v1.3.0-beta.1 release notes](docs/releases/V1.3.0-beta.1_RELEASE_NOTES.md) |
 | Historical v1.0 candidate | [v1.0 decision packet](docs/releases/V1.0.0_RELEASE_DECISION.md) |
 | Version policy and history | [Versioning](docs/versioning.md) |
 | Installation and diagnostics | [Supported journeys and doctor](docs/adoption-and-diagnostics.md) |

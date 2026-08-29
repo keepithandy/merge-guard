@@ -66,7 +66,7 @@ npm pack --dry-run
 
 `npm run release:check` runs every documented local contract gate, including package/runtime/SBOM consistency, local/global/npx-style installation, security, performance, public contracts, artifacts, distribution, and support. `npm run test:review-e2e` separately validates the complete GitHub review path, while `npm run test:dashboard-architecture` validates the accepted local browser/process/file/network boundary. These commands do not publish.
 
-Stage a reviewed immutable candidate with `npm run release:stage -- release/v1.1.0`; the command builds twice from a detached checkout and records the complete subject hashes without signing, tagging, or publishing. The GitHub compatibility matrix runs these contracts on Node 18, 20, 22, and 24 across Ubuntu and Windows. A configured matrix is not a passing result for a candidate; see `docs/releases/V1.1.0_RELEASE_DECISION.md`.
+Stage a reviewed immutable candidate with `npm run release:stage -- release/v1.3.0-beta.1`; the command builds twice from a detached checkout and records the complete subject hashes without signing, tagging, or publishing. The GitHub compatibility matrix runs these contracts on Node 18, 20, 22, and 24 across Ubuntu and Windows. A configured matrix is not a passing result for a candidate; see `docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md`.
 
 ## Manual release checklist
 
