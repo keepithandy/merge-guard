@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "corpusId": "fixture-evaluation-v1",
+  "cases": [
+    { "id": "case-routing", "repositoryAlias": "repo-alpha", "partition": "calibration", "directory": "cases/case-routing", "setupMinutes": 3, "repositoryShape": "single-package", "ecosystem": "node", "changeCategory": "routing", "diffSize": "small" },
+    { "id": "case-async", "repositoryAlias": "repo-bravo", "partition": "held-out", "directory": "cases/case-async", "setupMinutes": 4, "repositoryShape": "single-package", "ecosystem": "node", "changeCategory": "network", "diffSize": "small" },
+    { "id": "case-docs", "repositoryAlias": "repo-charlie", "partition": "held-out", "directory": "cases/case-docs", "setupMinutes": 2, "repositoryShape": "single-package", "ecosystem": "node", "changeCategory": "docs", "diffSize": "small" }
+  ]
+}

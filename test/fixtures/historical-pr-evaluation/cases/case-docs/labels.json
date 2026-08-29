@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "caseId": "case-docs",
+  "repositoryAlias": "repo-charlie",
+  "lowRisk": true,
+  "labelers": [{ "alias": "labeler-e", "decision": "include" }, { "alias": "labeler-f", "decision": "include" }],
+  "adjudication": { "status": "agreed" },
+  "concerns": []
+}

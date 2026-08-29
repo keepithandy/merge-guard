@@ -39,6 +39,7 @@
     "test:review-projection": "node scripts/review-projection-contracts.js",
     "test:evidence-reproducibility": "node scripts/evidence-reproducibility-contracts.js",
     "test:evaluation-design": "node scripts/evaluation-design-contracts.js",
+    "test:historical-pr-evaluation": "node scripts/historical-pr-evaluation-contracts.js",
     "test:dashboard-architecture": "node scripts/dashboard-architecture-contracts.js",
     "test:dashboard-import": "node scripts/dashboard-import-contracts.js",
     "test:dashboard-explorer": "node scripts/dashboard-explorer-contracts.js",
@@ -63,6 +64,7 @@
     "test:doctor": "node scripts/doctor-contracts.js",
     "test:consumer-fixtures": "node scripts/consumer-conformance-contracts.js",
     "compare": "node scripts/compare-reports.js",
+    "eval:historical-prs": "node scripts/evaluate-historical-prs.js",
     "release:stage": "node scripts/stage-release.js",
     "release:check": "node scripts/release-readiness.js"
   },

@@ -1,6 +1,6 @@
 # Historical pull-request evaluation harness design
 
-Status: **design accepted for beta validation; implementation and corpus results pending**
+Status: **harness implementation accepted; caller-owned corpus and pilot results pending**
 
 Tracking milestone: field validation and adoption readiness after `1.3.0-beta.1`.
 
@@ -108,13 +108,13 @@ Thresholds may be revised only before the held-out run, with a dated rationale. 
 
 ## Deliverables for implementation
 
-1. Versioned corpus-manifest, label, case-result, and aggregate-result schemas.
-2. Path-safe, bounded, read-only corpus loader.
-3. Deterministic label matcher and metric calculator with unit fixtures.
-4. Calibration and held-out execution modes with preregistration evidence.
-5. Local HTML/Markdown and JSON aggregate outputs that contain no diff text.
-6. Cross-platform reproducibility, performance, security, and privacy gates.
-7. A pilot report that recommends improve, proceed, or stop based on the preregistered result.
+1. Versioned corpus-manifest, label, case-result, and aggregate-result schemas. **Implemented.**
+2. Path-safe, bounded, read-only corpus loader. **Implemented.**
+3. Deterministic label matcher and metric calculator with unit fixtures. **Implemented.**
+4. Calibration and held-out execution modes with preregistration evidence. **Implemented locally; pilot corpus pending.**
+5. Local JSON aggregate outputs that contain no diff text. **Implemented.** HTML/Markdown presentation remains optional follow-up work.
+6. Cross-platform reproducibility, performance, security, and privacy gates. **Implemented.**
+7. A pilot report that recommends improve, proceed, or stop based on the preregistered result. **Pending caller-owned corpus and pilot.**
 
 ## Decision after the pilot
 

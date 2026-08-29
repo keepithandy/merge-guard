@@ -257,6 +257,7 @@ for (const packagePath of [
   'docs/review-experience-fixtures.md',
   'docs/evidence-reproducibility.md',
   'docs/EVALUATION_HARNESS_DESIGN.md',
+  'docs/historical-pr-evaluation.md',
   'docs/architecture/dashboard-architecture.md',
   'docs/architecture/dashboard-threat-model.md',
   'docs/architecture/decisions/0001-local-dashboard-boundary.md',
@@ -301,6 +302,13 @@ assert(fs.existsSync('scripts/review-experience-e2e.js'), 'Review experience fix
 assert(fs.existsSync('scripts/review-projection-contracts.js'), 'Review projection resilience gate should exist');
 assert(fs.existsSync('scripts/evidence-reproducibility-contracts.js'), 'Evidence reproducibility gate should exist');
 assert(fs.existsSync('scripts/evaluation-design-contracts.js'), 'Historical PR evaluation design gate should exist');
+assert(fs.existsSync('src/historicalPrEvaluation.js'), 'Historical PR evaluation module should exist');
+assert(fs.existsSync('scripts/evaluate-historical-prs.js'), 'Historical PR evaluation CLI should exist');
+assert(fs.existsSync('scripts/historical-pr-evaluation-contracts.js'), 'Historical PR evaluation harness gate should exist');
+assert(fs.existsSync('schemas/historical-pr-corpus-v1.schema.json'), 'Historical PR corpus schema should exist');
+assert(fs.existsSync('schemas/historical-pr-labels-v1.schema.json'), 'Historical PR labels schema should exist');
+assert(fs.existsSync('schemas/historical-pr-case-result-v1.schema.json'), 'Historical PR case-result schema should exist');
+assert(fs.existsSync('schemas/historical-pr-evaluation-result-v1.schema.json'), 'Historical PR aggregate-result schema should exist');
 assert(fs.existsSync('test/snapshots/evidence-reproducibility-v1.json'), 'Evidence reproducibility hash snapshot should exist');
 assert(fs.existsSync('schemas/review-projection-v1.schema.json'), 'Review projection schema should exist');
 assert(fs.existsSync('.github/workflows/review-experience-fixture.yml'), 'Review experience workflow should exist');
@@ -341,6 +349,8 @@ assert(packageMetadata.scripts?.['test:review-e2e'], 'Package should expose the 
 assert(packageMetadata.scripts?.['test:review-projection'], 'Package should expose the review projection resilience gate');
 assert(packageMetadata.scripts?.['test:evidence-reproducibility'], 'Package should expose the evidence reproducibility gate');
 assert(packageMetadata.scripts?.['test:evaluation-design'], 'Package should expose the historical PR evaluation design gate');
+assert(packageMetadata.scripts?.['test:historical-pr-evaluation'], 'Package should expose the historical PR evaluation harness gate');
+assert(packageMetadata.scripts?.['eval:historical-prs'], 'Package should expose the local historical PR evaluation command');
 assert(packageMetadata.scripts?.['test:dashboard-architecture'], 'Package should expose the dashboard architecture gate');
 assert(packageMetadata.scripts?.['test:dashboard-import'], 'Package should expose the dashboard import gate');
 assert(packageMetadata.scripts?.['test:dashboard-explorer'], 'Package should expose the dashboard explorer gate');
@@ -390,6 +400,7 @@ assert(readme.includes('npm run test:review-e2e'), 'README should document end-t
 assert(readme.includes('npm run test:review-projection'), 'README should document review projection resilience validation');
 assert(readme.includes('npm run test:evidence-reproducibility'), 'README should document durable evidence reproducibility validation');
 assert(readme.includes('npm run test:evaluation-design'), 'README should document the historical PR evaluation design gate');
+assert(readme.includes('npm run test:historical-pr-evaluation'), 'README should document the historical PR evaluation harness gate');
 assert(readme.includes('npm run test:dashboard-architecture'), 'README should document the dashboard architecture gate');
 assert(readme.includes('npm run test:dashboard-import'), 'README should document the dashboard import gate');
 assert(readme.includes('npm run test:dashboard-explorer'), 'README should document the dashboard explorer gate');
