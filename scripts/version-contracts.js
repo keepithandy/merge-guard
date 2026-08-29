@@ -15,9 +15,9 @@ const packageJson = json('package.json');
 const sbom = json('docs/security/sbom.json');
 const version = packageJson.version;
 const releasePrefix = `V${version}`;
-const historicalVersions = ['0.1.0', '0.2.0', '1.0.0'];
+const historicalVersions = ['0.1.0', '0.2.0', '1.0.0', '1.1.0'];
 
-assert.match(version, /^\d+\.\d+\.\d+$/, 'package version must be semantic versioning');
+assert.match(version, /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, 'package version must be semantic versioning, optionally with a prerelease identifier');
 assert.equal(MERGE_GUARD_VERSION, version, 'runtime version must match package.json');
 assert.equal(analyzeDiff(read('examples/sample.diff')).version, version, 'report version must match package.json');
 assert.equal(sbom.metadata?.component?.name, packageJson.name, 'SBOM package name must match package.json');

@@ -4,21 +4,21 @@ This is the canonical roadmap for work after the v1.0 release candidate. It desc
 
 ## Current state
 
-The v1.0 launch gate is active. The prior `9fc0891743d27d65a889fc93fab5d8bca67e8cde` main commit passed its configured CI matrix but was rejected as a release candidate after package inspection found stale `0.1.0` runtime and compatibility identifiers beside `1.0.0` package metadata. The replacement candidate is immutable commit `636a1e9812bb017dae69be122b36555b89db5e77`: a clean detached staging run passed 108/108 local checks, two package builds were byte-identical, the staged package and SBOM identify `1.0.0`, and the exact commit passed the eight-job Node 18/20/22/24 × Ubuntu/Windows matrix. Its auditable evidence was merged through PR #133 at `33345e1855028163f72034c16ffb933bdafc7d66`. It is prepared but unsigned, unapproved for external release actions, unpublished, and unverified. Tagging, publishing to npm, creating a GitHub release, and moving a major-version Action tag remain manual owner decisions.
+The historical v1.0 candidate at `636a1e9812bb017dae69be122b36555b89db5e77` passed its release gates and reproducible staging checks but remained unsigned, unapproved for external release actions, unpublished, and unverified. Its evidence remains immutable history; it is not the active product milestone. Tagging, npm publication, GitHub release creation, and stable Action-reference movement remain manual owner decisions for any version.
 
-The current `main` source identity is `1.1.0`; it incorporates the owner-directed adoption and diagnostics work without changing the historical v1.0 candidate or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
+The current `main` source identity is `1.3.0-beta.1`; it consolidates the completed v1.1, v1.2, and v1.3 source work into an explicit unpublished beta without changing historical candidates or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
 
-Owner-directed v1.1 preparation is implemented at immutable commit `8a8bba0b697699571fc8f6814d79c87c15ad069b`. Its local `npm run release:check` result is 114/114 passing, including deterministic doctor, consumer-fixture, public-contract, support, installation, security, performance, distribution, and artifact gates. The exact commit also passed the eight-job GitHub Node 18/20/22/24 × Ubuntu/Windows matrix and the smoke, composite-Action, and review-experience workflows. This does not close the v1.1 milestone or change the v1.0 release state: the public npm journey cannot be verified until a separately approved publication exists. See [v1.1 preparation evidence](docs/validation/V1.1_ADOPTION_DIAGNOSTICS.md).
+The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. Their completion does not claim that Merge Guard is useful enough for broad adoption; that is the purpose of the active beta-validation milestone.
 
 The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md).
 
 ## Active priority
 
-### v1.0 launch gate — publish deliberately
+### Beta field validation — prove usefulness before expanding
 
-Validate the release candidate from its immutable commit, rehearse install and rollback paths, and assemble the owner approval packet. Validation must never publish, tag, or move a release reference by itself.
+Align one explicit beta identity, implement the accepted historical-PR evaluation harness, simplify the golden-path experience from measured evidence, and run a preregistered held-out pilot. Validation must remain local and must never publish, upload a corpus, tag, or move a release reference by itself.
 
-Exit gate: the documented release checks pass against the exact candidate, artifacts and checksums are reproducible, rollback is rehearsed, and an owner explicitly approves each external release action.
+Exit gate: the beta passes release checks and reaches the preregistered usefulness thresholds, or records an honest no-go result and corrective plan.
 
 ## Planned milestones
 
@@ -27,7 +27,7 @@ Exit gate: the documented release checks pass against the exact candidate, artif
 | v1.1 | Adoption and diagnostics | New users can install, configure, and troubleshoot Merge Guard from actionable, privacy-safe output. |
 | v1.2 | Repository impact fidelity | Explicit repository metadata can improve affected-package reasoning without executing project code or guessing dependency edges. |
 | v1.3 | Durable review evidence | Teams can carry immutable Merge Guard evidence across pull-request pushes and CI runs with clear provenance and failure semantics. |
-| v1.4 | Trusted extension lifecycle | Locally installed policies and rule plugins have explicit discovery, compatibility, integrity, and upgrade workflows. |
+| Beta validation | Field validation and adoption readiness | A labeled historical-PR evaluation demonstrates whether findings are actionable, sufficiently complete within supported scope, and easy to adopt. |
 
 Milestone versions are directional. Patch releases may ship independently when they are compatible, narrowly scoped fixes.
 
@@ -60,14 +60,14 @@ Exit gate: every impact claim is deterministic and traceable to checked-in evide
 
 Exit gate: a reviewer can identify the exact current and prior evidence, understand unavailable or untrusted history, and reproduce comparison output locally.
 
-### v1.4 — Trusted extension lifecycle
+### Beta validation — Field validation and adoption readiness
 
-- Add explicit local discovery and selection for policy packs and rule plugins.
-- Verify compatibility, checksums, attestations, permissions, and limits before execution.
-- Define install, upgrade, rollback, and conformance workflows without automatic remote code retrieval.
-- Keep third-party code outside the core trust boundary and make unsupported guarantees clear.
+- Align source, package, runtime, SBOM, notes, and decision templates to one explicit beta identity.
+- Build a local, labeled historical-PR evaluation harness with calibration and held-out partitions.
+- Measure actionability, supported-scope recall, noise, specificity, setup effort, and runtime without telemetry or uploads.
+- Simplify defaults or improve core analysis according to preregistered results before expanding the extension surface.
 
-Exit gate: extensions are never fetched or activated implicitly, incompatible or unverifiable inputs fail closed, and the conformance kit covers lifecycle and isolation failures.
+Exit gate: an immutable beta passes release gates and a preregistered held-out evaluation reaches the documented usefulness thresholds, or the milestone records an honest no-go result and the measured corrective plan.
 
 ## v2 decision checkpoint
 

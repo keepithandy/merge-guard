@@ -13,6 +13,14 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - Caller-owned v1.3 CI evidence handoff with Action-generated report manifests, strict prior-evidence inputs/status, and a least-privilege explicit run-ID download/upload example.
 - Versioned v1.3 review-projection evidence for reruns, duplicate events, fork/read-only permissions, canceled attempts, threshold failures, and partial output failures without weakening scan results.
 - A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
+
+## 1.3.0-beta.1 - 2026-08-29 (unpublished beta source version)
+
+Status: consolidated beta identity only. Signing, tagging, npm publication, GitHub release creation, stable Action-reference changes, and Marketplace publication remain separately owner-controlled.
+
+This beta consolidates the completed v1.1 adoption diagnostics, v1.2 explicit repository-impact fidelity, and v1.3 durable review-evidence work while preserving JSON report schema version 1 and the frozen v1 scoring behavior.
+
+The next milestone is field validation: a release-gated historical-PR evaluation design replaces premature extension-lifecycle work with preregistered usefulness, noise, setup-effort, privacy, and runtime measurements.
 - Deterministic v1.2 impact evidence for rename, copy, binary, submodule, generated, oversized, and partial-history diff cases without inspecting changed contents or remote history.
 - A release-blocking v1.2 compatibility and performance gate proving additive v1 behavior and deterministic 750-package explicit graphs across the supported Node/OS matrix.
 

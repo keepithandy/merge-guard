@@ -4,9 +4,9 @@
 
 | Identity | Value |
 | --- | --- |
-| Current source version | `1.1.0` |
-| Runtime report version | `1.1.0` |
-| Package and SBOM version | `1.1.0` |
+| Current source version | `1.3.0-beta.1` |
+| Runtime report version | `1.3.0-beta.1` |
+| Package and SBOM version | `1.3.0-beta.1` |
 | Report schema version | `1` |
 | Publication state | Unpublished; no tag, npm package, GitHub release, Action-reference move, or Marketplace listing is authorized by this source version |
 
@@ -19,7 +19,8 @@ The current source version is verified by `npm run test:version`. The contract c
 | `0.1.0` | 2026-07-06 | Historical development baseline; unpublished | Original CLI, reports, CI mode, presets, configuration, and optional AI-ready prompt output |
 | `0.2.0` | 2026-08-24 | Historical candidate; unpublished | Action integration, custom rules, PR context, configuration diagnostics, suppressions, report contracts, and cross-platform validation |
 | `1.0.0` | 2026-08-25 through 2026-08-27 | Historical prepared candidate; unpublished | Public contract, repository intelligence, policies, review projections, dashboard, plugins, and release/security/support gates |
-| `1.1.0` | 2026-08-27 | Current unpublished source version | Deterministic doctor diagnostics, supported adoption journeys, consumer fixtures, privacy-safe feedback, and safe regex rejection |
+| `1.1.0` | 2026-08-27 | Historical unpublished source version | Deterministic doctor diagnostics, supported adoption journeys, consumer fixtures, privacy-safe feedback, and safe regex rejection |
+| `1.3.0-beta.1` | 2026-08-29 | Current unpublished beta source version | Explicit impact fidelity, durable review evidence, degraded-state resilience, and cross-platform reproducibility gates |
 
 `CHANGELOG.md` is the user-facing change history. The release decision and release notes for the current source version are preparation documents only: they do not authorize signing, tagging, publication, or any external mutation.
 
