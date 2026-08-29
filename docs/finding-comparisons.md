@@ -80,6 +80,8 @@ It writes `merge-guard-comparison.json`, appends the Markdown comparison to the 
 
 Merge Guard does not search workflow history, download artifacts, or choose a previous run automatically. The caller must retrieve and supply the intended immutable report. That explicit boundary prevents accidental comparison against the wrong branch, pull request, or configuration.
 
+The composite Action generates a manifest for its current report and exposes `manifest-path`. It accepts `previous-manifest`, the three optional expected-identity inputs, and exposes `prior-evidence-status`. Upload and retrieval remain separate caller-owned steps; use the [least-privilege explicit handoff example](examples/github-actions-explicit-evidence-handoff.yml) as a starting point.
+
 ## Conformance
 
 ```bash

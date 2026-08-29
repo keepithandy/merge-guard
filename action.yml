@@ -53,6 +53,22 @@ inputs:
     description: Optional path to the previous JSON report used when comparison is enabled.
     required: false
     default: ""
+  previous-manifest:
+    description: Optional artifact manifest bound to the previous JSON report.
+    required: false
+    default: ""
+  expected-previous-repository:
+    description: Optional repository identity asserted for strict prior-evidence verification.
+    required: false
+    default: ""
+  expected-previous-branch:
+    description: Optional branch identity asserted for strict prior-evidence verification.
+    required: false
+    default: ""
+  expected-previous-commit:
+    description: Optional commit identity asserted for strict prior-evidence verification.
+    required: false
+    default: ""
   diff-path:
     description: Optional path to a prebuilt diff file. When omitted, the action generates the pull request diff.
     required: false
@@ -66,6 +82,9 @@ outputs:
   report-path:
     description: Path to the complete JSON report generated from the authoritative diff.
     value: ${{ steps.scan.outputs.report_path }}
+  manifest-path:
+    description: Path to the immutable artifact manifest bound to the JSON report.
+    value: ${{ steps.evidence.outputs.manifest_path }}
   annotations-path:
     description: Path to the annotation bundle when annotations are enabled.
     value: ${{ steps.github_review.outputs.annotations_path }}
@@ -78,6 +97,9 @@ outputs:
   comparison-status:
     description: compared, history-unavailable, or report-unavailable.
     value: ${{ steps.finding_comparison.outputs.comparison_status }}
+  prior-evidence-status:
+    description: verified, missing, stale, cross-branch, incompatible, unverifiable, or empty for report-only comparison.
+    value: ${{ steps.finding_comparison.outputs.prior_evidence_status }}
 
 runs:
   using: composite
@@ -158,6 +180,28 @@ runs:
         echo "diff_path=$diff_file" >> "$GITHUB_OUTPUT"
         echo "report_path=merge-guard-report.json" >> "$GITHUB_OUTPUT"
 
+    - name: Generate immutable report artifact manifest
+      id: evidence
+      shell: bash
+      env:
+        MERGE_GUARD_REPORT_PATH: ${{ steps.scan.outputs.report_path }}
+        MERGE_GUARD_REPOSITORY: ${{ github.repository }}
+        MERGE_GUARD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        MERGE_GUARD_BRANCH: ${{ github.head_ref || github.ref_name }}
+      run: |
+        manifest_path="merge-guard-report.manifest.json"
+        if [ ! -s "$MERGE_GUARD_REPORT_PATH" ]; then
+          echo "JSON report was not produced; artifact manifest is unavailable."
+          echo "manifest_path=" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        manifest_args=(--report "$MERGE_GUARD_REPORT_PATH" --output "$manifest_path" --repository "$MERGE_GUARD_REPOSITORY" --commit "$MERGE_GUARD_COMMIT" --input-type diff)
+        if [ -n "$MERGE_GUARD_BRANCH" ]; then
+          manifest_args+=(--branch "$MERGE_GUARD_BRANCH")
+        fi
+        node "$GITHUB_ACTION_PATH/scripts/create-artifact-manifest.js" "${manifest_args[@]}"
+        echo "manifest_path=$manifest_path" >> "$GITHUB_OUTPUT"
+
     - name: Generate optional GitHub review outputs
       id: github_review
       if: ${{ inputs.annotations == 'true' || inputs.sarif == 'true' }}
@@ -199,6 +243,10 @@ runs:
       env:
         MERGE_GUARD_CURRENT_REPORT: ${{ steps.scan.outputs.report_path }}
         MERGE_GUARD_PREVIOUS_REPORT: ${{ inputs.previous-report }}
+        MERGE_GUARD_PREVIOUS_MANIFEST: ${{ inputs.previous-manifest }}
+        MERGE_GUARD_EXPECTED_REPOSITORY: ${{ inputs.expected-previous-repository }}
+        MERGE_GUARD_EXPECTED_BRANCH: ${{ inputs.expected-previous-branch }}
+        MERGE_GUARD_EXPECTED_COMMIT: ${{ inputs.expected-previous-commit }}
       run: |
         comparison_path="merge-guard-comparison.json"
         comparison_markdown="merge-guard-comparison.md"
@@ -212,6 +260,18 @@ runs:
         comparison_args=(--current "$MERGE_GUARD_CURRENT_REPORT" --output "$comparison_path" --markdown)
         if [ -n "$MERGE_GUARD_PREVIOUS_REPORT" ]; then
           comparison_args+=(--previous "$MERGE_GUARD_PREVIOUS_REPORT")
+        fi
+        if [ -n "$MERGE_GUARD_PREVIOUS_MANIFEST" ]; then
+          comparison_args+=(--previous-manifest "$MERGE_GUARD_PREVIOUS_MANIFEST")
+        fi
+        if [ -n "$MERGE_GUARD_EXPECTED_REPOSITORY" ]; then
+          comparison_args+=(--expected-repository "$MERGE_GUARD_EXPECTED_REPOSITORY")
+        fi
+        if [ -n "$MERGE_GUARD_EXPECTED_BRANCH" ]; then
+          comparison_args+=(--expected-branch "$MERGE_GUARD_EXPECTED_BRANCH")
+        fi
+        if [ -n "$MERGE_GUARD_EXPECTED_COMMIT" ]; then
+          comparison_args+=(--expected-commit "$MERGE_GUARD_EXPECTED_COMMIT")
         fi
 
         set +e
@@ -234,6 +294,7 @@ runs:
 
         echo "comparison_path=$comparison_path" >> "$GITHUB_OUTPUT"
         node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write('comparison_status='+value.status+'\n')" "$comparison_path" >> "$GITHUB_OUTPUT"
+        node -e "const fs=require('fs'); const value=JSON.parse(fs.readFileSync(process.argv[1],'utf8')); process.stdout.write('prior_evidence_status='+(value.priorEvidence?.status || '')+'\n')" "$comparison_path" >> "$GITHUB_OUTPUT"
 
     - name: Comment on pull request
       if: ${{ inputs.comment == 'true' && (github.event_name == 'pull_request' || inputs.comment-dry-run == 'true') }}

@@ -374,6 +374,10 @@ Live comments require `pull-requests: write`. Report-only mode does not. To rend
 | `sarif` | `false` | Generate `merge-guard.sarif`; it is not uploaded automatically. |
 | `compare` | `false` | Compare the current report with an explicitly supplied prior report. |
 | `previous-report` | empty | Optional immutable prior JSON report. If omitted while comparison is enabled, history is reported as unavailable. |
+| `previous-manifest` | empty | Optional artifact manifest bound to `previous-report`; enables strict v1.3 verification. |
+| `expected-previous-repository` | empty | Optional repository identity asserted for prior evidence. |
+| `expected-previous-branch` | empty | Optional branch identity asserted for prior evidence. |
+| `expected-previous-commit` | empty | Optional commit identity asserted for prior evidence. |
 | `diff-path` | empty | Path to a caller-created diff. |
 | `markdown` | `true` | Compatibility input; CI and comment reports remain Markdown. |
 
@@ -382,16 +386,18 @@ Live comments require `pull-requests: write`. Report-only mode does not. To rend
 | Output | Meaning |
 | --- | --- |
 | `report-path` | Complete JSON report generated from the authoritative diff. |
+| `manifest-path` | Immutable artifact manifest bound to the generated JSON report. |
 | `annotations-path` | Annotation bundle path when annotations are enabled. |
 | `sarif-path` | SARIF file path when SARIF generation is enabled. |
 | `comparison-path` | Finding-comparison JSON path when comparison is enabled. |
 | `comparison-status` | `compared`, `history-unavailable`, or `report-unavailable`; empty when comparison is disabled. |
+| `prior-evidence-status` | Strict prior-evidence status; empty for report-only comparison. |
 
 The Action generates the report and optional projections before enforcing the scan exit code, so evidence remains available when the threshold fails. It can generate annotations and SARIF together, even though their direct CLI stdout flags are mutually exclusive.
 
 On `pull_request` events, the Action forwards the event title and body as context only. Comparison is also explicit: Merge Guard never searches workflow history or downloads a previous artifact. Missing previous history is reported as unknown, not clean.
 
-See [GitHub Actions behavior](docs/GITHUB_ACTIONS.md), [pull-request summaries](docs/pull-request-summaries.md), [GitHub annotations and SARIF](docs/github-review-outputs.md), and [finding comparison](docs/finding-comparisons.md).
+See [GitHub Actions behavior](docs/GITHUB_ACTIONS.md), the [caller-owned evidence handoff example](docs/examples/github-actions-explicit-evidence-handoff.yml), [pull-request summaries](docs/pull-request-summaries.md), [GitHub annotations and SARIF](docs/github-review-outputs.md), and [finding comparison](docs/finding-comparisons.md).
 
 ## Finding comparison
 
@@ -445,6 +451,7 @@ npm run test:dashboard-import
 npm run test:dashboard-explorer
 npm run test:dashboard-accessibility
 npm run test:artifact-manifest
+npm run test:evidence-handoff
 npm run test:legacy-risk
 npm run test:report-trends
 npm run test:plugin-manifest

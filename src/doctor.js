@@ -13,11 +13,15 @@ const ACTION_INPUTS = [
   'comment-dry-run',
   'compare',
   'diff-path',
+  'expected-previous-branch',
+  'expected-previous-commit',
+  'expected-previous-repository',
   'fail-threshold',
   'impact-metadata',
   'markdown',
   'policy',
   'policy-config',
+  'previous-manifest',
   'previous-report',
   'preset',
   'sarif'
@@ -225,7 +229,7 @@ function inspectActionInputs(cwd, actionInputsPath) {
   if (inputs.policy && inputs['policy-config']) {
     return check('action-inputs', 'error', 'Action policy and policy-config cannot be selected together.', 'Select one policy source.');
   }
-  for (const name of ['policy-config', 'impact-metadata', 'previous-report', 'diff-path']) {
+  for (const name of ['policy-config', 'impact-metadata', 'previous-manifest', 'previous-report', 'diff-path']) {
     if (inputs[name] && !isSafeRepositoryPath(inputs[name])) {
       return check('action-inputs', 'error', `Action input ${name} must be a repository-relative path.`, 'Use a relative path without URLs or parent-directory traversal.');
     }
@@ -235,6 +239,15 @@ function inspectActionInputs(cwd, actionInputsPath) {
   }
   if (inputs.compare === 'true' && !inputs['previous-report']) {
     return check('action-inputs', 'warning', 'Finding comparison is enabled without an explicit prior report.', 'Supply previous-report or expect an explicit history-unavailable result.');
+  }
+  if (inputs['previous-manifest'] && !inputs['previous-report']) {
+    return check('action-inputs', 'error', 'A previous manifest requires its explicit previous report.', 'Supply previous-report together with previous-manifest.');
+  }
+  if (
+    (inputs['expected-previous-repository'] || inputs['expected-previous-branch'] || inputs['expected-previous-commit'])
+    && !inputs['previous-manifest']
+  ) {
+    return check('action-inputs', 'error', 'Expected prior identity requires an explicit previous manifest.', 'Supply previous-manifest or remove the expected prior identity inputs.');
   }
   return check('action-inputs', 'pass', 'Selected Action inputs are valid and contain no unsupported input names.');
 }

@@ -45,6 +45,8 @@ Full history is required when the Action creates the pull request diff. If `diff
 - `sarif`: generate `merge-guard.sarif` without uploading it; default `false`.
 - `compare`: compare current findings with an explicitly supplied prior report; default `false`.
 - `previous-report`: optional path to that immutable prior report.
+- `previous-manifest`: optional path to the artifact manifest bound to that prior report; enables strict v1.3 verification.
+- `expected-previous-repository`, `expected-previous-branch`, and `expected-previous-commit`: optional identity assertions for strict prior-evidence verification.
 - `diff-path`: optional path to a prebuilt diff.
 - `markdown`: print Markdown instead of plain text; default `true`. Comment mode always uses Markdown.
 
@@ -96,7 +98,9 @@ Comment mode uses the compact summary contract: highest-risk files first, follow
 
 Set `annotations: "true"` to emit deduplicated native workflow annotations for findings with valid added-line anchors. Set `sarif: "true"` to generate, but not upload, `merge-guard.sarif`. The Action outputs `report-path`, `annotations-path`, and `sarif-path`; generation requires no extra secrets. SARIF upload is deliberately separate and may require `security-events: write` plus repository code-scanning availability. See [GitHub annotations and SARIF](github-review-outputs.md).
 
-Set `compare: "true"` and pass `previous-report` to classify current findings against an explicitly retrieved prior JSON report. The Action exposes `comparison-path` and `comparison-status` and appends the comparison to the job summary and managed comment content. Without a previous report, status is `history-unavailable` and a warning is emitted; missing history is not reported as clean. Merge Guard never chooses or downloads prior artifacts automatically. See [finding comparison across pushes](finding-comparisons.md).
+Set `compare: "true"` and pass `previous-report` to classify current findings against an explicitly retrieved prior JSON report. Add `previous-manifest` plus any expected repository, branch, and commit assertions to enable strict v1.3 verification. The Action exposes `comparison-path`, `comparison-status`, and `prior-evidence-status` and appends the comparison to the job summary and managed comment content. Without usable history, status is `history-unavailable` and a warning is emitted; missing history is not reported as clean. Merge Guard never chooses or downloads prior artifacts automatically. See [finding comparison across pushes](finding-comparisons.md).
+
+Every successful scan also exposes `manifest-path`, an immutable artifact manifest bound to `report-path`. Storage remains caller-owned: the composite Action does not upload, download, retain, search, or delete workflow artifacts. The [explicit evidence handoff example](examples/github-actions-explicit-evidence-handoff.yml) grants only `contents: read` and `actions: read`, downloads one exact run ID and artifact name, asserts the expected prior commit, and uploads the new report/manifest pair with caller-selected retention.
 
 ## Direct CI mode
 

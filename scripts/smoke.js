@@ -278,7 +278,7 @@ assert(cliSource.includes('--policy'), 'CLI should expose explicit starter-polic
 assert(cliSource.includes('inspectRepository'), 'CLI should inspect repository-specific checks and package impact');
 
 const actionSource = fs.readFileSync('action.yml', 'utf8');
-for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'impact-metadata:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'report-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'diff-path:', '--impact-metadata', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js']) {
+for (const actionContract of ['comment:', 'comment-dry-run:', 'fail-threshold:', 'policy:', 'policy-config:', 'impact-metadata:', 'annotations:', 'sarif:', 'compare:', 'previous-report:', 'previous-manifest:', 'expected-previous-repository:', 'expected-previous-branch:', 'expected-previous-commit:', 'report-path:', 'manifest-path:', 'annotations-path:', 'sarif-path:', 'comparison-path:', 'comparison-status:', 'prior-evidence-status:', 'diff-path:', '--impact-metadata', '--pr-summary', '--report-json', '--dry-run', 'src/cli.js', 'scripts/pr-comment.js', 'scripts/github-review-outputs.js', 'scripts/compare-reports.js', 'scripts/create-artifact-manifest.js']) {
   assert(actionSource.includes(actionContract), `action.yml should include ${actionContract}`);
 }
 assert(fs.existsSync('src/cli.js'), 'Action CLI target should exist');
@@ -307,6 +307,7 @@ assert(fs.existsSync('scripts/dashboard-import-contracts.js'), 'Dashboard import
 assert(fs.existsSync('scripts/dashboard-explorer-contracts.js'), 'Dashboard explorer gate should exist');
 assert(fs.existsSync('scripts/dashboard-accessibility-contracts.js'), 'Dashboard accessibility gate should exist');
 assert(fs.existsSync('scripts/artifact-manifest-contracts.js'), 'Artifact manifest gate should exist');
+assert(fs.existsSync('scripts/evidence-handoff-contracts.js'), 'Evidence handoff gate should exist');
 assert(fs.existsSync('schemas/artifact-manifest-v1.schema.json'), 'Artifact manifest schema should exist');
 assert(fs.existsSync('scripts/legacy-risk-contracts.js'), 'Legacy risk gate should exist');
 assert(fs.existsSync('schemas/legacy-risk-v1.schema.json'), 'Legacy risk schema should exist');
@@ -335,6 +336,7 @@ assert(packageMetadata.scripts?.['test:dashboard-import'], 'Package should expos
 assert(packageMetadata.scripts?.['test:dashboard-explorer'], 'Package should expose the dashboard explorer gate');
 assert(packageMetadata.scripts?.['test:dashboard-accessibility'], 'Package should expose the dashboard accessibility gate');
 assert(packageMetadata.scripts?.['test:artifact-manifest'], 'Package should expose the artifact manifest gate');
+assert(packageMetadata.scripts?.['test:evidence-handoff'], 'Package should expose the evidence handoff gate');
 assert(packageMetadata.scripts?.['test:legacy-risk'], 'Package should expose the legacy risk gate');
 assert(packageMetadata.scripts?.['test:report-trends'], 'Package should expose the report trends gate');
 assert(packageMetadata.scripts?.['test:plugin-manifest'], 'Package should expose the plugin manifest gate');
@@ -379,6 +381,7 @@ assert(readme.includes('npm run test:dashboard-import'), 'README should document
 assert(readme.includes('npm run test:dashboard-explorer'), 'README should document the dashboard explorer gate');
 assert(readme.includes('npm run test:dashboard-accessibility'), 'README should document the dashboard accessibility gate');
 assert(readme.includes('npm run test:artifact-manifest'), 'README should document the artifact manifest gate');
+assert(readme.includes('caller-owned evidence handoff example'), 'README should document caller-owned evidence handoff');
 assert(readme.includes('npm run test:legacy-risk'), 'README should document the legacy risk gate');
 assert(readme.includes('npm run test:report-trends'), 'README should document the report trends gate');
 assert(readme.includes('npm run test:plugin-manifest'), 'README should document the plugin manifest gate');
@@ -394,6 +397,8 @@ assert(reviewWorkflow.includes('comment-dry-run: "true"'), 'Review workflow comm
 assert(reviewWorkflow.includes('annotations: "true"'), 'Review workflow should enable annotations');
 assert(reviewWorkflow.includes('sarif: "true"'), 'Review workflow should enable SARIF');
 assert(reviewWorkflow.includes('previous-report:'), 'Review workflow should compare successive reports');
+assert(reviewWorkflow.includes('previous-manifest:'), 'Review workflow should verify the prior report manifest');
+assert(reviewWorkflow.includes('prior-evidence-status'), 'Review workflow should assert prior-evidence status');
 assert(!reviewWorkflow.includes('secrets.'), 'Review workflow should not require repository or third-party secrets');
 
 const fixtureRoot = path.resolve('test/fixtures');

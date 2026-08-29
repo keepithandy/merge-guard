@@ -133,6 +133,7 @@ check('Version consistency gate exists', Boolean(read('scripts/version-contracts
 check('Doctor gate exists', Boolean(read('scripts/doctor-contracts.js')));
 check('Consumer conformance fixture gate exists', Boolean(read('scripts/consumer-conformance-contracts.js')));
 check('Impact metadata gate exists', Boolean(read('scripts/impact-metadata-contracts.js')));
+check('Evidence handoff gate exists', Boolean(read('scripts/evidence-handoff-contracts.js')));
 check('Release staging script exists', Boolean(read('scripts/stage-release.js')));
 check('Release provenance schema exists', Boolean(read('schemas/release-provenance-v1.schema.json')));
 check('Demo diff exists', Boolean(read('examples/sample.diff')));
@@ -167,6 +168,7 @@ check('version consistency script is configured', metadata.scripts?.['test:versi
 check('doctor script is configured', metadata.scripts?.['test:doctor'] === 'node scripts/doctor-contracts.js');
 check('consumer fixture script is configured', metadata.scripts?.['test:consumer-fixtures'] === 'node scripts/consumer-conformance-contracts.js');
 check('impact metadata script is configured', metadata.scripts?.['test:impact-metadata'] === 'node scripts/impact-metadata-contracts.js');
+check('evidence handoff script is configured', metadata.scripts?.['test:evidence-handoff'] === 'node scripts/evidence-handoff-contracts.js');
 check('release staging script is configured', metadata.scripts?.['release:stage'] === 'node scripts/stage-release.js');
   check('package exposes the CLI binary', metadata.bin?.['merge-guard'] === './src/cli.js');
   for (const entry of ['src/', 'scripts/', 'examples/', 'action.yml', 'README.md', 'CHANGELOG.md', 'LICENSE']) {
@@ -194,6 +196,7 @@ for (const [label, script] of [
   ['Dashboard explorer contracts', 'scripts/dashboard-explorer-contracts.js'],
   ['Dashboard accessibility contracts', 'scripts/dashboard-accessibility-contracts.js'],
   ['Artifact-manifest contracts', 'scripts/artifact-manifest-contracts.js'],
+  ['Evidence handoff contracts', 'scripts/evidence-handoff-contracts.js'],
   ['Legacy-risk contracts', 'scripts/legacy-risk-contracts.js'],
   ['Report-trend contracts', 'scripts/report-trends-contracts.js'],
   ['Plugin-manifest contracts', 'scripts/plugin-manifest-contracts.js'],
