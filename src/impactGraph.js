@@ -1,4 +1,4 @@
-import { parseDiffFileChanges } from './affectedPackages.js';
+import { parseDiffEvidence } from './affectedPackages.js';
 
 function escapeRegexCharacter(character) {
   return /[\\^$.*+?()[\]{}|]/.test(character) ? `\\${character}` : character;
@@ -35,11 +35,15 @@ function changeEndpoints(change) {
       { path: change.path, status: change.status, role: 'current' }
     ];
   }
-  return [{
+  const endpoint = {
     path: change.path,
     status: change.status,
     role: change.status === 'deleted' ? 'previous' : 'current'
-  }];
+  };
+  if (change.status === 'copied' && change.previousPath) endpoint.sourcePath = change.previousPath;
+  if (change.binary) endpoint.binary = true;
+  if (change.submodule) endpoint.submodule = true;
+  return [endpoint];
 }
 
 function sortFiles(files) {
@@ -148,7 +152,9 @@ export function buildImpactGraph(diffText, metadata) {
 
   graph.diagnostics.push(...cycleDiagnostics(packages));
 
-  for (const change of parseDiffFileChanges(diffText)) {
+  const diffEvidence = parseDiffEvidence(diffText);
+  graph.diagnostics.push(...diffEvidence.diagnostics.map((entry) => ({ severity: 'warning', ...entry })));
+  for (const change of diffEvidence.changes) {
     for (const file of changeEndpoints(change)) {
       const fileKey = `${file.role}\0${file.path}`;
       if (seenFiles.has(fileKey)) continue;

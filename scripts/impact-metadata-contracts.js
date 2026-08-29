@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { DIFF_EVIDENCE_MAX_BYTES, parseDiffEvidence } from '../src/affectedPackages.js';
 import { loadImpactMetadata, validateImpactMetadata } from '../src/impactMetadata.js';
 import { buildImpactGraph } from '../src/impactGraph.js';
 import { inspectRepository } from '../src/repositoryIntelligence.js';
@@ -121,6 +122,35 @@ assert.deepEqual(mixedGraph.directPackages.map((entry) => entry.id), ['shared', 
 assert.deepEqual(mixedGraph.repositoryWidePackages.map((entry) => entry.id), ['shared', 'web']);
 assert.deepEqual(mixedGraph.generatedFiles.map((entry) => [entry.path, entry.package]), [['packages/web/generated/client.js', 'web']]);
 assert.deepEqual(mixedGraph.unknownFiles.map((entry) => entry.path), ['unowned/file.txt']);
+
+const edgeDiff = fs.readFileSync(fixture('diff-edge-cases.diff'), 'utf8');
+const edgeEvidence = parseDiffEvidence(edgeDiff);
+assert.equal(edgeEvidence.complete, true);
+assert.deepEqual(edgeEvidence.changes.map((entry) => entry.status), ['modified', 'copied', 'renamed', 'modified']);
+assert.equal(edgeEvidence.changes.find((entry) => entry.binary)?.path, 'packages/shared/image.png');
+assert.equal(edgeEvidence.changes.find((entry) => entry.submodule)?.path, 'packages/web/vendor');
+assert.deepEqual(
+  edgeEvidence.changes.find((entry) => entry.status === 'copied'),
+  { path: 'packages/web/copied.js', previousPath: 'packages/shared/template.js', status: 'copied' }
+);
+const edgeGraph = buildImpactGraph(edgeDiff, valid);
+assert.equal(edgeGraph.status, 'complete');
+assert.deepEqual(edgeGraph.directPackages.map((entry) => entry.id), ['shared', 'web']);
+const webFiles = edgeGraph.directPackages.find((entry) => entry.id === 'web').files;
+assert(webFiles.some((entry) => entry.status === 'copied' && entry.sourcePath === 'packages/shared/template.js'));
+assert(webFiles.some((entry) => entry.submodule === true));
+assert(edgeGraph.directPackages.find((entry) => entry.id === 'shared').files.some((entry) => entry.binary === true));
+
+const partialGraph = buildImpactGraph('--- a/packages/shared/a.js\n+++ b/packages/shared/a.js\n@@ -1 +1 @@\n-old\n+new', valid);
+assert.equal(partialGraph.status, 'partial');
+assert.equal(partialGraph.diagnostics[0].code, 'partial-diff-history');
+assert.deepEqual(partialGraph.directPackages, []);
+
+const oversizedDiff = `diff --git a/packages/shared/a.js b/packages/shared/a.js\n${'x'.repeat(DIFF_EVIDENCE_MAX_BYTES)}`;
+const oversizedGraph = buildImpactGraph(oversizedDiff, valid);
+assert.equal(oversizedGraph.status, 'partial');
+assert.equal(oversizedGraph.diagnostics[0].code, 'diff-too-large');
+assert.deepEqual(oversizedGraph.directPackages, []);
 
 const ambiguousMetadata = validateImpactMetadata({
   schemaVersion: 1,

@@ -1,0 +1,29 @@
+diff --git a/packages/shared/old.js b/packages/web/new.js
+similarity index 95%
+rename from packages/shared/old.js
+rename to packages/web/new.js
+--- a/packages/shared/old.js
++++ b/packages/web/new.js
+@@ -1 +1 @@
+-export const oldName = true;
++export const newName = true;
+diff --git a/packages/shared/template.js b/packages/web/copied.js
+similarity index 100%
+copy from packages/shared/template.js
+copy to packages/web/copied.js
+--- a/packages/shared/template.js
++++ b/packages/web/copied.js
+@@ -1 +1 @@
+ export const template = true;
+diff --git a/packages/shared/image.png b/packages/shared/image.png
+index 1111111..2222222 100644
+GIT binary patch
+literal 3
+abc
+diff --git a/packages/web/vendor b/packages/web/vendor
+index 3333333..4444444 160000
+--- a/packages/web/vendor
++++ b/packages/web/vendor
+@@ -1 +1 @@
+-Subproject commit 3333333333333333333333333333333333333333
++Subproject commit 4444444444444444444444444444444444444444
