@@ -400,6 +400,10 @@ From the Merge Guard source checkout, compare two immutable schema-version 1 rep
 ```bash
 node scripts/compare-reports.js \
   --previous previous-report.json \
+  --previous-manifest previous-report.manifest.json \
+  --expected-repository owner/repository \
+  --expected-branch main \
+  --expected-commit abc123 \
   --current current-report.json \
   --output merge-guard-comparison.json \
   --markdown

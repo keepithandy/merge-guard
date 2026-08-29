@@ -2,6 +2,8 @@
 
 Merge Guard artifact manifests provide reproducible provenance for a generated report without embedding the report, local paths, source files, or secrets. The versioned contract is `schemas/artifact-manifest-v1.schema.json` and the implementation is `src/artifactManifest.js`.
 
+The v1.3 prior-evidence selector can bind an explicitly supplied previous report to its manifest, verify the report content hash and manifest identity, and optionally assert repository, branch, and commit identity before finding comparison. See [finding comparisons](finding-comparisons.md).
+
 Each manifest separates generated metadata from repository evidence:
 
 - `generated` records the tool, tool version, and explicit UTC generation time;

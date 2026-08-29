@@ -34,9 +34,59 @@
       }
     },
     "warning": { "type": ["string", "null"] },
-    "semantics": { "type": "string", "minLength": 1 }
+    "semantics": { "type": "string", "minLength": 1 },
+    "priorEvidence": { "$ref": "#/$defs/priorEvidence" }
   },
   "$defs": {
+    "priorEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "usable", "artifactId", "source", "expected", "diagnostics"],
+      "properties": {
+        "status": { "enum": ["missing", "verified", "stale", "cross-branch", "incompatible", "unverifiable"] },
+        "usable": { "type": "boolean" },
+        "artifactId": { "type": ["string", "null"], "pattern": "^[a-f0-9]{64}$" },
+        "source": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["repository", "branch", "commit"],
+              "properties": {
+                "repository": { "type": ["string", "null"] },
+                "branch": { "type": ["string", "null"] },
+                "commit": { "type": ["string", "null"] }
+              }
+            }
+          ]
+        },
+        "expected": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["repository", "branch", "commit"],
+          "properties": {
+            "repository": { "type": ["string", "null"] },
+            "branch": { "type": ["string", "null"] },
+            "commit": { "type": ["string", "null"] }
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "code", "message"],
+            "properties": {
+              "path": { "type": "string" },
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "expected": {},
+              "actual": {}
+            }
+          }
+        }
+      }
+    },
     "report": {
       "type": "object",
       "additionalProperties": false,

@@ -106,6 +106,8 @@ Prove that repositories without impact metadata retain v1 behavior and that larg
 
 Define how a caller explicitly identifies and supplies a previous report and artifact manifest. Missing, stale, cross-branch, incompatible, or unverifiable evidence must be distinguishable.
 
+Implemented by #140 with opt-in report-to-manifest verification and explicit repository, branch, and commit assertions. The report-only comparison path remains available for v1 compatibility.
+
 ### CI artifact handoff
 
 Provide least-privilege examples for storing and retrieving evidence in caller-owned CI. Merge Guard must not silently search, upload, retain, or delete workflow artifacts.
