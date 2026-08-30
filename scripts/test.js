@@ -45,6 +45,7 @@ const suites = [
   'scripts/version-contracts.js',
   'scripts/doctor-contracts.js',
   'scripts/consumer-conformance-contracts.js',
+  'scripts/companion-change-contracts.js',
   'scripts/smoke.js'
 ];
 
