@@ -1,7 +1,7 @@
 {
   "name": "merge-guard",
   "version": "1.3.0-beta.1",
-  "description": "AI-ready pull request risk scanner for safer merges.",
+  "description": "Deterministic pull request review signal and targeted check planner.",
   "type": "module",
   "bin": {
     "merge-guard": "./src/cli.js"
@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "demo": "node src/cli.js examples/sample.diff",
+    "test": "node scripts/test.js",
     "smoke": "node scripts/smoke.js",
     "check": "node scripts/smoke.js",
     "comment": "node scripts/pr-comment.js",

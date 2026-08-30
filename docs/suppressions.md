@@ -33,7 +33,7 @@ Suppressions never:
 
 - remove findings;
 - reduce file or report scores;
-- change risk level or merge readiness;
+- change risk level or review decision;
 - bypass `failThreshold`.
 
 ## Expired and invalid suppressions

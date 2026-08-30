@@ -18,7 +18,8 @@ assert.equal(prSummaryRun.status, 0, 'pull-request summary mode should succeed')
 assert(prSummaryRun.stdout.includes('<!-- merge-guard-pr-summary:v1 -->'));
 assert(prSummaryRun.stdout.includes('<summary>Files (2)</summary>'));
 assert(prSummaryRun.stdout.includes('<summary>Rules (2)</summary>'));
-assert(prSummaryRun.stdout.includes('<summary>Suggested and required checks ('));
+assert(prSummaryRun.stdout.includes('<summary>Suggested checks ('));
+assert(!prSummaryRun.stdout.includes('<summary>Suggested checks (4'), 'human-facing summaries should show no more than three primary checks');
 const annotationsRun = run(['--annotations', 'test/fixtures/github-review/annotations.diff']);
 assert.equal(annotationsRun.status, 0, 'annotation JSON mode should succeed');
 const annotations = JSON.parse(annotationsRun.stdout);
@@ -61,6 +62,8 @@ const jsonRun = run(['--json', 'examples/sample.diff']);
 assert.equal(jsonRun.status, 0, 'JSON mode should succeed');
 const jsonReport = JSON.parse(jsonRun.stdout);
 assert.equal(jsonReport.schemaVersion, 1, 'repository intelligence should remain additive in schema version 1');
+assert.equal(jsonReport.reviewDecision, 'NO_CONFIGURED_BLOCKERS');
+assert(Array.isArray(jsonReport.primaryChecks) && jsonReport.primaryChecks.length <= 3, 'JSON should expose at most three primary checks');
 assert(Array.isArray(jsonReport.projectChecks), 'JSON should retain the projectChecks string array');
 assert.equal(jsonReport.policyPacks, undefined, 'starter policies must not be selected implicitly');
 assert(Array.isArray(jsonReport.projectCheckDetails), 'JSON should expose projectCheckDetails');

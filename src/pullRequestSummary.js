@@ -47,7 +47,20 @@ function sortedFiles(report) {
 }
 
 function checkRecords(report) {
-  return [...new Set(list(report?.suggestedChecks).filter((item) => typeof item === 'string' && item.trim()))];
+  const source = list(report?.primaryChecks).length
+    ? list(report.primaryChecks)
+    : list(report?.suggestedChecks).slice(0, 3);
+  return [...new Set(source.filter((item) => typeof item === 'string' && item.trim()))].slice(0, 3);
+}
+
+function reviewDecision(report) {
+  const explicit = text(report?.reviewDecision);
+  if (explicit) return explicit;
+  return {
+    SAFE_TO_MERGE: 'NO_CONFIGURED_BLOCKERS',
+    NEEDS_REVIEW: 'REVIEW_RECOMMENDED',
+    DO_NOT_MERGE_YET: 'CONFIGURED_BLOCKER_FOUND'
+  }[report?.mergeReadiness] || 'UNKNOWN';
 }
 
 function warningRecords(report) {
@@ -103,7 +116,7 @@ export function formatPullRequestSummary(report) {
   const addedLines = number(report.summary?.addedLines);
   const removedLines = number(report.summary?.removedLines);
   const riskLevel = text(report.riskLevel, 'UNKNOWN');
-  const readiness = text(report.mergeReadiness, 'Unknown');
+  const decision = reviewDecision(report);
   const riskScore = number(report.riskScore);
   const docsOnly = Boolean(report.summary?.docsOnly ?? report.docsOnly);
   const lines = [];
@@ -111,9 +124,9 @@ export function formatPullRequestSummary(report) {
   lines.push('## merge-guard review summary');
   lines.push(PULL_REQUEST_SUMMARY_MARKER);
   lines.push('');
-  lines.push(`**${inline(riskLevel)} risk** · score **${riskScore}** · ${inline(readiness)} · **${changedFiles} changed ${plural(changedFiles, 'file')}** · **+${addedLines} / -${removedLines}**${docsOnly ? ' · **docs-only**' : ''}`);
+  lines.push(`**${inline(riskLevel)} risk** · score **${riskScore}** · ${inline(decision)} · **${changedFiles} changed ${plural(changedFiles, 'file')}** · **+${addedLines} / -${removedLines}**${docsOnly ? ' · **docs-only**' : ''}`);
   lines.push('');
-  lines.push('Risk, readiness, and score come from the analyzed diff. Pull-request text is context only.');
+  lines.push('Risk, review decision, and score come from the analyzed diff. Pull-request text is context only.');
 
   if (files.length) {
     lines.push('');
@@ -150,7 +163,11 @@ export function formatPullRequestSummary(report) {
   }
   detailEnd(lines);
 
-  detailStart(lines, `Suggested and required checks (${checks.length})`);
+  const allChecks = list(report?.suggestedChecks).filter((item) => typeof item === 'string' && item.trim());
+  const checkLabel = allChecks.length > checks.length
+    ? `Suggested checks (${checks.length} shown; ${allChecks.length} detected)`
+    : `Suggested checks (${checks.length})`;
+  detailStart(lines, checkLabel);
   if (checks.length) {
     for (const check of checks) lines.push(`- [ ] ${inline(check)}`);
   } else {

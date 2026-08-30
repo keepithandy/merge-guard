@@ -48,9 +48,9 @@ const RISK_PATTERNS = [
     id: 'state-or-persistence',
     label: 'State or persistence logic changed',
     weight: 3,
-    file: /(save|state|store|storage|persist|migration|ledger|cache)/i,
+    file: /(^|\/)(?:save|state|store|storage|persist|migration|ledger|cache)(?:[._\/-]|$)/i,
     fileDescription: 'save, state, storage, persistence, migration, ledger, or cache path patterns',
-    line: /(localStorage|sessionStorage|save|load|persist|migrate|hydrate|serialize|deserialize)/i,
+    line: /(?:localStorage|sessionStorage)\.(?:getItem|setItem|removeItem)\s*\(|\b(?:saveVersion|serialize\w*|deserialize\w*|migrate\w*|hydrate\w*)\s*\(|\b(?:save|load)\s*\(/i,
     lineDescription: 'save/load, storage, migration, hydration, or serialization code patterns',
     check: 'Review save/load behavior and run state-related smoke tests.'
   },
@@ -68,9 +68,9 @@ const RISK_PATTERNS = [
     id: 'routing-or-entry',
     label: 'Routing or entry-point logic changed',
     weight: 2,
-    file: /(route|router|entry|main|index|app)/i,
+    file: /(^|\/)(?:route|routes|router|entry|entry-point|main|index|app)(?:[._\/-]|$)/i,
     fileDescription: 'routing, entry, main, index, or app path patterns',
-    line: /(navigate|redirect|route|render|mount|entry)/i,
+    line: /\b(?:navigate|redirect|route|render|mount|createRoot|createApp)\s*\(|\b(?:window\.)?location\.(?:assign|replace|href)\s*=/i,
     lineDescription: 'navigation, routing, render, mount, or entry code patterns',
     check: 'Manually test the affected navigation or app entry path.'
   },
@@ -78,10 +78,10 @@ const RISK_PATTERNS = [
     id: 'async-or-network',
     label: 'Async or network behavior changed',
     weight: 2,
-    file: /(api|client|fetch|request|service|worker)/i,
+    file: /(^|\/)(?:api|client|fetch|request|service|worker)(?:[._\/-]|$)/i,
     fileDescription: 'API, client, fetch, request, service, or worker path patterns',
-    line: /(fetch|axios|Promise|async|await|setTimeout|setInterval|AbortController)/i,
-    lineDescription: 'fetch, promise, async, timer, or abort controller code patterns',
+    line: /\bfetch\s*\(|\baxios(?:\.[a-z]+)?\s*\(|\b(?:XMLHttpRequest|WebSocket|AbortController)\b|\b(?:setTimeout|setInterval)\s*\(/i,
+    lineDescription: 'fetch, axios, browser transport, timer, or abort-controller call patterns',
     check: 'Check loading, failure, timeout, and empty-state behavior.'
   },
   {
@@ -236,7 +236,9 @@ function collectAddedLines(diffText) {
 }
 
 function isTestFile(file) {
-  return /(test|spec|smoke|__tests__)/i.test(file);
+  return /(^|\/)(?:test|tests|fixtures)\//i.test(file)
+    || /(^|\/)scripts\/[^/]*(?:test|contract|e2e|smoke)[^/]*\.(?:mjs|cjs|js)$/i.test(file)
+    || /(?:test|spec|smoke|__tests__)/i.test(file);
 }
 
 function isDocsFile(file) {
@@ -269,6 +271,12 @@ function isDocsOnlyChange(changes) {
 
 function isImplementationFile(file) {
   return !isDocsFile(file) && !isTestFile(file);
+}
+
+function isCoreAnalyzableFile(file) {
+  return isImplementationFile(file)
+    && !/(^|\/)(?:fixtures?|testdata)\//i.test(file)
+    && !/\.(?:diff|patch|json|ya?ml|toml)$/i.test(file);
 }
 
 function adjustedWeight(weight, config) {
@@ -339,7 +347,9 @@ function makeRuleHit({ id, label, weight, reason, check, matchedFiles = [], matc
 
 function scoreRisk(diffText, changes, config) {
   const files = changes.map((change) => change.path);
-  const addedLines = changes.flatMap((change) => change.addedLines);
+  const addedLines = changes
+    .filter((change) => isCoreAnalyzableFile(change.path))
+    .flatMap((change) => change.addedLines);
   const totals = {
     added: changes.reduce((sum, change) => sum + change.addedLinesCount, 0),
     removed: changes.reduce((sum, change) => sum + change.removedLinesCount, 0)
@@ -439,6 +449,12 @@ function readinessFromScore(score, config) {
   return 'SAFE_TO_MERGE';
 }
 
+function reviewDecisionFromScore(score, config) {
+  if (score >= config.failThreshold) return 'CONFIGURED_BLOCKER_FOUND';
+  if (score >= config.reviewThreshold) return 'REVIEW_RECOMMENDED';
+  return 'NO_CONFIGURED_BLOCKERS';
+}
+
 function levelFromScore(score, config) {
   if (score >= config.failThreshold) return 'HIGH';
   if (score >= config.reviewThreshold) return 'MEDIUM';
@@ -454,7 +470,7 @@ function fileLevelFromScore(score, config) {
 function scoreSingleFile(change, config) {
   const ruleHits = [];
   let score = 0;
-  const addedLines = change.addedLines;
+  const addedLines = isCoreAnalyzableFile(change.path) ? change.addedLines : [];
   const totals = {
     added: change.addedLinesCount,
     removed: change.removedLinesCount
@@ -544,6 +560,28 @@ function shouldShowConfig(report) {
     || report.config.failThreshold !== RISK_PRESETS[report.config.preset].failThreshold;
 }
 
+function reviewDecisionLabel(report) {
+  if (typeof report?.reviewDecision === 'string' && report.reviewDecision.trim()) {
+    return report.reviewDecision;
+  }
+
+  return {
+    SAFE_TO_MERGE: 'NO_CONFIGURED_BLOCKERS',
+    NEEDS_REVIEW: 'REVIEW_RECOMMENDED',
+    DO_NOT_MERGE_YET: 'CONFIGURED_BLOCKER_FOUND'
+  }[report?.mergeReadiness] || 'UNKNOWN';
+}
+
+function displayChecks(report) {
+  const primary = Array.isArray(report?.primaryChecks)
+    ? report.primaryChecks.filter((check) => typeof check === 'string' && check.trim())
+    : [];
+  if (primary.length) return primary;
+  return (Array.isArray(report?.suggestedChecks) ? report.suggestedChecks : [])
+    .filter((check) => typeof check === 'string' && check.trim())
+    .slice(0, 3);
+}
+
 function packageDisplayName(packageRecord) {
   return packageRecord.name
     ? `${packageRecord.name} (${packageRecord.root})`
@@ -571,6 +609,7 @@ export function analyzeDiff(diffText, userConfig = {}) {
     tool: 'merge-guard',
     version: MERGE_GUARD_VERSION,
     riskLevel: levelFromScore(risk.score, config),
+    reviewDecision: reviewDecisionFromScore(risk.score, config),
     mergeReadiness: readinessFromScore(risk.score, config),
     riskScore: risk.score,
     docsOnly: risk.docsOnly,
@@ -603,7 +642,7 @@ export function formatReport(report) {
   lines.push('merge-guard report');
   lines.push('');
   lines.push(`Risk level: ${report.riskLevel}`);
-  lines.push(`Merge readiness: ${report.mergeReadiness}`);
+  lines.push(`Review decision: ${reviewDecisionLabel(report)}`);
   lines.push(`Risk score: ${report.riskScore}`);
   lines.push(`Preset: ${report.config.preset}`);
   lines.push('');
@@ -658,14 +697,21 @@ export function formatReport(report) {
 
   lines.push('');
   lines.push('Suggested checks:');
-  for (const check of report.suggestedChecks) {
+  const checks = displayChecks(report);
+  for (const check of checks) {
     lines.push(`- ${check}`);
+  }
+  if (Array.isArray(report.suggestedChecks) && report.suggestedChecks.length > checks.length) {
+    lines.push(`- ${report.suggestedChecks.length - checks.length} additional check(s) available in the JSON report.`);
   }
 
   if (report.projectCheckDetails?.length) {
     lines.push('');
     lines.push('Project check sources:');
-    for (const detail of report.projectCheckDetails) {
+    const visibleProjectChecks = new Set(checks
+      .filter((check) => check.startsWith('Project check: '))
+      .map((check) => check.slice('Project check: '.length)));
+    for (const detail of report.projectCheckDetails.filter((item) => visibleProjectChecks.has(item.command))) {
       lines.push(`- ${detail.command} [${detail.ecosystem}/${detail.category}] - ${projectCheckSourceSummary(detail)}`);
     }
   }
@@ -770,7 +816,7 @@ export function formatMarkdownReport(report) {
   lines.push('# merge-guard report');
   lines.push('');
   lines.push(`**Risk level:** ${report.riskLevel}`);
-  lines.push(`**Merge readiness:** ${report.mergeReadiness}`);
+  lines.push(`**Review decision:** ${reviewDecisionLabel(report)}`);
   lines.push(`**Risk score:** ${report.riskScore}`);
   lines.push(`**Preset:** ${report.config.preset}`);
   lines.push('');
@@ -811,15 +857,22 @@ export function formatMarkdownReport(report) {
   lines.push('');
   lines.push('## Suggested checks');
   lines.push('');
-  for (const check of report.suggestedChecks) {
+  const checks = displayChecks(report);
+  for (const check of checks) {
     lines.push(`- ${check}`);
+  }
+  if (Array.isArray(report.suggestedChecks) && report.suggestedChecks.length > checks.length) {
+    lines.push(`- ${report.suggestedChecks.length - checks.length} additional check(s) available in the JSON report.`);
   }
 
   if (report.projectCheckDetails?.length) {
     lines.push('');
     lines.push('## Project check sources');
     lines.push('');
-    for (const detail of report.projectCheckDetails) {
+    const visibleProjectChecks = new Set(checks
+      .filter((check) => check.startsWith('Project check: '))
+      .map((check) => check.slice('Project check: '.length)));
+    for (const detail of report.projectCheckDetails.filter((item) => visibleProjectChecks.has(item.command))) {
       lines.push(`- **${detail.command}** (${detail.ecosystem}/${detail.category}): ${projectCheckSourceSummary(detail)}`);
     }
   }

@@ -15,7 +15,7 @@
         "fingerprint": "f196d884b40638d795bfd49e10315f897de9a686e6350fcfd21d600a2e15d743",
         "ruleId": "async-or-network",
         "title": "Async or network behavior changed",
-        "message": "Async or network behavior changed because 2 added line(s) matched fetch, promise, async, timer, or abort controller code patterns. Suggested check: Check loading, failure, timeout, and empty-state behavior.",
+          "message": "Async or network behavior changed because 1 added line(s) matched fetch, axios, browser transport, timer, or abort-controller call patterns. Suggested check: Check loading, failure, timeout, and empty-state behavior.",
         "level": "warning",
         "path": "src/app.js",
         "startLine": 9,

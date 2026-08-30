@@ -28,7 +28,7 @@ PR prose never changes:
 
 - matched rules;
 - risk score or risk level;
-- merge readiness;
+- review decision;
 - preset thresholds;
 - CI failure behavior.
 

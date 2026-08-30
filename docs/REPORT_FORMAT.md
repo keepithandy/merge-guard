@@ -25,6 +25,7 @@ Consumers should check `schemaVersion` before interpreting the payload. Additive
 - `tool` and `version`: producer identity.
 - `schemaVersion`: machine-readable contract version.
 - `riskLevel`: `LOW`, `MEDIUM`, or `HIGH`.
+- `reviewDecision`: `NO_CONFIGURED_BLOCKERS`, `REVIEW_RECOMMENDED`, or `CONFIGURED_BLOCKER_FOUND`.
 - `mergeReadiness`: `SAFE_TO_MERGE`, `NEEDS_REVIEW`, or `DO_NOT_MERGE_YET`.
 - `riskScore`: numeric score used with the configured thresholds.
 - `docsOnly`: whether every changed file is documentation, an example, Markdown, or comment-only content.
@@ -34,6 +35,7 @@ Consumers should check `schemaVersion` before interpreting the payload. Additive
 - `rules`: normalized rule findings and explanations.
 - `flags`: human-readable finding labels.
 - `suggestedChecks`: recommended verification steps.
+- `primaryChecks`: at most three checks selected for human-facing output; the complete `suggestedChecks` list remains available for compatibility and machine-readable consumers.
 - `configDiagnostics`: non-fatal configuration diagnostics.
 
 ## Enriched fields
@@ -57,6 +59,8 @@ Normal CLI reports also expose:
 
 `projectChecks` remains the ordered string-command compatibility field. `projectCheckDetails` adds category, ecosystem, and `sources[]` records containing a repository-relative path and reason for every detected CLI command.
 
+`reviewDecision` is the conservative human-facing decision label. `mergeReadiness` is retained as a legacy compatibility field in schema version 1 and should not be interpreted as proof of safety or approval.
+
 `repository` contains detected package-layout metadata, warnings, `affectedPackages`, optional `impactMetadata`, and additive `impactGraph` evidence. Direct ownership, repository-level shared files, and potential shared-impact packages remain unchanged. `impactMetadata` is `not-provided`, `invalid`, or `valid`; only an explicit local file can make it valid. `impactGraph` separates direct, transitive, repository-wide, generated, and unknown impact and retains edge reasons and diagnostics. See `docs/repository-intelligence.md` and `docs/impact-metadata.md`.
 
 `policyPacks` and `policyRequiredChecks` appear only after explicit policy selection. Policy findings use namespaced IDs, retain their pack ID/version, and are separate from project custom rules. Required checks are suggestions with reasons; they are never executed automatically. See `docs/starter-policy-packs.md`.
@@ -67,7 +71,7 @@ Normal CLI reports also expose:
 
 ## Pull-request summary view
 
-`--pr-summary` is a deterministic Markdown projection of the completed report, not a second report schema or scoring path. Contract version 1 puts risk and the highest-risk files first, then exposes expandable files, rules, and checks. It never mutates report values or derives risk from PR text. See `docs/pull-request-summaries.md` and the committed `test/snapshots/pr-summary-*.md` fixtures.
+`--pr-summary` is a deterministic Markdown projection of the completed report, not a second report schema or scoring path. Contract version 1 puts risk, the conservative review decision, highest-risk files, and at most three primary checks first, then exposes expandable files, rules, and additional checks. It never mutates report values or derives risk from PR text. See `docs/pull-request-summaries.md` and the committed `test/snapshots/pr-summary-*.md` fixtures.
 
 `--annotations` and `--sarif` are optional projections of a completed report onto valid added-line locations from the authoritative diff. The annotation bundle has schema version 1; SARIF uses 2.1.0 and embeds the projection version. Findings without an eligible location remain in the normal report and are recorded as unsupported rather than dropped. See `docs/github-review-outputs.md`.
 

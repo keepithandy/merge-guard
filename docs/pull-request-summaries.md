@@ -8,11 +8,11 @@ Merge Guard can render a compact GitHub-oriented summary without changing the un
 node src/cli.js --pr-summary change.diff
 ```
 
-The summary contract is version 1 and includes the hidden marker `<!-- merge-guard-pr-summary:v1 -->`. It opens with diff-derived risk, score, readiness, changed-file count, line totals, and up to three highest-risk files. Expandable sections retain all per-file evidence, rule findings, and suggested or policy-required checks. Warnings and pull-request context appear in separate sections when present.
+The summary contract is version 1 and includes the hidden marker `<!-- merge-guard-pr-summary:v1 -->`. It opens with diff-derived risk, score, a conservative review decision, changed-file count, line totals, and up to three highest-risk files. It shows at most three primary checks first; expandable sections retain all per-file evidence, rule findings, and the full suggested or policy-required check inventory. Warnings and pull-request context appear in separate sections when present.
 
 ## Scoring boundary
 
-The formatter receives a completed report and never parses the pull-request title or body, recalculates findings, mutates report data, or executes checks. Pull-request text is displayed as escaped context only. The CLI continues to derive risk, score, readiness, and threshold failure from the analyzed diff.
+The formatter receives a completed report and never parses the pull-request title or body, recalculates findings, mutates report data, or executes checks. Pull-request text is displayed as escaped context only. The CLI derives risk, score, review decision, and threshold failure from the analyzed diff. The legacy `mergeReadiness` field remains in the JSON contract for compatibility.
 
 In `--ci` mode, the compact summary is written to `GITHUB_STEP_SUMMARY` so the riskiest files appear first. Standard stdout remains the full Markdown report unless `--pr-summary` is selected explicitly.
 

@@ -8,17 +8,26 @@ The historical v1.0 candidate at `636a1e9812bb017dae69be122b36555b89db5e77` pass
 
 The current `main` source identity is `1.3.0-beta.1`; it consolidates the completed v1.1, v1.2, and v1.3 source work into an explicit unpublished beta without changing historical candidates or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
 
-The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. Their completion does not claim that Merge Guard is useful enough for broad adoption; that is the purpose of the active beta-validation milestone.
+The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active beta usefulness cleanup and subsequent field-validation milestone exist to prove that.
 
 The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md).
 
 ## Active priority
 
-### Beta field validation — prove usefulness before expanding
+### Beta usefulness cleanup — make the core review path credible before the pilot
 
-Align one explicit beta identity, implement the accepted historical-PR evaluation harness, simplify the golden-path experience from measured evidence, and run a preregistered held-out pilot. Validation must remain local and must never publish, upload a corpus, tag, or move a release reference by itself.
+The first field review found a product-shape problem: the scanner is deterministic and well-tested, but broad keyword rules and an unbounded check list make the default result look noisier and more authoritative than the evidence supports. The current cleanup pass keeps the frozen v1 JSON contract while improving the human-facing path.
 
-Exit gate: the beta passes release checks and reaches the preregistered usefulness thresholds, or records an honest no-go result and corrective plan.
+The cleanup pass:
+
+- uses conservative `reviewDecision` labels in human-facing output while retaining legacy `mergeReadiness` for compatibility;
+- selects at most three primary checks while retaining the complete detected inventory in JSON;
+- tightens default routing, persistence, and network signals against generic variable names and non-I/O promises;
+- gives contributors one `npm test` entry point and keeps detailed contract scripts as maintainer compatibility commands;
+- presents the CLI/Action path as the product and moves optional dashboard, plugin, provenance, and trend systems out of the core story;
+- records false-positive regression fixtures before tuning on the held-out pilot.
+
+Exit gate: the revised golden path passes release checks, the calibration corpus shows materially lower noise, and no human-facing report claims that a change is proven safe.
 
 ## Planned milestones
 
@@ -27,6 +36,7 @@ Exit gate: the beta passes release checks and reaches the preregistered usefulne
 | v1.1 | Adoption and diagnostics | New users can install, configure, and troubleshoot Merge Guard from actionable, privacy-safe output. |
 | v1.2 | Repository impact fidelity | Explicit repository metadata can improve affected-package reasoning without executing project code or guessing dependency edges. |
 | v1.3 | Durable review evidence | Teams can carry immutable Merge Guard evidence across pull-request pushes and CI runs with clear provenance and failure semantics. |
+| v1.3.0-beta.2 | Reviewer signal cleanup | Human-facing reports show conservative decisions, three primary checks, and fewer keyword-driven false positives while preserving the v1 JSON contract. |
 | Beta validation | Field validation and adoption readiness | A labeled historical-PR evaluation demonstrates whether findings are actionable, sufficiently complete within supported scope, and easy to adopt. |
 
 Milestone versions are directional. Patch releases may ship independently when they are compatible, narrowly scoped fixes.
