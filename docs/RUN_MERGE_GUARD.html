@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A complete local and GitHub Actions runbook for running Merge Guard against a repository.">
+  <title>Run Merge Guard — Complete Repository Guide</title>
+  <script>
+    (() => {
+      try {
+        const saved = localStorage.getItem('merge-guard-guide-theme');
+        const preferred = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark' ? saved : preferred;
+      } catch {
+        document.documentElement.dataset.theme = 'light';
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #10243a;
+      --muted: #5b6b7e;
+      --surface: #ffffff;
+      --surface-raised: #ffffff;
+      --surface-soft: #f2f7f8;
+      --line: #dce5e8;
+      --navy: #0a2138;
+      --navy-soft: #123552;
+      --accent: #0a8f74;
+      --accent-strong: #08705d;
+      --blue: #276dba;
+      --warning: #b96b00;
+      --danger: #bf3d4c;
+      --radius: 20px;
+      --shadow: 0 18px 48px rgba(18, 52, 72, .10);
+      --page: #f4f7f8;
+      --inline-code: #06705b;
+      --callout-text: #35516d;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --ink: #e7eef6;
+      --muted: #a5b3c4;
+      --surface: #101925;
+      --surface-raised: #152232;
+      --surface-soft: #0d1621;
+      --line: #2a3b4f;
+      --accent: #79e1c1;
+      --accent-strong: #a2efd7;
+      --blue: #86bdff;
+      --warning: #ffd07c;
+      --danger: #ff95a0;
+      --shadow: 0 20px 58px rgba(0, 0, 0, .26);
+      --page: #09111a;
+      --inline-code: #9cebd2;
+      --callout-text: #c2d3e5;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      line-height: 1.65;
+    }
+
+    a { color: var(--accent); text-underline-offset: 3px; }
+    a:hover { color: var(--accent-strong); }
+    code, pre { font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace; }
+    code { color: var(--inline-code); }
+    :focus-visible { outline: 3px solid var(--warning); outline-offset: 3px; }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      background: var(--navy);
+      color: white;
+    }
+
+    .topbar-inner {
+      display: flex;
+      min-height: 68px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand { display: inline-flex; align-items: center; gap: 12px; color: white; text-decoration: none; font-weight: 780; }
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 38px;
+      place-items: center;
+      border: 1px solid rgba(131, 240, 205, .7);
+      border-radius: 12px 12px 15px 15px;
+      background: linear-gradient(145deg, rgba(31, 210, 161, .28), rgba(31, 210, 161, .06));
+      color: #83f0cd;
+      font-size: 1rem;
+    }
+    .topbar-note { color: #b8c9d9; font-size: .84rem; }
+    .topbar-tools { display: flex; align-items: center; gap: 14px; }
+    .theme-toggle {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: white;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 720;
+      cursor: pointer;
+    }
+    .theme-toggle:hover { background: rgba(255,255,255,.15); }
+    .theme-icon { width: 1rem; text-align: center; font-size: .95rem; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 76px 0 66px;
+      background:
+        radial-gradient(circle at 85% 10%, rgba(29, 205, 158, .22), transparent 24rem),
+        linear-gradient(135deg, var(--navy), #0e2d49 66%, #0c3b4a);
+      color: white;
+    }
+
+    .hero::after {
+      position: absolute;
+      right: -80px;
+      bottom: -180px;
+      width: 520px;
+      height: 520px;
+      border: 1px solid rgba(131, 240, 205, .12);
+      border-radius: 50%;
+      content: "";
+    }
+
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr); gap: 64px; align-items: center; }
+    .hero-copy { position: relative; z-index: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 18px;
+      color: #83f0cd;
+      font-weight: 750;
+      font-size: .78rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 26px;
+      height: 2px;
+      content: "";
+      background: #83f0cd;
+    }
+
+    h1, h2, h3 { line-height: 1.18; letter-spacing: -.025em; }
+    h1 { max-width: 860px; margin: 0; font-size: clamp(2.7rem, 5.6vw, 5.2rem); }
+    h2 { margin: 0 0 18px; font-size: clamp(1.65rem, 3vw, 2.5rem); }
+    h3 { margin: 28px 0 10px; font-size: 1.2rem; }
+
+    .hero p {
+      max-width: 760px;
+      margin: 22px 0 0;
+      color: #c4d4e1;
+      font-size: 1.13rem;
+    }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: #7fe8c5;
+      color: #09283a;
+      font-weight: 780;
+      text-decoration: none;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, .18);
+    }
+    .button:hover { background: #a4f1d7; color: #09283a; }
+    .button.secondary { border-color: rgba(255,255,255,.26); background: rgba(255,255,255,.08); color: white; box-shadow: none; }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .pill {
+      padding: 7px 12px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      background: rgba(255,255,255,.07);
+      color: #d8e4ed;
+      font-size: .84rem;
+    }
+
+    .hero-card {
+      position: relative;
+      z-index: 1;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 22px;
+      background: rgba(6, 21, 34, .58);
+      box-shadow: 0 30px 80px rgba(0,0,0,.25);
+      backdrop-filter: blur(18px);
+    }
+    .hero-card-label { color: #83f0cd; font-size: .72rem; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+    .hero-card h2 { margin: 10px 0 6px; color: white; font-size: 1.55rem; }
+    .hero-card p { margin: 0; color: #b9cbd8; font-size: .9rem; }
+    .signal { display: grid; grid-template-columns: 9px 1fr auto; gap: 11px; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+    .signal:last-child { border-bottom: 0; padding-bottom: 0; }
+    .signal-dot { width: 9px; height: 9px; border-radius: 50%; background: #7fe8c5; box-shadow: 0 0 0 5px rgba(127,232,197,.1); }
+    .signal strong { color: #edf7fb; font-size: .88rem; }
+    .signal span:last-child { color: #9fb2c1; font-size: .76rem; }
+
+    .path-strip { margin-top: -28px; position: relative; z-index: 2; }
+    .path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .path-card { display: block; padding: 21px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: inherit; text-decoration: none; box-shadow: var(--shadow); transition: transform .18s ease, border-color .18s ease; }
+    .path-card:hover { border-color: #8acdbd; color: inherit; transform: translateY(-2px); }
+    .path-card small { color: var(--accent); font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+    .path-card strong { display: block; margin: 6px 0 3px; font-size: 1.05rem; }
+    .path-card span { color: var(--muted); font-size: .86rem; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      gap: 42px;
+      padding: 44px 0 80px;
+    }
+
+    .toc {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .toc strong { display: block; margin-bottom: 10px; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
+    .toc a { display: block; padding: 7px 9px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: .9rem; }
+    .toc a:hover { background: var(--surface-soft); }
+    .toc a:hover { color: var(--accent); }
+
+    main { min-width: 0; }
+    section {
+      margin-bottom: 28px;
+      padding: clamp(24px, 4vw, 42px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .lede { color: var(--muted); font-size: 1.03rem; }
+    .step {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 14px;
+      margin: 26px 0;
+    }
+
+    .step-number {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      border: 1px solid rgba(117, 224, 194, .42);
+      border-radius: 50%;
+      background: rgba(46, 201, 160, .1);
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .step h3 { margin: 4px 0 8px; }
+    .step p { margin: 7px 0; color: var(--muted); }
+
+    .code-block {
+      position: relative;
+      overflow-x: auto;
+      margin: 14px 0;
+      border: 1px solid #233448;
+      border-radius: 12px;
+      background: #0a1522;
+    }
+
+    .code-label {
+      padding: 8px 14px;
+      border-bottom: 1px solid #26394d;
+      color: #9fb0c2;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    pre { margin: 0; padding: 18px; color: #dce7f5; font-size: .88rem; line-height: 1.65; tab-size: 2; }
+    pre code { color: inherit; }
+
+    .callout {
+      margin: 20px 0;
+      padding: 16px 18px;
+      border-left: 4px solid var(--blue);
+      border-radius: 4px 12px 12px 4px;
+      background: rgba(123, 183, 255, .08);
+      color: var(--callout-text);
+    }
+
+    .callout.warning { border-left-color: var(--warning); background: rgba(255, 201, 112, .08); }
+    .callout.danger { border-left-color: var(--danger); background: rgba(255, 143, 155, .08); }
+    .callout strong { color: var(--ink); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: .91rem; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--accent); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }
+    td:first-child { color: #f0f4fa; font-weight: 680; }
+
+    .checklist { padding: 0; list-style: none; }
+    .checklist li { position: relative; margin: 10px 0; padding-left: 30px; color: #c5cedc; }
+    .checklist li::before { position: absolute; left: 0; color: var(--accent); content: "✓"; font-weight: 900; }
+
+    footer { padding: 0 0 54px; color: var(--muted); text-align: center; font-size: .87rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .path-card { transition: none; }
+    }
+
+    @media (max-width: 850px) {
+      .hero { padding-top: 50px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 34px; }
+      .path-grid { grid-template-columns: 1fr; }
+      .layout { grid-template-columns: 1fr; gap: 22px; }
+      .toc { position: static; }
+      .toc nav { columns: 2; }
+    }
+
+    @media (max-width: 560px) {
+      .shell { width: min(100% - 20px, 1180px); }
+      .topbar-note { display: none; }
+      .toc nav { columns: 1; }
+      section { padding: 22px 17px; }
+      .step { grid-template-columns: 1fr; }
+      table { display: block; overflow-x: auto; }
+    }
+
+    @media print {
+      :root, :root[data-theme="dark"] { color-scheme: light; --ink: #16202c; --muted: #4d5968; --line: #ccd3dc; --surface: white; --page: white; --inline-code: #172331; }
+      body { background: white; }
+      .topbar, .path-strip { display: none; }
+      .hero { padding-top: 20px; background: white; color: var(--ink); }
+      .hero p { color: var(--muted); }
+      .hero-card, .hero-actions, .status-row { display: none; }
+      .layout { display: block; padding-top: 20px; }
+      .toc { display: none; }
+      section { break-inside: avoid; box-shadow: none; background: white; }
+      .code-block { background: #f2f4f7; }
+      pre, code { color: #172331; white-space: pre-wrap; }
+      a { color: inherit; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="#top" aria-label="Merge Guard home">
+        <span class="brand-mark" aria-hidden="true">✓</span>
+        <span>Merge Guard</span>
+      </a>
+      <div class="topbar-tools">
+        <span class="topbar-note">Repository review signal · Operator guide</span>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch color theme" aria-pressed="false">
+          <span class="theme-icon" aria-hidden="true">☾</span>
+          <span class="theme-label">Dark mode</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="shell hero-grid" id="top">
+      <div class="hero-copy">
+        <div class="eyebrow">Practical implementation guide</div>
+        <h1>Turn every repository change into a focused review plan.</h1>
+        <p>Set up Merge Guard locally or in GitHub Actions, generate deterministic review evidence, and direct attention to the files and checks that matter most.</p>
+        <div class="hero-actions">
+          <a class="button" href="#local">Start the local setup</a>
+          <a class="button secondary" href="#actions">Add GitHub Actions</a>
+        </div>
+        <div class="status-row" aria-label="Requirements and status">
+          <span class="pill">Node.js 18+</span>
+          <span class="pill">No telemetry</span>
+          <span class="pill">No project code execution</span>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-label="What Merge Guard delivers">
+        <div class="hero-card-label">A useful review in minutes</div>
+        <h2>One diff. Three clear outcomes.</h2>
+        <p>Deterministic evidence for reviewers without replacing human judgment.</p>
+        <div class="signal"><span class="signal-dot"></span><strong>Risk signals</strong><span>Prioritized</span></div>
+        <div class="signal"><span class="signal-dot"></span><strong>Affected files</strong><span>Explained</span></div>
+        <div class="signal"><span class="signal-dot"></span><strong>Suggested checks</strong><span>Actionable</span></div>
+      </aside>
+    </div>
+  </header>
+
+  <div class="path-strip">
+    <div class="shell path-grid" aria-label="Choose a setup path">
+      <a class="path-card" href="#local"><small>Recommended</small><strong>Run from a checkout</strong><span>Best for evaluating Merge Guard against a local repository.</span></a>
+      <a class="path-card" href="#global"><small>Convenient</small><strong>Install the command</strong><span>Make the CLI available from any local repository.</span></a>
+      <a class="path-card" href="#actions"><small>Team workflow</small><strong>Add GitHub Actions</strong><span>Generate review evidence automatically for every pull request.</span></a>
+    </div>
+  </div>
+
+  <div class="shell layout">
+    <aside class="toc" aria-label="Page contents">
+      <strong>On this page</strong>
+      <nav>
+        <a href="#before">Before you begin</a>
+        <a href="#local">A. Local checkout</a>
+        <a href="#config">Repository config</a>
+        <a href="#outputs">Output modes</a>
+        <a href="#global">B. Global command</a>
+        <a href="#actions">C. GitHub Actions</a>
+        <a href="#interpret">Interpret results</a>
+        <a href="#troubleshoot">Troubleshooting</a>
+        <a href="#checklist">Final checklist</a>
+      </nav>
+    </aside>
+
+    <main>
+      <section id="before">
+        <h2>Before you begin</h2>
+        <p class="lede">Merge Guard is currently an unpublished beta. Use a local source checkout or pin the GitHub Action to a known commit. Do not rely on an unqualified <code>npx merge-guard</code> registry download for this version.</p>
+        <div class="callout warning"><strong>Decision support, not approval.</strong> A low score means no configured threshold was reached. It does not prove a change is safe. Tests, human review, and repository protection rules remain authoritative.</div>
+      </section>
+
+      <section id="local">
+        <h2>Option A — Run from a local checkout</h2>
+        <p class="lede">This is the most direct way to scan another repository while preserving that repository’s configuration and context.</p>
+
+        <div class="step"><div class="step-number">1</div><div>
+          <h3>Verify Node.js and npm</h3>
+          <p>Merge Guard requires Node.js 18 or newer.</p>
+          <div class="code-block"><div class="code-label">PowerShell</div><pre><code>node --version
+npm --version</code></pre></div>
+        </div></div>
+
+        <div class="step"><div class="step-number">2</div><div>
+          <h3>Clone or update Merge Guard</h3>
+          <div class="code-block"><div class="code-label">New checkout</div><pre><code>cd C:\Users\quali\Desktop\source
+git clone https://github.com/keepithandy/merge-guard.git
+cd merge-guard</code></pre></div>
+          <div class="code-block"><div class="code-label">Existing checkout</div><pre><code>cd C:\Users\quali\Desktop\source\merge-guard
+git switch main
+git pull --ff-only</code></pre></div>
+        </div></div>
+
+        <div class="step"><div class="step-number">3</div><div>
+          <h3>Verify the package locally</h3>
+          <p>The diagnostic and test commands do not publish, tag, sign, or upload anything.</p>
+          <div class="code-block"><div class="code-label">PowerShell</div><pre><code>npm test
+node src/cli.js --doctor
+node src/cli.js --markdown examples/sample.diff
+npm pack --dry-run</code></pre></div>
+        </div></div>
+
+        <div class="step"><div class="step-number">4</div><div>
+          <h3>Enter the repository you want to scan</h3>
+          <p>The target repository should be the current working directory. That is how Merge Guard finds its config, package metadata, workspace boundaries, impact metadata, and CODEOWNERS guidance.</p>
+          <div class="code-block"><div class="code-label">PowerShell</div><pre><code>cd C:\path\to\your-repository
+git status
+git branch --show-current
+git fetch origin main</code></pre></div>
+        </div></div>
+
+        <div class="step"><div class="step-number">5</div><div>
+          <h3>Scan committed branch changes</h3>
+          <p>This compares the current branch with the merge base of <code>origin/main</code> and <code>HEAD</code>, which matches a typical pull-request comparison.</p>
+          <div class="code-block"><div class="code-label">Markdown report</div><pre><code>git diff origin/main...HEAD |
+  node C:\Users\quali\Desktop\source\merge-guard\src\cli.js --markdown</code></pre></div>
+          <div class="code-block"><div class="code-label">JSON report</div><pre><code>git diff origin/main...HEAD |
+  node C:\Users\quali\Desktop\source\merge-guard\src\cli.js --json</code></pre></div>
+        </div></div>
+
+        <div class="step"><div class="step-number">6</div><div>
+          <h3>Scan uncommitted changes when needed</h3>
+          <div class="code-block"><div class="code-label">Unstaged changes</div><pre><code>git diff |
+  node C:\Users\quali\Desktop\source\merge-guard\src\cli.js --markdown</code></pre></div>
+          <div class="code-block"><div class="code-label">Staged changes</div><pre><code>git diff --cached |
+  node C:\Users\quali\Desktop\source\merge-guard\src\cli.js --markdown</code></pre></div>
+          <div class="callout"><strong>Tip:</strong> <code>origin/main...HEAD</code> covers committed branch changes. It does not include unstaged or staged-but-uncommitted work.</div>
+        </div></div>
+
+        <div class="step"><div class="step-number">7</div><div>
+          <h3>Optionally save the diff first</h3>
+          <div class="code-block"><div class="code-label">PowerShell</div><pre><code>git diff origin/main...HEAD &gt; change.diff
+
+node C:\Users\quali\Desktop\source\merge-guard\src\cli.js `
+  --markdown `
+  change.diff</code></pre></div>
+        </div></div>
+      </section>
+
+      <section id="config">
+        <h2>Configure the target repository</h2>
+        <p class="lede">Merge Guard works without configuration. To tailor the guidance, create <code>merge-guard.config.json</code> in the root of the repository being scanned.</p>
+        <div class="code-block"><div class="code-label">merge-guard.config.json</div><pre><code>{
+  "preset": "standard",
+  "highRiskPaths": [
+    "src/auth",
+    "src/payments",
+    ".github/workflows"
+  ],
+  "testCommands": [
+    "npm test",
+    "npm run build"
+  ],
+  "failThreshold": 7
+}</code></pre></div>
+        <table>
+          <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>preset</code></td><td>Selects <code>safe</code>, <code>standard</code>, or <code>strict</code>. A CLI option overrides it.</td></tr>
+            <tr><td><code>highRiskPaths</code></td><td>Adds risk when a changed path starts with one of these values.</td></tr>
+            <tr><td><code>testCommands</code></td><td>Adds project-specific suggested checks. Merge Guard reports but never executes them.</td></tr>
+            <tr><td><code>failThreshold</code></td><td>Sets the positive-integer blocker and CI failure threshold.</td></tr>
+            <tr><td><code>customRules</code></td><td>Adds repository-specific safe path or added-line matching rules.</td></tr>
+            <tr><td><code>suppressions</code></td><td>Annotates known findings without reducing scores or bypassing thresholds.</td></tr>
+          </tbody>
+        </table>
+        <h3>Validate the setup</h3>
+        <div class="code-block"><div class="code-label">PowerShell</div><pre><code>node C:\Users\quali\Desktop\source\merge-guard\src\cli.js --doctor
+node C:\Users\quali\Desktop\source\merge-guard\src\cli.js --doctor --json</code></pre></div>
+      </section>
+
+      <section id="outputs">
+        <h2>Choose an output mode</h2>
+        <table>
+          <thead><tr><th>Goal</th><th>Option</th></tr></thead>
+          <tbody>
+            <tr><td>Readable terminal report</td><td><code>--markdown</code></td></tr>
+            <tr><td>Complete machine-readable report</td><td><code>--json</code></td></tr>
+            <tr><td>Compact pull-request summary</td><td><code>--pr-summary</code></td></tr>
+            <tr><td>Changed-line annotation bundle</td><td><code>--annotations</code></td></tr>
+            <tr><td>SARIF 2.1.0 output</td><td><code>--sarif</code></td></tr>
+            <tr><td>Threshold-enforcing CI behavior</td><td><code>--ci</code></td></tr>
+          </tbody>
+        </table>
+        <div class="code-block"><div class="code-label">PR summary plus complete report</div><pre><code>git diff origin/main...HEAD |
+  node C:\Users\quali\Desktop\source\merge-guard\src\cli.js `
+    --pr-summary `
+    --report-json merge-guard-report.json</code></pre></div>
+        <div class="code-block"><div class="code-label">Strict local CI gate</div><pre><code>git diff origin/main...HEAD |
+  node C:\Users\quali\Desktop\source\merge-guard\src\cli.js `
+    --ci `
+    --preset strict `
+    --fail-threshold 5
+
+$LASTEXITCODE</code></pre></div>
+        <div class="callout warning"><strong>Exit behavior:</strong> exit code <code>1</code> means the configured blocker threshold was reached. It is not a proof that the change is unsafe.</div>
+      </section>
+
+      <section id="global">
+        <h2>Option B — Install the local checkout as a command</h2>
+        <p class="lede">A global local installation makes <code>merge-guard</code> available from any repository on your machine.</p>
+        <div class="code-block"><div class="code-label">Install</div><pre><code>cd C:\Users\quali\Desktop\source\merge-guard
+npm install --global .</code></pre></div>
+        <div class="code-block"><div class="code-label">Run from the target repository</div><pre><code>cd C:\path\to\your-repository
+
+Get-Command merge-guard
+merge-guard --doctor
+git diff origin/main...HEAD | merge-guard --markdown</code></pre></div>
+        <div class="code-block"><div class="code-label">Remove later</div><pre><code>npm uninstall --global merge-guard</code></pre></div>
+      </section>
+
+      <section id="actions">
+        <h2>Option C — Add Merge Guard to GitHub Actions</h2>
+        <p class="lede">Create <code>.github/workflows/merge-guard.yml</code> in the repository being scanned. The example pins the exact reviewed Merge Guard commit rather than using the moving <code>main</code> reference.</p>
+        <div class="code-block"><div class="code-label">Report-only workflow</div><pre><code>name: Merge Guard
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: keepithandy/merge-guard@483c4907f3f04c62296225ca5e06d7a1ff085770
+        with:
+          preset: standard</code></pre></div>
+        <h3>Enable comments and annotations</h3>
+        <div class="code-block"><div class="code-label">Review workflow</div><pre><code>name: Merge Guard
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: keepithandy/merge-guard@483c4907f3f04c62296225ca5e06d7a1ff085770
+        with:
+          preset: strict
+          fail-threshold: "5"
+          comment: "true"
+          annotations: "true"</code></pre></div>
+        <h3>Commit and push the workflow</h3>
+        <div class="code-block"><div class="code-label">PowerShell</div><pre><code>git add .github/workflows/merge-guard.yml
+git commit -m "ci: add Merge Guard review"
+git push</code></pre></div>
+        <div class="callout"><strong>Why pin the SHA?</strong> It makes the Action reproducible. Update the SHA deliberately after reviewing and adopting a newer Merge Guard revision.</div>
+      </section>
+
+      <section id="interpret">
+        <h2>Interpret the result correctly</h2>
+        <table>
+          <thead><tr><th>Decision</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>NO_CONFIGURED_BLOCKERS</code></td><td>No configured threshold was reached. This is not a safety guarantee.</td></tr>
+            <tr><td><code>REVIEW_RECOMMENDED</code></td><td>The evidence reached the configured review threshold and deserves focused review.</td></tr>
+            <tr><td><code>CONFIGURED_BLOCKER_FOUND</code></td><td>The configured failure threshold was reached; <code>--ci</code> exits with status 1.</td></tr>
+          </tbody>
+        </table>
+        <ul class="checklist">
+          <li>Review the highest-risk files and matched rule evidence.</li>
+          <li>Run relevant suggested checks yourself; Merge Guard never executes them.</li>
+          <li>Inspect unknown or unavailable evidence instead of treating it as clean.</li>
+          <li>Keep normal code review and branch protections in place.</li>
+        </ul>
+      </section>
+
+      <section id="troubleshoot">
+        <h2>Troubleshooting</h2>
+        <h3>“Node is too old”</h3>
+        <p>Install Node 18 or newer, open a new terminal, and verify with <code>node --version</code>.</p>
+        <h3>“The scan reports no changes”</h3>
+        <p>Confirm the correct base branch exists locally and that your branch actually differs from it:</p>
+        <div class="code-block"><div class="code-label">PowerShell</div><pre><code>git fetch origin main
+git diff --stat origin/main...HEAD
+git log --oneline origin/main..HEAD</code></pre></div>
+        <h3>“My configuration was ignored”</h3>
+        <p>Run from the target repository root and confirm the filename is exactly <code>merge-guard.config.json</code>. Then run <code>--doctor --json</code>.</p>
+        <h3>“The GitHub Action cannot build the PR diff”</h3>
+        <p>Use <code>actions/checkout@v4</code> with <code>fetch-depth: 0</code>. Report-only mode needs <code>contents: read</code>; live comments additionally need <code>pull-requests: write</code>.</p>
+        <h3>“PowerShell cannot find merge-guard”</h3>
+        <p>Use the direct <code>node ...\src\cli.js</code> command, or reinstall globally and open a new terminal.</p>
+      </section>
+
+      <section id="checklist">
+        <h2>Final operational checklist</h2>
+        <ul class="checklist">
+          <li>Node.js is version 18 or newer.</li>
+          <li>The Merge Guard checkout is current and passes <code>npm test</code>.</li>
+          <li>The terminal’s current directory is the repository being scanned.</li>
+          <li>The intended base branch has been fetched.</li>
+          <li>The diff command includes the changes you intend to review.</li>
+          <li>Repository configuration passes <code>--doctor</code>.</li>
+          <li>Suggested checks are run separately by a human or CI.</li>
+          <li>The GitHub Action uses a pinned Merge Guard commit.</li>
+          <li>Merge Guard output is treated as evidence, not approval.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <footer class="shell">Merge Guard repository runbook · Self-contained HTML and CSS · Safe to print or save as PDF</footer>
+  <script>
+    (() => {
+      const button = document.getElementById('theme-toggle');
+      const icon = button.querySelector('.theme-icon');
+      const label = button.querySelector('.theme-label');
+
+      const render = () => {
+        const dark = document.documentElement.dataset.theme === 'dark';
+        button.setAttribute('aria-pressed', String(dark));
+        button.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+        icon.textContent = dark ? '☀' : '☾';
+        label.textContent = dark ? 'Light mode' : 'Dark mode';
+      };
+
+      button.addEventListener('click', () => {
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        try { localStorage.setItem('merge-guard-guide-theme', next); } catch {}
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
