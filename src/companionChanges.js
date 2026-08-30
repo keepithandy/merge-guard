@@ -9,12 +9,12 @@ function clean(value) {
 }
 
 export function evaluateCompanionChanges(diffText, contracts = []) {
-  const paths = pathsFromDiff(typeof diffText === 'string' ? diffText : '');
+  const paths = [...new Set(pathsFromDiff(typeof diffText === 'string' ? diffText : ''))];
   const results = [];
   for (const contract of Array.isArray(contracts) ? contracts : []) {
     const id = clean(contract?.id);
     const trigger = clean(contract?.trigger);
-    const companions = Array.isArray(contract?.companions) ? contract.companions.filter(clean) : [];
+    const companions = Array.isArray(contract?.companions) ? [...new Set(contract.companions.map(clean).filter(Boolean))] : [];
     if (!id || !trigger || !companions.length) continue;
     let triggerPattern;
     try { triggerPattern = compileSafeRegex(trigger, 'i'); } catch { continue; }
