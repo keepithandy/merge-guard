@@ -54,7 +54,7 @@ Return this structure:
 3. Risk flags
 4. Possible breakpoints
 5. Suggested checks
-6. Merge readiness
+6. Review decision
 7. Reviewer note
 
 Rules-based report:
@@ -72,7 +72,7 @@ export function createAiReviewSummary(report, diffText) {
   const riskiestFile = report.files?.[0];
   const summary = [
     `${fileCount} file(s) changed with ${report.summary.addedLines} added line(s) and ${report.summary.removedLines} removed line(s).`,
-    `The rules-based scanner classified this as ${report.riskLevel} risk with merge readiness ${report.mergeReadiness}.`
+    `The rules-based scanner classified this as ${report.riskLevel} risk with review decision ${report.reviewDecision || report.mergeReadiness}.`
   ];
 
   if (riskiestFile) {

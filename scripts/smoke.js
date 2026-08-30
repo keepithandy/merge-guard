@@ -42,6 +42,7 @@ assert(
 assert(noContextReport.prContext === null, 'missing PR context should remain optional');
 assert(report && typeof report === 'object', 'report should be an object');
 assertString(report.riskLevel, 'riskLevel');
+assertString(report.reviewDecision, 'reviewDecision');
 assertString(report.mergeReadiness, 'mergeReadiness');
 assertNumber(report.riskScore, 'riskScore');
 assert(report.config.preset === 'standard', 'default preset should be standard');
@@ -88,6 +89,22 @@ assert(docsOnlyReport.docsOnly === true, 'docs-only diff should be detected');
 assert(docsOnlyReport.riskLevel === 'LOW', 'docs-only diff should stay low risk');
 assert(docsOnlyReport.flags.includes('Docs-only change detected'), 'docs-only flag should be present');
 assert(docsOnlyReport.rules.some((rule) => rule.id === 'docs-only'), 'docs-only rule should be present');
+
+const keywordNoiseDiff = [
+  'diff --git a/src/historicalPrEvaluation.js b/src/historicalPrEvaluation.js',
+  'index 1111111..2222222 100644',
+  '--- a/src/historicalPrEvaluation.js',
+  '+++ b/src/historicalPrEvaluation.js',
+  '@@ -1,2 +1,5 @@',
+  '+for (const entry of entries) {',
+  '+  const result = Promise.resolve(entry);',
+  '+  return result;',
+  '+}'
+].join('\n');
+const keywordNoiseReport = analyzeDiff(keywordNoiseDiff);
+assert(!keywordNoiseReport.flags.includes('Routing or entry-point logic changed'), 'generic entry variables must not trigger routing risk');
+assert(!keywordNoiseReport.flags.includes('Async or network behavior changed'), 'Promise.resolve without I/O must not trigger network risk');
+assert(report.suggestedChecks.length > 0, 'reports should expose suggested checks');
 
 const relaxedReport = analyzeDiff(diffText, { preset: 'safe' });
 const strictReport = analyzeDiff(diffText, { preset: 'strict' });
@@ -374,6 +391,7 @@ assert(packageMetadata.scripts?.['test:distribution'], 'Package should expose th
 assert(packageMetadata.scripts?.['test:support'], 'Package should expose the support gate');
 assert(packageMetadata.scripts?.['test:version'], 'Package should expose the version-consistency gate');
 assert(packageMetadata.scripts?.['release:stage'], 'Package should expose the non-publishing release-staging command');
+assert(packageMetadata.scripts?.test === 'node scripts/test.js', 'Package should expose one consolidated local test command');
 for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
   assert(fs.existsSync(`policies/starter/${policyId}.json`), `Starter policy ${policyId} should exist`);
 }
@@ -386,33 +404,14 @@ assert(readme.includes('pull-requests: write'), 'README should document comment 
 assert(readme.includes('customRules'), 'README should document custom rules');
 assert(readme.includes('pathPattern'), 'README should include a realistic custom path rule');
 assert(readme.includes('--pr-title'), 'README should document PR title context');
-assert(readme.includes('Project-specific suggested checks'), 'README should document project check detection');
-assert(readme.includes('Policy-pack schema'), 'README should document the policy-pack contract');
-assert(readme.includes('--policy frontend'), 'README should document explicit starter-policy selection');
-assert(readme.includes('CODEOWNERS guidance'), 'README should document guidance-only ownership suggestions');
-assert(readme.includes('--policy-config'), 'README should document explicit policy-manifest selection');
-assert(readme.includes('Expiring policy exceptions'), 'README should document exception guardrails');
+assert(readme.includes('Targeted checks'), 'README should document targeted check selection');
+assert(readme.includes('advanced subsystems'), 'README should separate optional advanced features from the core path');
+assert(readme.includes('review decision'), 'README should document conservative review decisions');
 assert(readme.includes('--pr-summary'), 'README should document compact pull-request summaries');
 assert(readme.includes('--annotations'), 'README should document changed-line annotation output');
 assert(readme.includes('--sarif'), 'README should document optional SARIF output');
 assert(readme.includes('compare-reports.js'), 'README should document immutable finding comparison');
-assert(readme.includes('npm run test:review-e2e'), 'README should document end-to-end review validation');
-assert(readme.includes('npm run test:review-projection'), 'README should document review projection resilience validation');
-assert(readme.includes('npm run test:evidence-reproducibility'), 'README should document durable evidence reproducibility validation');
-assert(readme.includes('npm run test:evaluation-design'), 'README should document the historical PR evaluation design gate');
-assert(readme.includes('npm run test:historical-pr-evaluation'), 'README should document the historical PR evaluation harness gate');
-assert(readme.includes('npm run test:dashboard-architecture'), 'README should document the dashboard architecture gate');
-assert(readme.includes('npm run test:dashboard-import'), 'README should document the dashboard import gate');
-assert(readme.includes('npm run test:dashboard-explorer'), 'README should document the dashboard explorer gate');
-assert(readme.includes('npm run test:dashboard-accessibility'), 'README should document the dashboard accessibility gate');
-assert(readme.includes('npm run test:artifact-manifest'), 'README should document the artifact manifest gate');
 assert(readme.includes('caller-owned evidence handoff example'), 'README should document caller-owned evidence handoff');
-assert(readme.includes('npm run test:legacy-risk'), 'README should document the legacy risk gate');
-assert(readme.includes('npm run test:report-trends'), 'README should document the report trends gate');
-assert(readme.includes('npm run test:plugin-manifest'), 'README should document the plugin manifest gate');
-assert(readme.includes('npm run test:plugin-worker'), 'README should document the plugin worker gate');
-assert(readme.includes('npm run test:plugin-attestation'), 'README should document the plugin attestation gate');
-assert(readme.includes('npm run test:plugin-conformance'), 'README should document the plugin conformance gate');
 
 const reviewWorkflow = fs.readFileSync('.github/workflows/review-experience-fixture.yml', 'utf8');
 assert(reviewWorkflow.includes('comment: "false"'), 'Review workflow should exercise report-only mode');

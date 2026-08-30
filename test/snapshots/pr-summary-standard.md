@@ -1,9 +1,9 @@
 ## merge-guard review summary
 <!-- merge-guard-pr-summary:v1 -->
 
-**LOW risk** · score **1** · SAFE_TO_MERGE · **2 changed files** · **+3 / -0**
+**LOW risk** · score **1** · NO_CONFIGURED_BLOCKERS · **2 changed files** · **+3 / -0**
 
-Risk, readiness, and score come from the analyzed diff. Pull-request text is context only.
+Risk, review decision, and score come from the analyzed diff. Pull-request text is context only.
 
 ### Highest-risk files
 
@@ -29,7 +29,7 @@ Risk, readiness, and score come from the analyzed diff. Pull-request text is con
 </details>
 
 <details>
-<summary>Suggested and required checks (2)</summary>
+<summary>Suggested checks (2)</summary>
 
 - [ ] Manually test the affected navigation or app entry path.
 - [ ] Confirm the updated tests cover the changed behavior.

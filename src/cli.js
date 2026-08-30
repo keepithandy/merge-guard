@@ -20,6 +20,7 @@ import {
 import { formatPullRequestSummary } from './pullRequestSummary.js';
 import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutputs.js';
 import { formatDoctor, inspectDoctor } from './doctor.js';
+import { selectPrimaryChecks } from './projectChecks.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -345,6 +346,7 @@ async function main() {
   }
   report.schemaVersion = 1;
   report.configDiagnostics = Array.isArray(config.__configWarnings) ? config.__configWarnings : [];
+  report.primaryChecks = selectPrimaryChecks(report);
 
   if (aiMode) {
     report.aiReview = appendPrContextToAiReview(

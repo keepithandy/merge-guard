@@ -16,6 +16,7 @@ const requiredFields = [
   'tool',
   'version',
   'riskLevel',
+  'reviewDecision',
   'mergeReadiness',
   'riskScore',
   'docsOnly',

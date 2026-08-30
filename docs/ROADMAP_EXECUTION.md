@@ -8,8 +8,9 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 2. Remove adoption blockers and improve diagnostics in v1.1.
 3. Add evidence-based repository impact fidelity in v1.2.
 4. Make review evidence durable across CI runs in v1.3.
-5. Validate usefulness and adoption readiness with a labeled historical-PR beta evaluation.
-6. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
+5. Clean up the reviewer-facing beta path using observed false positives and measured check noise.
+6. Validate usefulness and adoption readiness with a labeled historical-PR beta evaluation.
+7. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
 
 Only one milestone is active at a time. Beta field validation is active. Historical release evidence remains preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
 
@@ -134,7 +135,7 @@ Implemented by #150 with three isolated generation lanes, ten byte-compared dura
 
 v1.3 durable review evidence is complete: all four roadmap slices are implemented, release-gated, and preserve the frozen v1 behavior.
 
-## Active queue — beta field validation and adoption readiness
+## Active queue — beta reviewer signal cleanup
 
 ### Beta identity and packaging
 
@@ -147,6 +148,29 @@ Implemented by #152 as `1.3.0-beta.1`, with prerelease-aware version contracts a
 Implement the accepted [evaluation harness design](EVALUATION_HARNESS_DESIGN.md): a bounded local corpus, independent labels, calibration/held-out partitions, deterministic matching, and content-free aggregate results.
 
 Implemented by #154 with versioned corpus, labels, case-result, and aggregate schemas; path-safe bounded local loading; independent-label controls; deterministic exact matching; content-free JSON results; and release-blocking privacy, safety, and cross-platform contracts. A caller-owned pilot corpus and its results remain pending.
+
+### Reviewer signal cleanup
+
+Status: in progress after the first repository-level usefulness review.
+
+The cleanup keeps the frozen v1 JSON fields while improving the default human-facing path:
+
+- conservative `reviewDecision` labels replace merge-authority language in text and PR summaries;
+- `primaryChecks` limits default recommendations to three while preserving the full `suggestedChecks` inventory;
+- default routing, persistence, and network patterns require specific path segments or call-like syntax instead of generic words;
+- `npm test` provides one contributor-facing entry point for the detailed contract suites;
+- README and roadmap language identify the CLI/Action as core and dashboard/plugin/provenance/trend work as optional advanced systems;
+- regression coverage records the observed `entry`/`Promise.resolve` false-positive class.
+
+Exit gate: the compact report is materially shorter, the false-positive fixture remains green, existing v1 contract suites pass, and the calibration corpus is ready for measured follow-up.
+
+### Next usefulness slices
+
+After the cleanup gate, the next product slices are intentionally narrow:
+
+1. Companion-change contracts for required related files (migration, fixture, client, or focused test).
+2. Browser-game save compatibility checks for storage keys, save versions, and migrations.
+3. The preregistered held-out pilot using the existing historical-PR harness.
 
 ### Golden-path GitHub experience
 

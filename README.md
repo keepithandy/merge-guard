@@ -2,13 +2,13 @@
 
 ![Merge Guard — deterministic pull request risk analysis](docs/assets/merge-guard-latest-commits-cover-v4.png)
 
-`merge-guard` is a deterministic pull request and diff risk scanner for safer merges. It reviews changed files and produces a plain-English merge-readiness report: what changed, what looks risky, what might break, and which checks a reviewer should consider before merging.
+`merge-guard` is a deterministic pull-request review signal and targeted check planner. It identifies specific changed files, likely breakpoints, and the smallest useful checks a reviewer should consider.
 
 It does not require an AI provider or API key, and it never runs discovered project commands.
 
 [Quick start](#quick-start) · [CLI](#cli-usage) · [Configuration](#configuration) · [GitHub Action](#reusable-github-action) · [Documentation](#documentation)
 
-> **v1.3.0-beta.1 source status:** The current repository, package, runtime, report, and SBOM identify `1.3.0-beta.1`. This beta source is unpublished and has not been approved, tagged, signed, or published to npm or GitHub. Earlier candidate records remain historical evidence, not publication authorization. Use a reviewed source checkout or composite Action commit SHA.
+> Current source: `1.3.0-beta.1` (unpublished beta). See the [release notes](docs/releases/V1.3.0-beta.1_RELEASE_NOTES.md) for scope and status.
 
 ## What it answers
 
@@ -18,7 +18,7 @@ Merge Guard focuses review on five questions:
 2. Why does it matter?
 3. What might break?
 4. Which checks should I run?
-5. Is this ready to merge?
+5. What should I verify first?
 
 The report is decision support, not approval. Tests, human review, and repository protection rules remain authoritative.
 
@@ -123,7 +123,7 @@ The bundled `examples/sample.diff` currently produces this abridged report:
 merge-guard report
 
 Risk level: LOW
-Merge readiness: SAFE_TO_MERGE
+Review decision: NO_CONFIGURED_BLOCKERS
 Risk score: 1
 Preset: standard
 
@@ -145,13 +145,13 @@ The complete report also includes per-file risk, rule explanations, suggested ch
 
 ## Capabilities on `main`
 
-- Deterministic, rules-based scoring with docs-only handling, risk presets, per-file findings, and merge-readiness labels.
+- Deterministic, rules-based scoring with docs-only handling, risk presets, per-file findings, and conservative review-decision labels.
 - Plain-text, Markdown, compact pull-request summary, schema-versioned JSON, changed-line annotation, and SARIF 2.1.0 outputs.
 - Project configuration for high-risk paths, suggested checks, custom rules, and non-destructive suppressions.
 - Read-only JavaScript, Python, mixed-project, and npm-workspace inspection with affected-package mapping.
 - Explicit starter policy packs, monorepo policy inheritance, protected-path guidance, and CODEOWNERS hints.
 - Pull request context, stable managed comments, immutable report comparison, and a reusable composite GitHub Action.
-- Versioned architecture and security contracts for a future local dashboard.
+- Optional local dashboard and advanced evidence tooling, documented separately and not required for the core review path.
 
 ## How scoring works
 
@@ -165,7 +165,7 @@ The default preset is `standard`:
 | `standard` | 3 | 7 | General pull-request review |
 | `strict` | 2 | 5 | Release branches and sensitive systems |
 
-Scores at or above the review threshold produce `NEEDS_REVIEW`. Scores at or above the failure threshold produce `DO_NOT_MERGE_YET`; `--ci` also exits with status 1 at that threshold. A lower score produces `SAFE_TO_MERGE`, which means no configured high-risk threshold was reached, not that the change is proven safe.
+Scores at or above the review threshold produce `REVIEW_RECOMMENDED`. Scores at or above the failure threshold produce `CONFIGURED_BLOCKER_FOUND`; `--ci` also exits with status 1 at that threshold. A lower score produces `NO_CONFIGURED_BLOCKERS`, which means no configured threshold was reached—not that the change is proven safe. The legacy `mergeReadiness` field remains in JSON reports for schema-v1 compatibility.
 
 ## Configuration
 
@@ -284,11 +284,11 @@ merge-guard --json --ai change.diff > merge-guard-ai-review.json
 | `--report-json <path>` | Write the complete JSON report in addition to stdout. |
 | `--help`, `-h` | Show the current command contract. |
 
-Pull request title and body are context only. They appear in reports and AI-ready output but never change rules, risk scores, readiness, or failure thresholds.
+Pull request title and body are context only. They appear in reports and optional AI-ready output but never change rules, risk scores, review decisions, or failure thresholds.
 
-## Project-specific suggested checks
+## Targeted checks
 
-Before formatting a report, Merge Guard inspects the current repository without executing anything. It can suggest checks from:
+Before formatting a report, Merge Guard inspects the current repository without executing anything. It keeps the complete detected command inventory in JSON, but human-facing output selects at most three primary checks from:
 
 - root npm scripts, supported root smoke files, and exact README commands;
 - pytest, unittest, Ruff, Black, mypy, Flake8, Python build, and tox metadata;
@@ -297,9 +297,9 @@ Before formatting a report, Merge Guard inspects the current repository without 
 
 Changed paths are mapped to the longest owning package root. Repository-level changes and potential shared impact are labeled explicitly; Merge Guard does not infer dependency relationships.
 
-See [repository intelligence](docs/repository-intelligence.md) for the supported layouts and report fields.
+See [repository intelligence](docs/repository-intelligence.md) for the supported layouts and report fields. Use `npm test` in this repository to run the complete local contract suite; the individual `test:*` scripts remain compatibility entry points for maintainers.
 
-## Policy packs and review guidance
+## Advanced: policy packs and review guidance
 
 ### Policy-pack schema
 
@@ -403,7 +403,7 @@ On `pull_request` events, the Action forwards the event title and body as contex
 
 See [GitHub Actions behavior](docs/GITHUB_ACTIONS.md), the [caller-owned evidence handoff example](docs/examples/github-actions-explicit-evidence-handoff.yml), [pull-request summaries](docs/pull-request-summaries.md), [GitHub annotations and SARIF](docs/github-review-outputs.md), and [finding comparison](docs/finding-comparisons.md).
 
-## Finding comparison
+## Advanced: finding comparison
 
 From the Merge Guard source checkout, compare two immutable schema-version 1 reports from successive pushes:
 
@@ -419,9 +419,11 @@ node scripts/compare-reports.js \
   --markdown
 ```
 
-Findings are classified as new, unchanged, or resolved using stable identities. Comparison does not change either report, scoring, readiness, or the scanner's threshold/CI outcome. If `--previous` is omitted, the comparison helper emits `history-unavailable` and exits with status 2.
+Findings are classified as new, unchanged, or resolved using stable identities. Comparison does not change either report, scoring, review decisions, or the scanner's threshold/CI outcome. If `--previous` is omitted, the comparison helper emits `history-unavailable` and exits with status 2.
 
 ## Safety boundaries
+
+The core path is the CLI plus the reusable Action. Dashboard, plugin, provenance, and trend features are optional advanced subsystems; they are not required to get a useful review signal.
 
 - Merge Guard analyzes diffs; it does not replace tests, reviewers, branch protection, or deployment controls.
 - Discovered and configured commands are suggestions only and are never executed.
@@ -430,57 +432,23 @@ Findings are classified as new, unchanged, or resolved using stable identities. 
 - CODEOWNERS and protected paths provide unverified guidance, not proof of approval.
 - SARIF generation is local; upload and code-scanning permissions remain the caller's responsibility.
 - The local dashboard accepts selected `.diff`, `.patch`, and Merge Guard v1 `.json` report files through a browser file picker or drag-and-drop. It validates them in a dedicated worker, keeps them in memory, and serves only bundled assets from loopback; it does not upload, persist, or execute anything.
-- Imported reports are displayed as read-only risk-ranked file and rule evidence with suggested checks, warnings, and suppressions. Checklist state is local UI state and never changes report scores or readiness.
+- Imported reports are displayed as read-only risk-ranked file and rule evidence with suggested checks, warnings, and suppressions. Checklist state is local UI state and never changes report scores or review decisions.
 
 The dashboard boundary is documented in [the architecture overview](docs/architecture/dashboard-architecture.md).
 
 ## Development and verification
 
-Run the focused contract suites before release work:
+Use the small public command surface first:
 
 ```bash
+npm test
 npm run smoke
-npm run test:cli
-npm run test:snapshots
-npm run test:repository
-npm run test:policies
-npm run test:guidance
-npm run test:policy-resolution
-npm run test:pr-summary
-npm run test:github-review
-npm run test:finding-comparison
-npm run test:review-e2e
-npm run test:review-projection
-npm run test:evidence-reproducibility
-npm run test:evaluation-design
-npm run test:historical-pr-evaluation
-npm run test:dashboard-architecture
-npm run test:dashboard-import
-npm run test:dashboard-explorer
-npm run test:dashboard-accessibility
-npm run test:artifact-manifest
-npm run test:evidence-handoff
-npm run test:legacy-risk
-npm run test:report-trends
-npm run test:plugin-manifest
-npm run test:plugin-worker
-npm run test:plugin-attestation
-npm run test:plugin-conformance
-npm run test:installation
-npm run test:security
-npm run test:performance
-npm run test:release-candidate
-npm run test:public-contracts
-npm run test:release-artifacts
-npm run test:distribution
-npm run test:support
-npm run test:version
-npm run test:doctor
-npm run test:consumer-fixtures
+npm run demo
+npm run eval:historical-prs -- --corpus ./corpus --mode validate
 npm run release:check
 ```
 
-`npm run release:check` runs the full contract suite, including package/runtime/SBOM consistency, local historical-PR evaluation, local/global/npx-style installation, security, performance, public-contract, artifact, distribution, and support gates, then validates the Action, sample reports, and package dry run. It does not publish packages, create tags, sign artifacts, or create releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for the opt-in local corpus command and its privacy boundary.
+`npm test` runs the complete local contract suite. `npm run release:check` adds package/runtime/SBOM consistency, installation, security, performance, public-contract, artifact, distribution, and support gates. Neither command publishes packages, creates tags, signs artifacts, or creates releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for the opt-in local corpus command and its privacy boundary.
 
 After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.1` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md).
 
@@ -489,34 +457,19 @@ After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-
 | Topic | Reference |
 | --- | --- |
 | Project direction | [Post-v1 roadmap](ROADMAP.md) |
-| Current source version | [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md) |
-| Current source notes | [v1.3.0-beta.1 release notes](docs/releases/V1.3.0-beta.1_RELEASE_NOTES.md) |
-| Historical v1.0 candidate | [v1.0 decision packet](docs/releases/V1.0.0_RELEASE_DECISION.md) |
-| Version policy and history | [Versioning](docs/versioning.md) |
+| Current source | [Beta release notes](docs/releases/V1.3.0-beta.1_RELEASE_NOTES.md) |
+| Version policy | [Versioning](docs/versioning.md) |
 | Installation and diagnostics | [Supported journeys and doctor](docs/adoption-and-diagnostics.md) |
-| Report schema and semantics | [Report format](docs/REPORT_FORMAT.md) |
+| Report contract | [Report format](docs/REPORT_FORMAT.md) |
 | Composite Action | [GitHub Actions](docs/GITHUB_ACTIONS.md) |
-| Package and release checks | [Package and Action verification](docs/package-and-action.md) |
-| Repository-aware checks | [Repository intelligence](docs/repository-intelligence.md) |
-| Reusable policies | [Policy-pack contract](docs/policy-packs.md) |
-| GitHub review projections | [Annotations and SARIF](docs/github-review-outputs.md) |
-| Cross-push findings | [Finding comparison](docs/finding-comparisons.md) |
-| Immutable provenance | [Artifact manifests](docs/artifact-manifests.md) |
-| Accepted legacy risk | [Legacy risk](docs/legacy-risk.md) |
-| Trends and retention | [Report trends and retention](docs/report-trends-and-retention.md) |
-| Rule plugins | [Plugin manifests](docs/plugin-manifests.md) |
-| Plugin isolation | [Plugin workers](docs/plugin-workers.md) |
-| Plugin provenance | [Plugin attestation](docs/plugin-attestation.md) |
-| Plugin compatibility | [Plugin conformance](docs/plugin-conformance.md) |
-| Installation and packaging | [Installation validation](docs/installation-validation.md) |
-| Security and provenance | [Security baseline](docs/security/threat-model.md) |
-| Performance budgets | [Performance validation](docs/performance-validation.md) |
-| Release candidate | [Release-candidate gate](docs/release-candidate.md) |
-| Public contracts | [Contract freeze](docs/public-contracts.md) |
-| Release artifacts | [Artifact flow](docs/release-artifacts.md) |
-| Distribution listings | [Distribution listings](docs/distribution-listings.md) |
-| Support and maintenance | [Support process](docs/support-process.md) |
-| Dashboard boundary | [Local dashboard architecture](docs/architecture/dashboard-architecture.md) |
+| Targeted checks | [Repository intelligence](docs/repository-intelligence.md) |
+| Custom rules | [Custom rules](docs/custom-rules.md) |
+| Policies and ownership | [Policy-pack contract](docs/policy-packs.md) |
+| PR summaries | [Pull-request summaries](docs/pull-request-summaries.md) |
+| Beta evaluation | [Historical-PR evaluation](docs/historical-pr-evaluation.md) |
+| Security | [Security baseline](docs/security/threat-model.md) |
 | Release history | [Changelog](CHANGELOG.md) |
 | Contributing | [Contributing guide](CONTRIBUTING.md) |
 | License | [MIT License](LICENSE) |
+
+Advanced implementation references for the local dashboard, durable evidence, report trends, and plugins remain under `docs/`; they are optional and are not part of the core adoption path.

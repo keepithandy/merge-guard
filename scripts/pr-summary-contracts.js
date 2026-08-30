@@ -65,7 +65,7 @@ assert(standardSummary.includes(PULL_REQUEST_SUMMARY_MARKER));
 assert(standardSummary.includes(`score **${contextualReport.riskScore}**`));
 assert(standardSummary.includes('<summary>Files ('));
 assert(standardSummary.includes('<summary>Rules ('));
-assert(standardSummary.includes('<summary>Suggested and required checks ('));
+assert(standardSummary.includes('<summary>Suggested checks ('));
 assert(standardSummary.includes('### Highest-risk files'));
 assert(standardSummary.indexOf('<code>src/app.js</code>') < standardSummary.indexOf('<details>'));
 assert(standardSummary.includes('Harden &lt;startup&gt; while preserving score'));

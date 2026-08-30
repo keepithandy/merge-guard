@@ -148,6 +148,7 @@ check('LICENSE exists', Boolean(read('LICENSE')));
 
 if (metadata) {
   check('release:check script is configured', metadata.scripts?.['release:check'] === 'node scripts/release-readiness.js');
+  check('test script is configured', metadata.scripts?.test === 'node scripts/test.js');
   check('smoke script is configured', Boolean(metadata.scripts?.smoke));
   check('demo script is configured', Boolean(metadata.scripts?.demo));
   check('dashboard architecture script is configured', Boolean(metadata.scripts?.['test:dashboard-architecture']));

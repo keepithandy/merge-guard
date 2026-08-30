@@ -6,6 +6,8 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 ### Added
 
+- Conservative `reviewDecision` labels and a `primaryChecks` projection for focused human-facing review output, while retaining the legacy `mergeReadiness` field in schema version 1.
+- A single `npm test` contributor entry point that runs the detailed local contract suite.
 - An opt-in, read-only v1 impact-metadata contract for explicitly selected checked-in JSON files. It validates declared package roots and direct dependencies, ownership paths, generated paths, and repository-wide paths without executing project code or inferring a graph.
 - Additive `repository.impactMetadata` report evidence with deterministic valid, invalid, and not-provided states. Invalid metadata is unavailable input and leaves dependency impact unknown.
 - An additive explainable impact graph that separates direct, transitive, repository-wide, generated, and unknown impact using only valid explicit metadata, with edge provenance and deterministic diagnostics.
@@ -14,6 +16,12 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - Versioned v1.3 review-projection evidence for reruns, duplicate events, fork/read-only permissions, canceled attempts, threshold failures, and partial output failures without weakening scan results.
 - A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
 - An opt-in, local historical-PR evaluation harness with versioned corpus/result contracts, independent labels, calibration/held-out leakage controls, deterministic matching and aggregate metrics, and content-free outputs. It never uploads, fetches, executes changed code, or overwrites prior results.
+
+### Changed
+
+- Tightened default routing, persistence, and async/network signals to require specific path segments or call-like syntax and to ignore fixture/data files for core line matching.
+- Shortened the default text, Markdown, and pull-request projections to show three primary checks and identify additional checks as optional detail.
+- Reframed the README and roadmap around the CLI/Action golden path and beta usefulness validation; dashboard, plugin, provenance, and trend systems remain optional advanced subsystems.
 
 ## 1.3.0-beta.1 - 2026-08-29 (unpublished beta source version)
 

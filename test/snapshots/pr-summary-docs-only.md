@@ -1,9 +1,9 @@
 ## merge-guard review summary
 <!-- merge-guard-pr-summary:v1 -->
 
-**LOW risk** · score **0** · SAFE_TO_MERGE · **1 changed file** · **+6 / -0** · **docs-only**
+**LOW risk** · score **0** · NO_CONFIGURED_BLOCKERS · **1 changed file** · **+6 / -0** · **docs-only**
 
-Risk, readiness, and score come from the analyzed diff. Pull-request text is context only.
+Risk, review decision, and score come from the analyzed diff. Pull-request text is context only.
 
 ### Highest-risk files
 
@@ -26,7 +26,7 @@ Risk, readiness, and score come from the analyzed diff. Pull-request text is con
 </details>
 
 <details>
-<summary>Suggested and required checks (1)</summary>
+<summary>Suggested checks (1)</summary>
 
 - [ ] Proofread documentation and verify examples or commands still match the project.
 

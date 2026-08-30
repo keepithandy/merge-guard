@@ -22,6 +22,74 @@ function uniq(values) {
   return [...new Set(values)];
 }
 
+const PRIMARY_CHECK_LIMIT = 3;
+
+function nonEmpty(value) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+/**
+ * Select the smallest useful check plan for a reviewer. The complete
+ * suggestedChecks list remains available in the machine-readable report;
+ * this projection keeps the default human-facing output focused.
+ */
+export function selectPrimaryChecks(report, limit = PRIMARY_CHECK_LIMIT) {
+  const max = Number.isInteger(limit) && limit > 0 ? limit : PRIMARY_CHECK_LIMIT;
+  const candidates = [];
+  let order = 0;
+  const add = (value, priority) => {
+    const check = nonEmpty(value);
+    if (!check) return;
+    candidates.push({ check, priority, order });
+    order += 1;
+  };
+
+  for (const rule of Array.isArray(report?.rules) ? report.rules : []) {
+    if (Number.isFinite(rule?.weight) && rule.weight <= 0) continue;
+    add(rule.check, 100);
+  }
+
+  for (const check of Array.isArray(report?.policyRequiredChecks) ? report.policyRequiredChecks : []) {
+    if (typeof check === 'string') add(`Policy check: ${check}`, 90);
+    else if (check && typeof check === 'object') {
+      const command = nonEmpty(check.command);
+      const reason = nonEmpty(check.reason);
+      if (command) add(`Policy check: ${command}${reason ? ` — ${reason}` : ''}`, 90);
+    }
+  }
+
+  for (const detail of Array.isArray(report?.projectCheckDetails) ? report.projectCheckDetails : []) {
+    const command = nonEmpty(detail?.command);
+    if (!command) continue;
+    const category = nonEmpty(detail?.category) || 'verification';
+    const priority = command === 'npm run smoke'
+      ? 100
+      : command === 'npm test'
+        ? 95
+        : command === 'npm run check'
+          ? 90
+          : command === 'npm run release:check'
+            ? 85
+            : category === 'test' ? 80 : category === 'lint' ? 70 : category === 'build' ? 60 : 50;
+    add(`Project check: ${command}`, priority);
+  }
+
+  for (const check of Array.isArray(report?.suggestedChecks) ? report.suggestedChecks : []) {
+    add(check, 20);
+  }
+
+  const seen = new Set();
+  return candidates
+    .sort((left, right) => right.priority - left.priority || left.order - right.order)
+    .filter((candidate) => {
+      if (seen.has(candidate.check)) return false;
+      seen.add(candidate.check);
+      return true;
+    })
+    .slice(0, max)
+    .map((candidate) => candidate.check);
+}
+
 function safeReadJson(filePath) {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));

@@ -50,7 +50,7 @@ try {
   const sample = run(localBin, ['examples/sample.diff'], root);
   const report = run(localBin, ['--json', 'examples/sample.diff'], root);
   assert(help.includes('Usage:'), 'CLI help should be available after local install');
-  assert(sample.includes('Merge readiness:'), 'sample scan should produce a report');
+  assert(sample.includes('Review decision:'), 'sample scan should produce a report');
   assert.equal(json(report).schemaVersion, 1, 'JSON output should use schema version 1');
 
   run(npm, ['install', '--prefix', global, '--global', '--ignore-scripts', tarball]);

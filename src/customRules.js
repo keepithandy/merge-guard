@@ -162,6 +162,12 @@ function readinessFromScore(score, config) {
   return 'SAFE_TO_MERGE';
 }
 
+function reviewDecisionFromScore(score, config) {
+  if (score >= config.failThreshold) return 'CONFIGURED_BLOCKER_FOUND';
+  if (score >= config.reviewThreshold) return 'REVIEW_RECOMMENDED';
+  return 'NO_CONFIGURED_BLOCKERS';
+}
+
 function updateFileBreakdown(report, hit) {
   if (!Array.isArray(report.files)) return;
 
@@ -244,6 +250,7 @@ export function applyCustomRules(report, diffText, customRules, options = {}) {
   }
 
   report.riskLevel = levelFromScore(report.riskScore, report.config);
+  report.reviewDecision = reviewDecisionFromScore(report.riskScore, report.config);
   report.mergeReadiness = readinessFromScore(report.riskScore, report.config);
 
   return report;
