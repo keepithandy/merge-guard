@@ -14,20 +14,19 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ## Active priority
 
-### Beta usefulness cleanup — make the core review path credible before the pilot
+### Browser-game save compatibility — protect existing player progress
 
-The first field review found a product-shape problem: the scanner is deterministic and well-tested, but broad keyword rules and an unbounded check list make the default result look noisier and more authoritative than the evidence supports. The current cleanup pass keeps the frozen v1 JSON contract while improving the human-facing path.
+The reviewer-signal cleanup is complete. The next usefulness slice turns a common browser-game failure mode into explicit, opt-in review evidence: changing a storage key or save version without showing how existing saves migrate.
 
-The cleanup pass:
+The browser-game slice:
 
-- uses conservative `reviewDecision` labels in human-facing output while retaining legacy `mergeReadiness` for compatibility;
-- selects at most three primary checks while retaining the complete detected inventory in JSON;
-- tightens default routing, persistence, and network signals against generic variable names and non-I/O promises;
-- gives contributors one `npm test` entry point and keeps detailed contract scripts as maintainer compatibility commands;
-- presents the CLI/Action path as the product and moves optional dashboard, plugin, provenance, and trend systems out of the core story;
-- records false-positive regression fixtures before tuning on the held-out pilot.
+- activates only when the caller explicitly selects the `browser-game` starter policy;
+- records literal `localStorage` and `sessionStorage` key changes from the supplied diff;
+- records numeric save-version changes and whether migration paths or calls are present;
+- puts old-save loading or migration verification into the three-check reviewer plan;
+- preserves scoring and labels unknown compatibility instead of claiming that a migration is correct.
 
-Exit gate: the revised golden path passes release checks, the calibration corpus shows materially lower noise, and no human-facing report claims that a change is proven safe.
+Exit gate: focused fixtures cover key replacement, version changes with and without migration evidence, unrelated diffs remain quiet, and the full release gate passes without changing default behavior.
 
 ## Planned milestones
 
@@ -37,6 +36,7 @@ Exit gate: the revised golden path passes release checks, the calibration corpus
 | v1.2 | Repository impact fidelity | Explicit repository metadata can improve affected-package reasoning without executing project code or guessing dependency edges. |
 | v1.3 | Durable review evidence | Teams can carry immutable Merge Guard evidence across pull-request pushes and CI runs with clear provenance and failure semantics. |
 | v1.3.0-beta.2 | Reviewer signal cleanup | Human-facing reports show conservative decisions, three primary checks, and fewer keyword-driven false positives while preserving the v1 JSON contract. |
+| v1.3.0-beta.3 | Browser-game save compatibility | The opt-in browser-game policy identifies literal storage-key and save-version compatibility gaps and prioritizes old-save verification. |
 | Beta validation | Field validation and adoption readiness | A labeled historical-PR evaluation demonstrates whether findings are actionable, sufficiently complete within supported scope, and easy to adopt. |
 
 Milestone versions are directional. Patch releases may ship independently when they are compatible, narrowly scoped fixes.

@@ -54,6 +54,7 @@ Normal CLI reports also expose:
 - `policyResolution`
 - `policyExceptions`
 - `prContext`
+- `saveCompatibility` when the explicit `browser-game` starter policy is selected
 
 `prContext` is `null` when no title or body was supplied. Context never changes risk scoring.
 
@@ -64,6 +65,8 @@ Normal CLI reports also expose:
 `repository` contains detected package-layout metadata, warnings, `affectedPackages`, optional `impactMetadata`, and additive `impactGraph` evidence. Direct ownership, repository-level shared files, and potential shared-impact packages remain unchanged. `impactMetadata` is `not-provided`, `invalid`, or `valid`; only an explicit local file can make it valid. `impactGraph` separates direct, transitive, repository-wide, generated, and unknown impact and retains edge reasons and diagnostics. See `docs/repository-intelligence.md` and `docs/impact-metadata.md`.
 
 `policyPacks` and `policyRequiredChecks` appear only after explicit policy selection. Policy findings use namespaced IDs, retain their pack ID/version, and are separate from project custom rules. Required checks are suggestions with reasons; they are never executed automatically. See `docs/starter-policy-packs.md`.
+
+`saveCompatibility` is additive, opt-in evidence from the `browser-game` starter policy. It records literal browser-storage key changes, numeric save-version changes, migration evidence, concerns, and focused checks without changing risk scoring or claiming that a migration is correct. See `docs/browser-game-save-compatibility.md`.
 
 `reviewGuidance` separates selected-policy protected-path matches and unverified CODEOWNERS suggestions from scoring. It includes unmatched/unowned paths, parser warnings, and an explicit no-assignment/no-approval disclaimer. See `docs/review-guidance.md`.
 

@@ -10,6 +10,7 @@ pnpm-debug.log*
 dist/
 build/
 coverage/
+merge-guard-*.tgz
 .cache/
 .vscode/
 .idea/

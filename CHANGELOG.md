@@ -16,6 +16,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - Versioned v1.3 review-projection evidence for reruns, duplicate events, fork/read-only permissions, canceled attempts, threshold failures, and partial output failures without weakening scan results.
 - A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
 - An opt-in, local historical-PR evaluation harness with versioned corpus/result contracts, independent labels, calibration/held-out leakage controls, deterministic matching and aggregate metrics, and content-free outputs. It never uploads, fetches, executes changed code, or overwrites prior results.
+- Opt-in browser-game save compatibility evidence for literal storage-key changes, numeric save-version changes, migration evidence, and focused old-save checks without changing risk scoring.
 
 ### Changed
 

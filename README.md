@@ -316,6 +316,8 @@ merge-guard --policy infrastructure change.diff
 
 The five bundled packs are `frontend`, `backend`, `library`, `browser-game`, and `infrastructure`. Selected packs add namespaced findings and reasoned required checks; they never execute a command.
 
+The explicit `browser-game` pack also surfaces literal storage-key and save-version changes, migration evidence, and an old-save compatibility check in the focused reviewer plan. It does not inspect browser data or claim a migration is correct.
+
 For monorepos, `--policy-config merge-guard.policies.json` resolves explicit root and package policy scopes. Expiring exceptions are annotations only: they do not remove findings or checks, change scores, bypass thresholds, or imply approval.
 
 ### Expiring policy exceptions
@@ -465,6 +467,7 @@ After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-
 | Targeted checks | [Repository intelligence](docs/repository-intelligence.md) |
 | Custom rules | [Custom rules](docs/custom-rules.md) |
 | Policies and ownership | [Policy-pack contract](docs/policy-packs.md) |
+| Browser-game saves | [Save compatibility evidence](docs/browser-game-save-compatibility.md) |
 | PR summaries | [Pull-request summaries](docs/pull-request-summaries.md) |
 | Beta evaluation | [Historical-PR evaluation](docs/historical-pr-evaluation.md) |
 | Security | [Security baseline](docs/security/threat-model.md) |

@@ -151,7 +151,7 @@ Implemented by #154 with versioned corpus, labels, case-result, and aggregate sc
 
 ### Reviewer signal cleanup
 
-Status: in progress after the first repository-level usefulness review.
+Implemented by #156 with conservative decisions, three primary checks, tighter default signals, one contributor test command, and a core CLI/Action story.
 
 The cleanup keeps the frozen v1 JSON fields while improving the default human-facing path:
 
@@ -164,13 +164,23 @@ The cleanup keeps the frozen v1 JSON fields while improving the default human-fa
 
 Exit gate: the compact report is materially shorter, the false-positive fixture remains green, existing v1 contract suites pass, and the calibration corpus is ready for measured follow-up.
 
-### Next usefulness slices
+### Companion-change contracts
+
+Implemented by source commit `483c490` as a read-only, opt-in planning primitive for trigger paths and required related-file patterns. It records satisfied or missing companions without executing tests or altering risk scoring.
+
+### Browser-game save compatibility
+
+Status: in progress.
+
+Add opt-in evidence to the `browser-game` starter policy for literal browser-storage key changes, numeric save-version changes, and migration presence. Put the relevant old-save verification into the three-check reviewer plan without changing risk scoring or claiming semantic compatibility.
+
+Exit gate: key replacement, version changes with and without migration evidence, and unrelated diffs have deterministic fixtures; the JSON evidence is additive; default and non-browser-game policy behavior remains unchanged; the full release gate passes.
+
+### Remaining usefulness slices
 
 After the cleanup gate, the next product slices are intentionally narrow:
 
-1. Companion-change contracts for required related files (migration, fixture, client, or focused test).
-2. Browser-game save compatibility checks for storage keys, save versions, and migrations.
-3. The preregistered held-out pilot using the existing historical-PR harness.
+1. The preregistered held-out pilot using the existing historical-PR harness.
 
 ### Golden-path GitHub experience
 

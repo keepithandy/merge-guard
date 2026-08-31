@@ -65,6 +65,8 @@ ID: `browser-game` / `merge-guard.starter.browser-game`
 
 Assumes a browser game with persistent save data, a render loop, and deterministic smoke coverage.
 
+The selected pack also records additive save-compatibility evidence for literal browser-storage key changes, numeric save-version changes, and migration evidence. See [browser-game save compatibility](browser-game-save-compatibility.md).
+
 Required checks:
 
 - `npm run smoke` for startup, save/load, and the primary play loop;

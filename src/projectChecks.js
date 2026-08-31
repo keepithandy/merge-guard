@@ -44,6 +44,10 @@ export function selectPrimaryChecks(report, limit = PRIMARY_CHECK_LIMIT) {
     order += 1;
   };
 
+  for (const check of Array.isArray(report?.saveCompatibility?.checks) ? report.saveCompatibility.checks : []) {
+    add(check, 110);
+  }
+
   for (const rule of Array.isArray(report?.rules) ? report.rules : []) {
     if (Number.isFinite(rule?.weight) && rule.weight <= 0) continue;
     add(rule.check, 100);
