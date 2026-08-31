@@ -41,6 +41,7 @@
     "test:evidence-reproducibility": "node scripts/evidence-reproducibility-contracts.js",
     "test:evaluation-design": "node scripts/evaluation-design-contracts.js",
     "test:historical-pr-evaluation": "node scripts/historical-pr-evaluation-contracts.js",
+    "test:browser-game-save": "node scripts/browser-game-save-contracts.js",
     "test:dashboard-architecture": "node scripts/dashboard-architecture-contracts.js",
     "test:dashboard-import": "node scripts/dashboard-import-contracts.js",
     "test:dashboard-explorer": "node scripts/dashboard-explorer-contracts.js",

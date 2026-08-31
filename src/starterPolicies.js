@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { applyBrowserGameSaveCompatibility } from './browserGameSaveCompatibility.js';
 import { applyCustomRules } from './customRules.js';
 import { formatPolicyDiagnostics, validatePolicyPack } from './policyPacks.js';
 
@@ -116,6 +117,10 @@ export function applyPolicyPack(report, diffText, policy, options = {}) {
     ),
     ...(report.suggestedChecks || [])
   ]);
+
+  if (selected.id === 'merge-guard.starter.browser-game') {
+    applyBrowserGameSaveCompatibility(report, diffText);
+  }
 
   return report;
 }
