@@ -16,7 +16,7 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ### Historical-PR held-out pilot — measure usefulness before expansion
 
-The evaluation harness and targeted usefulness slices are implemented. The next milestone is the preregistered held-out pilot tracked in #undefined.
+The evaluation harness and targeted usefulness slices are implemented. The next milestone is the preregistered held-out pilot tracked in #160.
 
 The pilot:
 
