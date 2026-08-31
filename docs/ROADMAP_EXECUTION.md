@@ -178,7 +178,7 @@ Completion evidence: focused key-replacement, version-change, migration, unrelat
 
 ### Preregistered held-out historical-PR pilot
 
-Tracked in #undefined. Use the implemented harness with a caller-owned corpus of at least 50 held-out pull requests from at least five opaque repository aliases. Record the corpus hash, product commit, metric implementation hash, and thresholds before running the held-out partition.
+Tracked in #160. Use the implemented harness with a caller-owned corpus of at least 50 held-out pull requests from at least five opaque repository aliases. Record the corpus hash, product commit, metric implementation hash, and thresholds before running the held-out partition.
 
 Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md): at least 70% actionable precision, at least 80% critical supported-scope recall when measurable, no greater than one median unmatched positive-weight finding per PR, at least 70% clean-PR specificity, no greater than five minutes median default-path setup, the existing 3,000 ms performance budget, and no privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression.
 
