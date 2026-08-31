@@ -8,25 +8,27 @@ The historical v1.0 candidate at `636a1e9812bb017dae69be122b36555b89db5e77` pass
 
 The current `main` source identity is `1.3.0-beta.1`; it consolidates the completed v1.1, v1.2, and v1.3 source work into an explicit unpublished beta without changing historical candidates or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
 
-The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active beta usefulness cleanup and subsequent field-validation milestone exist to prove that.
+The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. The reviewer-signal cleanup, companion-change contracts, and browser-game save compatibility slices are also implemented. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active field-validation milestone exists to measure that.
 
 The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md).
 
 ## Active priority
 
-### Browser-game save compatibility — protect existing player progress
+### Historical-PR held-out pilot — measure usefulness before expansion
 
-The reviewer-signal cleanup is complete. The next usefulness slice turns a common browser-game failure mode into explicit, opt-in review evidence: changing a storage key or save version without showing how existing saves migrate.
+The evaluation harness and targeted usefulness slices are implemented. The next milestone is the preregistered held-out pilot tracked in #160.
 
-The browser-game slice:
+The pilot:
 
-- activates only when the caller explicitly selects the `browser-game` starter policy;
-- records literal `localStorage` and `sessionStorage` key changes from the supplied diff;
-- records numeric save-version changes and whether migration paths or calls are present;
-- puts old-save loading or migration verification into the three-check reviewer plan;
-- preserves scoring and labels unknown compatibility instead of claiming that a migration is correct.
+- uses at least 50 held-out pull requests from at least five opaque repository aliases;
+- freezes the corpus, product commit, metric implementation, and thresholds before the held-out run;
+- measures actionable precision, supported-scope recall, noise, specificity, setup effort, and runtime;
+- publishes only content-free aggregate results and records an explicit improve, proceed, stop, or insufficient-evidence decision;
+- preserves local-only analysis, frozen v1 compatibility, and the existing privacy and execution boundaries.
 
-Exit gate: focused fixtures cover key replacement, version changes with and without migration evidence, unrelated diffs remain quiet, and the full release gate passes without changing default behavior.
+Exit gate: the pilot reaches the preregistered thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md), or records an honest miss and a measured corrective plan. No v2 or extension-surface expansion begins before that decision.
+
+Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, and browser-game save compatibility merged in #159 after all 11 required GitHub checks passed.
 
 ## Planned milestones
 
