@@ -16,7 +16,7 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ### Historical-PR held-out pilot — measure usefulness before expansion
 
-The evaluation harness and targeted usefulness slices are implemented. The next milestone is the preregistered held-out pilot tracked in #160.
+The evaluation harness, targeted usefulness slices, and fail-closed preregistration gate are implemented. The held-out pilot is tracked in #160; caller-owned corpus intake and independent labeling are tracked in #163, followed by calibration and the frozen run in #164.
 
 The pilot:
 
@@ -28,7 +28,7 @@ The pilot:
 
 Exit gate: the pilot reaches the preregistered thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md), or records an honest miss and a measured corrective plan. No v2 or extension-surface expansion begins before that decision.
 
-Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, and browser-game save compatibility merged in #159 after all 11 required GitHub checks passed.
+Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, browser-game save compatibility merged in #159 after all 11 required GitHub checks passed, and the preregistration gate merged in #162.
 
 ## Planned milestones
 

@@ -184,7 +184,7 @@ Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md)
 
 Deliver a content-free aggregate report and an explicit improve, proceed, stop, or insufficient-evidence decision. Missed gates produce a measured corrective plan; thresholds and cases are not changed after results are known except through preregistered exclusion rules.
 
-Implementation slice in progress: add a fail-closed preregistration record that verifies the held-out corpus prerequisites and freezes corpus content, caller-asserted product commit, metric source, and thresholds before held-out analysis. The actual run remains blocked on the caller-owned, independently labeled corpus.
+The fail-closed preregistration gate was implemented by #162. Caller-owned corpus assembly and independent labeling are tracked in #163; calibration, product-commit freeze, preregistration, and the held-out handoff are tracked in #164. The actual held-out run remains tracked in #160 and blocked until those inputs are complete.
 
 ### Golden-path GitHub experience
 
