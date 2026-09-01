@@ -6,6 +6,12 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { evaluateHistoricalPrCorpus, HistoricalPrEvaluationError, loadHistoricalPrCorpus, EVALUATION_SCHEMA_VERSION } from '../src/historicalPrEvaluation.js';
+import {
+  createPilotPreregistration,
+  PILOT_THRESHOLDS,
+  pilotCorpusProfile,
+  validatePilotPreregistration
+} from '../src/historicalPrPreregistration.js';
 
 const root = process.cwd();
 const fixtureRoot = path.join(root, 'test', 'fixtures', 'historical-pr-evaluation');
@@ -36,10 +42,57 @@ function stable(value) {
 }
 assert.deepEqual(stable(evaluateHistoricalPrCorpus(corpus)), stable(evaluated), 'matching and non-timing output must be deterministic');
 
-for (const schema of ['historical-pr-corpus-v1.schema.json', 'historical-pr-labels-v1.schema.json', 'historical-pr-case-result-v1.schema.json', 'historical-pr-evaluation-result-v1.schema.json']) {
+for (const schema of ['historical-pr-corpus-v1.schema.json', 'historical-pr-labels-v1.schema.json', 'historical-pr-case-result-v1.schema.json', 'historical-pr-evaluation-result-v1.schema.json', 'historical-pr-preregistration-v1.schema.json']) {
   const value = JSON.parse(fs.readFileSync(path.join(root, 'schemas', schema), 'utf8'));
   assert.equal(value.properties.schemaVersion.const, 1);
 }
+
+assert.throws(
+  () => createPilotPreregistration(corpus, { productCommit: 'a'.repeat(40), recordedAt: '2026-09-01T00:00:00.000Z' }),
+  (error) => error instanceof HistoricalPrEvaluationError && error.diagnostics.some((item) => item.code === 'insufficient-held-out-cases')
+);
+
+const template = corpus.records.find((record) => record.entry.partition === 'held-out');
+const pilotRecords = Array.from({ length: PILOT_THRESHOLDS.minimumHeldOutCases }, (_, index) => {
+  const id = `held-out-${String(index).padStart(3, '0')}`;
+  const hasConcern = index < PILOT_THRESHOLDS.minimumSupportedConcerns;
+  const lowRisk = index >= PILOT_THRESHOLDS.minimumSupportedConcerns
+    && index < PILOT_THRESHOLDS.minimumSupportedConcerns + PILOT_THRESHOLDS.minimumLowRiskControls;
+  return {
+    ...template,
+    entry: { ...template.entry, id, repositoryAlias: `repo-${index % PILOT_THRESHOLDS.minimumRepositoryAliases}`, partition: 'held-out' },
+    labels: {
+      ...template.labels,
+      caseId: id,
+      repositoryAlias: `repo-${index % PILOT_THRESHOLDS.minimumRepositoryAliases}`,
+      lowRisk,
+      concerns: hasConcern ? [{ ...template.labels.concerns[0], id: `concern-${index}` }] : []
+    },
+    inputHash: String(index).padStart(64, '0')
+  };
+});
+const pilotCorpus = {
+  ...corpus,
+  manifest: { ...corpus.manifest, corpusId: 'pilot-fixture-v1' },
+  manifestHash: 'b'.repeat(64),
+  records: pilotRecords
+};
+const profile = pilotCorpusProfile(pilotCorpus);
+assert.equal(profile.heldOutCaseCount, 50);
+assert.equal(profile.repositoryAliasCount, 5);
+assert.equal(profile.supportedConcernCount, 15);
+assert.equal(profile.lowRiskControlCount, 15);
+const preregistration = createPilotPreregistration(pilotCorpus, {
+  productCommit: 'a'.repeat(40),
+  recordedAt: '2026-09-01T00:00:00.000Z'
+});
+assert.equal(validatePilotPreregistration(preregistration, pilotCorpus, { productCommit: 'a'.repeat(40) }).valid, true);
+assert.equal(validatePilotPreregistration({ ...preregistration, thresholds: { ...preregistration.thresholds, actionablePrecisionMinimum: 0.5 } }, pilotCorpus, { productCommit: 'a'.repeat(40) }).valid, false);
+assert.equal(validatePilotPreregistration(preregistration, { ...pilotCorpus, manifestHash: 'c'.repeat(64) }, { productCommit: 'a'.repeat(40) }).valid, false);
+assert(
+  validatePilotPreregistration(preregistration, corpus, { productCommit: 'a'.repeat(40) }).diagnostics.some((item) => item.code === 'insufficient-held-out-cases'),
+  'held-out execution must recheck corpus prerequisites instead of trusting record fields'
+);
 
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-historical-evaluation-'));
 try {
@@ -49,13 +102,22 @@ try {
   assert.equal(validate.status, 0, validate.stderr);
   assert.equal(JSON.parse(validate.stdout).status, 'valid');
   const output = path.join(temporaryRoot, 'output');
-  const run = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--output', output], { cwd: root, encoding: 'utf8' });
+  const run = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--partition', 'calibration', '--output', output], { cwd: root, encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   const aggregateText = fs.readFileSync(path.join(output, 'aggregate.json'), 'utf8');
   assert(!aggregateText.includes('fetch'), 'CLI aggregate must remain content-free');
   assert.equal(JSON.parse(aggregateText).metrics.supportedScopeRecall.value, 1);
-  const rerun = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--output', output], { cwd: root, encoding: 'utf8' });
+  assert.equal(JSON.parse(aggregateText).corpus.partition, 'calibration');
+  const rerun = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--partition', 'calibration', '--output', output], { cwd: root, encoding: 'utf8' });
   assert.equal(rerun.status, 1, 'existing output may not be overwritten');
+  const missingPartition = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--output', path.join(temporaryRoot, 'missing-partition')], { cwd: root, encoding: 'utf8' });
+  assert.equal(missingPartition.status, 1, 'run must select calibration or held-out explicitly');
+  const unregisteredHeldOut = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--partition', 'held-out', '--output', path.join(temporaryRoot, 'held-out')], { cwd: root, encoding: 'utf8' });
+  assert.equal(unregisteredHeldOut.status, 1, 'held-out run must require preregistration evidence');
+  const insufficientPreregistrationPath = path.join(temporaryRoot, 'insufficient-preregistration.json');
+  const insufficientPreregistration = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'preregister', '--output', insufficientPreregistrationPath, '--product-commit', 'a'.repeat(40), '--recorded-at', '2026-09-01T00:00:00.000Z'], { cwd: root, encoding: 'utf8' });
+  assert.equal(insufficientPreregistration.status, 1, 'small corpus must not produce a pilot preregistration');
+  assert.equal(fs.existsSync(insufficientPreregistrationPath), false);
   const unknownOption = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--unknown'], { cwd: root, encoding: 'utf8' });
   assert.equal(unknownOption.status, 1, 'unknown CLI options must fail closed');
 

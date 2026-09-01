@@ -184,6 +184,8 @@ Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md)
 
 Deliver a content-free aggregate report and an explicit improve, proceed, stop, or insufficient-evidence decision. Missed gates produce a measured corrective plan; thresholds and cases are not changed after results are known except through preregistered exclusion rules.
 
+Implementation slice in progress: add a fail-closed preregistration record that verifies the held-out corpus prerequisites and freezes corpus content, caller-asserted product commit, metric source, and thresholds before held-out analysis. The actual run remains blocked on the caller-owned, independently labeled corpus.
+
 ### Golden-path GitHub experience
 
 This is conditional follow-up, not active implementation. Use pilot evidence to reduce default setup or review noise only when a measured gate identifies that need. Keep advanced evidence available and frozen v1 behavior compatible.

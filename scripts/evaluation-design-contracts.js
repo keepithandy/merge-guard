@@ -35,7 +35,8 @@ for (const forbidden of [
   'tuning on the held-out evaluation partition'
 ]) assert(design.includes(forbidden), `evaluation design must explicitly prohibit ${forbidden}`);
 
-assert(design.indexOf('1. `validate`') < design.indexOf('2. `run`'), 'corpus validation must precede evaluation execution');
+assert(design.indexOf('1. `validate`') < design.indexOf('2. `run --partition calibration`'), 'corpus validation must precede calibration execution');
+assert(design.indexOf('3. `preregister`') < design.indexOf('4. `run --partition held-out`'), 'preregistration must precede held-out execution');
 assert(design.includes('Every metric includes its numerator, denominator, excluded cases, and exclusion reasons.'));
 assert(design.includes('Thresholds may be revised only before the held-out run'));
 assert(design.includes('the next work targets the measured failure rather than adding extension infrastructure'));

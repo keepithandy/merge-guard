@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/historical-pr-preregistration-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "preregistrationId", "recordedAt", "tool", "product", "metricImplementationHash", "corpus", "thresholds", "semantics"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "preregistrationId": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "recordedAt": { "type": "string", "format": "date-time" },
+    "tool": { "const": "merge-guard" },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "version"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "version": { "type": "string" }
+      }
+    },
+    "metricImplementationHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "corpus": { "type": "object" },
+    "thresholds": { "type": "object" },
+    "semantics": { "type": "string" }
+  }
+}
