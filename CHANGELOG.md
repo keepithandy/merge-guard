@@ -17,6 +17,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 - A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
 - An opt-in, local historical-PR evaluation harness with versioned corpus/result contracts, independent labels, calibration/held-out leakage controls, deterministic matching and aggregate metrics, and content-free outputs. It never uploads, fetches, executes changed code, or overwrites prior results.
 - Opt-in browser-game save compatibility evidence for literal storage-key changes, numeric save-version changes, migration evidence, and focused old-save checks without changing risk scoring.
+- A fail-closed historical-PR pilot preregistration record that enforces corpus prerequisites, freezes corpus/product/metric/threshold identities, and prevents held-out execution when that evidence is missing or changed.
 
 ### Changed
 

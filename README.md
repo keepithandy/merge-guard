@@ -450,7 +450,7 @@ npm run eval:historical-prs -- --corpus ./corpus --mode validate
 npm run release:check
 ```
 
-`npm test` runs the complete local contract suite. `npm run release:check` adds package/runtime/SBOM consistency, installation, security, performance, public-contract, artifact, distribution, and support gates. Neither command publishes packages, creates tags, signs artifacts, or creates releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for the opt-in local corpus command and its privacy boundary.
+`npm test` runs the complete local contract suite. `npm run release:check` adds package/runtime/SBOM consistency, installation, security, performance, public-contract, artifact, distribution, and support gates. Neither command publishes packages, creates tags, signs artifacts, or creates releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for calibration, preregistration, held-out commands, and their local-only privacy boundary.
 
 After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.1` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md).
 
