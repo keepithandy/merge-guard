@@ -135,7 +135,7 @@ Implemented by #150 with three isolated generation lanes, ten byte-compared dura
 
 v1.3 durable review evidence is complete: all four roadmap slices are implemented, release-gated, and preserve the frozen v1 behavior.
 
-## Active queue — beta reviewer signal cleanup
+## Completed queue — beta usefulness slices
 
 ### Beta identity and packaging
 
@@ -170,25 +170,25 @@ Implemented by source commit `483c490` as a read-only, opt-in planning primitive
 
 ### Browser-game save compatibility
 
-Status: in progress.
+Implemented by #159 at source commit `d0495555d7afce468a4664beb3584f56dd415bef`. The opt-in `browser-game` starter policy records literal browser-storage key changes, numeric save-version changes, and migration evidence, then prioritizes old-save verification in the three-check reviewer plan without changing risk scoring or claiming semantic compatibility.
 
-Add opt-in evidence to the `browser-game` starter policy for literal browser-storage key changes, numeric save-version changes, and migration presence. Put the relevant old-save verification into the three-check reviewer plan without changing risk scoring or claiming semantic compatibility.
+Completion evidence: focused key-replacement, version-change, migration, unrelated-diff, additive-JSON, default-policy, and non-browser-game fixtures passed. All 11 required GitHub checks passed across Node 18/20/22/24 on Ubuntu and Windows, plus smoke, composite-Action, and review-experience checks.
 
-Exit gate: key replacement, version changes with and without migration evidence, and unrelated diffs have deterministic fixtures; the JSON evidence is additive; default and non-browser-game policy behavior remains unchanged; the full release gate passes.
+## Active queue — beta field validation
 
-### Remaining usefulness slices
+### Preregistered held-out historical-PR pilot
 
-After the cleanup gate, the next product slices are intentionally narrow:
+Tracked in #160. Use the implemented harness with a caller-owned corpus of at least 50 held-out pull requests from at least five opaque repository aliases. Record the corpus hash, product commit, metric implementation hash, and thresholds before running the held-out partition.
 
-1. The preregistered held-out pilot using the existing historical-PR harness.
+Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md): at least 70% actionable precision, at least 80% critical supported-scope recall when measurable, no greater than one median unmatched positive-weight finding per PR, at least 70% clean-PR specificity, no greater than five minutes median default-path setup, the existing 3,000 ms performance budget, and no privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression.
+
+Deliver a content-free aggregate report and an explicit improve, proceed, stop, or insufficient-evidence decision. Missed gates produce a measured corrective plan; thresholds and cases are not changed after results are known except through preregistered exclusion rules.
+
+Implementation slice in progress: add a fail-closed preregistration record that verifies the held-out corpus prerequisites and freezes corpus content, caller-asserted product commit, metric source, and thresholds before held-out analysis. The actual run remains blocked on the caller-owned, independently labeled corpus.
 
 ### Golden-path GitHub experience
 
-Use pilot evidence to reduce default setup and review noise while keeping advanced evidence available and frozen v1 behavior compatible.
-
-### Pilot and calibration gate
-
-Run the preregistered held-out evaluation, publish a content-free results report, and choose improve, proceed, or stop without moving thresholds after results are known.
+This is conditional follow-up, not active implementation. Use pilot evidence to reduce default setup or review noise only when a measured gate identifies that need. Keep advanced evidence available and frozen v1 behavior compatible.
 
 ## Definition of ready
 

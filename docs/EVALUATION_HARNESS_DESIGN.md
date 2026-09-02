@@ -55,10 +55,12 @@ The implementation should expose a repository-maintainer command rather than a p
 npm run eval:historical-prs -- --corpus C:\path\to\corpus --output evaluation-results
 ```
 
-The command performs two explicit phases:
+The command performs explicit phases:
 
 1. `validate`: validate paths, schemas, partitions, labels, privacy fields, and product compatibility without running analysis.
-2. `run`: invoke the same in-process Merge Guard analysis modules for each diff, write per-case machine-readable results locally, and create a content-free aggregate report.
+2. `run --partition calibration`: invoke the same in-process Merge Guard analysis modules on calibration cases.
+3. `preregister`: freeze complete corpus content, caller-asserted product commit, metric source, and thresholds after corpus prerequisites pass.
+4. `run --partition held-out`: verify the preregistration record before analyzing held-out cases and writing content-free aggregate results.
 
 It must not invoke a package manager, shell, network client, GitHub API, or project script. Results record the exact Merge Guard version, configuration hash, input hash, corpus manifest hash, and deterministic run identity.
 
@@ -111,7 +113,7 @@ Thresholds may be revised only before the held-out run, with a dated rationale. 
 1. Versioned corpus-manifest, label, case-result, and aggregate-result schemas. **Implemented.**
 2. Path-safe, bounded, read-only corpus loader. **Implemented.**
 3. Deterministic label matcher and metric calculator with unit fixtures. **Implemented.**
-4. Calibration and held-out execution modes with preregistration evidence. **Implemented locally; pilot corpus pending.**
+4. Calibration and held-out execution modes with a fail-closed preregistration record. **Implemented locally; qualifying caller-owned corpus and pilot run pending.**
 5. Local JSON aggregate outputs that contain no diff text. **Implemented.** HTML/Markdown presentation remains optional follow-up work.
 6. Cross-platform reproducibility, performance, security, and privacy gates. **Implemented.**
 7. A pilot report that recommends improve, proceed, or stop based on the preregistered result. **Pending caller-owned corpus and pilot.**
