@@ -1,0 +1,5 @@
+{
+  "name": "fixture-node-tests-directory",
+  "private": true,
+  "scripts": { "test": "node tests/example.test.js" }
+}

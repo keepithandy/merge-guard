@@ -298,19 +298,22 @@ function pythonMetadataDetails(cwd) {
   }
 
   const testsDirectory = path.join(cwd, 'tests');
+  const hasPythonProjectMetadata = [pyproject, setupCfg, toxIni, pytestIni].some((value) => value !== null);
   let hasRootTests = false;
+  let hasRootPythonTests = false;
   try {
     hasRootTests = fs.statSync(testsDirectory).isDirectory();
   } catch {
     try {
-      hasRootTests = fs.readdirSync(cwd, { withFileTypes: true })
+      hasRootPythonTests = fs.readdirSync(cwd, { withFileTypes: true })
         .some((entry) => entry.isFile() && /^test_.*\.py$/i.test(entry.name));
+      hasRootTests = hasRootPythonTests;
     } catch {
       hasRootTests = false;
     }
   }
 
-  if (hasRootTests && !details.some((detail) => detail.command === 'python -m pytest')) {
+  if ((hasPythonProjectMetadata || hasRootPythonTests) && hasRootTests && !details.some((detail) => detail.command === 'python -m pytest')) {
     details.push(commandDetail('python -m unittest discover', {
       category: 'test',
       ecosystem: 'python',
