@@ -184,7 +184,27 @@ Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md)
 
 The content-free aggregate missed actionable precision (12/140, 8.6%) and supported-scope recall (12/35, 34.3%); critical recall was insufficient evidence. Median unmatched findings (one), clean-PR specificity (11/15, 73.3%), median setup (one minute), and p95 analysis time (four milliseconds) met their gates. The corrective plan is calibration-only: expand outcome-grounded high-severity labels, audit unmatched finding family/path combinations, add focused fixtures for any justified change, and then use a newly preregistered corpus for another held-out run. Thresholds and cases remain frozen after a run except through preregistered exclusion rules.
 
-Implementation slice in progress: add a fail-closed preregistration record that verifies the held-out corpus prerequisites and freezes corpus content, caller-asserted product commit, metric source, and thresholds before held-out analysis. The actual run remains blocked on the caller-owned, independently labeled corpus.
+Status: complete. The fail-closed preregistration gate and first held-out run are finished; the immutable record and raw corpus remain local and caller-owned.
+
+### Calibration evidence expansion
+
+This is the active next slice. Add outcome-grounded, independently reviewed calibration cases, including at least five high-severity supported concerns so critical recall can be measured before another held-out run. Summaries remain content-free, and repository aliases must not cross between calibration and held-out partitions.
+
+Acceptance:
+
+- calibration labels identify actual review outcomes or maintainer judgments without deriving expected answers from Merge Guard findings;
+- two independent decisions and an adjudication state exist for every new case;
+- unmatched positive findings and missed concerns are grouped by stable rule family and path without publishing source content;
+- disputed labels remain visible rather than being removed to improve a metric;
+- corpus validation and the calibration run pass locally.
+
+### Precision and recall correction
+
+Use only calibration evidence to propose changes addressing the missed actionable-precision and supported-scope-recall gates. Every change requires a focused regression fixture, an explanation of expected score movement, frozen-v1 compatibility coverage, and the complete release-readiness suite. Held-out cases remain unavailable for tuning.
+
+### Second preregistered held-out pilot
+
+After calibration work and any justified product changes are frozen, assemble a fresh independently labeled held-out corpus, create a new preregistration, and rerun the pilot. Preserve the original result as immutable evidence and report `proceed`, `improve`, `stop`, or `insufficient-evidence` against the unchanged gate definitions.
 
 ### Golden-path GitHub experience
 
