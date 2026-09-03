@@ -16,7 +16,7 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ### Historical-PR held-out pilot — measure usefulness before expansion
 
-The evaluation harness and targeted usefulness slices are implemented. The next milestone is the preregistered held-out pilot tracked in #160.
+The evaluation harness and targeted usefulness slices are implemented. The first preregistered held-out pilot completed on 2026-09-03 with a **stop** decision; it does not support a broader-adoption claim.
 
 The pilot:
 
@@ -25,6 +25,10 @@ The pilot:
 - measures actionable precision, supported-scope recall, noise, specificity, setup effort, and runtime;
 - publishes only content-free aggregate results and records an explicit improve, proceed, stop, or insufficient-evidence decision;
 - preserves local-only analysis, frozen v1 compatibility, and the existing privacy and execution boundaries.
+
+Pilot record: product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`; preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564`; 50 held-out cases across five opaque repository aliases, with 35 supported concerns and 15 low-risk controls. Actionable precision was 12/140 (8.6%; gate: 70%) and supported-scope recall was 12/35 (34.3%; gate: 80%). Critical recall was `insufficient-evidence` (0 high-severity concerns). Median unmatched findings was one (gate met), clean-PR specificity was 11/15 (73.3%; gate met), median setup was one minute (gate met), and p95 analysis time was four milliseconds (gate met). All corpus and per-case material remains local and ignored.
+
+Corrective plan: do not tune from held-out cases. First expand the calibration partition with outcome-grounded high-severity concerns and review the unmatched finding family/path combinations there. Any proposed reporting or rule change must have a focused regression fixture, preserve frozen v1 contracts, and pass the release suite. A new independently labeled corpus then requires a new preregistration and held-out run; no v2 or extension-surface expansion begins before that decision.
 
 Exit gate: the pilot reaches the preregistered thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md), or records an honest miss and a measured corrective plan. No v2 or extension-surface expansion begins before that decision.
 

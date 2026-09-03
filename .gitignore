@@ -14,3 +14,4 @@ merge-guard-*.tgz
 .cache/
 .vscode/
 .idea/
+.local-pilot-corpus/

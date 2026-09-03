@@ -178,11 +178,11 @@ Completion evidence: focused key-replacement, version-change, migration, unrelat
 
 ### Preregistered held-out historical-PR pilot
 
-Tracked in #160. Use the implemented harness with a caller-owned corpus of at least 50 held-out pull requests from at least five opaque repository aliases. Record the corpus hash, product commit, metric implementation hash, and thresholds before running the held-out partition.
+Completed in #160 with a 2026-09-03 **stop** decision. The caller-owned corpus had 50 held-out cases from five opaque repository aliases. Preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564` bound product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`, metric implementation, corpus content, and thresholds before the held-out partition.
 
 Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md): at least 70% actionable precision, at least 80% critical supported-scope recall when measurable, no greater than one median unmatched positive-weight finding per PR, at least 70% clean-PR specificity, no greater than five minutes median default-path setup, the existing 3,000 ms performance budget, and no privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression.
 
-Deliver a content-free aggregate report and an explicit improve, proceed, stop, or insufficient-evidence decision. Missed gates produce a measured corrective plan; thresholds and cases are not changed after results are known except through preregistered exclusion rules.
+The content-free aggregate missed actionable precision (12/140, 8.6%) and supported-scope recall (12/35, 34.3%); critical recall was insufficient evidence. Median unmatched findings (one), clean-PR specificity (11/15, 73.3%), median setup (one minute), and p95 analysis time (four milliseconds) met their gates. The corrective plan is calibration-only: expand outcome-grounded high-severity labels, audit unmatched finding family/path combinations, add focused fixtures for any justified change, and then use a newly preregistered corpus for another held-out run. Thresholds and cases remain frozen after a run except through preregistered exclusion rules.
 
 Implementation slice in progress: add a fail-closed preregistration record that verifies the held-out corpus prerequisites and freezes corpus content, caller-asserted product commit, metric source, and thresholds before held-out analysis. The actual run remains blocked on the caller-owned, independently labeled corpus.
 
