@@ -14,11 +14,11 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ## Active priority
 
-### Historical-PR held-out pilot — measure usefulness before expansion
+### Beta recovery cycle — improve precision and recall before expansion
 
 The evaluation harness and targeted usefulness slices are implemented. The first preregistered held-out pilot completed on 2026-09-03 with a **stop** decision; it does not support a broader-adoption claim.
 
-The pilot:
+The completed pilot:
 
 - uses at least 50 held-out pull requests from at least five opaque repository aliases;
 - freezes the corpus, product commit, metric implementation, and thresholds before the held-out run;
@@ -28,9 +28,17 @@ The pilot:
 
 Pilot record: product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`; preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564`; 50 held-out cases across five opaque repository aliases, with 35 supported concerns and 15 low-risk controls. Actionable precision was 12/140 (8.6%; gate: 70%) and supported-scope recall was 12/35 (34.3%; gate: 80%). Critical recall was `insufficient-evidence` (0 high-severity concerns). Median unmatched findings was one (gate met), clean-PR specificity was 11/15 (73.3%; gate met), median setup was one minute (gate met), and p95 analysis time was four milliseconds (gate met). All corpus and per-case material remains local and ignored.
 
-Corrective plan: do not tune from held-out cases. First expand the calibration partition with outcome-grounded high-severity concerns and review the unmatched finding family/path combinations there. Any proposed reporting or rule change must have a focused regression fixture, preserve frozen v1 contracts, and pass the release suite. A new independently labeled corpus then requires a new preregistration and held-out run; no v2 or extension-surface expansion begins before that decision.
+The active recovery sequence is:
 
-Exit gate: the pilot reaches the preregistered thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md), or records an honest miss and a measured corrective plan. No v2 or extension-surface expansion begins before that decision.
+1. Expand the calibration partition with outcome-grounded, independently reviewed cases, including enough high-severity concerns to measure critical recall.
+2. Audit unmatched findings and missed supported concerns by stable rule family and path using calibration evidence only.
+3. Make only evidence-backed rule or presentation changes, with focused regression fixtures and frozen-v1 compatibility coverage.
+4. Pass the full local and GitHub compatibility gates on the selected product commit.
+5. Assemble a fresh held-out corpus, preregister its corpus, metric, threshold, and product identities, and run a second pilot without post-registration tuning.
+
+The first corrective target is the missed precision and supported-scope recall gates. Setup effort, runtime, median noise, and clean-PR specificity already met their thresholds, so golden-path simplification remains conditional rather than the active priority.
+
+Exit gate: a new preregistered held-out pilot reaches the thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md), or records another honest miss and a measured corrective plan. No v2 or extension-surface expansion begins before that decision.
 
 Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, and browser-game save compatibility merged in #159 after all 11 required GitHub checks passed.
 
