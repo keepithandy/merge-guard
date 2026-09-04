@@ -182,7 +182,7 @@ Completed in #160 with a 2026-09-03 **stop** decision. The caller-owned corpus h
 
 Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md): at least 70% actionable precision, at least 80% critical supported-scope recall when measurable, no greater than one median unmatched positive-weight finding per PR, at least 70% clean-PR specificity, no greater than five minutes median default-path setup, the existing 3,000 ms performance budget, and no privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression.
 
-The content-free aggregate missed actionable precision (12/140, 8.6%) and supported-scope recall (12/35, 34.3%); critical recall was insufficient evidence. Median unmatched findings (one), clean-PR specificity (11/15, 73.3%), median setup (one minute), and p95 analysis time (four milliseconds) met their gates. The corrective plan is calibration-only: expand outcome-grounded high-severity labels, audit unmatched finding family/path combinations, add focused fixtures for any justified change, and then use a newly preregistered corpus for another held-out run. Thresholds and cases remain frozen after a run except through preregistered exclusion rules.
+The content-free aggregate missed actionable precision (12/140, 8.6%). Overall supported-scope recall was materially low (12/35, 34.3%) but is a diagnosis metric without a separate numeric threshold in the implemented preregistration. Critical recall was insufficient evidence. Median unmatched findings (one), clean-PR specificity (11/15, 73.3%), median setup (one minute), and p95 analysis time (four milliseconds) met their gates. The corrective plan is calibration-only: expand outcome-grounded high-severity labels, audit unmatched finding family/path combinations, add focused fixtures for any justified change, and then use a newly preregistered corpus for another held-out run. Thresholds and cases remain frozen after a run except through preregistered exclusion rules.
 
 Status: complete. The fail-closed preregistration gate and first held-out run are finished; the immutable record and raw corpus remain local and caller-owned.
 
@@ -200,15 +200,15 @@ Acceptance:
 
 ### Precision and recall correction
 
-Use only calibration evidence to propose changes addressing the missed actionable-precision and supported-scope-recall gates. Every change requires a focused regression fixture, an explanation of expected score movement, frozen-v1 compatibility coverage, and the complete release-readiness suite. Held-out cases remain unavailable for tuning.
+Use only calibration evidence to propose changes addressing the missed actionable-precision gate, the materially low overall supported-scope recall diagnosis, and the missing critical-recall denominator. Every change requires a focused regression fixture, an explanation of expected score movement, frozen-v1 compatibility coverage, and the complete release-readiness suite. Held-out cases remain unavailable for tuning.
 
 ### Second preregistered held-out pilot
 
-After calibration work and any justified product changes are frozen, assemble a fresh independently labeled held-out corpus, create a new preregistration, and rerun the pilot. Preserve the original result as immutable evidence and report `proceed`, `improve`, `stop`, or `insufficient-evidence` against the unchanged gate definitions.
+After calibration work and any justified product changes are frozen, assemble a fresh independently labeled held-out corpus, create a new preregistration, and rerun the pilot once. Preserve the original result as immutable evidence. The harness recommendation remains part of the record, but only `proceed` with every fixed gate satisfied maps to phase `PASS`; `improve`, `stop`, `insufficient-evidence`, an invalid run, or any metric miss maps to `FAIL` and locks successor work pending a newly approved roadmap revision.
 
 ### Golden-path GitHub experience
 
-This is conditional follow-up, not active implementation. Use pilot evidence to reduce default setup or review noise only when a measured gate identifies that need. Keep advanced evidence available and frozen v1 behavior compatible.
+This is unapproved future work, not part of the strict four-phase sequence. It may enter a future roadmap only after a passing pilot and repeated evidence identifies it as the single next problem. Keep advanced evidence available and frozen v1 behavior compatible.
 
 ## Definition of ready
 
