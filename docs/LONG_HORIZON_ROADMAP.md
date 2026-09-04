@@ -1,8 +1,8 @@
 # Merge Guard long-horizon roadmap
 
-Status: directional capability map for planning. This document is deliberately broader than the active execution queue. It is not a release promise, issue list, authorization for external actions, or license to weaken the current privacy and compatibility boundaries.
+Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work named in the [strict phase roadmap](PHASE_ROADMAP.md) may enter the active sequence.
 
-The purpose of this map is to capture the full product space before selecting phases. A later phase roadmap should choose a small set of outcomes from this document, state what is explicitly deferred, and convert only the selected work into bounded issues.
+The purpose of this registry is to preserve the full product space without selecting work. After the strict roadmap and a separately authorized publication decision are complete, a future roadmap may choose exactly one evidence-backed problem from this document and convert only that problem into bounded work.
 
 ## Product thesis
 
@@ -32,7 +32,7 @@ The current `1.3.0-beta.1` source already provides:
 - deterministic diagnostics, consumer fixtures, release gates, security contracts, and cross-platform compatibility coverage;
 - an offline historical-PR evaluation harness with calibration, preregistration, held-out execution, and content-free aggregate results.
 
-The first held-out pilot produced a `stop` decision. Precision and supported-scope recall missed their gates, while median noise, clean-PR specificity, setup effort, and runtime passed. The immediate obligation is to improve signal quality with calibration evidence before adding broad new surface area.
+The first held-out pilot produced a `stop` decision. Actionable precision missed its gate, overall supported-scope recall was materially low, and critical recall lacked a sufficient denominator; median noise, clean-PR specificity, setup effort, and runtime passed. The immediate obligation is to improve signal quality with calibration evidence before adding broad new surface area.
 
 ## How to use this roadmap
 
@@ -86,7 +86,7 @@ A candidate enters a phase only when it has a named user outcome, evidence that 
 ### Signal quality
 
 - Actionable precision meets or exceeds the preregistered threshold on independently labeled held-out changes.
-- Supported-scope recall meets or exceeds its threshold, with enough high-severity cases to measure critical recall.
+- Overall supported-scope recall improves materially, and critical supported-scope recall meets its preregistered threshold with a sufficient high-severity denominator.
 - Finding duplication, keyword-only hits, and generic check inflation remain bounded.
 - Rules expose the cases they do not support rather than guessing.
 
@@ -767,9 +767,9 @@ These are questions, not commitments:
 - Starting v2 to avoid repairing measured v1 signal-quality problems.
 - Using AI output as an unlabelled scoring or merge-gating input.
 
-## Candidate phase themes
+## Idea registry groupings
 
-These are useful groupings for planning, not an approved sequence. The [phase-roadmap approval draft](PHASE_ROADMAP.md) selects a gated order from this map while keeping expansion conditional on evidence and owner decisions:
+These are search and discussion groupings, not phases, a sequence, or authorization. The [strict phase-roadmap approval draft](PHASE_ROADMAP.md) is the only executable sequence:
 
 1. **Evidence repair:** calibration corpus quality, label guidance, high-severity coverage, and audit tooling.
 2. **Signal repair:** precision inventory, recall gaps, finding composition, and targeted fixtures.

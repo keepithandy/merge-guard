@@ -1,377 +1,363 @@
-# Merge Guard Phase Roadmap
+# Merge Guard Strict Phase Roadmap
 
-Status: **proposal for owner approval**. This document converts the long-horizon capability map into a gated execution sequence. It does not mark any future phase approved, authorize publication, or turn every candidate initiative into committed work.
+Status: **approval draft**. Roadmap approval does not authorize implementation.
 
-The sequence is intentionally front-loaded around the failed first pilot. Merge Guard should earn the right to expand by repairing evidence quality, precision, and supported-scope recall, then passing a second independently preregistered held-out pilot.
+## Objective
 
-## Relationship to the other roadmaps
+Prove that Merge Guard is useful before adding anything else.
 
-- [The canonical roadmap](../ROADMAP.md) states the current product direction and active priority.
-- [The roadmap execution plan](ROADMAP_EXECUTION.md) records completed milestones and the current beta-recovery queue.
-- [The long-horizon roadmap](LONG_HORIZON_ROADMAP.md) is the complete candidate capability map and source of stable workstream identifiers.
-- This document chooses an order, defines decision gates, and states what can become active next.
+The complete executable sequence is:
 
-If the documents conflict, the canonical roadmap and the most recent explicit owner decision win. The long-horizon roadmap remains a menu, not a backlog.
+> evidence and diagnosis → repair and freeze → independent proof → stable candidate → separate publication decision
 
-## Approval model
+There are four phases. Only one may be active. The [long-horizon roadmap](LONG_HORIZON_ROADMAP.md) is an idea registry, not an execution queue. Reviewer expansions, repository intelligence, policy work, dashboards, adapters, plugins, AI, hosted services, team features, and v2 are outside this plan.
 
-Three approvals are deliberately separate:
+## Authority
 
-1. **Sequence approval** accepts the ordering and gates in this document.
-2. **Phase authorization** allows the named phase to become active after its entry criteria are satisfied.
-3. **External-action authorization** separately permits publication, signing, tag movement, Marketplace changes, hosted services, telemetry, uploads, or other external mutations.
+The documents have two roles:
 
-Sequence approval is not blanket implementation or release approval. A phase may close only when its exit evidence is recorded. Closing a phase makes the next phase eligible for authorization; it does not automatically start it.
+- This file is the only phase sequence.
+- [The long-horizon roadmap](LONG_HORIZON_ROADMAP.md) describes unapproved possibilities.
 
-### Approval ledger
+[The canonical roadmap](../ROADMAP.md), [the execution history](ROADMAP_EXECUTION.md), and [the evaluation design](EVALUATION_HARNESS_DESIGN.md) provide product state and evidence contracts. If wording conflicts, implemented machine-readable gates control metrics, and the stricter safety or authorization boundary controls behavior.
 
-| Item | State | Meaning |
-| --- | --- | --- |
-| Phase 0 — Baseline lock | Complete | Historical evidence and the first pilot decision are recorded. |
-| Recovery sequence, Phases 1–6 | Awaiting owner approval | Proposed as the only near-term product sequence. |
-| Core maturity sequence, Phases 7–11 | Conditional | Cannot start before Decision Gate A permits expansion. |
-| Distribution sequence, Phases 12–13 | Conditional | Cannot start before Decision Gate B and separate external-action approval. |
-| Strategic bets, Phases 14–16 | Deferred | Require evidence-specific decision gates and fresh owner authorization. |
+## Non-negotiable rules
 
-The approval ledger should be updated with a dated decision, decision maker, scope, and link to durable evidence. An approval must name either a phase or a contiguous phase range; ambiguous assent does not activate work.
+1. Only one phase may be authorized at a time. Range approvals are invalid.
+2. `PASS` makes the next phase eligible; it does not start it.
+3. `FAIL` locks every successor. Recovery requires a new owner-approved roadmap revision.
+4. Missing, disputed, invalid, or insufficient evidence is `FAIL`, never a partial pass.
+5. A phase gets one authorized attempt. No automatic retries or hidden tuning loops.
+6. Scope, gates, inputs, allowed GitHub actions, and external permissions freeze at authorization.
+7. Calibration identity freezes before the official Phase 1 validation run. Held-out identity freezes at Phase 3 preregistration.
+8. A scope or threshold change voids the attempt and returns `FAIL`.
+9. Completed held-out cases are never inspected for tuning.
+10. Downstream work, opportunistic features, and unrelated cleanup are forbidden.
+11. Analysis remains local, deterministic, read-only, and useful without an account or API key.
+12. Merge Guard never executes project code, discovered commands, or suggested checks.
+13. Raw corpus data, labels, source excerpts, identities, paths, and per-case results remain local and ignored.
+14. Unknown, unsupported, failed, and insufficient evidence never becomes a clean result.
+15. Frozen v1 contracts remain compatible.
+16. Every product change needs a measured reason, positive and negative fixtures, compatibility coverage, and rollback.
+17. Publication, signing, tags, releases, Marketplace changes, stable Action-reference movement, telemetry, uploads, and hosted persistence always require separate exact authorization.
 
-## Invariants across every phase
+## Status model
 
-- Analysis remains local, deterministic, read-only, and useful without an account or API key.
-- Merge Guard does not execute project code, discovered commands, or suggested checks.
-- Diffs, reports, prompts, repository contents, and telemetry are not uploaded by default.
-- Frozen v1 JSON and documented CLI behavior remain compatible unless a separately approved breaking-change process says otherwise.
-- Missing or failed analysis is never represented as a clean result.
-- Completed held-out cases are never used for tuning.
-- Every product change has focused fixtures, rollback behavior, and exact verification evidence.
-- Passing tests does not authorize npm publication, GitHub releases, signing, Marketplace changes, or stable Action-reference movement.
-- Unknown, unsupported, disputed, and insufficient-evidence states remain explicit.
+| Status | Meaning |
+| --- | --- |
+| `LOCKED` | Work is forbidden. |
+| `READY` | Entry evidence exists, but explicit phase authorization is still required. |
+| `ACTIVE` | The owner authorized this phase against an exact roadmap commit. |
+| `PASS` | Every binary exit condition has objective evidence. |
+| `FAIL` | At least one exit, evidence, integrity, or authorization condition failed. Stop. |
 
-## Sequence overview
+There is no `mostly done`, `improve`, `insufficient`, or implied approval state.
 
-| Phase | Outcome | Primary workstreams | Entry state | Approval state |
-| --- | --- | --- | --- | --- |
-| 0 | Preserve the failed-pilot baseline | EVAL | Complete | Complete |
-| 1 | Establish trustworthy calibration evidence | EVAL, SEC | Phase 0 complete | Eligible after sequence approval |
-| 2 | Diagnose precision and recall failures | EVAL, SIGNAL, RECALL | Phase 1 exit accepted | Proposed |
-| 3 | Repair precision without hiding uncertainty | SIGNAL | Phase 2 exit accepted | Proposed |
-| 4 | Repair supported-scope and critical recall | RECALL, DIFF | Phase 3 exit accepted | Proposed |
-| 5 | Freeze and qualify a new product candidate | EVAL, SCALE, SEC | Phase 4 exit accepted | Proposed |
-| 6 | Run a second independent held-out pilot | EVAL | Phase 5 exit accepted | Proposed |
-| A | Decide whether expansion is earned | All recovery work | Phase 6 result recorded | Decision gate |
-| 7 | Improve reviewer clarity and verification plans | REVIEW, CHECK | Gate A permits expansion | Conditional |
-| 8 | Improve explicit repository context | IMPACT | Phase 7 exit accepted | Conditional |
-| 9 | Make policy behavior operable and explainable | POLICY | Phase 8 exit accepted | Conditional |
-| 10 | Harden CI evidence flow | CI, EVIDENCE | Phase 9 exit accepted | Conditional |
-| 11 | Complete local evidence exploration | DASH, EVIDENCE | Phase 10 exit accepted | Conditional |
-| B | Decide whether the beta is release-ready | Product maturity evidence | Phase 11 exit accepted | Decision gate |
-| 12 | Prepare adoption and distribution | ADOPT, DIST | Gate B says release candidate | Conditional |
-| 13 | Add one evidence-backed ecosystem adapter | ECO | Phase 12 exit accepted | Conditional |
-| C | Decide whether broader platforms are justified | Demand and operations evidence | Phase 13 evidence available | Decision gate |
-| 14 | Decide on an extension surface | EXT | Gate C identifies repeatable demand | Deferred |
-| 15 | Test optional grounded AI assistance | AI | A bounded use case passes its entry gate | Deferred |
-| 16 | Decide on hosted/team work or v2 | TEAM, V2 | Additive local work is demonstrably insufficient | Deferred |
+## Fixed beta gate
 
-No calendar dates are attached until a phase is authorized and sized from evidence. This prevents speculative dates from becoming commitments.
+The source of truth is `PILOT_THRESHOLDS` in `src/historicalPrPreregistration.js`:
 
-## Stage 0 — Locked baseline
+| Gate | Pass condition |
+| --- | --- |
+| Held-out cases | At least 50 |
+| Repository aliases | At least 5 |
+| Supported concerns | At least 15 |
+| Low-risk controls | At least 15 |
+| Actionable precision | At least 70% |
+| Critical supported-scope recall | At least 80%, with at least 5 high-severity supported concerns |
+| Median unmatched positive-weight findings | No greater than 1 per PR |
+| Clean-PR specificity | At least 70% |
+| Median default-path setup | No greater than 5 minutes |
+| p95 analysis time | No greater than 3,000 ms below the documented size limit |
+| Integrity | No privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression |
 
-### Phase 0 — Preserve the first pilot
+Overall supported-scope recall must be reported with its numerator and denominator. The implementation does not define a separate numeric threshold for it, so this roadmap does not invent one.
 
-State: **complete**.
+Changing a gate requires a new roadmap commit and explicit owner approval before a phase starts. A gate can never change after results are visible.
 
-Outcome: the failed first pilot remains immutable evidence rather than becoming a tuning dataset or being overwritten by a newer narrative.
+## Baseline — immutable, not a phase
 
-Recorded baseline:
+The first held-out pilot remains immutable evidence:
 
-- actionable precision: 12/140, or 8.6%, against a 70% gate;
-- supported-scope recall: 12/35, or 34.3%, against an 80% gate;
-- critical recall: insufficient evidence because the held-out corpus contained no high-severity supported concerns;
-- median unmatched findings: one, gate met;
-- clean-PR specificity: 11/15, or 73.3%, gate met;
-- median setup: one minute, gate met;
-- p95 analysis time: four milliseconds, gate met;
-- decision: **stop**.
+- decision: `stop`;
+- actionable precision: 12/140, or 8.6%, fail;
+- overall supported-scope recall: 12/35, or 34.3%, materially low but not a separate implemented gate;
+- critical recall: insufficient evidence because the denominator was zero;
+- median unmatched findings: 1, pass;
+- clean-PR specificity: 11/15, or 73.3%, pass;
+- median setup: 1 minute, pass;
+- p95 runtime: 4 ms, pass.
 
-Exit evidence: the immutable pilot summary, product identity, corpus identity, metric identity, thresholds, and corrective plan are recorded in the execution plan.
+These held-out cases may not be relabeled, removed, reinterpreted, or used to select a repair.
 
-## Stage 1 — Beta recovery
+## Sequence ledger
 
-This is the only stage eligible for near-term approval. Phases 1–6 are sequential because each protects the integrity of the next.
+| Phase | Outcome | State | Binary exit |
+| --- | --- | --- | --- |
+| 1 | Trustworthy calibration evidence and at most three repair hypotheses | `READY` | Evidence and diagnosis requirements all pass |
+| 2 | One repaired, immutable product candidate | `LOCKED` | Calibration and complete release gates all pass on one commit |
+| 3 | One fresh preregistered held-out result | `LOCKED` | Every fixed beta and integrity gate passes |
+| 4 | One supportable, reproducible stable candidate | `LOCKED` | Installation, CI, security, compatibility, docs, staging, and rollback all pass |
+| Publication | Release exact reviewed bytes | Separately controlled | Exact owner authorization is executed and verified |
 
-### Phase 1 — Calibration integrity
+## Phase 1 — Evidence and diagnosis
 
-Outcome: build a calibration partition that can guide product changes without contaminating the next held-out test.
+Outcome: trustworthy calibration evidence and no more than three bounded repair hypotheses.
 
-Selected scope:
+Allowed work:
 
-- `EVAL-01` through `EVAL-09` as needed for corpus expansion, label guidance, provenance, adjudication, coverage, partition integrity, sampling, and exclusions;
-- security and privacy checks needed to keep source content, identities, and per-case evidence local;
-- content-free aggregate reporting only.
+- caller-owned calibration evidence;
+- evaluation-only validation, duplicate/leakage detection, ablation, and reporting tools;
+- tests and documentation for those tools;
+- content-free summaries.
 
-Required deliverables:
+Forbidden work:
 
-- outcome-grounded cases that were not labeled from Merge Guard output;
-- two independent label decisions and a visible adjudication state for every new case;
-- at least five high-severity supported concerns, with denominator sufficiency recorded rather than implied;
-- stable opaque repository aliases that never cross calibration and held-out partitions;
-- coverage and near-duplicate reports;
-- validated local corpus and calibration-run evidence.
+- analyzer, scoring, rule, threshold, or public-contract changes;
+- held-out inspection or execution;
+- synthetic or model-generated evidence presented as independent human judgment;
+- more than three repair hypotheses.
 
-Exit gate:
+Binary exit — every item must pass:
 
-- the corpus validator passes;
-- every added case has allowed provenance, complete independent labels, and an adjudication state;
-- high-severity evidence is sufficient to measure critical recall on calibration;
-- partition overlap and disallowed source-content publication are zero;
-- disputed labels remain visible;
-- an owner accepts the corpus-integrity summary.
+- at least 15 supported calibration concerns;
+- at least 15 low-risk calibration controls;
+- at least 5 high-severity supported calibration concerns;
+- exactly two genuinely independent label decisions and a visible adjudication state for every included case;
+- allowed, outcome-grounded provenance for every included case;
+- zero case, repository-alias, or disallowed ancestry overlap with held-out data;
+- duplicate, disputed, corrupt, unsupported, and excluded cases remain visible;
+- corpus validation and the frozen calibration run pass;
+- unmatched findings and missed concerns are reported by stable family and path class;
+- ablation, numerator, denominator, exclusion, and uncertainty data are recorded;
+- one to three repair hypotheses are ranked, each with evidence, expected metric effect, fixture plan, compatibility risk, and rollback;
+- production behavior diff is empty;
+- evaluation-design, historical-evaluation, and full release checks pass.
 
-Explicitly out of scope: product-rule changes, held-out execution, public corpus publication, and claims that calibration metrics prove usefulness.
+If authentic cases or independent labels are unavailable, Phase 1 is `FAIL`.
 
-### Phase 2 — Failure diagnosis
+### Copy-ready Phase 1 prompt
 
-Outcome: explain why the first candidate produced excess findings and missed supported concerns before choosing fixes.
+```text
+AUTHORIZE PHASE 1 against roadmap commit <FULL_ROADMAP_COMMIT_SHA>.
+Allowed GitHub actions: create one issue; create and push one codex/phase-1-evidence-diagnosis branch; open one PR; merge only after PASS; close the issue.
+External release actions: none.
 
-Selected scope:
+Execute Phase 1 — Evidence and diagnosis — only. Verify the authorization names the current roadmap commit and that no other phase is ACTIVE; otherwise return FAIL immediately. Freeze the phase scope and gates now. Work only on caller-owned calibration evidence, evaluation-only tooling, tests, documentation, and content-free summaries. Do not change analyzer rules, scoring, thresholds, public product behavior, or held-out data.
 
-- `SIGNAL-01` unmatched-finding inventory;
-- `EVAL-10` rule-family ablation;
-- `EVAL-11` confidence intervals and denominator sufficiency;
-- `RECALL-01` supported-concern taxonomy;
-- `RECALL-02` recall by concern family;
-- path, weight, co-occurrence, severity, and missing-evidence breakdowns using calibration only.
+Build and freeze a calibration set with at least 15 supported concerns, 15 low-risk controls, and 5 high-severity supported concerns. Require exactly two genuinely independent label decisions, visible adjudication, and allowed outcome-grounded provenance for every included case. Prove zero case, repository-alias, or disallowed ancestry overlap with held-out data. Keep disputed, duplicate, corrupt, unsupported, and excluded cases visible. Never substitute synthetic or model-generated agreement for human evidence.
 
-Required deliverables:
+Run corpus validation and a new calibration output path. Inventory unmatched findings and missed supported concerns by stable family and path class. Record ablations, numerators, denominators, exclusions, uncertainty, and overall supported-scope recall. Select at most three ranked repair hypotheses; for each, record its evidence, expected metric effect, positive and negative fixture plan, compatibility risk, and rollback.
 
-- a ranked precision-loss inventory by stable rule family and path class;
-- a ranked miss inventory by supported concern family and severity;
-- ablation evidence separating high-volume noise from useful reinforcement;
-- explicit unsupported and insufficient-evidence categories;
-- a small, justified set of candidate corrections with predicted metric effects and rollback plans.
+Run:
+- npm run eval:historical-prs -- --corpus <CALIBRATION_CORPUS_PATH> --mode validate
+- npm run eval:historical-prs -- --corpus <CALIBRATION_CORPUS_PATH> --mode run --partition calibration --output <NEW_CALIBRATION_OUTPUT_PATH>
+- npm run test:evaluation-design
+- npm run test:historical-pr-evaluation
+- npm run release:check
 
-Exit gate: the diagnosis accounts for enough observed errors to select bounded corrections, while every proposed correction traces to calibration evidence. No code change is justified solely by intuition or by the completed held-out corpus.
+Return PASS only if every Phase 1 exit condition succeeds and production behavior is unchanged. Otherwise record the exact failed condition in the issue, return FAIL, close the issue as failed, do not merge delivery code, and stop. On PASS, open the single PR, wait for every required check, merge, close the issue, and record the evidence. Do not start Phase 2 or publish anything.
+```
 
-### Phase 3 — Precision repair
+## Phase 2 — Repair and freeze
 
-Outcome: increase the share of findings that imply a useful reviewer action without suppressing legitimate uncertainty.
+Outcome: one corrected, immutable candidate commit.
 
-Selected scope: only the evidence-backed subset of `SIGNAL-02` through `SIGNAL-15` chosen at the Phase 2 gate. Likely tools include stronger structural evidence, multi-signal promotion, deduplication, path-class treatment, primary/secondary/advisory budgets, and negative fixtures.
+Allowed work:
 
-Required deliverables for each changed rule family:
+- only the one to three hypotheses passed by Phase 1 and named in the Phase 2 authorization;
+- focused product changes, fixtures, compatibility coverage, measurement, and rollback documentation.
 
-- the calibration failure cluster it addresses;
-- a focused positive fixture and negative fixture;
-- the expected effect on precision, noise, recall, and specificity;
-- stable explanation and compatibility behavior;
-- a rollback path that does not invalidate stored evidence.
+Forbidden work:
 
-Exit gate:
+- a fourth hypothesis or rule family;
+- unrelated cleanup or capabilities;
+- held-out inspection, execution, replacement, or tuning;
+- gate, metric, label, or corpus changes.
 
-- calibration actionable precision reaches the preregistered target trajectory;
-- median unmatched findings remains no greater than one;
-- clean-PR specificity remains at least 70%;
-- supported-scope and critical recall do not regress outside the phase tolerance;
-- frozen-v1 compatibility, determinism, and performance gates pass.
+Binary exit — every item must pass on one commit:
 
-The target trajectory is a candidate-selection tool, not a product claim. Only a new held-out pilot can satisfy the usefulness gate.
+- actionable precision is at least 70% on frozen calibration;
+- critical supported-scope recall is at least 80% with a denominator of at least 5 on frozen calibration;
+- median unmatched findings is no greater than 1;
+- clean-PR specificity is at least 70%;
+- overall supported-scope recall is reported without an invented pass threshold;
+- every changed rule has measured before/after evidence, positive and negative fixtures, compatibility coverage, and rollback;
+- privacy, determinism, security, performance, and frozen-v1 compatibility do not regress;
+- evaluation-design, historical-evaluation, and full release checks pass;
+- one full candidate commit SHA is recorded and frozen.
 
-### Phase 4 — Recall repair
+Any miss is `FAIL`; it does not authorize another tuning round.
 
-Outcome: detect more concerns within Merge Guard's explicitly supported scope while preserving the precision gains from Phase 3.
+### Copy-ready Phase 2 prompt
 
-Selected scope: the evidence-backed subset of `RECALL-03` through `RECALL-15`, plus only the `DIFF` improvements required to represent the missed change patterns faithfully.
+```text
+AUTHORIZE PHASE 2 against roadmap commit <FULL_ROADMAP_COMMIT_SHA>.
+Authorized repair hypotheses: <EXACT_PHASE_1_HYPOTHESIS_IDS, MAXIMUM_THREE>.
+Allowed GitHub actions: create one issue; create and push one codex/phase-2-repair-freeze branch; open one PR; merge only after PASS; close the issue.
+External release actions: none.
 
-Priority order:
+Execute Phase 2 — Repair and freeze — only. Start only if Phase 1 is PASS, this authorization names the exact accepted hypotheses and current roadmap commit, and no other phase is ACTIVE. Otherwise return FAIL. Freeze scope and gates now.
 
-1. high-severity supported concern families with adequate evidence;
-2. structural gaps shared by multiple supported families;
-3. explicit fallbacks when required context is absent;
-4. adversarial fixtures that avoid obvious keywords;
-5. lower-severity breadth only after the first four are stable.
+Implement only the named hypotheses, never more than three. Do not inspect, run, replace, relabel, or tune against held-out data. Do not change metrics, PILOT_THRESHOLDS, corpus membership, public contracts, or unrelated capabilities. For every product change add measured before/after calibration evidence, positive and negative fixtures, frozen-v1 compatibility coverage, and a rollback path. Preserve explicit unknown, unsupported, disputed, failed, and insufficient-evidence states.
 
-Exit gate:
+On the frozen calibration set require actionable precision >=70%, critical supported-scope recall >=80% with denominator >=5, median unmatched findings <=1, and clean-PR specificity >=70%. Report overall supported-scope recall with numerator and denominator without inventing a gate.
 
-- calibration supported-scope recall reaches at least 80%;
-- calibration critical supported-scope recall reaches at least 80% with at least five high-severity concerns;
-- actionable precision, median noise, and clean-PR specificity remain within their Phase 3 gates;
-- no critical finding is produced from a single weak heuristic;
-- unsupported semantic changes lead to manual-review guidance, not fabricated certainty;
-- full compatibility, determinism, security, and performance checks pass.
+Run:
+- npm run eval:historical-prs -- --corpus <FROZEN_CALIBRATION_CORPUS_PATH> --mode validate
+- npm run eval:historical-prs -- --corpus <FROZEN_CALIBRATION_CORPUS_PATH> --mode run --partition calibration --output <NEW_PHASE_2_OUTPUT_PATH>
+- npm run test:evaluation-design
+- npm run test:historical-pr-evaluation
+- npm run test:security
+- npm run test:performance
+- npm run release:check
 
-### Phase 5 — Candidate freeze and qualification
+Return PASS only if every Phase 2 condition passes on one exact commit. Record and freeze its full SHA. At the first miss, record FAIL in the issue, close it as failed, do not merge delivery code, and stop; do not add a hypothesis or tuning round. On PASS, open the single PR, wait for every required check, merge, close the issue, and record the candidate SHA. Do not start Phase 3 or publish anything.
+```
 
-Outcome: select one product commit that is reproducible, compatible, secure, and ready to test without further tuning.
+## Phase 3 — Independent proof
 
-Selected scope:
+Outcome: one fresh, independently labeled, preregistered held-out result for the exact Phase 2 candidate.
 
-- `EVAL-12` benchmark-drift checks;
-- applicable `SCALE` reliability and resource-limit checks;
-- applicable `SEC` path, redaction, artifact, dependency, and supply-chain checks;
-- complete release-readiness and GitHub compatibility suites;
-- documentation of known limitations and unsupported cases.
+Allowed work:
 
-Required frozen identities:
+- caller-owned held-out evidence;
+- validation, preregistration, one held-out run, and content-free result recording.
 
-- product commit;
-- metric implementation;
-- calibration corpus and labels;
-- threshold definitions;
-- runtime and dependency lock state;
-- expected compatibility contract.
+Forbidden work:
 
-Exit gate: all required local and GitHub checks pass on the same commit, reproduced evidence matches the frozen identities, and unresolved failures are not represented as passes. Any product change after the freeze returns work to the relevant repair phase.
+- any product, metric, threshold, or label change;
+- any post-registration case, exclusion, or corpus change not permitted by the preregistered exclusion rule;
+- retries;
+- raw or per-case evidence in Git.
 
-### Phase 6 — Second preregistered held-out pilot
+Required order:
 
-Outcome: learn whether the repaired candidate is useful on genuinely new evidence.
+1. Verify the exact Phase 2 candidate.
+2. Validate at least 50 fresh held-out cases from at least 5 non-calibration repository aliases, with at least 15 supported concerns, 15 low-risk controls, and 5 high-severity supported concerns.
+3. Verify exactly two independent labels per case, provenance, exclusions, duplicates, ancestry, and zero calibration overlap.
+4. Preregister the complete corpus, product, metric, and unchanged threshold identities.
+5. Run the held-out partition once.
+6. Preserve the immutable local evidence and commit only its content-free result.
 
-Required sequence:
+Binary exit: every fixed beta and integrity gate passes and the harness recommendation is `proceed`. `Improve`, `stop`, `insufficient-evidence`, a metric miss, an invalid run, or missing authentic evidence is `FAIL`.
 
-1. Assemble a fresh held-out corpus with independently produced labels.
-2. Verify that it shares no case, alias, or disallowed ancestry with calibration.
-3. Ensure high-severity denominator sufficiency, or preregister `insufficient-evidence` handling.
-4. Bind corpus, label, metric, threshold, and product identities in a preregistration.
-5. Run the frozen candidate once without post-registration tuning.
-6. Publish only content-free aggregates and record `proceed`, `improve`, `stop`, or `insufficient-evidence`.
-7. Preserve the full local evidence bundle and the first pilot as immutable history.
+### Copy-ready Phase 3 prompt
 
-Exit gate: the run is integrity-valid and its decision is recorded. A failed metric is still a valid phase result; changing the result after inspection is not.
+```text
+AUTHORIZE PHASE 3 against roadmap commit <FULL_ROADMAP_COMMIT_SHA> and frozen product commit <FULL_PHASE_2_CANDIDATE_SHA>.
+Allowed GitHub actions: create one issue; create and push one codex/phase-3-independent-proof branch containing content-free evidence only; open one evidence PR; merge the content-free evidence record after integrity checks even when the phase result is FAIL; close the issue with the exact result.
+External release actions: none.
 
-## Decision Gate A — Earn the right to expand
+Execute Phase 3 — Independent proof — only. Verify Phase 2 is PASS, both authorized SHAs are exact, and no other phase is ACTIVE; otherwise return FAIL. Do not change product code, metrics, thresholds, labels after freeze, or public behavior.
 
-| Decision | Required evidence | Consequence |
-| --- | --- | --- |
-| Proceed | All usefulness, noise, specificity, setup, runtime, privacy, determinism, compatibility, and evidence-integrity gates pass. | Phase 7 becomes eligible for authorization. |
-| Improve | Integrity is valid and misses are bounded enough to justify another calibration-only correction. | Return only to the named recovery phase; expansion stays locked. |
-| Stop | Evidence does not support another bounded attempt or the core product thesis is not holding. | Suspend product expansion and record the disposition. |
-| Insufficient evidence | A preregistered denominator or integrity condition cannot support a conclusion. | Permit measurement repair only; do not claim a pass or unlock expansion. |
+Use a fresh held-out corpus never used for tuning. Require at least 50 cases, 5 repository aliases not used by calibration, 15 supported concerns, 15 low-risk controls, 5 high-severity supported concerns, exactly two independent labels per case, allowed provenance, and zero case, alias, or disallowed ancestry overlap with calibration. Validate before preregistration. Preregister the complete corpus identity, label identity, metric implementation, unchanged PILOT_THRESHOLDS, and exact Phase 2 product commit. Then run the held-out partition once. No retry, relabeling, case removal, exclusion change, product change, or threshold change is allowed after preregistration except an exclusion already permitted by the preregistration.
 
-Gate A is the first major owner decision. The metrics may recommend an outcome, but the durable decision record must state the evidence, limitations, chosen branch, and authorization scope.
+Run:
+- npm run eval:historical-prs -- --corpus <FRESH_HELD_OUT_CORPUS_PATH> --mode validate
+- npm run eval:historical-prs -- --corpus <FRESH_HELD_OUT_CORPUS_PATH> --mode preregister --output <NEW_PREREGISTRATION_PATH> --product-commit <FULL_PHASE_2_CANDIDATE_SHA> --recorded-at <UTC_ISO_TIMESTAMP>
+- npm run eval:historical-prs -- --corpus <FRESH_HELD_OUT_CORPUS_PATH> --mode run --partition held-out --output <NEW_HELD_OUT_OUTPUT_PATH> --preregistration <NEW_PREREGISTRATION_PATH> --product-commit <FULL_PHASE_2_CANDIDATE_SHA>
+- npm run test:evaluation-design
+- npm run test:historical-pr-evaluation
+- npm run release:check
 
-## Stage 2 — Core product maturity
+Return PASS only if every fixed beta gate and integrity condition passes and the harness recommendation is proceed. Treat improve, stop, insufficient evidence, any metric miss, invalid execution, or missing authentic evidence as FAIL. Preserve raw corpus and per-case output locally and ignored. Record the immutable content-free result in the issue and evidence PR regardless of outcome, merge that record after its integrity checks pass, close the issue, and stop. Do not retry, start Phase 4, or publish anything.
+```
 
-Stage 2 stays conditional until Gate A returns `proceed`. Its phases are ordered to improve the reviewer decision first, then add context, policy operations, automation reliability, and richer local exploration.
+## Phase 4 — Stable candidate
 
-### Phase 7 — Reviewer clarity and verification intelligence
+Outcome: one supportable and reproducible candidate, ready for a separate publication decision.
 
-Outcome: turn valid findings into a smaller, clearer, executable reviewer plan.
+Allowed work:
 
-Candidate scope: the evidence-backed subset of `REVIEW` and `CHECK`, including canonical hierarchy, consequence-oriented explanations, deterministic annotation budgets, check provenance, availability, ranking, and caller-supplied results.
+- stabilization, packaging, documentation, provenance, installation, CI, support, and rollback work that cannot change proven analysis behavior.
 
-Exit gate: reviewer studies show faster time-to-first-useful-action without worsening measured signal quality; commands remain suggested rather than executed; unavailable checks and uncertain conclusions remain explicit.
+Forbidden work:
 
-### Phase 8 — Explicit repository context
+- analyzer, rule, scoring, metric, threshold, or evidence-semantic changes;
+- new repository intelligence, policies, dashboards, adapters, plugins, AI, hosted services, team features, or v2 contracts;
+- any public mutation.
 
-Outcome: improve affected-surface reasoning from caller-owned metadata without scanning or executing the repository.
+Binary exit — every item must pass on one immutable candidate:
 
-Candidate scope: the evidence-backed subset of `IMPACT`, starting with versioned metadata contracts, schema validation, public-surface markers, ownership hints, and explainable graph edges.
+- the Phase 3 result is `PASS`;
+- analysis behavior is identical to the proven candidate;
+- installation, security, public-contract, release-artifact, distribution, support, and full release gates pass;
+- the required GitHub matrix passes on the same candidate;
+- staged artifacts reproduce exactly;
+- clean install, upgrade, uninstall, failure recovery, and rollback are verified;
+- documentation and known limitations match the bytes;
+- source, artifact, test, pilot, provenance, and rollback identities agree;
+- no package, release, tag, signature, Marketplace state, or stable Action reference changed.
 
-Exit gate: impact reasoning improves on targeted fixtures and evaluation cases, invalid or stale metadata fails safely, and absent metadata preserves useful conservative behavior.
+Any analysis-behavior change invalidates the proof and returns `FAIL`.
 
-### Phase 9 — Policy operations
+### Copy-ready Phase 4 prompt
 
-Outcome: make policy composition, authoring, testing, and governance understandable before increasing policy scale.
+```text
+AUTHORIZE PHASE 4 against roadmap commit <FULL_ROADMAP_COMMIT_SHA>, proven product commit <FULL_PHASE_2_CANDIDATE_SHA>, and passing Phase 3 evidence commit <FULL_PHASE_3_EVIDENCE_SHA>.
+Allowed GitHub actions: create one issue; create and push one codex/phase-4-stable-candidate branch; open one PR; merge only after PASS; close the issue.
+External release actions: none.
 
-Candidate scope: the evidence-backed subset of `POLICY`, including schema diagnostics, resolved-policy explanation, conflict semantics, test fixtures, diffs, deprecation, and documented precedence.
+Execute Phase 4 — Stable candidate — only. Start only if Phase 3 is PASS, all three authorized SHAs are exact, and no other phase is ACTIVE; otherwise return FAIL. Freeze scope and gates now. Preserve the analysis, rule, scoring, metric, threshold, and evidence semantics proven in Phase 3.
 
-Exit gate: policy authors can predict the resolved policy, conflicts never resolve silently, invalid configuration fails closed, and frozen contracts remain compatible.
+Perform only release-blocking stabilization, packaging, documentation, provenance, installation, supported CI, support, and rollback work. Do not add repository intelligence, policies, dashboard features, adapters, plugins, AI, hosted services, team features, v2 contracts, or other capabilities. Produce one immutable candidate with reproducible staged artifacts, verified clean install, upgrade, uninstall, failure recovery, rollback, accurate docs, known limitations, and consistent source/artifact/test/pilot/provenance identities.
 
-### Phase 10 — CI and durable evidence flow
+Run:
+- npm run test:installation
+- npm run test:security
+- npm run test:public-contracts
+- npm run test:release-artifacts
+- npm run test:distribution
+- npm run test:support
+- npm run release:check
+- npm run release:stage -- <NEW_LOCAL_RELEASE_EVIDENCE_PATH>
+- every required GitHub workflow on the same candidate
 
-Outcome: produce trustworthy, deduplicated review evidence across supported GitHub event shapes and reruns.
+Return PASS only if all evidence names one immutable candidate and staged bytes reproduce exactly. Any analysis-behavior change or failed condition is FAIL: record it, close the issue as failed, do not merge delivery code, and stop. On PASS, open the one PR, wait for the complete required matrix, merge, close the issue, and record the exact candidate and artifact hashes. Do not publish, tag, sign, upload, change Marketplace state, move a stable Action reference, or start long-horizon work.
+```
 
-Candidate scope: the evidence-backed subset of `CI` and `EVIDENCE`, including event coverage, merge queues, fork degradation, concurrency, immutable selection, provenance, retention, comparison, and corruption handling.
+## Publication decision — not a phase
 
-Exit gate: supported event paths pass across the declared matrix; stale runs cannot overwrite current evidence; unavailable permissions degrade explicitly; no artifact or cache can escape its repository/run scope.
+Phase 4 `PASS` authorizes nothing external. Publication needs a new owner message naming exact immutable subjects and actions.
 
-### Phase 11 — Local evidence explorer
+### Copy-ready publication authorization template
 
-Outcome: let reviewers inspect, compare, and export evidence locally without creating a hosted-control-plane dependency.
+```text
+AUTHORIZE PUBLICATION of source commit <FULL_SHA> and staged artifact SHA-256 <SHA256> for version <EXACT_VERSION>.
+Allowed actions: <EXACT_LIST: npm publish, GitHub tag, GitHub release, signature/provenance upload, Marketplace update, stable Action reference movement>.
+Release channel and visibility: <EXACT_CHANNEL_AND_VISIBILITY>.
+Required verification after each action: <EXACT_COMMAND_OR_OBSERVATION>.
+Rollback trigger and target: <EXACT_TRIGGER_AND_IMMUTABLE_TARGET>.
+No unlisted external action is authorized. Stop on the first mismatch or failed verification.
+```
 
-Candidate scope: the evidence-backed subset of `DASH` and remaining local `EVIDENCE` work, including provenance views, graph navigation, checklists, before/after comparison, large-report handling, and redacted export.
+Unfilled placeholders or broad wording make the authorization invalid.
 
-Exit gate: core evidence is accessible without the dashboard, hostile report content is rendered safely, large reports remain responsive, no default network path exists, and exported data is explicitly caller-selected.
+## After publication
 
-## Decision Gate B — Release-candidate readiness
+There is no Phase 5.
 
-Gate B asks whether the beta has enough product evidence, compatibility evidence, operational reliability, documentation, and rollback clarity to prepare a stable public candidate.
+A future roadmap may select exactly one problem from the long-horizon registry only after repeated evidence from more than one independent repository or reviewer. It must define one measurable outcome, deterministic proof, permissions, privacy, execution, persistence, network, compatibility, rollback, and explicit non-goals.
 
-Possible decisions:
+Without that evidence and a new approved roadmap, plugins, AI, hosted/team features, ecosystem expansion, and v2 remain **do not start**.
 
-- `prepare-release`: authorize Phase 12 planning, but not publication;
-- `improve-core`: return to one named Stage 2 phase;
-- `remain-beta`: continue supported beta operation without distribution expansion;
-- `stop`: suspend release work and record why.
+## Immediate approval syntax
 
-## Stage 3 — Adoption and ecosystem breadth
+Approving the order and authorizing work are separate messages.
 
-### Phase 12 — Adoption and distribution preparation
+Sequence approval:
 
-Outcome: create a reproducible, supportable release candidate and a low-friction adoption path.
+```text
+APPROVE the four-phase order in docs/PHASE_ROADMAP.md at commit <FULL_ROADMAP_COMMIT_SHA>. This approves ordering only and authorizes no phase or external action.
+```
 
-Candidate scope: the evidence-backed subset of `ADOPT` and `DIST`, including onboarding, diagnostics, migration notes, support boundaries, reproducible staging, provenance, rollback rehearsal, and post-publication verification plans.
+First work authorization:
 
-Exit gate: staging artifacts reproduce from the selected commit, installation and rollback paths are verified, documentation matches shipped behavior, and owner approval is recorded separately for every publication or tag mutation.
+```text
+AUTHORIZE PHASE 1 against roadmap commit <FULL_ROADMAP_COMMIT_SHA>.
+Allowed GitHub actions: create one issue; create and push one codex/phase-1-evidence-diagnosis branch; open one PR; merge only after PASS; close the issue.
+External release actions: none.
+```
 
-Publication is not part of this phase unless explicitly authorized at the time of action.
-
-### Phase 13 — One evidence-backed ecosystem adapter
-
-Outcome: prove that Merge Guard can broaden coverage without embedding uncontrolled language- or forge-specific complexity in the core.
-
-Candidate scope: define the smallest stable `ECO` adapter contract, then implement one adapter selected from measured user demand and corpus gaps.
-
-Exit gate: the adapter improves a measured concern family, fails safely when tooling or metadata is absent, obeys local/no-execution defaults, and carries its own fixtures, compatibility matrix, and support boundary. Additional adapters require separate evidence.
-
-## Decision Gate C — Platform breadth
-
-Gate C reviews repeated extension demand, ecosystem maintenance cost, privacy requirements, operational burden, and evidence that the local additive architecture is insufficient.
-
-It may authorize one bounded experiment, defer the idea, or reject it. It does not authorize a public registry, hosted service, unbounded third-party execution, or a breaking release.
-
-## Stage 4 — Strategic bets
-
-### Phase 14 — Extension-surface decision
-
-Outcome: decide whether repeated, concrete demand justifies activating any `EXT` work.
-
-Before implementation, the phase must define trust, capability, install, permission, isolation, revocation, update, compatibility, support, and failure models. If a credible model cannot be demonstrated without weakening local determinism or safety, the correct result is `do not build`.
-
-### Phase 15 — Optional grounded AI experiment
-
-Outcome: test one narrow `AI` use case only if deterministic evidence already exists and the model adds measurable explanatory value.
-
-Entry requires an explicit privacy mode, provider boundary, redaction contract, prompt-injection treatment, provenance rules, cost and latency budgets, deterministic fallback, and a prohibition on unlabelled merge-gating output.
-
-Exit requires a blinded comparison against the deterministic baseline. A non-improvement or unsafe result closes the experiment without productization.
-
-### Phase 16 — Hosted/team or v2 decision
-
-Outcome: decide whether proven needs require `TEAM` capabilities or a `V2` breaking architecture.
-
-Entry requires evidence that additive local work is insufficient, plus a separately approved identity, tenancy, retention, deletion, export, abuse, incident-response, migration, rollback, and operating-cost model. Hosted work and v2 are independent decisions; neither is a default continuation of the roadmap.
-
-## Phase operating contract
-
-Every authorized phase must begin with a delivery issue containing:
-
-- one user-visible outcome and the selected stable initiative IDs;
-- evidence for selection and the baseline being improved;
-- in-scope and explicitly deferred behavior;
-- inputs, outputs, permissions, persistence, network, and execution boundaries;
-- compatibility, migration, failure, and rollback behavior;
-- measurable acceptance criteria and exact verification commands;
-- dependencies and the evidence required at exit;
-- documentation and support changes;
-- external actions that remain unauthorized.
-
-Every phase should normally land through one bounded pull request or a short, explicitly ordered pull-request stack. A phase closes only after merged evidence demonstrates its exit gate and the roadmap records the result.
-
-## Immediate approval choice
-
-The next sensible approval is:
-
-> Approve the recovery sequence in Phases 1–6, and authorize Phase 1 — Calibration integrity — to begin. Keep Phases 2–6 gated on predecessor evidence, and keep Phases 7–16 conditional or deferred as documented.
-
-If accepted, the first implementation action is to open one Phase 1 delivery issue with the corpus-integrity acceptance criteria above. That issue should not contain product-rule tuning or expansion work.
+Nothing else moves.
