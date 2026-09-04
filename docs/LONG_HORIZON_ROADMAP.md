@@ -769,7 +769,7 @@ These are questions, not commitments:
 
 ## Candidate phase themes
 
-These are useful groupings for the next planning pass, not an approved sequence:
+These are useful groupings for planning, not an approved sequence. The [phase-roadmap approval draft](PHASE_ROADMAP.md) selects a gated order from this map while keeping expansion conditional on evidence and owner decisions:
 
 1. **Evidence repair:** calibration corpus quality, label guidance, high-severity coverage, and audit tooling.
 2. **Signal repair:** precision inventory, recall gaps, finding composition, and targeted fixtures.

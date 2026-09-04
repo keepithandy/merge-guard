@@ -10,7 +10,7 @@ The current `main` source identity is `1.3.0-beta.1`; it consolidates the comple
 
 The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. The reviewer-signal cleanup, companion-change contracts, and browser-game save compatibility slices are also implemented. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active field-validation milestone exists to measure that.
 
-The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md). The much broader [long-horizon roadmap](docs/LONG_HORIZON_ROADMAP.md) captures candidate capability areas for later phase selection without promoting them into the active queue.
+The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md). The [phase-roadmap approval draft](docs/PHASE_ROADMAP.md) converts that active queue and the much broader [long-horizon roadmap](docs/LONG_HORIZON_ROADMAP.md) into a gated sequence without promoting conditional work into the active queue.
 
 ## Active priority
 
