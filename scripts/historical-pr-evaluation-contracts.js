@@ -148,5 +148,20 @@ const implementation = fs.readFileSync(path.join(root, 'src', 'historicalPrEvalu
 assert(!implementation.includes('node:child_process'), 'evaluation loader must not execute commands');
 assert(!/\b(?:spawn|exec)(?:Sync)?\s*\(/.test(implementation), 'evaluation loader must remain read-only');
 
+const intakeGuide = fs.readFileSync(path.join(root, 'docs', 'pilot-corpus-intake.md'), 'utf8').toLowerCase();
+for (const requiredText of [
+  '.merge-guard-pilot/',
+  'two independent labelers',
+  '| held-out cases | 50 |',
+  '| held-out repository aliases | 5 |',
+  '| supported concerns | 15 |',
+  '| low-risk controls | 15 |',
+  '--mode validate',
+  'do not upload',
+  'issue #164'
+]) assert(intakeGuide.includes(requiredText), `pilot intake guide must retain ${requiredText}`);
+const ignoredPaths = fs.readFileSync(path.join(root, '.gitignore'), 'utf8').split(/\r?\n/);
+assert(ignoredPaths.includes('.merge-guard-pilot/'), 'private pilot workspace must remain ignored');
+
 console.log('historical PR evaluation contracts passed');
 console.log('fixtures=valid,leakage,path-escape,privacy,symlink');

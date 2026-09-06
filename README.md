@@ -470,6 +470,7 @@ After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-
 | Browser-game saves | [Save compatibility evidence](docs/browser-game-save-compatibility.md) |
 | PR summaries | [Pull-request summaries](docs/pull-request-summaries.md) |
 | Beta evaluation | [Historical-PR evaluation](docs/historical-pr-evaluation.md) |
+| Pilot corpus intake | [Local intake and labeling guide](docs/pilot-corpus-intake.md) |
 | Security | [Security baseline](docs/security/threat-model.md) |
 | Release history | [Changelog](CHANGELOG.md) |
 | Contributing | [Contributing guide](CONTRIBUTING.md) |
