@@ -178,17 +178,37 @@ Completion evidence: focused key-replacement, version-change, migration, unrelat
 
 ### Preregistered held-out historical-PR pilot
 
-Tracked in #160. Use the implemented harness with a caller-owned corpus of at least 50 held-out pull requests from at least five opaque repository aliases. Record the corpus hash, product commit, metric implementation hash, and thresholds before running the held-out partition.
+Completed in #160 with a 2026-09-03 **stop** decision. The caller-owned corpus had 50 held-out cases from five opaque repository aliases. Preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564` bound product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`, metric implementation, corpus content, and thresholds before the held-out partition.
 
 Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md): at least 70% actionable precision, at least 80% critical supported-scope recall when measurable, no greater than one median unmatched positive-weight finding per PR, at least 70% clean-PR specificity, no greater than five minutes median default-path setup, the existing 3,000 ms performance budget, and no privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression.
 
-Deliver a content-free aggregate report and an explicit improve, proceed, stop, or insufficient-evidence decision. Missed gates produce a measured corrective plan; thresholds and cases are not changed after results are known except through preregistered exclusion rules.
+The content-free aggregate missed actionable precision (12/140, 8.6%). Overall supported-scope recall was materially low (12/35, 34.3%) but is a diagnosis metric without a separate numeric threshold in the implemented preregistration. Critical recall was insufficient evidence. Median unmatched findings (one), clean-PR specificity (11/15, 73.3%), median setup (one minute), and p95 analysis time (four milliseconds) met their gates. The corrective plan is calibration-only: expand outcome-grounded high-severity labels, audit unmatched finding family/path combinations, add focused fixtures for any justified change, and then use a newly preregistered corpus for another held-out run. Thresholds and cases remain frozen after a run except through preregistered exclusion rules.
 
-The fail-closed preregistration gate was implemented by #162. Caller-owned corpus assembly and independent labeling are tracked in #163; calibration, product-commit freeze, preregistration, and the held-out handoff are tracked in #164. The actual held-out run remains tracked in #160 and blocked until those inputs are complete.
+Status: complete. The fail-closed preregistration gate and first held-out run are finished; the immutable record and raw corpus remain local and caller-owned.
+
+### Calibration evidence expansion
+
+This is the active next slice. Add outcome-grounded, independently reviewed calibration cases, including at least five high-severity supported concerns so critical recall can be measured before another held-out run. Summaries remain content-free, and repository aliases must not cross between calibration and held-out partitions.
+
+Acceptance:
+
+- calibration labels identify actual review outcomes or maintainer judgments without deriving expected answers from Merge Guard findings;
+- two independent decisions and an adjudication state exist for every new case;
+- unmatched positive findings and missed concerns are grouped by stable rule family and path without publishing source content;
+- disputed labels remain visible rather than being removed to improve a metric;
+- corpus validation and the calibration run pass locally.
+
+### Precision and recall correction
+
+Use only calibration evidence to propose changes addressing the missed actionable-precision gate, the materially low overall supported-scope recall diagnosis, and the missing critical-recall denominator. Every change requires a focused regression fixture, an explanation of expected score movement, frozen-v1 compatibility coverage, and the complete release-readiness suite. Held-out cases remain unavailable for tuning.
+
+### Second preregistered held-out pilot
+
+After calibration work and any justified product changes are frozen, assemble a fresh independently labeled held-out corpus, create a new preregistration, and rerun the pilot once. Preserve the original result as immutable evidence. The harness recommendation remains part of the record, but only `proceed` with every fixed gate satisfied maps to phase `PASS`; `improve`, `stop`, `insufficient-evidence`, an invalid run, or any metric miss maps to `FAIL` and locks successor work pending a newly approved roadmap revision.
 
 ### Golden-path GitHub experience
 
-This is conditional follow-up, not active implementation. Use pilot evidence to reduce default setup or review noise only when a measured gate identifies that need. Keep advanced evidence available and frozen v1 behavior compatible.
+This is unapproved future work, not part of the strict four-phase sequence. It may enter a future roadmap only after a passing pilot and repeated evidence identifies it as the single next problem. Keep advanced evidence available and frozen v1 behavior compatible.
 
 ## Definition of ready
 

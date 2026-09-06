@@ -173,6 +173,10 @@ const pytestDetail = pythonDetails.find((entry) => entry.command === 'python -m 
 assert.equal(pytestDetail.sources.length, 2, 'metadata and README pytest commands should deduplicate');
 assert.deepEqual(detectProjectChecks(fixture('python-project')), pythonDetails.map((entry) => entry.command));
 
+const nodeTestsDirectoryChecks = detectProjectChecks(fixture('node-tests-directory'));
+assert(!nodeTestsDirectoryChecks.includes('python -m unittest discover'), 'Node tests directory should not imply Python unittest');
+assert.deepEqual(nodeTestsDirectoryChecks, ['npm test']);
+
 const mixedDetails = detectProjectCheckDetails(fixture('mixed-project'));
 assert.deepEqual(
   mixedDetails.map((entry) => entry.command),

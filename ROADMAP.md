@@ -10,15 +10,15 @@ The current `main` source identity is `1.3.0-beta.1`; it consolidates the comple
 
 The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. The reviewer-signal cleanup, companion-change contracts, and browser-game save compatibility slices are also implemented. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active field-validation milestone exists to measure that.
 
-The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md).
+The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md). The [strict phase-roadmap approval draft](docs/PHASE_ROADMAP.md) reduces that active queue to four gated phases, while the much broader [long-horizon roadmap](docs/LONG_HORIZON_ROADMAP.md) remains an unapproved idea registry.
 
 ## Active priority
 
-### Historical-PR held-out pilot — measure usefulness before expansion
+### Beta recovery cycle — improve precision and recall before expansion
 
-The evaluation harness, targeted usefulness slices, and fail-closed preregistration gate are implemented. The held-out pilot is tracked in #160; caller-owned corpus intake and independent labeling are tracked in #163, followed by calibration and the frozen run in #164.
+The evaluation harness and targeted usefulness slices are implemented. The first preregistered held-out pilot completed on 2026-09-03 with a **stop** decision; it does not support a broader-adoption claim.
 
-The pilot:
+The completed pilot:
 
 - uses at least 50 held-out pull requests from at least five opaque repository aliases;
 - freezes the corpus, product commit, metric implementation, and thresholds before the held-out run;
@@ -26,9 +26,21 @@ The pilot:
 - publishes only content-free aggregate results and records an explicit improve, proceed, stop, or insufficient-evidence decision;
 - preserves local-only analysis, frozen v1 compatibility, and the existing privacy and execution boundaries.
 
-Exit gate: the pilot reaches the preregistered thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md), or records an honest miss and a measured corrective plan. No v2 or extension-surface expansion begins before that decision.
+Pilot record: product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`; preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564`; 50 held-out cases across five opaque repository aliases, with 35 supported concerns and 15 low-risk controls. Actionable precision was 12/140 (8.6%; gate: 70%). Overall supported-scope recall was 12/35 (34.3%), a material diagnosis metric; the implemented preregistration does not define a separate numeric gate for it. Critical recall was `insufficient-evidence` (0 high-severity concerns; gate: 80% when the denominator is at least five). Median unmatched findings was one (gate met), clean-PR specificity was 11/15 (73.3%; gate met), median setup was one minute (gate met), and p95 analysis time was four milliseconds (gate met). All corpus and per-case material remains local and ignored.
 
-Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, browser-game save compatibility merged in #159 after all 11 required GitHub checks passed, and the preregistration gate merged in #162.
+The active recovery sequence is:
+
+1. Expand the calibration partition with outcome-grounded, independently reviewed cases, including enough high-severity concerns to measure critical recall.
+2. Audit unmatched findings and missed supported concerns by stable rule family and path using calibration evidence only.
+3. Make only evidence-backed rule or presentation changes, with focused regression fixtures and frozen-v1 compatibility coverage.
+4. Pass the full local and GitHub compatibility gates on the selected product commit.
+5. Assemble a fresh held-out corpus, preregister its corpus, metric, threshold, and product identities, and run a second pilot without post-registration tuning.
+
+The first corrective target is the missed precision gate, the materially low overall supported-scope recall diagnosis, and the missing critical-recall denominator. Setup effort, runtime, median noise, and clean-PR specificity already met their thresholds, so golden-path simplification remains conditional rather than the active priority.
+
+Exit gate: a new preregistered held-out pilot reaches the thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md). An honest miss is preserved, but it locks every successor and requires a newly approved roadmap revision; it does not open an automatic corrective loop. No v2 or extension-surface expansion begins before a passing decision.
+
+Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, and browser-game save compatibility merged in #159 after all 11 required GitHub checks passed.
 
 ## Planned milestones
 
