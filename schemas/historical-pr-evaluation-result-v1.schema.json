@@ -4,5 +4,40 @@
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "tool", "toolVersion", "corpus", "metrics", "excludedCases", "runtimeMs", "semantics"],
-  "properties": { "schemaVersion": { "const": 1 }, "tool": { "const": "merge-guard" }, "toolVersion": { "type": "string" }, "corpus": { "type": "object" }, "metrics": { "type": "object" }, "excludedCases": { "type": "array" }, "runtimeMs": { "type": "number" }, "semantics": { "type": "string" } }
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "tool": { "const": "merge-guard" },
+    "toolVersion": { "type": "string" },
+    "corpus": { "type": "object" },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "calibrationDiagnosis": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unmatchedPositiveFindings", "missedSupportedConcerns"],
+          "properties": {
+            "unmatchedPositiveFindings": { "type": "array", "items": { "$ref": "#/$defs/calibrationDiagnosisEntry" } },
+            "missedSupportedConcerns": { "type": "array", "items": { "$ref": "#/$defs/calibrationDiagnosisEntry" } }
+          }
+        }
+      }
+    },
+    "excludedCases": { "type": "array" },
+    "runtimeMs": { "type": "number" },
+    "semantics": { "type": "string" }
+  },
+  "$defs": {
+    "calibrationDiagnosisEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleFamily", "pathClass", "count", "caseCount"],
+      "properties": {
+        "ruleFamily": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$" },
+        "pathClass": { "enum": ["configuration", "docs", "entrypoint", "global", "other", "persistence", "test"] },
+        "count": { "type": "integer", "minimum": 1 },
+        "caseCount": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
 }

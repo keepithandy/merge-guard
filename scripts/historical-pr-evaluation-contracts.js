@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { evaluateHistoricalPrCorpus, HistoricalPrEvaluationError, loadHistoricalPrCorpus, EVALUATION_SCHEMA_VERSION } from '../src/historicalPrEvaluation.js';
+import { CALIBRATION_DIAGNOSIS_PATH_CLASSES, evaluateHistoricalPrCorpus, HistoricalPrEvaluationError, loadHistoricalPrCorpus, EVALUATION_SCHEMA_VERSION } from '../src/historicalPrEvaluation.js';
 import {
   createPilotPreregistration,
   PILOT_THRESHOLDS,
@@ -17,6 +17,7 @@ const root = process.cwd();
 const fixtureRoot = path.join(root, 'test', 'fixtures', 'historical-pr-evaluation');
 const corpus = loadHistoricalPrCorpus(fixtureRoot);
 assert.equal(EVALUATION_SCHEMA_VERSION, 1);
+assert.deepEqual(CALIBRATION_DIAGNOSIS_PATH_CLASSES, ['configuration', 'docs', 'entrypoint', 'global', 'other', 'persistence', 'test']);
 assert.equal(corpus.manifest.corpusId, 'fixture-evaluation-v1');
 assert.equal(corpus.records.length, 3);
 assert.deepEqual(corpus.records.map((item) => item.entry.id), ['case-async', 'case-docs', 'case-routing']);
@@ -57,6 +58,8 @@ for (const schema of ['historical-pr-corpus-v1.schema.json', 'historical-pr-labe
   const value = JSON.parse(fs.readFileSync(path.join(root, 'schemas', schema), 'utf8'));
   assert.equal(value.properties.schemaVersion.const, 1);
 }
+const aggregateSchema = JSON.parse(fs.readFileSync(path.join(root, 'schemas', 'historical-pr-evaluation-result-v1.schema.json'), 'utf8'));
+assert.deepEqual(aggregateSchema.$defs.calibrationDiagnosisEntry.properties.pathClass.enum, CALIBRATION_DIAGNOSIS_PATH_CLASSES, 'aggregate schema must freeze calibration diagnosis path classes');
 
 assert.throws(
   () => createPilotPreregistration(corpus, { productCommit: 'a'.repeat(40), recordedAt: '2026-09-01T00:00:00.000Z' }),
