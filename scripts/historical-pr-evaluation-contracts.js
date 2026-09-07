@@ -163,5 +163,14 @@ for (const requiredText of [
 const ignoredPaths = fs.readFileSync(path.join(root, '.gitignore'), 'utf8').split(/\r?\n/);
 assert(ignoredPaths.includes('.merge-guard-pilot/'), 'private pilot workspace must remain ignored');
 
+const diagnosisTemplate = fs.readFileSync(path.join(root, 'docs', 'calibration-diagnosis-template.md'), 'utf8').toLowerCase();
+for (const requiredText of [
+  'at most three',
+  'held-out data inspected: no',
+  'do not commit completed copies',
+  'unmatched finding',
+  'missed supported concern'
+]) assert(diagnosisTemplate.includes(requiredText), `calibration diagnosis template must retain ${requiredText}`);
+
 console.log('historical PR evaluation contracts passed');
 console.log('fixtures=valid,leakage,path-escape,privacy,symlink');
