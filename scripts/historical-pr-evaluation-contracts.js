@@ -28,6 +28,17 @@ assert.deepEqual(evaluated.aggregate.metrics.supportedScopeRecall, { numerator: 
 assert.equal(evaluated.aggregate.metrics.criticalSupportedScopeRecall.status, 'insufficient-evidence');
 assert.deepEqual(evaluated.aggregate.metrics.cleanPrSpecificity, { numerator: 1, denominator: 1, value: 1 });
 assert.deepEqual(evaluated.aggregate.metrics.coverage.changeCategory, { docs: 1, network: 1, routing: 1 });
+assert.equal(evaluated.aggregate.metrics.calibrationDiagnosis, undefined, 'mixed or held-out output must not expose calibration diagnosis');
+const calibrationCorpus = { ...corpus, records: corpus.records.filter((record) => record.entry.partition === 'calibration') };
+assert.deepEqual(evaluateHistoricalPrCorpus(calibrationCorpus).aggregate.metrics.calibrationDiagnosis, {
+  unmatchedPositiveFindings: [{ ruleFamily: 'implementation-without-tests', pathClass: 'entrypoint', count: 1, caseCount: 1 }],
+  missedSupportedConcerns: []
+});
+const missedConcernCorpus = {
+  ...calibrationCorpus,
+  records: calibrationCorpus.records.map((record) => ({ ...record, labels: { ...record.labels, concerns: [{ ...record.labels.concerns[0], paths: ['src/missing.js'] }] } }))
+};
+assert.deepEqual(evaluateHistoricalPrCorpus(missedConcernCorpus).aggregate.metrics.calibrationDiagnosis.missedSupportedConcerns, [{ ruleFamily: 'routing-or-entry', pathClass: 'other', count: 1, caseCount: 1 }]);
 assert.equal(evaluated.caseResults.find((item) => item.caseId === 'case-docs').findingCount, 0);
 const contentFree = JSON.stringify(evaluated);
 assert(!contentFree.includes("fetch('/data')"), 'evaluation output must not contain diff text');
@@ -108,6 +119,11 @@ try {
   assert(!aggregateText.includes('fetch'), 'CLI aggregate must remain content-free');
   assert.equal(JSON.parse(aggregateText).metrics.supportedScopeRecall.value, 1);
   assert.equal(JSON.parse(aggregateText).corpus.partition, 'calibration');
+  assert.deepEqual(JSON.parse(aggregateText).metrics.calibrationDiagnosis, {
+    unmatchedPositiveFindings: [{ ruleFamily: 'implementation-without-tests', pathClass: 'entrypoint', count: 1, caseCount: 1 }],
+    missedSupportedConcerns: []
+  });
+  assert(!aggregateText.includes('src/router.js'), 'calibration diagnosis must not contain literal repository-relative paths');
   const rerun = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--partition', 'calibration', '--output', output], { cwd: root, encoding: 'utf8' });
   assert.equal(rerun.status, 1, 'existing output may not be overwritten');
   const missingPartition = spawnSync(process.execPath, ['scripts/evaluate-historical-prs.js', '--corpus', valid, '--mode', 'run', '--output', path.join(temporaryRoot, 'missing-partition')], { cwd: root, encoding: 'utf8' });

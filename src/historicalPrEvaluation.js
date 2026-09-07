@@ -139,11 +139,32 @@ function findingMatchesConcern(finding, concern) { return concern.ruleFamilies.i
 function coverageCounts(caseResults, field) {
   return Object.fromEntries(ordered(new Set(caseResults.map((item) => item.coverage[field]))).map((value) => [value, caseResults.filter((item) => item.coverage[field] === value).length]));
 }
+function pathClass(value) {
+  if (value === null) return 'global';
+  const normalized = value.toLowerCase(); const parts = normalized.split('/'); const basename = parts.at(-1);
+  if (parts.some((part) => ['test', 'tests', '__tests__', 'spec', 'specs'].includes(part)) || /(?:^|[._-])(?:test|spec)(?:[._-]|$)/.test(basename)) return 'test';
+  if (parts.includes('docs') || /(?:^|[._-])readme(?:[._-]|$)/.test(basename) || basename.endsWith('.md')) return 'docs';
+  if (parts.includes('config') || /(?:^|[._-])config(?:[._-]|$)/.test(basename) || /\.(?:json|ya?ml|toml|ini)$/.test(basename)) return 'configuration';
+  if (/(?:^|[._-])(?:index|main|app|server|router|route|entry)(?:[._-]|$)/.test(basename)) return 'entrypoint';
+  if (/(?:cache|db|database|persist|save|session|storage)/.test(basename)) return 'persistence';
+  return 'other';
+}
+function inventory(entries) {
+  const counts = new Map();
+  for (const entry of entries) {
+    const key = `${entry.ruleFamily}\0${entry.pathClass}`;
+    const current = counts.get(key) || { count: 0, caseIds: new Set() };
+    current.count += 1; current.caseIds.add(entry.caseId); counts.set(key, current);
+  }
+  return [...counts.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([key, value]) => {
+    const [ruleFamily, pathClass] = key.split('\0'); return { ruleFamily, pathClass, count: value.count, caseCount: value.caseIds.size };
+  });
+}
 
 export function evaluateHistoricalPrCorpus(corpus) {
   const started = performance.now();
   const caseResults = [];
-  const allFindings = []; const supportedConcerns = []; const criticalConcerns = []; const matchedConcernIds = new Set();
+  const allFindings = []; const supportedConcerns = []; const criticalConcerns = []; const matchedConcernIds = new Set(); const unmatchedPositiveFindings = [];
   for (const record of corpus.records) {
     const caseStart = performance.now();
     const report = { ...analyzeDiff(record.diff, record.config), schemaVersion: 1, configDiagnostics: [] };
@@ -157,6 +178,7 @@ export function evaluateHistoricalPrCorpus(corpus) {
     }
     const matchedFindingIds = new Set(matches.flatMap((match) => match.findingIds));
     const unmatched = findings.filter((finding) => !matchedFindingIds.has(finding.identity));
+    unmatchedPositiveFindings.push(...unmatched.map((finding) => ({ caseId: record.entry.id, ruleFamily: finding.ruleId, pathClass: pathClass(finding.path) })));
     allFindings.push(...findings.map((finding) => ({ caseId: record.entry.id, matched: matchedFindingIds.has(finding.identity) })));
     caseResults.push({
       schemaVersion: EVALUATION_SCHEMA_VERSION, caseId: record.entry.id, repositoryAlias: record.entry.repositoryAlias, partition: record.entry.partition,
@@ -171,6 +193,10 @@ export function evaluateHistoricalPrCorpus(corpus) {
   const matchedFindings = allFindings.filter((item) => item.matched).length;
   const matchedSupported = supportedConcerns.filter((item) => matchedConcernIds.has(`${item.caseId}\0${item.concern.id}`)).length;
   const matchedCritical = criticalConcerns.filter((item) => matchedConcernIds.has(`${item.caseId}\0${item.concern.id}`)).length;
+  const missedSupportedConcerns = supportedConcerns.flatMap(({ caseId, concern }) => matchedConcernIds.has(`${caseId}\0${concern.id}`)
+    ? []
+    : concern.ruleFamilies.filter((ruleFamily) => SUPPORTED_RULE_FAMILIES.has(ruleFamily)).flatMap((ruleFamily) => (concern.paths.length ? concern.paths : [null]).map((item) => ({ caseId, ruleFamily, pathClass: pathClass(item) }))));
+  const calibrationOnly = corpus.records.length > 0 && corpus.records.every((record) => record.entry.partition === 'calibration');
   const lowRisk = corpus.records.filter((record) => record.labels.lowRisk);
   const byCase = new Map(caseResults.map((result) => [result.caseId, result]));
   const readiness = { low: {}, medium: {}, high: {} };
@@ -188,7 +214,8 @@ export function evaluateHistoricalPrCorpus(corpus) {
       runtimeMs: { median: percentile(caseResults.map((item) => item.runtimeMs), 0.5), p95: percentile(caseResults.map((item) => item.runtimeMs), 0.95) },
       readinessCalibration: readiness,
       coverage: { repositoryShape: coverageCounts(caseResults, 'repositoryShape'), ecosystem: coverageCounts(caseResults, 'ecosystem'), changeCategory: coverageCounts(caseResults, 'changeCategory'), diffSize: coverageCounts(caseResults, 'diffSize') },
-      labelQuality: { agreed: corpus.records.filter((record) => record.labels.adjudication.status === 'agreed').length, resolved: corpus.records.filter((record) => record.labels.adjudication.status === 'resolved').length, disputed: corpus.records.filter((record) => record.labels.adjudication.status === 'disputed').length }
+      labelQuality: { agreed: corpus.records.filter((record) => record.labels.adjudication.status === 'agreed').length, resolved: corpus.records.filter((record) => record.labels.adjudication.status === 'resolved').length, disputed: corpus.records.filter((record) => record.labels.adjudication.status === 'disputed').length },
+      ...(calibrationOnly ? { calibrationDiagnosis: { unmatchedPositiveFindings: inventory(unmatchedPositiveFindings), missedSupportedConcerns: inventory(missedSupportedConcerns) } } : {})
     },
     excludedCases: [], runtimeMs: Math.round(performance.now() - started), semantics: 'Aggregate results contain no diff text or source contents. Empty denominators are not-measured; these metrics do not alter Merge Guard scoring or readiness.'
   };
