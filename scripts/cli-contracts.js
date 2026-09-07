@@ -13,6 +13,11 @@ function run(args, input = '', options = {}) {
 }
 
 assert.equal(run(['--help']).status, 0, 'help should succeed');
+const versionRun = run(['--version']);
+assert.equal(versionRun.status, 0, 'version should succeed without a diff');
+assert.equal(versionRun.stdout.trim(), `merge-guard ${JSON.parse(fs.readFileSync('package.json', 'utf8')).version}`);
+assert.equal(versionRun.stderr, '');
+assert.equal(run(['--version', '--unknown']).status, 1, 'version must retain unknown-option validation');
 const prSummaryRun = run(['--pr-summary', 'examples/sample.diff']);
 assert.equal(prSummaryRun.status, 0, 'pull-request summary mode should succeed');
 assert(prSummaryRun.stdout.includes('<!-- merge-guard-pr-summary:v1 -->'));

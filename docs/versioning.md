@@ -4,9 +4,9 @@
 
 | Identity | Value |
 | --- | --- |
-| Current source version | `1.3.0-beta.1` |
-| Runtime report version | `1.3.0-beta.1` |
-| Package and SBOM version | `1.3.0-beta.1` |
+| Current source version | `1.3.0-beta.2` |
+| Runtime report version | `1.3.0-beta.2` |
+| Package and SBOM version | `1.3.0-beta.2` |
 | Report schema version | `1` |
 | Publication state | Unpublished; no tag, npm package, GitHub release, Action-reference move, or Marketplace listing is authorized by this source version |
 
@@ -20,7 +20,8 @@ The current source version is verified by `npm run test:version`. The contract c
 | `0.2.0` | 2026-08-24 | Historical candidate; unpublished | Action integration, custom rules, PR context, configuration diagnostics, suppressions, report contracts, and cross-platform validation |
 | `1.0.0` | 2026-08-25 through 2026-08-27 | Historical prepared candidate; unpublished | Public contract, repository intelligence, policies, review projections, dashboard, plugins, and release/security/support gates |
 | `1.1.0` | 2026-08-27 | Historical unpublished source version | Deterministic doctor diagnostics, supported adoption journeys, consumer fixtures, privacy-safe feedback, and safe regex rejection |
-| `1.3.0-beta.1` | 2026-08-29 | Current unpublished beta source version | Explicit impact fidelity, durable review evidence, degraded-state resilience, and cross-platform reproducibility gates |
+| `1.3.0-beta.1` | 2026-09-07 | Published GitHub experimental prerelease; npm unpublished | Impact fidelity, review evidence, and calibration diagnosis tooling |
+| `1.3.0-beta.2` | 2026-09-07 | Prepared follow-up beta source | Adds the CLI `--version` command |
 
 `CHANGELOG.md` is the user-facing change history. The release decision and release notes for the current source version are preparation documents only: they do not authorize signing, tagging, publication, or any external mutation.
 

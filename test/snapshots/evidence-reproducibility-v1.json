@@ -1,12 +1,12 @@
 {
-  "previous-report.json": "605e745d8f46349939b3f952e74b7f08bfbd8e0a189b057544488c7c84cdaf11",
-  "current-report.json": "bc6cbc0072027992eff0c5a2f462ade9b97214cb4931ec4c9185357c66f9cf4c",
+  "previous-report.json": "d542aefc3ae2a9103b0eff8a6953d6bad130f4dcede04d31325ab2eee4b5796d",
+  "current-report.json": "8801ea23bc1399685f1a03dbaf8cc79fcd93a42e79d9a88e171d1ac9f9ff7d5e",
   "current-report.md": "b0375954277186cca3d6a18afb1869ebbfea9af5c81cb82813ec608e9e10ae3e",
-  "previous-report.manifest.json": "8047346a53a296596b80cf62f5550e5ccf1e7806f1a8cc0b79ca2a2ed5fff995",
-  "current-report.manifest.json": "0936c25b8dd438c0ae97d6c11f9195622a25fc7f0abdc504a804ee42af18751e",
-  "annotations.json": "ec79915efe102fb5cdcb56173cba950b3877cc09b854d2fe3d2e991e93bfb4e5",
-  "merge-guard.sarif": "d68596aecdc784b5d4dbc73c6f1e970295faccda929e55a0a5badcc786eb52b5",
-  "comparison.json": "753e017de6528aa6aff25f53d3745896de9dd96d5b3f3b8408bbde2d9369b042",
-  "comparison.md": "0f70150371e1d43671e27d34f260eb21c71971125f47d1f8757671c4e016fb87",
+  "previous-report.manifest.json": "e247649d7776a250abafbaa6c6fd1866e4c8c52d692fc3be43092b7fb2a36efb",
+  "current-report.manifest.json": "de470c3f3ea52caabb3c33f8aeae514d912275c1dc654bcd30f59d15fa4962d3",
+  "annotations.json": "d9d3fe3ebbdf9a8afbb4ad10be03a1faa2ca0a6fd292512c743a59aa8f1fc6a8",
+  "merge-guard.sarif": "d56cff8079176d48ea359def487aff21ef97fe7ad8ebf6af07f5f16da168947f",
+  "comparison.json": "7b3f2889e64d61e291cecb9e18d640eee105569ec246af3b8ca4b7e77145192d",
+  "comparison.md": "6976f66b85f41a3b4b8e65cbf0145e97d3f370a1eb4d0f166a892cace83093be",
   "review-projection.json": "c399771b9b7423890e5afbf9c639482af54281065559391c693e9a6478ef47ea"
 }
