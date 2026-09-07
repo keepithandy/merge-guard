@@ -1,6 +1,11 @@
 # Changelog
 
-All notable Merge Guard changes are recorded here. Dates record when source work was consolidated; they do not imply publication. No npm package, GitHub release, or release tag has been created by this history.
+All notable Merge Guard changes are recorded here. Dates record when source work was consolidated; they do not imply publication. Beta.1 was published as a GitHub experimental prerelease on 2026-09-07; npm remains unpublished.
+
+## 1.3.0-beta.2 - 2026-09-07
+
+- Add `merge-guard --version`, reporting the installed package version without requiring a diff. Unknown options still fail validation.
+- Preserve report schema version 1 and existing scoring behavior.
 
 ## Unreleased
 

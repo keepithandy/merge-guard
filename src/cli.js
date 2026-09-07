@@ -21,6 +21,7 @@ import { formatPullRequestSummary } from './pullRequestSummary.js';
 import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutputs.js';
 import { formatDoctor, inspectDoctor } from './doctor.js';
 import { selectPrimaryChecks } from './projectChecks.js';
+import { MERGE_GUARD_VERSION } from './version.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -42,6 +43,7 @@ const KNOWN_OPTIONS = new Set([
   '--action-inputs',
   '--impact-metadata',
   '--help',
+  '--version',
   '-h'
 ]);
 const VALUE_OPTIONS = new Set([
@@ -86,6 +88,7 @@ Options:
   --action-inputs <path>    Validate one JSON Action-input file in doctor mode
   --impact-metadata <path>  Load one explicit local impact-metadata JSON file
   --help                    Show this help message
+  --version                 Show the installed Merge Guard version
 
 Config:
   merge-guard reads merge-guard.config.json when it exists in the current directory.
@@ -259,6 +262,11 @@ async function main() {
   }
 
   validateOptions(args);
+
+  if (args.includes('--version')) {
+    console.log(`merge-guard ${MERGE_GUARD_VERSION}`);
+    return;
+  }
 
   if (args.includes('--doctor')) {
     runDoctor(args);

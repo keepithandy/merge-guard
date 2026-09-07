@@ -8,7 +8,7 @@ It does not require an AI provider or API key, and it never runs discovered proj
 
 [Quick start](#quick-start) · [CLI](#cli-usage) · [Configuration](#configuration) · [GitHub Action](#reusable-github-action) · [Documentation](#documentation)
 
-> Current source: `1.3.0-beta.1` (unpublished beta). See the [release notes](docs/releases/V1.3.0-beta.1_RELEASE_NOTES.md) for scope and status.
+> Current source: `1.3.0-beta.2` (unpublished beta). See the [release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) for scope and status.
 
 ## What it answers
 
@@ -452,14 +452,14 @@ npm run release:check
 
 `npm test` runs the complete local contract suite. `npm run release:check` adds package/runtime/SBOM consistency, installation, security, performance, public-contract, artifact, distribution, and support gates. Neither command publishes packages, creates tags, signs artifacts, or creates releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for calibration, preregistration, held-out commands, and their local-only privacy boundary.
 
-After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.1` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.1 decision packet](docs/releases/V1.3.0-beta.1_RELEASE_DECISION.md).
+After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.2` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.2 decision packet](docs/releases/V1.3.0-beta.2_RELEASE_DECISION.md).
 
 ## Documentation
 
 | Topic | Reference |
 | --- | --- |
 | Project direction | [Post-v1 roadmap](ROADMAP.md) |
-| Current source | [Beta release notes](docs/releases/V1.3.0-beta.1_RELEASE_NOTES.md) |
+| Current source | [Beta release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) |
 | Version policy | [Versioning](docs/versioning.md) |
 | Installation and diagnostics | [Supported journeys and doctor](docs/adoption-and-diagnostics.md) |
 | Report contract | [Report format](docs/REPORT_FORMAT.md) |
