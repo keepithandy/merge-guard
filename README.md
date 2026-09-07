@@ -8,7 +8,7 @@ It does not require an AI provider or API key, and it never runs discovered proj
 
 [Quick start](#quick-start) · [CLI](#cli-usage) · [Configuration](#configuration) · [GitHub Action](#reusable-github-action) · [Documentation](#documentation)
 
-> Current source: `1.3.0-beta.2` (unpublished beta). See the [release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) for scope and status.
+> Current public preview: [`1.3.0-beta.2`](https://github.com/keepithandy/merge-guard/releases/tag/v1.3.0-beta.2). Download the verified package from the [GitHub release](https://github.com/keepithandy/merge-guard/releases/tag/v1.3.0-beta.2), and read the [release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) for scope and status.
 
 ## What it answers
 
