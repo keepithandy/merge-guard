@@ -17,7 +17,7 @@ The corpus requires `manifest.json`, one explicitly named directory per case, a 
 
 The output includes only opaque case/repository aliases, hashes, counts, categories, metrics, and readiness states. It deliberately omits diff text, source contents, local paths, URLs, label rationale, contributors, and repository names. The harness neither executes changed code nor project commands, and has no telemetry, network, upload, GitHub, or package-manager behavior.
 
-Calibration runs additionally include a content-free diagnosis inventory: unmatched positive findings and missed supported concerns are grouped by stable rule family and broad path class (`configuration`, `docs`, `entrypoint`, `persistence`, `test`, `global`, or `other`). Each row reports both its total occurrences and the number of distinct opaque cases represented, without exposing those case IDs. The inventory is omitted from mixed and held-out output, and it never includes literal paths, case IDs, labels, or source text.
+Calibration runs additionally include a content-free diagnosis inventory: unmatched positive findings and missed supported concerns are grouped by stable rule family and one fixed broad path class (`configuration`, `docs`, `entrypoint`, `persistence`, `test`, `global`, or `other`). No caller-defined or literal path class is emitted. Each row reports both its total occurrences and the number of distinct opaque cases represented, without exposing those case IDs. The inventory is omitted from mixed and held-out output, and it never includes literal paths, case IDs, labels, or source text.
 
 The result uses these versioned contracts:
 

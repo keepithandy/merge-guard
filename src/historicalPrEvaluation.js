@@ -17,6 +17,9 @@ export const SUPPORTED_RULE_FAMILIES = new Set([
   'async-or-network', 'large-change', 'test-change', 'implementation-without-tests',
   'configured-high-risk-path', 'docs-only'
 ]);
+export const CALIBRATION_DIAGNOSIS_PATH_CLASSES = Object.freeze([
+  'configuration', 'docs', 'entrypoint', 'global', 'other', 'persistence', 'test'
+]);
 
 export class HistoricalPrEvaluationError extends Error {
   constructor(message, diagnostics = []) {
