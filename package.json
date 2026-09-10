@@ -33,6 +33,7 @@
     "test:policies": "node scripts/policy-pack-contracts.js",
     "test:guidance": "node scripts/review-guidance-contracts.js",
     "test:policy-resolution": "node scripts/policy-resolution-contracts.js",
+    "test:evaluation-context": "node scripts/evaluation-context-contracts.js",
     "test:pr-summary": "node scripts/pr-summary-contracts.js",
     "test:github-review": "node scripts/github-review-contracts.js",
     "test:finding-comparison": "node scripts/finding-comparison-contracts.js",

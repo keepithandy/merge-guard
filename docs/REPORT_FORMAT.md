@@ -52,6 +52,7 @@ Normal CLI reports also expose:
 - `policyRequiredChecks`
 - `reviewGuidance`
 - `policyResolution`
+- `policyEvidence`
 - `policyExceptions`
 - `prContext`
 - `saveCompatibility` when the explicit `browser-game` starter policy is selected
@@ -70,7 +71,7 @@ Normal CLI reports also expose:
 
 `reviewGuidance` separates selected-policy protected-path matches and unverified CODEOWNERS suggestions from scoring. It includes unmatched/unowned paths, parser warnings, and an explicit no-assignment/no-approval disclaimer. See `docs/review-guidance.md`.
 
-`policyResolution` records root/package precedence and per-path provenance after explicit manifest selection. `policyExceptions` records active and unmatched reasoned/owned/expiring annotations. Exceptions never change score, checks, guidance, or CI thresholds. See `docs/policy-inheritance.md`.
+`policyResolution` records root/package precedence and per-path provenance after explicit manifest selection. `policyEvidence` is an additive receipt containing selected policy-source digests and, when supplied, distinct base/head/tested identities plus deferred policy changes. `policyExceptions` records active and unmatched reasoned/owned/expiring annotations, including their accepted source identity when available. Exceptions never change score, checks, guidance, or CI thresholds. See `docs/policy-inheritance.md`.
 
 ## Pull-request summary view
 

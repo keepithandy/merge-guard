@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/keepithandy/merge-guard/schemas/evaluation-context-v1.schema.json",
+  "title": "Merge Guard trusted evaluation context v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "baseSha", "headSha", "testedSha"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "baseSha": { "$ref": "#/$defs/commit" },
+    "headSha": { "$ref": "#/$defs/commit" },
+    "testedSha": { "$ref": "#/$defs/commit" },
+    "inputType": { "enum": ["git-range", "prebuilt-diff"] },
+    "policySource": { "$ref": "#/$defs/policySource" },
+    "starterPolicyRevision": { "$ref": "#/$defs/commit" },
+    "policyChanges": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/repositoryPath" },
+      "default": []
+    }
+  },
+  "$defs": {
+    "commit": { "type": "string", "pattern": "^[a-fA-F0-9]{40,64}$" },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "repositoryPath": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/).+$" },
+    "policySource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "revision", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "revision": { "$ref": "#/$defs/commit" },
+        "sha256": { "$ref": "#/$defs/hash" }
+      }
+    }
+  }
+}

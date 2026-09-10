@@ -594,6 +594,10 @@ function projectCheckSourceSummary(detail) {
     .join('; ');
 }
 
+function shortDigest(value) {
+  return typeof value === 'string' && value.length >= 12 ? `${value.slice(0, 12)}…` : 'unknown';
+}
+
 export function analyzeDiff(diffText, userConfig = {}) {
   const config = normalizeConfig(userConfig);
   const changes = parseFileChanges(diffText);
@@ -748,6 +752,21 @@ export function formatReport(report) {
     }
   }
 
+  if (report.policyEvidence) {
+    lines.push('');
+    lines.push('Policy receipt:');
+    const evidence = report.policyEvidence;
+    if (evidence.baseSha) {
+      lines.push(`- Base ${shortDigest(evidence.baseSha)}; head ${shortDigest(evidence.headSha)}; tested ${shortDigest(evidence.testedSha)}${evidence.inputType ? ` (${evidence.inputType})` : ''}.`);
+    }
+    for (const source of evidence.sources || []) {
+      lines.push(`- ${source.kind}: ${source.path || source.id || 'unknown source'}; sha256 ${shortDigest(source.sha256)}${source.revision ? `; revision ${shortDigest(source.revision)}` : ''}.`);
+    }
+    if (evidence.policyChanges?.length) {
+      lines.push(`- Policy changes in this pull request apply after merge: ${evidence.policyChanges.join(', ')}.`);
+    }
+  }
+
   if (report.policyResolution) {
     lines.push('');
     lines.push('Policy resolution:');
@@ -763,7 +782,8 @@ export function formatReport(report) {
     lines.push('');
     lines.push('Policy exceptions (annotations only):');
     for (const exception of [...(report.policyExceptions.active || []), ...(report.policyExceptions.unmatched || [])]) {
-      lines.push(`- ${exception.id}: ${exception.target.type}/${exception.target.id}; owner ${exception.owner}; expires ${exception.expires}; paths ${exception.paths.join(', ') || 'none'}. ${exception.reason}`);
+      const accepted = exception.acceptedPolicy?.manifest;
+      lines.push(`- ${exception.id}: ${exception.target.type}/${exception.target.id}; owner ${exception.owner}; expires ${exception.expires}; paths ${exception.paths.join(', ') || 'none'}${accepted?.revision ? `; accepted at ${shortDigest(accepted.revision)}` : ''}. ${exception.reason}`);
     }
   }
 
@@ -915,6 +935,22 @@ export function formatMarkdownReport(report) {
     lines.push('- Selection is explicit; listed packs add policy findings and checks without changing built-in preset definitions.');
   }
 
+  if (report.policyEvidence) {
+    lines.push('');
+    lines.push('## Policy receipt');
+    lines.push('');
+    const evidence = report.policyEvidence;
+    if (evidence.baseSha) {
+      lines.push(`- **Evaluation:** base \`${shortDigest(evidence.baseSha)}\`; head \`${shortDigest(evidence.headSha)}\`; tested \`${shortDigest(evidence.testedSha)}\`${evidence.inputType ? ` (${evidence.inputType})` : ''}.`);
+    }
+    for (const source of evidence.sources || []) {
+      lines.push(`- **${source.kind}:** \`${source.path || source.id || 'unknown source'}\`; SHA-256 \`${shortDigest(source.sha256)}\`${source.revision ? `; revision \`${shortDigest(source.revision)}\`` : ''}.`);
+    }
+    if (evidence.policyChanges?.length) {
+      lines.push(`- **Deferred policy changes:** ${evidence.policyChanges.map((value) => `\`${value}\``).join(', ')}. They apply after merge, not to this evaluation.`);
+    }
+  }
+
   if (report.policyResolution) {
     lines.push('');
     lines.push('## Policy resolution');
@@ -933,7 +969,8 @@ export function formatMarkdownReport(report) {
     lines.push('');
     lines.push('- Exceptions are annotations only; they do not remove findings, checks, guidance, or score.');
     for (const exception of [...(report.policyExceptions.active || []), ...(report.policyExceptions.unmatched || [])]) {
-      lines.push(`- **${exception.id}** (\`${exception.target.type}/${exception.target.id}\`): owner ${exception.owner}; expires ${exception.expires}; paths ${exception.paths.length ? exception.paths.map((filePath) => `\`${filePath}\``).join(', ') : 'none'}. ${exception.reason}`);
+      const accepted = exception.acceptedPolicy?.manifest;
+      lines.push(`- **${exception.id}** (\`${exception.target.type}/${exception.target.id}\`): owner ${exception.owner}; expires ${exception.expires}; paths ${exception.paths.length ? exception.paths.map((filePath) => `\`${filePath}\``).join(', ') : 'none'}${accepted?.revision ? `; accepted at \`${shortDigest(accepted.revision)}\`` : ''}. ${exception.reason}`);
     }
   }
 

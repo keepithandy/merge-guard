@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
+import path from 'node:path';
 import process from 'node:process';
 import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
 import { createAiReviewSummary } from './aiReview.js';
@@ -9,14 +10,16 @@ import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePr
 import { applyRepositoryIntelligence, inspectRepository } from './repositoryIntelligence.js';
 import { applySuppressions } from './suppressions.js';
 import { ConfigurationError, formatDiagnostics, validateConfig } from './configDiagnostics.js';
-import { applyPolicyPack, loadStarterPolicyPack } from './starterPolicies.js';
+import { applyPolicyPack, loadStarterPolicyPackWithSource } from './starterPolicies.js';
 import { applyReviewGuidance, inspectReviewGuidance } from './reviewGuidance.js';
 import {
   applyPolicyExceptions,
   applyResolvedPolicies,
+  createPolicyEvidence,
   loadAndResolvePolicyManifest,
   PolicyManifestError
 } from './policyResolution.js';
+import { EvaluationContextError, loadEvaluationContext } from './evaluationContext.js';
 import { formatPullRequestSummary } from './pullRequestSummary.js';
 import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutputs.js';
 import { formatDoctor, inspectDoctor } from './doctor.js';
@@ -34,6 +37,8 @@ const KNOWN_OPTIONS = new Set([
   '--pr-body',
   '--policy',
   '--policy-config',
+  '--evaluation-context',
+  '--starter-policy-directory',
   '--pr-summary',
   '--annotations',
   '--sarif',
@@ -53,6 +58,8 @@ const VALUE_OPTIONS = new Set([
   '--pr-body',
   '--policy',
   '--policy-config',
+  '--evaluation-context',
+  '--starter-policy-directory',
   '--report-json',
   '--plugin-manifest',
   '--action-inputs',
@@ -79,6 +86,8 @@ Options:
   --pr-body <path>          Include pull request body from a UTF-8 text or Markdown file
   --policy <starter-id>     Apply frontend, backend, library, browser-game, or infrastructure explicitly
   --policy-config <path>    Apply an explicit root/package policy manifest
+  --evaluation-context <path>  Bind a scan to explicit base, head, tested, and policy-source evidence
+  --starter-policy-directory <path>  Read starter packs from an explicit trusted snapshot directory
   --pr-summary              Print a compact GitHub pull-request summary with expandable details
   --annotations             Print a versioned changed-line annotation bundle as JSON
   --sarif                   Print optional SARIF 2.1.0 output for eligible changed-line findings
@@ -246,6 +255,25 @@ function resolvePrContext(args) {
   return normalizePrContext({ title, body });
 }
 
+function resolveStarterPolicyDirectory(value) {
+  if (!value) return null;
+  const cwd = path.resolve(process.cwd());
+  const absolute = path.resolve(cwd, value);
+  const relative = path.relative(cwd, absolute);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error('--starter-policy-directory must stay inside the repository');
+  }
+  const stats = fs.lstatSync(absolute);
+  if (stats.isSymbolicLink() || !stats.isDirectory()) {
+    throw new Error('--starter-policy-directory must be a regular directory inside the repository');
+  }
+  const realRelative = path.relative(fs.realpathSync(cwd), fs.realpathSync(absolute));
+  if (realRelative.startsWith('..') || path.isAbsolute(realRelative)) {
+    throw new Error('--starter-policy-directory resolves outside the repository');
+  }
+  return absolute;
+}
+
 function writeGitHubStepSummary(markdown) {
   const summaryFile = process.env.GITHUB_STEP_SUMMARY;
   if (!summaryFile) return;
@@ -288,8 +316,19 @@ async function main() {
   }
   const policyId = getOptionValue(args, '--policy');
   const policyConfigPath = getOptionValue(args, '--policy-config');
+  const evaluationContextPath = getOptionValue(args, '--evaluation-context');
+  const starterPolicyDirectory = resolveStarterPolicyDirectory(getOptionValue(args, '--starter-policy-directory'));
   if (policyId && policyConfigPath) {
     throw new Error('--policy and --policy-config conflict; select one policy source.');
+  }
+  const evaluationContext = evaluationContextPath
+    ? loadEvaluationContext(evaluationContextPath)
+    : null;
+  if (evaluationContext?.policySource && !policyConfigPath) {
+    throw new Error('--evaluation-context with policySource requires --policy-config');
+  }
+  if (evaluationContext?.starterPolicyRevision && !starterPolicyDirectory && (policyId || policyConfigPath)) {
+    throw new Error('--evaluation-context with starterPolicyRevision requires --starter-policy-directory');
   }
   const fileArg = findFileArg(args);
 
@@ -336,14 +375,24 @@ async function main() {
   const selectedPolicies = [];
   let policyResolution = null;
   if (policyId) {
-    const policy = loadStarterPolicyPack(policyId);
+    const { policy, source } = loadStarterPolicyPackWithSource(policyId, {
+      directory: starterPolicyDirectory,
+      sourceRevision: starterPolicyDirectory ? evaluationContext?.starterPolicyRevision : null
+    });
     selectedPolicies.push(policy);
     report = applyPolicyPack(report, diffText, policy);
+    report.policyEvidence = createPolicyEvidence({ evaluationContext, sources: [source] });
   } else if (policyConfigPath) {
-    policyResolution = loadAndResolvePolicyManifest(policyConfigPath, diffText);
+    policyResolution = loadAndResolvePolicyManifest(policyConfigPath, diffText, {
+      evaluationContext,
+      starterPolicyDirectory,
+      starterPolicyRevision: starterPolicyDirectory ? evaluationContext?.starterPolicyRevision : null
+    });
     const applied = applyResolvedPolicies(report, diffText, policyResolution);
     report = applied.report;
     selectedPolicies.push(...applied.policyScopes);
+  } else if (evaluationContext) {
+    report.policyEvidence = createPolicyEvidence({ evaluationContext });
   }
   report = applyReviewGuidance(
     report,
@@ -428,6 +477,18 @@ main().catch((error) => {
       console.error(JSON.stringify(output, null, 2));
     } else {
       console.error(`merge-guard policy manifest error: ${error.message}`);
+      console.error(formatDiagnostics(error.diagnostics));
+    }
+  } else if (error instanceof EvaluationContextError) {
+    const output = {
+      error: error.message,
+      code: 'INVALID_EVALUATION_CONTEXT',
+      diagnostics: error.diagnostics
+    };
+    if (process.argv.includes('--json')) {
+      console.error(JSON.stringify(output, null, 2));
+    } else {
+      console.error(`merge-guard evaluation context error: ${error.message}`);
       console.error(formatDiagnostics(error.diagnostics));
     }
   } else {

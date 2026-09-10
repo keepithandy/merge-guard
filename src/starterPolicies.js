@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyBrowserGameSaveCompatibility } from './browserGameSaveCompatibility.js';
 import { applyCustomRules } from './customRules.js';
@@ -12,11 +14,13 @@ export const STARTER_POLICY_IDS = Object.freeze([
   'infrastructure'
 ]);
 
-function starterPolicyPath(id) {
-  return fileURLToPath(new URL(`../policies/starter/${id}.json`, import.meta.url));
+function starterPolicyPath(id, directory = null) {
+  return directory
+    ? path.resolve(directory, `${id}.json`)
+    : fileURLToPath(new URL(`../policies/starter/${id}.json`, import.meta.url));
 }
 
-function readStarterPolicy(id) {
+function readStarterPolicySource(id, options = {}) {
   if (!STARTER_POLICY_IDS.includes(id)) {
     throw new PolicyPackSelectionError(
       `Unknown starter policy "${id}". Available packs: ${STARTER_POLICY_IDS.join(', ')}.`
@@ -24,22 +28,50 @@ function readStarterPolicy(id) {
   }
 
   try {
-    return JSON.parse(fs.readFileSync(starterPolicyPath(id), 'utf8'));
+    const sourcePath = starterPolicyPath(id, options.directory);
+    const stats = fs.lstatSync(sourcePath);
+    if (stats.isSymbolicLink()) throw new Error('symbolic links are not followed');
+    if (!stats.isFile()) throw new Error('path is not a regular file');
+    if (stats.size > 1024 * 1024) throw new Error('file exceeds the 1 MB policy-pack limit');
+    const contents = fs.readFileSync(sourcePath);
+    return {
+      contents,
+      policy: JSON.parse(contents.toString('utf8'))
+    };
   } catch (error) {
     throw new PolicyPackSelectionError(`Unable to read starter policy "${id}": ${error.message}`);
   }
 }
 
-export function loadStarterPolicyPack(id) {
+function resolveStarterPolicyPack(id, options = {}) {
   const normalizedId = typeof id === 'string' ? id.trim() : '';
-  const result = validatePolicyPack(readStarterPolicy(normalizedId));
+  const source = readStarterPolicySource(normalizedId, options);
+  const result = validatePolicyPack(source.policy);
   if (!result.valid) {
     throw new PolicyPackSelectionError(
       `Starter policy "${normalizedId}" failed validation.\n${formatPolicyDiagnostics(result.fatal)}`,
       result.fatal
     );
   }
-  return result.policy;
+  return {
+    policy: result.policy,
+    source: {
+      kind: 'starter-policy-pack',
+      path: `policies/starter/${normalizedId}.json`,
+      id: result.policy.identity.id,
+      version: result.policy.identity.version,
+      ...(options.sourceRevision ? { revision: options.sourceRevision } : {}),
+      sha256: createHash('sha256').update(source.contents).digest('hex')
+    }
+  };
+}
+
+export function loadStarterPolicyPack(id, options = {}) {
+  return resolveStarterPolicyPack(id, options).policy;
+}
+
+export function loadStarterPolicyPackWithSource(id, options = {}) {
+  return resolveStarterPolicyPack(id, options);
 }
 
 export function listStarterPolicyPacks() {

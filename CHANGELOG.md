@@ -11,6 +11,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 ### Added
 
+- Trusted pull-request policy-baseline receipts: the composite Action now evaluates explicit policy manifests from the exact base commit, records base/head/tested identities and source digests, and defers same-PR policy edits until after merge.
 - Conservative `reviewDecision` labels and a `primaryChecks` projection for focused human-facing review output, while retaining the legacy `mergeReadiness` field in schema version 1.
 - A single `npm test` contributor entry point that runs the detailed local contract suite.
 - An opt-in, read-only v1 impact-metadata contract for explicitly selected checked-in JSON files. It validates declared package roots and direct dependencies, ownership paths, generated paths, and repository-wide paths without executing project code or inferring a graph.

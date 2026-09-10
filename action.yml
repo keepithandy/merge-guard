@@ -110,10 +110,111 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Prepare trusted policy baseline
+      id: evaluation_context
+      if: ${{ github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        MERGE_GUARD_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        MERGE_GUARD_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        MERGE_GUARD_POLICY_CONFIG: ${{ inputs.policy-config }}
+        MERGE_GUARD_DIFF_PATH: ${{ inputs.diff-path }}
+      run: |
+        tested_sha="$(git rev-parse HEAD)"
+        if ! git cat-file -e "${MERGE_GUARD_BASE_SHA}^{commit}"; then
+          echo "Trusted policy baseline is unavailable: checkout must include pull-request base ${MERGE_GUARD_BASE_SHA}. Set actions/checkout fetch-depth: 0."
+          exit 1
+        fi
+
+        assert_safe_output_file() {
+          if [ -L "$1" ] || { [ -e "$1" ] && [ ! -f "$1" ]; }; then
+            echo "Refusing to write trusted baseline through a symlink or non-file path: $1"
+            exit 1
+          fi
+        }
+        assert_safe_output_directory() {
+          if [ -L "$1" ] || { [ -e "$1" ] && [ ! -d "$1" ]; }; then
+            echo "Refusing to write trusted baseline into a symlink or non-directory path: $1"
+            exit 1
+          fi
+        }
+        assert_safe_output_file merge-guard-evaluation-context.json
+
+        effective_policy_config="$MERGE_GUARD_POLICY_CONFIG"
+        context_args=(
+          --output merge-guard-evaluation-context.json
+          --base-sha "$MERGE_GUARD_BASE_SHA"
+          --head-sha "$MERGE_GUARD_HEAD_SHA"
+          --tested-sha "$tested_sha"
+        )
+        if [ -n "$MERGE_GUARD_DIFF_PATH" ]; then
+          context_args+=(--input-type prebuilt-diff)
+        else
+          context_args+=(--input-type git-range)
+        fi
+        starter_policy_directory=""
+        action_root="$(cd "$GITHUB_ACTION_PATH" && pwd -P)"
+        workspace_root="$(pwd -P)"
+        if [ "$action_root" = "$workspace_root" ]; then
+          candidate_policy_directory="merge-guard-policy-baseline-packs"
+          assert_safe_output_directory "$candidate_policy_directory"
+          mkdir -p "$candidate_policy_directory"
+          for policy_id in frontend backend library browser-game infrastructure; do
+            policy_path="policies/starter/${policy_id}.json"
+            if ! git cat-file -e "${MERGE_GUARD_BASE_SHA}:${policy_path}"; then
+              echo "Trusted bundled starter-policy baseline is unavailable at ${MERGE_GUARD_BASE_SHA}: ${policy_path}. Review policy-pack additions/removals after merging the baseline first."
+              exit 1
+            fi
+            assert_safe_output_file "${candidate_policy_directory}/${policy_id}.json"
+            git show "${MERGE_GUARD_BASE_SHA}:${policy_path}" > "${candidate_policy_directory}/${policy_id}.json"
+            if ! git diff --quiet "$MERGE_GUARD_BASE_SHA" "$tested_sha" -- "$policy_path"; then
+              context_args+=(--policy-changed "$policy_path")
+            fi
+          done
+          starter_policy_directory="$candidate_policy_directory"
+          context_args+=(--starter-policy-revision "$MERGE_GUARD_BASE_SHA")
+        fi
+        if [ -n "$MERGE_GUARD_POLICY_CONFIG" ]; then
+          case "$MERGE_GUARD_POLICY_CONFIG" in
+            /*|*\\*|*:*|*..*)
+              echo "policy-config must be a safe repository-relative path for trusted baseline evaluation."
+              exit 1
+              ;;
+          esac
+          if git cat-file -e "${MERGE_GUARD_BASE_SHA}:${MERGE_GUARD_POLICY_CONFIG}"; then
+            assert_safe_output_file merge-guard-policy-baseline.json
+            git show "${MERGE_GUARD_BASE_SHA}:${MERGE_GUARD_POLICY_CONFIG}" > merge-guard-policy-baseline.json
+            context_args+=(--policy-source "$MERGE_GUARD_POLICY_CONFIG" --policy-snapshot merge-guard-policy-baseline.json)
+            if ! git diff --quiet "$MERGE_GUARD_BASE_SHA" "$tested_sha" -- "$MERGE_GUARD_POLICY_CONFIG"; then
+              context_args+=(--policy-changed "$MERGE_GUARD_POLICY_CONFIG")
+            fi
+            effective_policy_config="merge-guard-policy-baseline.json"
+          else
+            echo "Policy manifest $MERGE_GUARD_POLICY_CONFIG is not present at the trusted base; it will not affect this pull-request evaluation."
+            context_args+=(--policy-changed "$MERGE_GUARD_POLICY_CONFIG")
+            effective_policy_config=""
+          fi
+        fi
+        node "$GITHUB_ACTION_PATH/scripts/create-evaluation-context.js" "${context_args[@]}"
+        echo "base_sha=$MERGE_GUARD_BASE_SHA" >> "$GITHUB_OUTPUT"
+        echo "head_sha=$MERGE_GUARD_HEAD_SHA" >> "$GITHUB_OUTPUT"
+        echo "tested_sha=$tested_sha" >> "$GITHUB_OUTPUT"
+        echo "policy_config_path=$effective_policy_config" >> "$GITHUB_OUTPUT"
+        echo "policy_pack_directory=$starter_policy_directory" >> "$GITHUB_OUTPUT"
+        echo "context_path=merge-guard-evaluation-context.json" >> "$GITHUB_OUTPUT"
+
     - name: Prepare pull request diff
       if: ${{ inputs.diff-path == '' }}
       shell: bash
-      run: git diff "origin/${{ github.base_ref }}...HEAD" > merge-guard.diff
+      env:
+        MERGE_GUARD_BASE_SHA: ${{ steps.evaluation_context.outputs.base_sha }}
+        MERGE_GUARD_TESTED_SHA: ${{ steps.evaluation_context.outputs.tested_sha }}
+      run: |
+        if [ -n "$MERGE_GUARD_BASE_SHA" ]; then
+          git diff "$MERGE_GUARD_BASE_SHA...$MERGE_GUARD_TESTED_SHA" > merge-guard.diff
+        else
+          git diff "origin/${{ github.base_ref }}...HEAD" > merge-guard.diff
+        fi
 
     - name: Prepare pull request context
       if: ${{ github.event_name == 'pull_request' }}
@@ -132,6 +233,9 @@ runs:
         MERGE_GUARD_FAIL_THRESHOLD: ${{ inputs.fail-threshold }}
         MERGE_GUARD_POLICY: ${{ inputs.policy }}
         MERGE_GUARD_POLICY_CONFIG: ${{ inputs.policy-config }}
+        MERGE_GUARD_EFFECTIVE_POLICY_CONFIG: ${{ steps.evaluation_context.outputs.policy_config_path || inputs.policy-config }}
+        MERGE_GUARD_STARTER_POLICY_DIRECTORY: ${{ steps.evaluation_context.outputs.policy_pack_directory }}
+        MERGE_GUARD_EVALUATION_CONTEXT: ${{ steps.evaluation_context.outputs.context_path }}
         MERGE_GUARD_IMPACT_METADATA: ${{ inputs.impact-metadata }}
         MERGE_GUARD_MARKDOWN: ${{ inputs.markdown }}
         MERGE_GUARD_COMMENT: ${{ inputs.comment }}
@@ -153,8 +257,18 @@ runs:
           exit 1
         elif [ -n "$MERGE_GUARD_POLICY" ]; then
           policy_args=(--policy "$MERGE_GUARD_POLICY")
-        elif [ -n "$MERGE_GUARD_POLICY_CONFIG" ]; then
-          policy_args=(--policy-config "$MERGE_GUARD_POLICY_CONFIG")
+        elif [ -n "$MERGE_GUARD_EFFECTIVE_POLICY_CONFIG" ]; then
+          policy_args=(--policy-config "$MERGE_GUARD_EFFECTIVE_POLICY_CONFIG")
+        fi
+
+        starter_policy_args=()
+        if [ -n "$MERGE_GUARD_STARTER_POLICY_DIRECTORY" ]; then
+          starter_policy_args=(--starter-policy-directory "$MERGE_GUARD_STARTER_POLICY_DIRECTORY")
+        fi
+
+        evaluation_args=()
+        if [ -n "$MERGE_GUARD_EVALUATION_CONTEXT" ]; then
+          evaluation_args=(--evaluation-context "$MERGE_GUARD_EVALUATION_CONTEXT")
         fi
 
         impact_metadata_args=()
@@ -178,7 +292,7 @@ runs:
         fi
 
         set +e
-        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --report-json merge-guard-report.json --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${impact_metadata_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
+        node "$GITHUB_ACTION_PATH/src/cli.js" --ci --report-json merge-guard-report.json --preset "$MERGE_GUARD_PRESET" "${threshold_args[@]}" "${policy_args[@]}" "${starter_policy_args[@]}" "${evaluation_args[@]}" "${impact_metadata_args[@]}" "${output_args[@]}" "${context_args[@]}" "$diff_file" | tee merge-guard-report.md
         scan_status=${PIPESTATUS[0]}
         set -e
 
@@ -192,7 +306,7 @@ runs:
       env:
         MERGE_GUARD_REPORT_PATH: ${{ steps.scan.outputs.report_path }}
         MERGE_GUARD_REPOSITORY: ${{ github.repository }}
-        MERGE_GUARD_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        MERGE_GUARD_COMMIT: ${{ steps.evaluation_context.outputs.tested_sha || github.sha }}
         MERGE_GUARD_BRANCH: ${{ github.head_ref || github.ref_name }}
       run: |
         manifest_path="merge-guard-report.manifest.json"

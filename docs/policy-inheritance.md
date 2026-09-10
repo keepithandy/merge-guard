@@ -65,6 +65,35 @@ JSON reports include `policyResolution` with:
 
 Text and Markdown output include the effective policy and source scope for every changed path.
 
+## Trusted pull-request baseline
+
+For pull-request runs of the composite Action, Merge Guard reads the selected
+policy manifest from the exact GitHub base commit, not from the pull-request
+checkout. The report's additive `policyEvidence` receipt records:
+
+- the distinct base, head, and actually tested commit IDs;
+- the raw SHA-256 digest and base revision of the manifest;
+- the raw SHA-256 digest of every selected bundled starter pack; and
+- explicit policy-manifest or bundled starter-pack paths changed by the pull request.
+
+An inherited policy, exception, manifest edit, or starter-pack edit in a pull
+request therefore cannot affect that same pull request's policy evaluation. A
+changed or newly introduced policy source is shown as deferred and applies
+after merge. Exception
+annotations retain the manifest revision and digest that accepted them.
+
+The Action requires the checked-out base commit to be locally available and
+fails clearly when it is not; use `actions/checkout` with `fetch-depth: 0`.
+The direct CLI remains usable offline. Supplying
+`--evaluation-context <context.json>` records caller-provided base/head/tested
+identity and optionally verifies a materialized policy snapshot against its
+declared digest. The context contract is
+`schemas/evaluation-context-v1.schema.json`.
+
+This boundary locks the explicit policy manifest and bundled policy-pack bytes.
+It does not claim to freeze unrelated pull-request-controlled configuration,
+workflow code, custom rules, suppressions, or external policy sources.
+
 ## Exception contract
 
 Exceptions are scoped to the root or one package entry:
@@ -104,7 +133,7 @@ Exceptions are annotations only. An active exception can annotate a policy rule 
 - bypasses CI failure thresholds;
 - implies approval.
 
-Reports expose matched entries under `policyExceptions.active` and unmatched annotations separately. Each annotation retains target, path scope, reason, owner, and expiry.
+Reports expose matched entries under `policyExceptions.active` and unmatched annotations separately. Each annotation retains target, path scope, reason, owner, expiry, and the accepted manifest/pack source identity when a trusted baseline is supplied.
 
 ## Conformance
 

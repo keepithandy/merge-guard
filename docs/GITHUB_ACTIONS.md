@@ -102,6 +102,17 @@ Set `compare: "true"` and pass `previous-report` to classify current findings ag
 
 Every successful scan also exposes `manifest-path`, an immutable artifact manifest bound to `report-path`. Storage remains caller-owned: the composite Action does not upload, download, retain, search, or delete workflow artifacts. The [explicit evidence handoff example](examples/github-actions-explicit-evidence-handoff.yml) grants only `contents: read` and `actions: read`, downloads one exact run ID and artifact name, asserts the expected prior commit, and uploads the new report/manifest pair with caller-selected retention.
 
+## Trusted policy baseline
+
+For pull-request events, a selected `policy-config` is read from the exact
+pull-request base commit. The Action records distinct base, head, and tested
+commit IDs plus SHA-256 policy-source evidence in the report. A policy manifest
+or bundled starter pack added or edited by the pull request is deferred until
+after merge; it cannot change the rules used for its own evaluation. Configure checkout with
+`fetch-depth: 0` so the base commit is available. A prebuilt `diff-path` is
+identified as a prebuilt input and is not represented as a provably generated
+Git range.
+
 The Action exposes `projection-path` and `projection-status` for a schema-version 1 review-projection document. It records produced, skipped, unavailable, failed, or incomplete state for the report, manifest, comment, annotations, SARIF, comparison, and threshold channels. A comment permission failure emits a warning and a degraded projection while preserving local evidence. A canceled job cannot promise a finalizer ran, so that attempt is incomplete; the next rerun deterministically reconstructs its outputs and updates the one marker-owned comment.
 
 ## Direct CI mode

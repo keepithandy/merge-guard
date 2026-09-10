@@ -15,6 +15,7 @@ import {
   validatePolicyManifest
 } from '../src/policyResolution.js';
 import { applyReviewGuidance, inspectReviewGuidance } from '../src/reviewGuidance.js';
+import { createEvaluationContext, sha256 } from '../src/evaluationContext.js';
 
 const root = process.cwd();
 const fixtureRoot = path.join(root, 'test', 'fixtures', 'policy-resolution');
@@ -168,6 +169,118 @@ const loaded = loadAndResolvePolicyManifest(
   { cwd: root, today: fixedToday }
 );
 assert.deepEqual(loaded.assignments, resolution.assignments);
+
+const trustedManifestBytes = fs.readFileSync(path.join(fixtureRoot, 'valid.json'), 'utf8');
+const trustedBaseSha = 'a'.repeat(40);
+const trustedContext = createEvaluationContext({
+  schemaVersion: 1,
+  baseSha: trustedBaseSha,
+  headSha: 'b'.repeat(40),
+  testedSha: 'c'.repeat(40),
+  inputType: 'git-range',
+  policySource: {
+    path: 'merge-guard.policies.json',
+    revision: trustedBaseSha,
+    sha256: sha256(trustedManifestBytes)
+  },
+  policyChanges: ['merge-guard.policies.json']
+});
+const trusted = loadAndResolvePolicyManifest(
+  'test/fixtures/policy-resolution/valid.json',
+  diffText,
+  { cwd: root, today: fixedToday, evaluationContext: trustedContext }
+);
+assert.equal(trusted.manifestPath, 'merge-guard.policies.json');
+assert.equal(trusted.policyEvidence.baseSha, trustedBaseSha);
+assert.equal(trusted.policyEvidence.headSha, 'b'.repeat(40));
+assert.equal(trusted.policyEvidence.testedSha, 'c'.repeat(40));
+assert.equal(trusted.policyEvidence.inputType, 'git-range');
+assert.deepEqual(trusted.policyEvidence.policyChanges, ['merge-guard.policies.json']);
+assert.equal(trusted.policySources[0].kind, 'policy-manifest');
+assert.equal(trusted.policySources[0].path, 'merge-guard.policies.json');
+assert.equal(trusted.policySources[0].revision, trustedBaseSha);
+assert.equal(trusted.policySources[0].sha256, sha256(trustedManifestBytes));
+assert.equal(trusted.policySources[0].trusted, true);
+assert.equal(trusted.policySources.filter((source) => source.kind === 'starter-policy-pack').length, 3);
+assert(trusted.assignments.every((assignment) => assignment.policyPackDigest || !assignment.policyPackId));
+assert(trusted.exceptions.every((exception) => exception.acceptedPolicy.manifest.revision === trustedBaseSha));
+const trustedPackDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-policy-packs-'));
+try {
+  for (const policyId of ['frontend', 'backend', 'library', 'browser-game', 'infrastructure']) {
+    fs.copyFileSync(
+      path.join(root, 'policies', 'starter', `${policyId}.json`),
+      path.join(trustedPackDirectory, `${policyId}.json`)
+    );
+  }
+  const trustedWithPackSnapshot = loadAndResolvePolicyManifest(
+    'test/fixtures/policy-resolution/valid.json',
+    diffText,
+    {
+      cwd: root,
+      today: fixedToday,
+      evaluationContext: createEvaluationContext({ ...trustedContext, starterPolicyRevision: trustedBaseSha }),
+      starterPolicyDirectory: trustedPackDirectory,
+      starterPolicyRevision: trustedBaseSha
+    }
+  );
+  assert(trustedWithPackSnapshot.policySources
+    .filter((source) => source.kind === 'starter-policy-pack')
+    .every((source) => source.revision === trustedBaseSha));
+  assert(trustedWithPackSnapshot.assignments
+    .filter((assignment) => assignment.policyPackId)
+    .every((assignment) => assignment.policyPackRevision === trustedBaseSha));
+  assert(trustedWithPackSnapshot.exceptions
+    .every((exception) => exception.acceptedPolicy.pack.revision === trustedBaseSha));
+} finally {
+  fs.rmSync(trustedPackDirectory, { recursive: true, force: true });
+}
+const mutatedHeadManifest = fixture('valid');
+mutatedHeadManifest.root.policy = 'backend';
+mutatedHeadManifest.root.exceptions = [];
+mutatedHeadManifest.packages.find((entry) => entry.root === 'apps/web').exceptions = [];
+const mutatedHeadValidation = validatePolicyManifest(mutatedHeadManifest, { today: fixedToday });
+assert.equal(mutatedHeadValidation.valid, true);
+const mutatedHeadResolution = resolvePolicyManifest(mutatedHeadValidation.manifest, diffText);
+assert.equal(
+  mutatedHeadResolution.assignments.find((assignment) => assignment.path === 'docs/policy.md').starterPolicyId,
+  'backend',
+  'the deliberately mutated head manifest must differ from the trusted baseline'
+);
+assert.equal(
+  trusted.assignments.find((assignment) => assignment.path === 'docs/policy.md').starterPolicyId,
+  'frontend',
+  'trusted evaluation must continue to use the base manifest rather than a changed head manifest'
+);
+assert.equal(
+  trusted.exceptions.find((exception) => exception.id === 'legacy-root-route').reason,
+  'Legacy route migration is tracked for removal.',
+  'head-only exception edits must not rewrite accepted exception evidence'
+);
+assert.throws(
+  () => loadAndResolvePolicyManifest(
+    'test/fixtures/policy-resolution/valid.json',
+    diffText,
+    {
+      cwd: root,
+      today: fixedToday,
+      evaluationContext: createEvaluationContext({
+        ...trustedContext,
+        policySource: { ...trustedContext.policySource, sha256: '0'.repeat(64) }
+      })
+    }
+  ),
+  (error) => error instanceof PolicyManifestError && error.diagnostics.some((item) => item.code === 'policy-source-digest-mismatch')
+);
+let trustedReport = applyResolvedPolicies(analyzeDiff(diffText), diffText, trusted).report;
+trustedReport = applyReviewGuidance(
+  trustedReport,
+  inspectReviewGuidance(diffText, trusted.policyScopes, path.join(root, 'test', 'fixtures', 'empty'))
+);
+trustedReport = applyPolicyExceptions(trustedReport, trusted);
+assert.equal(trustedReport.policyEvidence.baseSha, trustedBaseSha);
+assert(trustedReport.policyExceptions.active.every((exception) => exception.acceptedPolicy.manifest.sha256 === sha256(trustedManifestBytes)));
+assert(formatReport(trustedReport).includes('Policy receipt:'));
+assert(formatMarkdownReport(trustedReport).includes('## Policy receipt'));
 assert.throws(
   () => loadAndResolvePolicyManifest('../outside.json', diffText, { cwd: root, today: fixedToday }),
   PolicyManifestError
