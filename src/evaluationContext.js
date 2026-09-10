@@ -106,7 +106,9 @@ export function validateEvaluationContext(value) {
   if (inputType !== null && !['git-range', 'prebuilt-diff'].includes(inputType)) {
     diagnostics.push(diagnostic('$.inputType', 'invalid-input-type', '$.inputType must be git-range or prebuilt-diff.', inputType, 'git-range or prebuilt-diff'));
   }
-  const policySource = value.policySource === undefined ? null : validatePolicySource(value.policySource, diagnostics);
+  const policySource = value.policySource === undefined || value.policySource === null
+    ? null
+    : validatePolicySource(value.policySource, diagnostics);
   const starterPolicyRevision = value.starterPolicyRevision === undefined
     ? null
     : validateCommit(value.starterPolicyRevision, '$.starterPolicyRevision', diagnostics);
@@ -127,7 +129,7 @@ export function validateEvaluationContext(value) {
           headSha,
           testedSha,
           ...(inputType ? { inputType } : {}),
-          policySource,
+          ...(policySource ? { policySource } : {}),
           ...(starterPolicyRevision ? { starterPolicyRevision } : {}),
           policyChanges
         }

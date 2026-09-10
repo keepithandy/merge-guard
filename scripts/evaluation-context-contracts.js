@@ -49,6 +49,15 @@ assert.deepEqual(context, {
 assert.equal(validateEvaluationContext({ ...context, policySource: { ...context.policySource, revision: headSha } }).valid, false);
 assert.equal(validateEvaluationContext({ ...context, testedSha: 'short' }).valid, false);
 assert.equal(validateEvaluationContext({ ...context, policyChanges: ['../escape'] }).valid, false);
+const identityOnly = createEvaluationContext({
+  schemaVersion: 1,
+  baseSha,
+  headSha,
+  testedSha,
+  inputType: 'prebuilt-diff'
+});
+assert.equal(Object.hasOwn(identityOnly, 'policySource'), false, 'optional policySource must stay omitted when absent');
+assert.equal(validateEvaluationContext(JSON.parse(JSON.stringify(identityOnly))).valid, true, 'identity-only contexts must round-trip');
 
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-evaluation-context-'));
 try {
