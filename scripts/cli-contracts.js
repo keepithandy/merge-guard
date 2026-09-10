@@ -112,6 +112,20 @@ assert.equal(resolvedPolicyReport.policyPacks.length, 3);
 assert.equal(resolvedPolicyReport.policyResolution.assignments.length, 6);
 assert.equal(resolvedPolicyReport.policyExceptions.active.length, 4);
 assert(resolvedPolicyReport.policyExceptions.semantics.includes('annotations-only'));
+const trustedPolicyRun = run([
+  '--json',
+  '--policy-config',
+  'test/fixtures/policy-resolution/valid.json',
+  '--evaluation-context',
+  'test/fixtures/policy-resolution/evaluation-context.json',
+  'test/fixtures/policy-resolution/changes.diff'
+]);
+assert.equal(trustedPolicyRun.status, 0, 'trusted evaluation context should bind an explicit policy scan');
+const trustedPolicyReport = JSON.parse(trustedPolicyRun.stdout);
+assert.equal(trustedPolicyReport.policyEvidence.baseSha, 'a'.repeat(40));
+assert.equal(trustedPolicyReport.policyEvidence.inputType, 'prebuilt-diff');
+assert.deepEqual(trustedPolicyReport.policyEvidence.policyChanges, ['merge-guard.policies.json']);
+assert.equal(run(['--evaluation-context', 'test/fixtures/policy-resolution/evaluation-context.json', 'examples/sample.diff']).status, 0, 'evaluation identity without a policy source should remain useful for ordinary scans');
 assert.equal(
   run([
     '--policy',

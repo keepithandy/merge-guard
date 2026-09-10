@@ -14,6 +14,7 @@ const suites = [
   'scripts/policy-pack-contracts.js',
   'scripts/review-guidance-contracts.js',
   'scripts/policy-resolution-contracts.js',
+  'scripts/evaluation-context-contracts.js',
   'scripts/pr-summary-contracts.js',
   'scripts/github-review-contracts.js',
   'scripts/finding-comparison-contracts.js',

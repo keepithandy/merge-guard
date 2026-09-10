@@ -354,6 +354,7 @@ assert(fs.existsSync('scripts/installation-contracts.js'), 'Installation validat
 assert(fs.existsSync('dashboard/server.js'), 'Dashboard loopback server should exist');
 assert(fs.existsSync('schemas/policy-pack-v1.schema.json'), 'Policy-pack JSON schema should exist');
 assert(fs.existsSync('schemas/policy-manifest-v1.schema.json'), 'Policy-manifest JSON schema should exist');
+assert(fs.existsSync('schemas/evaluation-context-v1.schema.json'), 'Evaluation-context JSON schema should exist');
 assert(fs.existsSync('schemas/github-review-output-v1.schema.json'), 'GitHub review-output JSON schema should exist');
 assert(fs.existsSync('schemas/finding-comparison-v1.schema.json'), 'Finding-comparison JSON schema should exist');
 assert(packageMetadata.scripts?.['test:policies'], 'Package should expose the policy conformance gate');

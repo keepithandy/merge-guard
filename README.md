@@ -149,7 +149,7 @@ The complete report also includes per-file risk, rule explanations, suggested ch
 - Plain-text, Markdown, compact pull-request summary, schema-versioned JSON, changed-line annotation, and SARIF 2.1.0 outputs.
 - Project configuration for high-risk paths, suggested checks, custom rules, and non-destructive suppressions.
 - Read-only JavaScript, Python, mixed-project, and npm-workspace inspection with affected-package mapping.
-- Explicit starter policy packs, monorepo policy inheritance, protected-path guidance, and CODEOWNERS hints.
+- Explicit starter policy packs, monorepo policy inheritance, trusted pull-request policy baselines, protected-path guidance, and CODEOWNERS hints.
 - Pull request context, stable managed comments, immutable report comparison, and a reusable composite GitHub Action.
 - Optional local dashboard and advanced evidence tooling, documented separately and not required for the core review path.
 

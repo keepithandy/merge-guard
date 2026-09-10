@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "headSha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "testedSha": "cccccccccccccccccccccccccccccccccccccccc",
+  "inputType": "prebuilt-diff",
+  "policyChanges": [
+    "merge-guard.policies.json"
+  ]
+}

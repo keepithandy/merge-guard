@@ -103,6 +103,10 @@ function sentence(value, fallback) {
   return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
 }
 
+function shortIdentity(value) {
+  return typeof value === 'string' && value.length >= 12 ? `${value.slice(0, 12)}…` : 'unknown';
+}
+
 export function formatPullRequestSummary(report) {
   if (!report || typeof report !== 'object') {
     throw new TypeError('formatPullRequestSummary requires a report object.');
@@ -127,6 +131,15 @@ export function formatPullRequestSummary(report) {
   lines.push(`**${inline(riskLevel)} risk** · score **${riskScore}** · ${inline(decision)} · **${changedFiles} changed ${plural(changedFiles, 'file')}** · **+${addedLines} / -${removedLines}**${docsOnly ? ' · **docs-only**' : ''}`);
   lines.push('');
   lines.push('Risk, review decision, and score come from the analyzed diff. Pull-request text is context only.');
+
+  const policyEvidence = report.policyEvidence;
+  if (policyEvidence?.baseSha) {
+    lines.push('');
+    lines.push(`Policy receipt: base ${code(shortIdentity(policyEvidence.baseSha))} · head ${code(shortIdentity(policyEvidence.headSha))} · tested ${code(shortIdentity(policyEvidence.testedSha))}${policyEvidence.inputType ? ` · ${inline(policyEvidence.inputType)}` : ''}.`);
+    if (list(policyEvidence.policyChanges).length) {
+      lines.push(`Policy changes deferred until merge: ${list(policyEvidence.policyChanges).map(code).join(', ')}.`);
+    }
+  }
 
   if (files.length) {
     lines.push('');

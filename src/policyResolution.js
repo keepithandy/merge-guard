@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseDiffFileChanges } from './affectedPackages.js';
-import { applyPolicyPack, loadStarterPolicyPack, STARTER_POLICY_IDS } from './starterPolicies.js';
+import { applyPolicyPack, loadStarterPolicyPack, loadStarterPolicyPackWithSource, STARTER_POLICY_IDS } from './starterPolicies.js';
 import { compileSafeRegex, SAFE_REGEX_MAX_LENGTH } from './safeRegex.js';
+import { sha256 } from './evaluationContext.js';
 
 export const POLICY_MANIFEST_SCHEMA_VERSION = 1;
 
@@ -263,7 +264,10 @@ function validateExceptions(value, fieldPath, context, fatal, warnings, seenIds)
         expected: 'exception under a scope with an effective policy'
       }));
     } else if (target?.type && TARGET_TYPES.has(target.type) && target.id) {
-      const policy = loadStarterPolicyPack(context.effectivePolicy);
+      const policy = loadStarterPolicyPack(context.effectivePolicy, {
+        directory: context.starterPolicyDirectory,
+        sourceRevision: context.starterPolicyRevision
+      });
       if (!targetExists(policy, target)) {
         fatal.push(diagnostic({
           path: `${base}.target`,
@@ -340,7 +344,7 @@ function validateScope(value, fieldPath, fatal, warnings, { packageScope = false
   return { root, inherit, policy, rawExceptions: value.exceptions };
 }
 
-export function validatePolicyManifest(value, { today = new Date() } = {}) {
+export function validatePolicyManifest(value, { today = new Date(), starterPolicyDirectory = null, starterPolicyRevision = null } = {}) {
   const fatal = [];
   const warnings = [];
   const currentDay = todayString(today);
@@ -414,7 +418,7 @@ export function validatePolicyManifest(value, { today = new Date() } = {}) {
   rootScope.exceptions = validateExceptions(
     rootScope.rawExceptions,
     '$.root.exceptions',
-    { today: currentDay, scopeRoot: '.', effectivePolicy: rootScope.policy },
+    { today: currentDay, scopeRoot: '.', effectivePolicy: rootScope.policy, starterPolicyDirectory, starterPolicyRevision },
     fatal,
     warnings,
     exceptionIds
@@ -437,7 +441,7 @@ export function validatePolicyManifest(value, { today = new Date() } = {}) {
     entry.exceptions = validateExceptions(
       entry.rawExceptions,
       `$.packages.${entry.root}.exceptions`,
-      { today: currentDay, scopeRoot: entry.root, effectivePolicy: effective },
+      { today: currentDay, scopeRoot: entry.root, effectivePolicy: effective, starterPolicyDirectory, starterPolicyRevision },
       fatal,
       warnings,
       exceptionIds
@@ -521,7 +525,35 @@ function resolvePathPolicy(filePath, manifest) {
   return { selected, sourceRoot, evaluationRoot, relativePath, provenance };
 }
 
-function resolveExceptions(assignments, manifest, warnings) {
+function policyPackSource(cache, id, options = {}) {
+  if (!cache.has(id)) cache.set(id, loadStarterPolicyPackWithSource(id, options));
+  return cache.get(id);
+}
+
+function sourceRecord(source) {
+  return source ? { ...source } : null;
+}
+
+function policyEvidence({ evaluationContext = null, sources = [] } = {}) {
+  const evidence = {
+    schemaVersion: 1,
+    sources: sources.map(sourceRecord).filter(Boolean)
+  };
+  if (evaluationContext) {
+    evidence.baseSha = evaluationContext.baseSha;
+    evidence.headSha = evaluationContext.headSha;
+    evidence.testedSha = evaluationContext.testedSha;
+    if (evaluationContext.inputType) evidence.inputType = evaluationContext.inputType;
+    evidence.policyChanges = [...(evaluationContext.policyChanges || [])];
+  }
+  return evidence;
+}
+
+export function createPolicyEvidence(options = {}) {
+  return policyEvidence(options);
+}
+
+function resolveExceptions(assignments, manifest, warnings, packs, manifestSource, policyOptions = {}) {
   const scopes = [
     { root: '.', exceptions: manifest.root.exceptions },
     ...manifest.packages.map((entry) => ({ root: entry.root, exceptions: entry.exceptions }))
@@ -552,11 +584,15 @@ function resolveExceptions(assignments, manifest, warnings) {
           expected: 'at least one changed path in scope'
         }));
       }
-      const policy = loadStarterPolicyPack(exception.starterPolicyId);
+      const { policy, source } = policyPackSource(packs, exception.starterPolicyId, policyOptions);
       resolved.push({
         ...exception,
         policyPackId: policy.identity.id,
         policyPackVersion: policy.identity.version,
+        acceptedPolicy: {
+          manifest: sourceRecord(manifestSource),
+          pack: sourceRecord(source)
+        },
         paths
       });
     }
@@ -564,15 +600,33 @@ function resolveExceptions(assignments, manifest, warnings) {
   return resolved;
 }
 
-export function resolvePolicyManifest(manifest, diffText, { manifestPath = null, warnings = [] } = {}) {
+export function resolvePolicyManifest(manifest, diffText, {
+  manifestPath = null,
+  warnings = [],
+  manifestSource = null,
+  evaluationContext = null,
+  starterPolicyDirectory = null,
+  starterPolicyRevision = null
+} = {}) {
+  const resolvedManifestSource = manifestSource || {
+    kind: 'policy-manifest',
+    path: manifestPath,
+    revision: null,
+    sha256: sha256(JSON.stringify(manifest)),
+    trusted: false
+  };
+  const packs = new Map();
   const assignments = changedPaths(diffText).map((filePath) => {
     const resolved = resolvePathPolicy(filePath, manifest);
-    const policy = resolved.selected ? loadStarterPolicyPack(resolved.selected) : null;
+    const pack = resolved.selected ? policyPackSource(packs, resolved.selected, { directory: starterPolicyDirectory, sourceRevision: starterPolicyRevision }) : null;
+    const policy = pack?.policy ?? null;
     return {
       path: filePath,
       starterPolicyId: resolved.selected,
       policyPackId: policy?.identity.id ?? null,
       policyPackVersion: policy?.identity.version ?? null,
+      policyPackDigest: pack?.source.sha256 ?? null,
+      policyPackRevision: pack?.source.revision ?? null,
       sourceRoot: resolved.sourceRoot,
       evaluationRoot: resolved.evaluationRoot,
       relativePath: resolved.relativePath,
@@ -594,20 +648,36 @@ export function resolvePolicyManifest(manifest, diffText, { manifestPath = null,
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([starterPolicyId, scope]) => ({
       starterPolicyId,
-      policy: loadStarterPolicyPack(starterPolicyId),
+      policy: policyPackSource(packs, starterPolicyId, { directory: starterPolicyDirectory, sourceRevision: starterPolicyRevision }).policy,
+      source: sourceRecord(policyPackSource(packs, starterPolicyId, { directory: starterPolicyDirectory, sourceRevision: starterPolicyRevision }).source),
       paths: [...new Set(scope.paths)].sort(),
       pathAliases: Object.fromEntries(Object.entries(scope.pathAliases).sort(([left], [right]) => left.localeCompare(right)))
     }));
 
   const resolutionWarnings = [...warnings];
-  const exceptions = resolveExceptions(assignments, manifest, resolutionWarnings);
+  const exceptions = resolveExceptions(
+    assignments,
+    manifest,
+    resolutionWarnings,
+    packs,
+    resolvedManifestSource,
+    { directory: starterPolicyDirectory, sourceRevision: starterPolicyRevision }
+  );
+  const policySources = [
+    sourceRecord(resolvedManifestSource),
+    ...[...packs.values()]
+      .map((entry) => sourceRecord(entry.source))
+      .sort((left, right) => left.id.localeCompare(right.id))
+  ];
   return {
     schemaVersion: manifest.schemaVersion,
     manifestPath,
     assignments,
     policyScopes,
     exceptions,
-    warnings: resolutionWarnings
+    warnings: resolutionWarnings,
+    policySources,
+    policyEvidence: policyEvidence({ evaluationContext, sources: policySources })
   };
 }
 
@@ -619,6 +689,7 @@ export function loadAndResolvePolicyManifest(filePath, diffText, options = {}) {
     throw new PolicyManifestError(`Policy manifest "${filePath}" must stay inside the repository.`);
   }
   let parsed;
+  let rawManifest = null;
   try {
     const stats = fs.lstatSync(absolutePath);
     if (stats.isSymbolicLink()) {
@@ -636,20 +707,49 @@ export function loadAndResolvePolicyManifest(filePath, diffText, options = {}) {
     if (realRelativePath.startsWith('..') || path.isAbsolute(realRelativePath)) {
       throw new Error('resolved path escapes the repository');
     }
-    parsed = JSON.parse(fs.readFileSync(absolutePath, 'utf8'));
+    rawManifest = fs.readFileSync(absolutePath);
+    parsed = JSON.parse(rawManifest.toString('utf8'));
   } catch (error) {
     throw new PolicyManifestError(`Unable to read policy manifest "${filePath}": ${error.message}`);
   }
-  const validation = validatePolicyManifest(parsed, { today: options.today });
+  const validation = validatePolicyManifest(parsed, {
+    today: options.today,
+    starterPolicyDirectory: options.starterPolicyDirectory,
+    starterPolicyRevision: options.starterPolicyRevision
+  });
   if (!validation.valid) {
     throw new PolicyManifestError(
       `Policy manifest "${filePath}" is invalid.`,
       validation.fatal
     );
   }
+  const contextSource = options.evaluationContext?.policySource || null;
+  const manifestDigest = sha256(rawManifest);
+  if (contextSource?.sha256 && contextSource.sha256 !== manifestDigest) {
+    throw new PolicyManifestError(
+      `Policy manifest "${contextSource.path}" does not match the trusted policy-source digest.`,
+      [{
+        severity: 'fatal',
+        path: '$.policySource.sha256',
+        code: 'policy-source-digest-mismatch',
+        receivedType: 'string',
+        expected: contextSource.sha256
+      }]
+    );
+  }
   return resolvePolicyManifest(validation.manifest, diffText, {
-    manifestPath: filePath,
-    warnings: validation.warnings
+    manifestPath: contextSource?.path || filePath,
+    warnings: validation.warnings,
+    manifestSource: {
+      kind: 'policy-manifest',
+      path: contextSource?.path || filePath,
+      revision: contextSource?.revision || null,
+      sha256: manifestDigest,
+      trusted: Boolean(contextSource)
+    },
+    evaluationContext: options.evaluationContext || null,
+    starterPolicyDirectory: options.starterPolicyDirectory || null,
+    starterPolicyRevision: options.starterPolicyRevision || null
   });
 }
 
@@ -670,8 +770,11 @@ export function applyResolvedPolicies(report, diffText, resolution) {
     schemaVersion: resolution.schemaVersion,
     manifestPath: resolution.manifestPath,
     assignments: resolution.assignments,
-    warnings: resolution.warnings
+    warnings: resolution.warnings,
+    policySources: resolution.policySources,
+    policyEvidence: resolution.policyEvidence
   };
+  report.policyEvidence = resolution.policyEvidence;
   return { report, policyScopes };
 }
 
@@ -683,7 +786,8 @@ function annotation(exception) {
     owner: exception.owner,
     expires: exception.expires,
     scopeRoot: exception.scopeRoot,
-    paths: exception.paths
+    paths: exception.paths,
+    acceptedPolicy: exception.acceptedPolicy
   };
 }
 

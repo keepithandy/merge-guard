@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -65,7 +67,7 @@ jobs:
           previous-manifest: review-fixture-push-1.manifest.json
           expected-previous-repository: ${{ github.repository }}
           expected-previous-branch: ${{ github.head_ref || github.ref_name }}
-          expected-previous-commit: ${{ github.event.pull_request.head.sha || github.sha }}
+          expected-previous-commit: ${{ github.sha }}
           fail-threshold: "99"
           diff-path: test/fixtures/review-e2e/push-2.diff
 
