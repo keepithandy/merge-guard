@@ -11,6 +11,9 @@ assert(app.includes('matchedLineCount'));
 assert(app.includes('Suggested checks'));
 assert(app.includes('Fix this PR'));
 assert(app.includes('Copy check'));
+assert(app.includes('Download verification checklist'));
+assert(app.includes('Merge Guard verification checklist'));
+assert(app.includes('does not approve a pull request'));
 assert(app.includes('What changed since the previous report'));
 assert(app.includes('Resolved findings'));
 assert(app.includes('does not by itself prove remediation'));
@@ -24,6 +27,7 @@ assert(fixture.files.length > 0 && fixture.rules.length > 0 && fixture.suggested
 assert(html.includes('role="status"'));
 assert(html.includes('id="output"'));
 assert(html.includes('first is the earlier report'));
+assert(fs.readFileSync('dashboard/README.md', 'utf8').includes('portable Markdown verification-checklist'));
 console.log('dashboard explorer contracts passed');
 console.log(`fixtureFiles=${fixture.files.length}`);
 console.log(`fixtureRules=${fixture.rules.length}`);

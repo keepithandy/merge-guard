@@ -41,6 +41,7 @@ function renderReport(item) {
   exports.className = 'exports';
   exports.append(exportButton('Download JSON', `${item.name}.json`, JSON.stringify(report, null, 2) + '\n'));
   exports.append(exportButton('Download Markdown', `${item.name}.md`, markdownReport(report)));
+  exports.append(exportButton('Download verification checklist', `${item.name}-verification-checklist.md`, markdownVerificationChecklist(report)));
   section.append(exports);
 
   renderActionPlan(section, report);
@@ -192,6 +193,37 @@ function markdownReport(report) {
   for (const file of report.files || []) lines.push(`- **${file.riskLevel || 'UNSPECIFIED'}** ${file.path} — score ${file.riskScore ?? 'n/a'}: ${file.reason || 'No explanation supplied.'}`);
   lines.push('', '## Suggested checks');
   for (const check of report.suggestedChecks || []) lines.push(`- [ ] ${check}`);
+  return lines.join('\n') + '\n';
+}
+
+function markdownVerificationChecklist(report) {
+  const lines = [
+    '# Merge Guard verification checklist',
+    '',
+    `- Risk level: ${report.riskLevel}`,
+    `- Review decision: ${report.reviewDecision || report.mergeReadiness}`,
+    `- Risk score: ${report.riskScore}`,
+    '',
+    '> Checking an item records verification work only; it does not approve a pull request or change Merge Guard findings.',
+    '',
+    '## Findings to verify',
+    ''
+  ];
+  const rules = list(report.rules);
+  if (!rules.length) lines.push('- [ ] No rule findings were reported; confirm the intended scope and test coverage.');
+  rules.forEach((rule, index) => {
+    const title = rule.label || rule.id || 'Unnamed finding';
+    const files = list(rule.matchedFiles);
+    const check = rule.check || list(report.suggestedChecks)[index] || 'Choose and record an appropriate verification step.';
+    lines.push(`- [ ] **${title}** — ${check}`);
+    lines.push(`  - Affected: ${files.length ? files.map((file) => `\`${file}\``).join(', ') : 'repository-wide finding'}`);
+    if (rule.reason) lines.push(`  - Why: ${rule.reason}`);
+  });
+  const unmatchedChecks = list(report.suggestedChecks).slice(rules.length);
+  if (unmatchedChecks.length) {
+    lines.push('', '## Additional suggested checks', '');
+    unmatchedChecks.forEach((check) => lines.push(`- [ ] ${check}`));
+  }
   return lines.join('\n') + '\n';
 }
 

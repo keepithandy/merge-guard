@@ -11,4 +11,6 @@ The implementation sequence is:
 3. #70 — report explorer and non-executing verification checklist (implemented in the current dashboard shell);
 4. #71 — accessible responsive layout and explicit exports.
 
+Each imported report includes a portable Markdown verification-checklist download. It maps each finding to its affected files, rationale, and suggested check so an author can paste the checklist into a pull request or handoff. It is a work log, not an approval signal, and does not alter the imported report.
+
 Run `npm run test:dashboard-import` and `npm run test:dashboard-architecture` to validate the import and boundary contracts. See `docs/architecture/dashboard-architecture.md`, the accepted ADR, and the dashboard threat model before changing it.
