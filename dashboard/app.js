@@ -17,6 +17,8 @@ function showStatus(message, error = false) {
 
 function render(imports) {
   output.replaceChildren();
+  const reports = imports.filter((item) => item.kind === 'report');
+  if (reports.length === 2) renderComparison(reports[0], reports[1]);
   for (const item of imports) {
     if (item.kind === 'report') renderReport(item);
     else {
@@ -40,6 +42,8 @@ function renderReport(item) {
   exports.append(exportButton('Download JSON', `${item.name}.json`, JSON.stringify(report, null, 2) + '\n'));
   exports.append(exportButton('Download Markdown', `${item.name}.md`, markdownReport(report)));
   section.append(exports);
+
+  renderActionPlan(section, report);
 
   const filesHeading = element('h3', 'Files by reported risk');
   const files = element('ul');
@@ -81,6 +85,88 @@ function renderReport(item) {
   addList('Warnings', [...(report.customRuleWarnings || []), ...(report.suppressionWarnings || []), ...(report.configDiagnostics || [])], 'No warnings reported.');
   addList('Suppressions', report.suppressedFindings || [], 'No suppressions reported.');
   output.append(section);
+}
+
+function list(value) { return Array.isArray(value) ? value : []; }
+
+function ruleIdentity(rule) {
+  return `${rule.id || ''}\u0000${list(rule.matchedFiles).slice().sort().join('\u0000')}`;
+}
+
+function matchingOwners(report, files) {
+  const suggestions = list(report.reviewGuidance?.codeOwners?.suggestions);
+  const owners = new Set();
+  for (const suggestion of suggestions) {
+    if (files.includes(suggestion.path)) for (const owner of list(suggestion.owners)) owners.add(owner);
+  }
+  return [...owners].sort();
+}
+
+function renderActionPlan(section, report) {
+  const heading = element('h3', 'Fix this PR');
+  const lead = element('p', 'Work through the findings below. Completing a check records only this browser session and never changes the report.');
+  const cards = element('div');
+  cards.className = 'action-cards';
+  const rules = list(report.rules);
+  if (!rules.length) cards.append(element('p', 'No rule findings were reported.'));
+  rules.forEach((rule, index) => {
+    const card = element('article'); card.className = 'action-card';
+    card.append(element('h4', rule.label || rule.id || 'Unnamed finding'));
+    card.append(element('p', rule.reason || 'No explanation supplied.'));
+    const files = list(rule.matchedFiles);
+    card.append(element('p', `Affected: ${files.length ? files.join(', ') : 'repository-wide finding'}.`));
+    const owners = matchingOwners(report, files);
+    if (owners.length) card.append(element('p', `Suggested owners: ${owners.join(', ')}.`));
+    const check = rule.check || list(report.suggestedChecks)[index] || '';
+    if (check) {
+      const checkLabel = element('label');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox'; checkbox.id = `action-check-${index}`;
+      checkLabel.append(checkbox, document.createTextNode(` Verified: ${check}`));
+      card.append(checkLabel);
+      const copy = element('button', 'Copy check'); copy.type = 'button';
+      copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(check); showStatus('Verification check copied.'); }
+        catch { showStatus('Could not copy the check; select its text instead.', true); }
+      });
+      card.append(copy);
+    }
+    cards.append(card);
+  });
+  section.append(heading, lead, cards);
+}
+
+function renderComparison(previousItem, currentItem) {
+  const previous = previousItem.report;
+  const current = currentItem.report;
+  const before = new Map(list(previous.rules).map((rule) => [ruleIdentity(rule), rule]));
+  const after = new Map(list(current.rules).map((rule) => [ruleIdentity(rule), rule]));
+  const newRules = [...after].filter(([identity]) => !before.has(identity)).map(([, rule]) => rule);
+  const resolvedRules = [...before].filter(([identity]) => !after.has(identity)).map(([, rule]) => rule);
+  const unchangedRules = [...after].filter(([identity]) => before.has(identity)).map(([identity, rule]) => ({ rule, previous: before.get(identity) }));
+  const section = element('section'); section.className = 'comparison';
+  section.append(element('h2', 'What changed since the previous report'));
+  section.append(element('p', `Comparing ${previousItem.name} → ${currentItem.name}. Risk score ${previous.riskScore} → ${current.riskScore} (${scoreChange(previous.riskScore, current.riskScore)}).`));
+  const summary = element('p', `New: ${newRules.length} · Unchanged: ${unchangedRules.length} · Resolved: ${resolvedRules.length}`); summary.className = 'summary'; section.append(summary);
+  comparisonList(section, 'New findings — review these first', newRules, (rule) => rule.reason || 'No explanation supplied.');
+  comparisonList(section, 'Resolved findings', resolvedRules, () => 'Absent from the latest report; this does not by itself prove remediation.');
+  comparisonList(section, 'Unchanged findings', unchangedRules, ({ rule, previous: oldRule }) => oldRule.reason === rule.reason ? 'The finding remains with the same explanation.' : `Explanation changed: ${rule.reason || 'No explanation supplied.'}`);
+  output.append(section);
+}
+
+function signedDelta(value) { return `${value > 0 ? '+' : ''}${value}`; }
+
+function scoreChange(previous, current) { return signedDelta(current - previous); }
+
+function comparisonList(section, heading, entries, description) {
+  const block = element('div'); block.append(element('h3', heading));
+  const items = element('ul');
+  if (!entries.length) items.append(element('li', 'None.'));
+  entries.forEach((entry) => {
+    const rule = entry.rule || entry;
+    const item = element('li'); item.append(element('strong', rule.label || rule.id || 'Unnamed finding'), document.createTextNode(` — ${description(entry)}`)); items.append(item);
+  });
+  block.append(items); section.append(block);
 }
 
 function exportButton(label, filename, content) {
