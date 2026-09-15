@@ -81,7 +81,7 @@ An imported report is authoritative. The dashboard displays its score, readiness
 
 For a raw diff, the worker may call only the shared browser-safe Merge Guard analysis core. It must not create a second scorer. Repository filesystem intelligence, local config, CODEOWNERS, and policy manifests are unavailable unless a future version defines a separate explicit, versioned input bundle. The UI must label the capabilities used for each analysis.
 
-Comparison uses the same stable identity/comparison module as the CLI and accepts at most two compatible v1 reports. Missing or incompatible history is unknown/error, never an empty clean baseline.
+Comparison uses the same stable identity/comparison module as the CLI and accepts at most two compatible v1 reports. Missing or incompatible history is unknown/error, never an empty clean baseline. The Review focus panel derives an ordered local review queue from report readiness, new/repeated findings, recorded verification, configuration changes, and expiring suppressions. It is descriptive: it neither recalculates values nor approves a pull request.
 
 ## Network and storage boundary
 

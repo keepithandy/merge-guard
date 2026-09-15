@@ -1,4 +1,5 @@
 import { compareDashboardReports, extractDashboardFindings } from './comparison.js';
+import { buildReviewFocus } from './review-focus.js';
 import { createVerificationProgress, progressByFinding } from './verification-progress.js';
 
 const input = document.querySelector('#files');
@@ -24,11 +25,13 @@ function showStatus(message, error = false) {
 function render(imports) {
   output.replaceChildren();
   const reports = imports.filter((item) => item.kind === 'report');
-  const comparison = reports.length === 2 ? compareDashboardReports(...comparisonPair(reports).map((item) => item.report)) : null;
+  const selectedReports = reports.length === 2 ? comparisonPair(reports) : [reports[0]];
+  const comparison = reports.length === 2 ? compareDashboardReports(...selectedReports.map((item) => item.report)) : null;
   if (reports.length === 2) {
     renderComparisonControls(reports);
-    renderComparison(comparisonPair(reports), comparison);
+    renderComparison(selectedReports, comparison);
   }
+  if (reports.length) renderReviewFocus(selectedReports.at(-1), comparison);
   if (reports.length) renderCalibration(reports, comparison);
   if (verificationProgressMessage) {
     const section = element('section'); section.className = 'verification-progress';
@@ -209,6 +212,30 @@ function renderComparison([previousItem, currentItem], comparison) {
   });
   unchanged.append(unchangedList); section.append(unchanged);
   output.append(section);
+}
+
+function renderReviewFocus(item, comparison) {
+  const report = item.report;
+  const findings = extractDashboardFindings(report);
+  const focus = buildReviewFocus({
+    report,
+    findings,
+    progress: verificationForReport(item),
+    comparison,
+    expiringSuppressions: upcomingSuppressions([item])
+  });
+  const section = element('section'); section.className = 'review-focus';
+  section.append(element('h2', 'Review focus'));
+  section.append(element('p', 'Prioritized review prompts from the selected report and its optional history. They do not approve a pull request or change Merge Guard results.'));
+  const summary = element('p', `Verification recorded: ${focus.verification.completed} of ${focus.verification.total}.`);
+  summary.className = 'summary'; section.append(summary);
+  const actions = document.createElement('ol');
+  focus.items.forEach((focusItem) => {
+    const action = element('li'); action.className = `review-focus-${focusItem.priority}`;
+    action.append(element('strong', focusItem.title), document.createTextNode(` — ${focusItem.detail}`));
+    actions.append(action);
+  });
+  section.append(actions); output.append(section);
 }
 
 function calendarDate(value) {

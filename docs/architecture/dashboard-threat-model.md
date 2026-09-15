@@ -65,7 +65,7 @@ DNS rebinding/host confusion — listen only on numeric IPv4 loopback and reject
 
 Stale worker response — associate every import with a monotonically increasing request ID. Ignore results that do not match the current request and terminate the prior worker when a new import starts.
 
-Score manipulation — display imported values exactly and identify their schema/tool version. Never lower risk based on UI state, checked checklist items, missing history, suppressed annotations, or PR prose.
+Score manipulation — display imported values exactly and identify their schema/tool version. Review-focus ordering may prioritize review work but must never lower risk, change readiness, treat checked checklist items as approval, or replace reviewer judgment.
 
 Mismatched verification progress — retain the imported progress file only in current browser memory and show it as unapplied unless its SHA-256 report binding exactly matches a selected report. Never use its filename, order in the selection, or a suggested-check index as an association key.
 
