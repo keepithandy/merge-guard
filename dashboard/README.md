@@ -13,6 +13,6 @@ The implementation sequence is:
 
 Each imported report includes a portable Markdown verification-checklist download. It maps each finding to its affected files, rationale, and suggested check so an author can paste the checklist into a pull request or handoff. It is a work log, not an approval signal, and does not alter the imported report.
 
-The dashboard also provides local calibration signals: two reports identify findings repeated across pushes, and every imported report highlights configured suppressions expiring within 30 days. These are descriptive prompts for teams to tune policy and review exceptions; they never alter scores, findings, or merge decisions.
+The dashboard lets the user choose which of two reports is earlier, then classifies findings with the same source, rule ID, and path identity used by Merge Guard's report comparator. New findings lead the view, unchanged findings are collapsed, and a configuration change is called out before interpreting score movement. It also provides local calibration signals: two reports identify findings repeated across pushes, and every imported report highlights configured suppressions expiring within 30 days. These are descriptive prompts for teams to tune policy and review exceptions; they never alter scores, findings, or merge decisions.
 
 Run `npm run test:dashboard-import` and `npm run test:dashboard-architecture` to validate the import and boundary contracts. See `docs/architecture/dashboard-architecture.md`, the accepted ADR, and the dashboard threat model before changing it.

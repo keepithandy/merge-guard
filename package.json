@@ -45,6 +45,7 @@
     "test:browser-game-save": "node scripts/browser-game-save-contracts.js",
     "test:dashboard-architecture": "node scripts/dashboard-architecture-contracts.js",
     "test:dashboard-import": "node scripts/dashboard-import-contracts.js",
+    "test:dashboard-comparison": "node scripts/dashboard-comparison-contracts.js",
     "test:dashboard-explorer": "node scripts/dashboard-explorer-contracts.js",
     "test:dashboard-accessibility": "node scripts/dashboard-accessibility-contracts.js",
     "test:artifact-manifest": "node scripts/artifact-manifest-contracts.js",

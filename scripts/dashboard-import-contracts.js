@@ -34,6 +34,7 @@ try {
   const home = await request('GET', '/');
   assert.equal(home.statusCode, 200); assert.equal(home.headers['content-security-policy'], CONTENT_SECURITY_POLICY); assert.equal(home.headers['cache-control'], 'no-store');
   assert.equal((await request('HEAD', '/app.js')).statusCode, 200);
+  assert.equal((await request('HEAD', '/comparison.js')).statusCode, 200);
   assert.equal((await request('POST', '/')).statusCode, 405);
   assert.equal((await request('GET', '/secret')).statusCode, 404);
   assert.equal((await request('GET', '/', 'localhost:1234')).statusCode, 421);

@@ -1,8 +1,11 @@
+import { compareDashboardReports } from './comparison.js';
+
 const input = document.querySelector('#files');
 const dropZone = document.querySelector('#drop-zone');
 const status = document.querySelector('#status');
 const output = document.querySelector('#output');
 let committed = [];
+let earlierReportIndex = 0;
 
 function element(tag, text = '') {
   const node = document.createElement(tag);
@@ -18,8 +21,12 @@ function showStatus(message, error = false) {
 function render(imports) {
   output.replaceChildren();
   const reports = imports.filter((item) => item.kind === 'report');
-  if (reports.length === 2) renderComparison(reports[0], reports[1]);
-  if (reports.length) renderCalibration(reports);
+  const comparison = reports.length === 2 ? compareDashboardReports(...comparisonPair(reports).map((item) => item.report)) : null;
+  if (reports.length === 2) {
+    renderComparisonControls(reports);
+    renderComparison(comparisonPair(reports), comparison);
+  }
+  if (reports.length) renderCalibration(reports, comparison);
   for (const item of imports) {
     if (item.kind === 'report') renderReport(item);
     else {
@@ -91,10 +98,6 @@ function renderReport(item) {
 
 function list(value) { return Array.isArray(value) ? value : []; }
 
-function ruleIdentity(rule) {
-  return `${rule.id || ''}\u0000${list(rule.matchedFiles).slice().sort().join('\u0000')}`;
-}
-
 function matchingOwners(report, files) {
   const suggestions = list(report.reviewGuidance?.codeOwners?.suggestions);
   const owners = new Set();
@@ -138,21 +141,52 @@ function renderActionPlan(section, report) {
   section.append(heading, lead, cards);
 }
 
-function renderComparison(previousItem, currentItem) {
+function comparisonPair(reports) {
+  const earlier = reports[earlierReportIndex] || reports[0];
+  return [earlier, reports.find((item) => item !== earlier)];
+}
+
+function renderComparisonControls(reports) {
+  const section = element('section'); section.className = 'comparison-controls';
+  section.append(element('h2', 'Choose report order'));
+  const label = element('label', 'Earlier report: ');
+  const select = document.createElement('select'); select.id = 'earlier-report';
+  reports.forEach((report, index) => {
+    const option = element('option', report.name); option.value = String(index); select.append(option);
+  });
+  select.value = String(earlierReportIndex);
+  select.addEventListener('change', () => { earlierReportIndex = Number(select.value); render(committed); });
+  label.append(select); section.append(label);
+  const latest = comparisonPair(reports)[1];
+  section.append(element('p', `Latest report: ${latest.name}.`));
+  const swap = element('button', 'Swap reports'); swap.type = 'button';
+  swap.addEventListener('click', () => { earlierReportIndex = earlierReportIndex === 0 ? 1 : 0; render(committed); });
+  section.append(swap);
+  output.append(section);
+}
+
+function findingLabel(finding) {
+  return `${finding.label} — ${finding.path || 'global finding'}`;
+}
+
+function renderComparison([previousItem, currentItem], comparison) {
   const previous = previousItem.report;
   const current = currentItem.report;
-  const before = new Map(list(previous.rules).map((rule) => [ruleIdentity(rule), rule]));
-  const after = new Map(list(current.rules).map((rule) => [ruleIdentity(rule), rule]));
-  const newRules = [...after].filter(([identity]) => !before.has(identity)).map(([, rule]) => rule);
-  const resolvedRules = [...before].filter(([identity]) => !after.has(identity)).map(([, rule]) => rule);
-  const unchangedRules = [...after].filter(([identity]) => before.has(identity)).map(([identity, rule]) => ({ rule, previous: before.get(identity) }));
   const section = element('section'); section.className = 'comparison';
   section.append(element('h2', 'What changed since the previous report'));
   section.append(element('p', `Comparing ${previousItem.name} → ${currentItem.name}. Risk score ${previous.riskScore} → ${current.riskScore} (${scoreChange(previous.riskScore, current.riskScore)}).`));
-  const summary = element('p', `New: ${newRules.length} · Unchanged: ${unchangedRules.length} · Resolved: ${resolvedRules.length}`); summary.className = 'summary'; section.append(summary);
-  comparisonList(section, 'New findings — review these first', newRules, (rule) => rule.reason || 'No explanation supplied.');
-  comparisonList(section, 'Resolved findings', resolvedRules, () => 'Absent from the latest report; this does not by itself prove remediation.');
-  comparisonList(section, 'Unchanged findings', unchangedRules, ({ rule, previous: oldRule }) => oldRule.reason === rule.reason ? 'The finding remains with the same explanation.' : `Explanation changed: ${rule.reason || 'No explanation supplied.'}`);
+  const summary = element('p', `New: ${comparison.summary.new} · Unchanged: ${comparison.summary.unchanged} · Resolved: ${comparison.summary.resolved}`); summary.className = 'summary'; section.append(summary);
+  if (comparison.configurationChanged) section.append(element('p', 'Configuration changed between reports; compare scores and findings with that context in mind.'));
+  comparisonList(section, 'New findings — review these first', comparison.newFindings, (finding) => finding.reason || 'No explanation supplied.');
+  comparisonList(section, 'Resolved findings', comparison.resolvedFindings, () => 'Absent from the latest report; this does not by itself prove remediation.');
+  const unchanged = document.createElement('details');
+  unchanged.append(element('summary', `Unchanged findings (${comparison.summary.unchanged})`));
+  const unchangedList = element('ul');
+  if (!comparison.unchangedFindings.length) unchangedList.append(element('li', 'None.'));
+  comparison.unchangedFindings.forEach(({ current: finding, detailsChanged }) => {
+    unchangedList.append(element('li', `${findingLabel(finding)} — ${detailsChanged ? `Explanation changed: ${finding.reason}` : 'The finding remains with the same explanation.'}`));
+  });
+  unchanged.append(unchangedList); section.append(unchanged);
   output.append(section);
 }
 
@@ -178,22 +212,16 @@ function upcomingSuppressions(reports) {
   return [...unique.values()].sort((left, right) => left.expires.localeCompare(right.expires));
 }
 
-function recurringRules(reports) {
-  if (reports.length !== 2) return [];
-  const earlier = new Set(list(reports[0].report.rules).map(ruleIdentity));
-  return list(reports[1].report.rules).filter((rule) => earlier.has(ruleIdentity(rule)));
-}
-
-function renderCalibration(reports) {
+function renderCalibration(reports, comparison) {
   const section = element('section'); section.className = 'calibration';
   section.append(element('h2', 'Calibration signals'));
   section.append(element('p', 'These signals describe the selected reports and never change risk scores, findings, or merge decisions.'));
-  const recurring = recurringRules(reports);
+  const recurring = comparison?.unchangedFindings.map((finding) => finding.current) || [];
   const recurringBlock = element('div'); recurringBlock.append(element('h3', 'Findings repeated across reports'));
   const recurringList = element('ul');
   if (reports.length < 2) recurringList.append(element('li', 'Import an earlier report to identify findings that recur across pushes.'));
   else if (!recurring.length) recurringList.append(element('li', 'No finding identities repeated across the two selected reports.'));
-  else recurring.forEach((rule) => recurringList.append(element('li', `${rule.label || rule.id || 'Unnamed finding'} — present in both reports.`)));
+  else recurring.forEach((finding) => recurringList.append(element('li', `${findingLabel(finding)} — present in both reports.`)));
   recurringBlock.append(recurringList); section.append(recurringBlock);
 
   const expiring = upcomingSuppressions(reports);
@@ -214,8 +242,7 @@ function comparisonList(section, heading, entries, description) {
   const items = element('ul');
   if (!entries.length) items.append(element('li', 'None.'));
   entries.forEach((entry) => {
-    const rule = entry.rule || entry;
-    const item = element('li'); item.append(element('strong', rule.label || rule.id || 'Unnamed finding'), document.createTextNode(` — ${description(entry)}`)); items.append(item);
+    const item = element('li'); item.append(element('strong', findingLabel(entry)), document.createTextNode(` — ${description(entry)}`)); items.append(item);
   });
   block.append(items); section.append(block);
 }
@@ -284,7 +311,7 @@ async function importFiles(files) {
   worker.onmessage = ({ data }) => {
     clearTimeout(timer); worker.terminate();
     if (!data.ok) return showStatus(`${data.error.category}: ${data.error.message}`, true);
-    committed = data.imports; render(committed); showStatus(`Loaded ${committed.length} validated file${committed.length === 1 ? '' : 's'}.`);
+    committed = data.imports; earlierReportIndex = 0; render(committed); showStatus(`Loaded ${committed.length} validated file${committed.length === 1 ? '' : 's'}.`);
   };
   worker.postMessage({ items }, items.map((item) => item.bytes));
 }
