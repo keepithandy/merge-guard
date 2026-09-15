@@ -1,0 +1,75 @@
+# Save this file as .github/workflows/merge-guard.yml.
+# It automatically selects the latest successful report artifact from an earlier
+# commit on the same pull-request branch. The workflow only reads artifacts in
+# this repository; it does not search forks or make external network calls.
+name: Merge Guard
+
+on:
+  pull_request:
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find the prior successful report for this pull request
+        id: prior
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const branch = context.payload.pull_request.head.ref;
+            const currentHead = context.payload.pull_request.head.sha;
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner,
+              repo,
+              workflow_id: 'merge-guard.yml',
+              branch,
+              event: 'pull_request',
+              status: 'completed',
+              per_page: 30
+            });
+            const prior = runs.data.workflow_runs.find((run) =>
+              run.conclusion === 'success' && run.head_sha !== currentHead
+            );
+            core.setOutput('run_id', prior ? String(prior.id) : '');
+
+      - name: Download the prior Merge Guard evidence
+        if: ${{ steps.prior.outputs.run_id != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRIOR_RUN_ID: ${{ steps.prior.outputs.run_id }}
+        run: |
+          gh run download "$PRIOR_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name merge-guard-review-evidence \
+            --dir .merge-guard-prior
+
+      - uses: keepithandy/merge-guard@main
+        id: merge_guard
+        with:
+          comment: "true"
+          compare: ${{ steps.prior.outputs.run_id != '' }}
+          previous-report: .merge-guard-prior/merge-guard-report.json
+          previous-manifest: .merge-guard-prior/merge-guard-report.manifest.json
+          expected-previous-repository: ${{ github.repository }}
+          expected-previous-branch: ${{ github.head_ref }}
+
+      - name: Retain this report for the next push
+        if: ${{ always() && steps.merge_guard.outputs.report-path != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: merge-guard-review-evidence
+          path: |
+            ${{ steps.merge_guard.outputs.report-path }}
+            ${{ steps.merge_guard.outputs.manifest-path }}
+          retention-days: 14
+          if-no-files-found: error

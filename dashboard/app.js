@@ -19,6 +19,7 @@ function render(imports) {
   output.replaceChildren();
   const reports = imports.filter((item) => item.kind === 'report');
   if (reports.length === 2) renderComparison(reports[0], reports[1]);
+  if (reports.length) renderCalibration(reports);
   for (const item of imports) {
     if (item.kind === 'report') renderReport(item);
     else {
@@ -152,6 +153,55 @@ function renderComparison(previousItem, currentItem) {
   comparisonList(section, 'New findings — review these first', newRules, (rule) => rule.reason || 'No explanation supplied.');
   comparisonList(section, 'Resolved findings', resolvedRules, () => 'Absent from the latest report; this does not by itself prove remediation.');
   comparisonList(section, 'Unchanged findings', unchangedRules, ({ rule, previous: oldRule }) => oldRule.reason === rule.reason ? 'The finding remains with the same explanation.' : `Explanation changed: ${rule.reason || 'No explanation supplied.'}`);
+  output.append(section);
+}
+
+function calendarDate(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  const timestamp = Date.UTC(year, month - 1, day);
+  const date = new Date(timestamp);
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? timestamp : null;
+}
+
+function upcomingSuppressions(reports) {
+  const now = new Date();
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const limit = today + 30 * 86400000;
+  const unique = new Map();
+  reports.forEach((item) => list(item.report?.config?.suppressions).forEach((suppression) => {
+    const expiry = calendarDate(suppression?.expires);
+    if (expiry === null || expiry < today || expiry > limit) return;
+    const key = [suppression.ruleId, suppression.pathPattern || '', suppression.owner, suppression.expires].join('\u0000');
+    unique.set(key, suppression);
+  }));
+  return [...unique.values()].sort((left, right) => left.expires.localeCompare(right.expires));
+}
+
+function recurringRules(reports) {
+  if (reports.length !== 2) return [];
+  const earlier = new Set(list(reports[0].report.rules).map(ruleIdentity));
+  return list(reports[1].report.rules).filter((rule) => earlier.has(ruleIdentity(rule)));
+}
+
+function renderCalibration(reports) {
+  const section = element('section'); section.className = 'calibration';
+  section.append(element('h2', 'Calibration signals'));
+  section.append(element('p', 'These signals describe the selected reports and never change risk scores, findings, or merge decisions.'));
+  const recurring = recurringRules(reports);
+  const recurringBlock = element('div'); recurringBlock.append(element('h3', 'Findings repeated across reports'));
+  const recurringList = element('ul');
+  if (reports.length < 2) recurringList.append(element('li', 'Import an earlier report to identify findings that recur across pushes.'));
+  else if (!recurring.length) recurringList.append(element('li', 'No finding identities repeated across the two selected reports.'));
+  else recurring.forEach((rule) => recurringList.append(element('li', `${rule.label || rule.id || 'Unnamed finding'} — present in both reports.`)));
+  recurringBlock.append(recurringList); section.append(recurringBlock);
+
+  const expiring = upcomingSuppressions(reports);
+  const expiryBlock = element('div'); expiryBlock.append(element('h3', 'Suppressions expiring within 30 days'));
+  const expiryList = element('ul');
+  if (!expiring.length) expiryList.append(element('li', 'No configured suppression expires within the next 30 days.'));
+  else expiring.forEach((suppression) => expiryList.append(element('li', `${suppression.ruleId} — expires ${suppression.expires}; owner: ${suppression.owner || 'unspecified'}.`)));
+  expiryBlock.append(expiryList); section.append(expiryBlock);
   output.append(section);
 }
 
