@@ -272,12 +272,66 @@
         }
       }
     },
+    "verificationProgressInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "extensions",
+        "maxBytes",
+        "maxDepth",
+        "maxProgressFiles",
+        "maxChecks",
+        "requiredTool",
+        "supportedSchemaVersions",
+        "reportBinding",
+        "reject"
+      ],
+      "properties": {
+        "extensions": {
+          "type": "array",
+          "const": [
+            ".json"
+          ]
+        },
+        "maxBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxDepth": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxProgressFiles": {
+          "const": 1
+        },
+        "maxChecks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "requiredTool": {
+          "const": "merge-guard-verification-progress"
+        },
+        "supportedSchemaVersions": {
+          "type": "array",
+          "const": [
+            1
+          ]
+        },
+        "reportBinding": {
+          "const": "sha-256-canonical-report"
+        },
+        "reject": {
+          "$ref": "#/$defs/stringArray"
+        }
+      }
+    },
     "inputs": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "diff",
-        "report"
+        "report",
+        "verificationProgress"
       ],
       "properties": {
         "diff": {
@@ -285,6 +339,9 @@
         },
         "report": {
           "$ref": "#/$defs/reportInput"
+        },
+        "verificationProgress": {
+          "$ref": "#/$defs/verificationProgressInput"
         }
       }
     },

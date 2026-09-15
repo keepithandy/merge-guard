@@ -1,7 +1,6 @@
 # Save this file as .github/workflows/merge-guard.yml.
-# It automatically selects the latest successful report artifact from an earlier
-# commit on the same pull-request branch. The workflow only reads artifacts in
-# this repository; it does not search forks or make external network calls.
+# It selects evidence for the exact prior commit in a pull-request synchronize
+# event. The workflow accesses Actions runs and artifacts in this repository only.
 name: Merge Guard
 
 on:
@@ -20,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Find the prior successful report for this pull request
+      - name: Find evidence for the exact previous pull-request commit
         id: prior
         uses: actions/github-script@v7
         with:
@@ -28,6 +27,13 @@ jobs:
             const { owner, repo } = context.repo;
             const branch = context.payload.pull_request.head.ref;
             const currentHead = context.payload.pull_request.head.sha;
+            const expectedHead = context.payload.before || '';
+            const pullRequestNumber = context.payload.pull_request.number;
+            if (!expectedHead || expectedHead === currentHead) {
+              core.setOutput('run_id', '');
+              core.setOutput('head_sha', '');
+              return;
+            }
             const runs = await github.rest.actions.listWorkflowRuns({
               owner,
               repo,
@@ -38,12 +44,17 @@ jobs:
               per_page: 30
             });
             const prior = runs.data.workflow_runs.find((run) =>
-              run.conclusion === 'success' && run.head_sha !== currentHead
+              run.head_sha === expectedHead
+              && Array.isArray(run.pull_requests)
+              && run.pull_requests.some((pullRequest) => pullRequest.number === pullRequestNumber)
             );
             core.setOutput('run_id', prior ? String(prior.id) : '');
+            core.setOutput('head_sha', prior ? prior.head_sha : '');
 
       - name: Download the prior Merge Guard evidence
+        id: prior_download
         if: ${{ steps.prior.outputs.run_id != '' }}
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
           PRIOR_RUN_ID: ${{ steps.prior.outputs.run_id }}
@@ -53,18 +64,37 @@ jobs:
             --name merge-guard-review-evidence \
             --dir .merge-guard-prior
 
+      - name: Validate prior Merge Guard evidence
+        id: prior_evidence
+        if: ${{ always() }}
+        env:
+          PRIOR_RUN_ID: ${{ steps.prior.outputs.run_id }}
+          PRIOR_DOWNLOAD_OUTCOME: ${{ steps.prior_download.outcome }}
+        run: |
+          if [ "$PRIOR_DOWNLOAD_OUTCOME" = "success" ] \
+            && [ -s .merge-guard-prior/merge-guard-report.json ] \
+            && [ -s .merge-guard-prior/merge-guard-report.manifest.json ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            if [ -n "$PRIOR_RUN_ID" ]; then
+              echo "::notice title=Merge Guard comparison::Prior evidence was unavailable; the current report will be published without a comparison."
+            fi
+          fi
+
       - uses: keepithandy/merge-guard@main
         id: merge_guard
         with:
           comment: "true"
-          compare: ${{ steps.prior.outputs.run_id != '' }}
+          compare: ${{ steps.prior_evidence.outputs.available == 'true' }}
           previous-report: .merge-guard-prior/merge-guard-report.json
           previous-manifest: .merge-guard-prior/merge-guard-report.manifest.json
           expected-previous-repository: ${{ github.repository }}
           expected-previous-branch: ${{ github.head_ref }}
+          expected-previous-commit: ${{ steps.prior.outputs.head_sha }}
 
       - name: Retain this report for the next push
-        if: ${{ always() && steps.merge_guard.outputs.report-path != '' }}
+        if: ${{ always() && steps.merge_guard.outputs.report-path != '' && steps.merge_guard.outputs.manifest-path != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: merge-guard-review-evidence

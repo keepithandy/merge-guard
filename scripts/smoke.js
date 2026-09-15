@@ -415,7 +415,7 @@ assert(readme.includes('compare-reports.js'), 'README should document immutable 
 assert(readme.includes('caller-owned evidence handoff example'), 'README should document caller-owned evidence handoff');
 assert(fs.existsSync('docs/examples/github-actions-automatic-pr-comparison.yml'), 'automatic prior-report workflow example should exist');
 const automaticComparisonWorkflow = fs.readFileSync('docs/examples/github-actions-automatic-pr-comparison.yml', 'utf8');
-for (const token of ['actions: read', 'workflow_id:', 'head_sha !== currentHead', 'merge-guard-review-evidence', 'previous-report:', 'previous-manifest:', 'actions/upload-artifact@v4']) {
+for (const token of ['actions: read', 'workflow_id:', 'expectedHead', 'pullRequestNumber', 'continue-on-error: true', 'merge-guard-review-evidence', 'previous-report:', 'previous-manifest:', 'expected-previous-commit:', 'actions/upload-artifact@v4']) {
   assert(automaticComparisonWorkflow.includes(token), `automatic prior-report workflow should include ${token}`);
 }
 

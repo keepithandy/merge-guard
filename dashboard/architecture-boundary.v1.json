@@ -65,6 +65,26 @@
         "non-object-root",
         "unsupported-schema"
       ]
+    },
+    "verificationProgress": {
+      "extensions": [
+        ".json"
+      ],
+      "maxBytes": 10485760,
+      "maxDepth": 64,
+      "maxProgressFiles": 1,
+      "maxChecks": 50000,
+      "requiredTool": "merge-guard-verification-progress",
+      "supportedSchemaVersions": [
+        1
+      ],
+      "reportBinding": "sha-256-canonical-report",
+      "reject": [
+        "archive",
+        "non-object-root",
+        "unsupported-schema",
+        "duplicate-finding-identity"
+      ]
     }
   },
   "processing": {

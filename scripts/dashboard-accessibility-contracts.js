@@ -8,6 +8,8 @@ const css = fs.readFileSync('dashboard/styles.css', 'utf8');
 assert(html.includes('aria-describedby="instructions"'));
 assert(html.includes('role="status"'));
 assert(app.includes('Download JSON') && app.includes('Download Markdown'));
+assert(app.includes('Download verification progress') && app.includes('Copy verification checklist'));
+assert(app.includes('textarea'));
 assert(app.includes('URL.createObjectURL') && app.includes('URL.revokeObjectURL'));
 assert(app.includes('button.type = \'button\''));
 assert(css.includes(':focus-visible'));
