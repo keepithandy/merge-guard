@@ -11,6 +11,8 @@ const root = process.cwd();
 const action = fs.readFileSync(path.join(root, 'action.yml'), 'utf8');
 const examplePath = path.join(root, 'docs', 'examples', 'github-actions-explicit-evidence-handoff.yml');
 const example = fs.readFileSync(examplePath, 'utf8');
+const automaticExamplePath = path.join(root, 'docs', 'examples', 'github-actions-automatic-pr-comparison.yml');
+const automaticExample = fs.readFileSync(automaticExamplePath, 'utf8');
 
 for (const token of [
   'previous-manifest:',
@@ -46,6 +48,23 @@ for (const token of [
 ]) assert(example.includes(token), `handoff example must include ${token}`);
 for (const forbidden of ['pull-requests: write', 'security-events: write', 'gh run list', 'gh run delete', 'PRIOR_RUN_ID=latest']) {
   assert(!example.includes(forbidden), `handoff example must not include ${forbidden}`);
+}
+
+for (const token of [
+  'const expectedHead = context.payload.before || \'\';',
+  'const pullRequestNumber = context.payload.pull_request.number;',
+  'run.head_sha === expectedHead',
+  'Array.isArray(run.pull_requests)',
+  'pullRequest.number === pullRequestNumber',
+  'continue-on-error: true',
+  'Prior evidence was unavailable',
+  'steps.prior_evidence.outputs.available == \'true\'',
+  'expected-previous-commit: ${{ steps.prior.outputs.head_sha }}',
+  'steps.merge_guard.outputs.manifest-path != \'\'',
+  'actions/upload-artifact@v4'
+]) assert(automaticExample.includes(token), `automatic handoff example must include ${token}`);
+for (const forbidden of ['run.conclusion === \'success\'', 'run.head_sha !== currentHead', 'PRIOR_RUN_ID=latest']) {
+  assert(!automaticExample.includes(forbidden), `automatic handoff example must not include ${forbidden}`);
 }
 
 const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-evidence-handoff-'));
