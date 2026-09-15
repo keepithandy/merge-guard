@@ -8,13 +8,13 @@ Machine contract: `dashboard/architecture-boundary.v1.json`
 
 ## Outcome
 
-The v0.6 dashboard will be a local browser application served by a minimal dependency-free Node.js static server bound only to `127.0.0.1` on an ephemeral port. User-selected diffs and reports remain inside browser memory. The server serves a fixed set of packaged assets and never receives, parses, stores, or proxies selected files.
+The v0.6 dashboard is a local browser application served by a minimal dependency-free Node.js static server bound only to `127.0.0.1` on an ephemeral port. User-selected diffs, reports, and verification-progress files remain inside browser memory. The server serves a fixed set of packaged assets and never receives, parses, stores, or proxies selected files.
 
 Issue #68 defined this boundary. Issue #69 implements the constrained loopback runtime and local import validation; it does not yet ship the file-risk explorer, checklist, or exports planned for #70 and #71.
 
 ```mermaid
 flowchart LR
-  A[Explicitly selected .diff/.patch/.json] --> B[Browser File API]
+  A[Explicitly selected diff, report, or progress JSON] --> B[Browser File API]
   B --> C[Dedicated validation worker]
   C -->|valid immutable model| D[Dashboard view]
   C -->|typed rejection| E[Local error region]
@@ -30,7 +30,7 @@ flowchart LR
 | Node process | Bind loopback, validate the exact Host authority, serve allowlisted packaged assets, attach security headers | URL and request headers | Request bodies, user-file upload, path-derived filesystem reads, proxying, CORS, telemetry |
 | Browser document | File picker/drop UX, accessible status, immutable view state, explicit export | Filename, report strings, diff text, dropped-item metadata | Automatic filesystem access, remote requests, persistent storage, active HTML rendering |
 | Module worker | Enforce byte/count/depth/time limits, decode UTF-8, validate shape/version, invoke only shared Merge Guard analysis code | Complete selected file contents | DOM access, check execution, dynamic code, untrusted regular expressions, network access |
-| Export boundary | Serialize the already validated model after a user gesture | Paths, reasons, PR context, checks | Recalculation, executable output, implicit download, retained object URLs |
+| Export boundary | Serialize the already validated model after a user gesture | Paths, reasons, PR context, checks, verification notes | Recalculation, executable output, implicit download, retained object URLs |
 
 The local operating system, Node runtime, browser, and installed Merge Guard package are trusted. A compromised browser, runtime, package installation, or local account can already read local data and is outside this application threat model. Malicious or malformed selected files and hostile pages attempting to reach loopback are in scope.
 
@@ -59,6 +59,7 @@ Supported v0.6 inputs are deliberately narrow:
 | --- | ---: | --- | --- |
 | UTF-8 `.diff` or `.patch` | 20 MiB and 200,000 lines | At least one `diff --git ` marker and parseable unified-diff structure | NUL bytes, archives, binary patches, decoding failure, limit breach |
 | Merge Guard `.json` report | 10 MiB each; at most two | Object root, `tool: "merge-guard"`, report `schemaVersion: 1`, required v1 report fields | Arrays/scalars at root, unknown schema, excessive JSON depth/cardinality, archives, limit breach |
+| Verification-progress `.json` | 10 MiB; at most one; depth 64; 50,000 checks | Object root, `tool: "merge-guard-verification-progress"`, progress `schemaVersion: 1`, SHA-256 binding, unique finding identities | Arrays/scalars at root, malformed/unknown schema, invalid digest, duplicate identities, excessive cardinality, archives, limit breach |
 
 Report structural limits are depth 64, 10,000 files, 50,000 rules, and 10,000 suggested checks. SARIF, annotation bundles, HTML, archives, URLs, directories, clipboard HTML, and arbitrary JSON are not dashboard inputs in v0.6. Drag-and-drop must ignore non-file items and reject directories clearly.
 
@@ -68,14 +69,15 @@ Report structural limits are depth 64, 10,000 files, 50,000 rules, and 10,000 su
 2. Read as an `ArrayBuffer`, decode with a fatal UTF-8 decoder, and verify the actual byte/line limit.
 3. Parse in a dedicated module worker. Terminate work that exceeds 10 seconds.
 4. Validate type, version, required shape, depth, and collection limits before constructing a view model.
-5. Commit the new immutable state only after complete validation. A failed import leaves the previous valid view intact and moves focus to a typed error summary.
-6. Drop the original buffer and stale worker messages after completion or cancellation.
+5. Canonicalize each accepted report in memory and calculate its SHA-256 binding. Apply imported verification progress only when that binding exactly matches one selected report; otherwise show it as unapplied.
+6. Commit the new immutable report/diff state only after complete validation. A failed import leaves the previous valid view intact and moves focus to a typed error summary.
+7. Drop the original buffer and stale worker messages after completion or cancellation.
 
 No selected string is evaluated, used as a module path, compiled as a regular expression, inserted with `innerHTML`, or passed to a shell. Dynamic display uses DOM `textContent` or equivalently safe attribute assignment. The UI never executes suggested checks.
 
 ## Scoring boundary
 
-An imported report is authoritative. The dashboard displays its score, readiness, files, rules, warnings, suppressions, and checks without recalculating them.
+An imported report is authoritative. The dashboard displays its score, readiness, files, rules, warnings, suppressions, and checks without recalculating them. Verification completion and notes are a separate user work log: they do not alter report values, readiness, or merge decisions.
 
 For a raw diff, the worker may call only the shared browser-safe Merge Guard analysis core. It must not create a second scorer. Repository filesystem intelligence, local config, CODEOWNERS, and policy manifests are unavailable unless a future version defines a separate explicit, versioned input bundle. The UI must label the capabilities used for each analysis.
 
@@ -91,7 +93,7 @@ default-src 'none'; connect-src 'none'; img-src 'self' data:; style-src 'self'; 
 
 `connect-src 'none'` blocks script-driven `fetch`, XHR, WebSocket, EventSource, beacon, and ping destinations. Scripts, styles, worker modules, fonts, and interface assets are packaged locally. There are no remote origins, API calls, CDNs, accounts, API keys, telemetry, update checks, or cloud persistence.
 
-Selected content and derived state live in JavaScript memory only. Do not use localStorage, sessionStorage, IndexedDB, Cache Storage, cookies, a service worker, temporary server files, or remote storage. Reloading or closing the tab clears state. Markdown/JSON exports require an explicit action; object URLs are revoked immediately after the download is initiated.
+Selected content and derived state live in JavaScript memory only. Do not use localStorage, sessionStorage, IndexedDB, Cache Storage, cookies, a service worker, temporary server files, or remote storage. Reloading or closing the tab clears state. Markdown and JSON exports, including report-bound verification progress, require an explicit action; object URLs are revoked immediately after the download is initiated.
 
 ## Error contract
 

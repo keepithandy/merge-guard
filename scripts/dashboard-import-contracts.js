@@ -8,14 +8,21 @@ import { DashboardImportError, DASHBOARD_LIMITS, validateDashboardImport, valida
 const bytes = (value) => new TextEncoder().encode(value);
 const diff = readFileSync('examples/sample.diff', 'utf8');
 const report = readFileSync('test/fixtures/finding-comparison/current.json', 'utf8');
+const progress = JSON.stringify({
+  tool: 'merge-guard-verification-progress', schemaVersion: 1, reportBinding: 'a'.repeat(64),
+  checks: [{ findingIdentity: 'builtin-routing-src-app', completed: true, note: 'Ran startup smoke.' }]
+});
 assert.equal(validateDashboardImport({ name: 'sample.diff', bytes: bytes(diff) }).kind, 'diff');
 assert.equal(validateDashboardImport({ name: 'report.json', bytes: bytes(report) }).report.tool, 'merge-guard');
+assert.equal(validateDashboardImport({ name: 'progress.json', bytes: bytes(progress) }).kind, 'verification-progress');
 assert.equal(validateDashboardImportBatch([{ name: 'before.json', bytes: bytes(report) }, { name: 'after.json', bytes: bytes(report) }]).length, 2);
+assert.equal(validateDashboardImportBatch([{ name: 'report.json', bytes: bytes(report) }, { name: 'progress.json', bytes: bytes(progress) }]).length, 2);
 for (const [input, category] of [
   [{ name: 'report.txt', bytes: bytes(report) }, 'unsupported-type'],
   [{ name: 'binary.patch', bytes: bytes('diff --git a/a b/a\n--- a/a\n+++ b/a\nGIT binary patch') }, 'unsupported-type'],
   [{ name: 'bad.diff', bytes: bytes('not a diff') }, 'malformed-input'],
   [{ name: 'bad.json', bytes: bytes('{') }, 'malformed-input'],
+  [{ name: 'bad-progress.json', bytes: bytes(JSON.stringify({ tool: 'merge-guard-verification-progress', schemaVersion: 1 })) }, 'malformed-input'],
   [{ name: 'future.json', bytes: bytes(JSON.stringify({ tool: 'merge-guard', schemaVersion: 2 })) }, 'incompatible-schema'],
   [{ name: 'huge.diff', bytes: new Uint8Array(DASHBOARD_LIMITS.diffBytes + 1) }, 'too-large']
 ]) assert.throws(() => validateDashboardImport(input), (error) => error instanceof DashboardImportError && error.category === category);
@@ -35,6 +42,7 @@ try {
   assert.equal(home.statusCode, 200); assert.equal(home.headers['content-security-policy'], CONTENT_SECURITY_POLICY); assert.equal(home.headers['cache-control'], 'no-store');
   assert.equal((await request('HEAD', '/app.js')).statusCode, 200);
   assert.equal((await request('HEAD', '/comparison.js')).statusCode, 200);
+  assert.equal((await request('HEAD', '/verification-progress.js')).statusCode, 200);
   assert.equal((await request('POST', '/')).statusCode, 405);
   assert.equal((await request('GET', '/secret')).statusCode, 404);
   assert.equal((await request('GET', '/', 'localhost:1234')).statusCode, 421);

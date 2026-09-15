@@ -40,7 +40,7 @@ assert.equal(compareDashboardReports(previous, { ...current, config: { ...curren
 
 const app = fs.readFileSync(path.join(root, 'dashboard', 'app.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'dashboard', 'index.html'), 'utf8');
-assert(app.includes("import { compareDashboardReports } from './comparison.js'"));
+assert(app.includes("compareDashboardReports, extractDashboardFindings") && app.includes("from './comparison.js'"));
 assert(app.includes('Choose report order'));
 assert(app.includes('Swap reports'));
 assert(app.includes('Configuration changed between reports'));

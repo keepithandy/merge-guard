@@ -1,4 +1,5 @@
-import { compareDashboardReports } from './comparison.js';
+import { compareDashboardReports, extractDashboardFindings } from './comparison.js';
+import { createVerificationProgress, progressByFinding } from './verification-progress.js';
 
 const input = document.querySelector('#files');
 const dropZone = document.querySelector('#drop-zone');
@@ -6,6 +7,8 @@ const status = document.querySelector('#status');
 const output = document.querySelector('#output');
 let committed = [];
 let earlierReportIndex = 0;
+let verificationByBinding = new Map();
+let verificationProgressMessage = '';
 
 function element(tag, text = '') {
   const node = document.createElement(tag);
@@ -27,9 +30,14 @@ function render(imports) {
     renderComparison(comparisonPair(reports), comparison);
   }
   if (reports.length) renderCalibration(reports, comparison);
+  if (verificationProgressMessage) {
+    const section = element('section'); section.className = 'verification-progress';
+    section.append(element('h2', 'Verification progress'), element('p', verificationProgressMessage));
+    output.append(section);
+  }
   for (const item of imports) {
     if (item.kind === 'report') renderReport(item);
-    else {
+    else if (item.kind === 'diff') {
       const section = element('section');
       section.append(element('h2', item.name), element('p', `Unified diff loaded (${item.text.split(/\r?\n/).length} lines).`));
       output.append(section);
@@ -49,10 +57,12 @@ function renderReport(item) {
   exports.className = 'exports';
   exports.append(exportButton('Download JSON', `${item.name}.json`, JSON.stringify(report, null, 2) + '\n'));
   exports.append(exportButton('Download Markdown', `${item.name}.md`, markdownReport(report)));
-  exports.append(exportButton('Download verification checklist', `${item.name}-verification-checklist.md`, markdownVerificationChecklist(report)));
+  exports.append(exportButton('Download verification checklist', `${item.name}-verification-checklist.md`, () => markdownVerificationChecklist(item)));
+  exports.append(copyButton('Copy verification checklist', () => markdownVerificationChecklist(item)));
+  exports.append(exportButton('Download verification progress', `${item.name}-verification-progress.json`, () => `${JSON.stringify(createVerificationProgress(item.reportBinding, extractDashboardFindings(report), verificationForReport(item)), null, 2)}\n`));
   section.append(exports);
 
-  renderActionPlan(section, report);
+  renderActionPlan(section, item);
 
   const filesHeading = element('h3', 'Files by reported risk');
   const files = element('ul');
@@ -74,15 +84,12 @@ function renderReport(item) {
   });
   section.append(filesHeading, files);
 
-  const checksHeading = element('h3', 'Suggested checks');
+  const checksHeading = element('h3', 'Unassociated suggested checks');
   const checks = element('ul');
-  (report.suggestedChecks || []).forEach((check, index) => {
-    const label = element('label');
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox'; checkbox.id = `check-${index}`;
-    label.append(checkbox, document.createTextNode(` ${check}`));
-    const checkItem = element('li'); checkItem.append(label); checks.append(checkItem);
-  });
+  const findingChecks = new Set(extractDashboardFindings(report).map((finding) => finding.check).filter(Boolean));
+  const unassociatedChecks = list(report.suggestedChecks).filter((check) => !findingChecks.has(check));
+  if (unassociatedChecks.length) unassociatedChecks.forEach((check) => checks.append(element('li', check)));
+  else checks.append(element('li', 'All suggested checks are associated with a finding above.'));
   section.append(checksHeading, checks);
   const addList = (headingText, values, fallback) => {
     const block = element('div'); block.append(element('h3', headingText));
@@ -107,35 +114,49 @@ function matchingOwners(report, files) {
   return [...owners].sort();
 }
 
-function renderActionPlan(section, report) {
+function verificationForReport(item) {
+  if (!verificationByBinding.has(item.reportBinding)) verificationByBinding.set(item.reportBinding, new Map());
+  return verificationByBinding.get(item.reportBinding);
+}
+
+function updateVerification(item, finding, update) {
+  const progress = verificationForReport(item);
+  const current = progress.get(finding.identity) || { completed: false, note: '' };
+  progress.set(finding.identity, { ...current, ...update });
+  showStatus('Verification progress is ready to export.');
+}
+
+function renderActionPlan(section, item) {
+  const report = item.report;
   const heading = element('h3', 'Fix this PR');
-  const lead = element('p', 'Work through the findings below. Completing a check records only this browser session and never changes the report.');
+  const lead = element('p', 'Work through the findings below. Progress stays in this browser session until you export it, and it never changes the report.');
   const cards = element('div');
   cards.className = 'action-cards';
-  const rules = list(report.rules);
-  if (!rules.length) cards.append(element('p', 'No rule findings were reported.'));
-  rules.forEach((rule, index) => {
+  const findings = extractDashboardFindings(report);
+  const progress = verificationForReport(item);
+  if (!findings.length) cards.append(element('p', 'No rule findings were reported.'));
+  findings.forEach((finding, index) => {
     const card = element('article'); card.className = 'action-card';
-    card.append(element('h4', rule.label || rule.id || 'Unnamed finding'));
-    card.append(element('p', rule.reason || 'No explanation supplied.'));
-    const files = list(rule.matchedFiles);
+    card.append(element('h4', findingLabel(finding)));
+    card.append(element('p', finding.reason || 'No explanation supplied.'));
+    const files = finding.path ? [finding.path] : [];
     card.append(element('p', `Affected: ${files.length ? files.join(', ') : 'repository-wide finding'}.`));
     const owners = matchingOwners(report, files);
     if (owners.length) card.append(element('p', `Suggested owners: ${owners.join(', ')}.`));
-    const check = rule.check || list(report.suggestedChecks)[index] || '';
-    if (check) {
-      const checkLabel = element('label');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox'; checkbox.id = `action-check-${index}`;
-      checkLabel.append(checkbox, document.createTextNode(` Verified: ${check}`));
-      card.append(checkLabel);
-      const copy = element('button', 'Copy check'); copy.type = 'button';
-      copy.addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(check); showStatus('Verification check copied.'); }
-        catch { showStatus('Could not copy the check; select its text instead.', true); }
-      });
-      card.append(copy);
-    }
+    const check = finding.check || 'Record the verification you performed.';
+    const record = progress.get(finding.identity) || { completed: false, note: '' };
+    const checkLabel = element('label');
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox'; checkbox.id = `action-check-${index}`; checkbox.checked = record.completed;
+    checkbox.addEventListener('change', () => updateVerification(item, finding, { completed: checkbox.checked }));
+    checkLabel.append(checkbox, document.createTextNode(` Verified: ${check}`));
+    card.append(checkLabel);
+    const copy = copyButton('Copy check', () => check); card.append(copy);
+    const noteLabel = element('label', 'Verification note (optional)');
+    const note = document.createElement('textarea');
+    note.id = `verification-note-${index}`; note.maxLength = 2000; note.value = record.note;
+    note.addEventListener('input', () => updateVerification(item, finding, { note: note.value }));
+    noteLabel.htmlFor = note.id; card.append(noteLabel, note);
     cards.append(card);
   });
   section.append(heading, lead, cards);
@@ -251,10 +272,20 @@ function exportButton(label, filename, content) {
   const button = element('button', label);
   button.type = 'button';
   button.addEventListener('click', () => {
-    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
+    const value = typeof content === 'function' ? content() : content;
+    const url = URL.createObjectURL(new Blob([value], { type: 'text/plain;charset=utf-8' }));
     const link = element('a');
     link.href = url; link.download = filename; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
+  });
+  return button;
+}
+
+function copyButton(label, content) {
+  const button = element('button', label); button.type = 'button';
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(content()); showStatus('Copied to clipboard.'); }
+    catch { showStatus('Could not copy; select the text instead.', true); }
   });
   return button;
 }
@@ -273,7 +304,8 @@ function markdownReport(report) {
   return lines.join('\n') + '\n';
 }
 
-function markdownVerificationChecklist(report) {
+function markdownVerificationChecklist(item) {
+  const report = item.report;
   const lines = [
     '# Merge Guard verification checklist',
     '',
@@ -286,32 +318,68 @@ function markdownVerificationChecklist(report) {
     '## Findings to verify',
     ''
   ];
-  const rules = list(report.rules);
-  if (!rules.length) lines.push('- [ ] No rule findings were reported; confirm the intended scope and test coverage.');
-  rules.forEach((rule, index) => {
-    const title = rule.label || rule.id || 'Unnamed finding';
-    const files = list(rule.matchedFiles);
-    const check = rule.check || list(report.suggestedChecks)[index] || 'Choose and record an appropriate verification step.';
-    lines.push(`- [ ] **${title}** — ${check}`);
-    lines.push(`  - Affected: ${files.length ? files.map((file) => `\`${file}\``).join(', ') : 'repository-wide finding'}`);
-    if (rule.reason) lines.push(`  - Why: ${rule.reason}`);
+  const findings = extractDashboardFindings(report);
+  const progress = verificationForReport(item);
+  if (!findings.length) lines.push('- [ ] No rule findings were reported; confirm the intended scope and test coverage.');
+  findings.forEach((finding) => {
+    const record = progress.get(finding.identity) || { completed: false, note: '' };
+    const check = finding.check || 'Record the verification you performed.';
+    lines.push(`- [${record.completed ? 'x' : ' '}] **${findingLabel(finding)}** — ${check}`);
+    lines.push(`  - Affected: ${finding.path ? `\`${finding.path}\`` : 'repository-wide finding'}`);
+    if (finding.reason) lines.push(`  - Why: ${finding.reason}`);
+    if (record.note) lines.push(`  - Note: ${record.note}`);
   });
-  const unmatchedChecks = list(report.suggestedChecks).slice(rules.length);
-  if (unmatchedChecks.length) {
+  const generalChecks = list(report.suggestedChecks).filter((check) => !findings.some((finding) => finding.check === check));
+  if (generalChecks.length) {
     lines.push('', '## Additional suggested checks', '');
-    unmatchedChecks.forEach((check) => lines.push(`- [ ] ${check}`));
+    generalChecks.forEach((check) => lines.push(`- ${check}`));
   }
   return lines.join('\n') + '\n';
+}
+
+function canonicalJson(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((item) => canonicalJson(item)).join(',')}]`;
+  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+}
+
+async function reportBinding(report) {
+  if (!globalThis.crypto?.subtle) throw new Error('This browser cannot create the SHA-256 report binding required for verification progress.');
+  const bytes = new TextEncoder().encode(canonicalJson(report));
+  const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function attachReportBindings(imports) {
+  return Promise.all(imports.map(async (item) => item.kind === 'report' ? { ...item, reportBinding: await reportBinding(item.report) } : item));
+}
+
+function applyVerificationProgress(imports) {
+  verificationByBinding = new Map();
+  const progressItem = imports.find((item) => item.kind === 'verification-progress');
+  if (!progressItem) { verificationProgressMessage = ''; return; }
+  const reports = imports.filter((item) => item.kind === 'report');
+  const matchedReport = reports.find((item) => item.reportBinding === progressItem.progress.reportBinding);
+  if (!matchedReport) {
+    verificationProgressMessage = reports.length
+      ? `Progress from ${progressItem.name} was not applied because it belongs to a different report.`
+      : `Progress from ${progressItem.name} is ready; import its original report in the same selection to apply it.`;
+    return;
+  }
+  verificationByBinding.set(matchedReport.reportBinding, progressByFinding(progressItem.progress));
+  verificationProgressMessage = `Progress from ${progressItem.name} was applied to ${matchedReport.name}.`;
 }
 
 async function importFiles(files) {
   const items = await Promise.all([...files].map(async (file) => ({ name: file.name, bytes: await file.arrayBuffer() })));
   const worker = new Worker('./import-worker.js', { type: 'module' });
   const timer = setTimeout(() => { worker.terminate(); showStatus('processing-timeout: validation exceeded 10 seconds', true); }, 10000);
-  worker.onmessage = ({ data }) => {
+  worker.onmessage = async ({ data }) => {
     clearTimeout(timer); worker.terminate();
     if (!data.ok) return showStatus(`${data.error.category}: ${data.error.message}`, true);
-    committed = data.imports; earlierReportIndex = 0; render(committed); showStatus(`Loaded ${committed.length} validated file${committed.length === 1 ? '' : 's'}.`);
+    try {
+      committed = await attachReportBindings(data.imports); applyVerificationProgress(committed); earlierReportIndex = 0; render(committed); showStatus(`Loaded ${committed.length} validated file${committed.length === 1 ? '' : 's'}.`);
+    } catch (error) { showStatus(`verification-progress: ${error.message}`, true); }
   };
   worker.postMessage({ items }, items.map((item) => item.bytes));
 }

@@ -1,3 +1,5 @@
+import { VERIFICATION_PROGRESS_TOOL, validateVerificationProgress } from './verification-progress.js';
+
 export const DASHBOARD_LIMITS = Object.freeze({
   diffBytes: 20 * 1024 * 1024,
   diffLines: 200000,
@@ -6,7 +8,8 @@ export const DASHBOARD_LIMITS = Object.freeze({
   reportFiles: 10000,
   reportRules: 50000,
   reportChecks: 10000,
-  reportComparisonFiles: 2
+  reportComparisonFiles: 2,
+  progressFiles: 1
 });
 
 export class DashboardImportError extends Error {
@@ -77,18 +80,24 @@ export function validateDashboardImport({ name, bytes }) {
     return Object.freeze({ kind: 'diff', name, text: source });
   }
 
-  let report;
-  try { report = JSON.parse(source); } catch { fail('malformed-input', name, 'must contain valid JSON'); }
-  if (objectDepth(report) > DASHBOARD_LIMITS.reportDepth) fail('too-large', name, `exceeds JSON depth ${DASHBOARD_LIMITS.reportDepth}`);
-  requiredReport(report, name);
-  if (report.files.length > DASHBOARD_LIMITS.reportFiles || report.rules.length > DASHBOARD_LIMITS.reportRules || report.suggestedChecks.length > DASHBOARD_LIMITS.reportChecks) fail('too-large', name, 'report collection limit exceeded');
-  return Object.freeze({ kind: 'report', name, report: Object.freeze(report) });
+  let parsed;
+  try { parsed = JSON.parse(source); } catch { fail('malformed-input', name, 'must contain valid JSON'); }
+  if (objectDepth(parsed) > DASHBOARD_LIMITS.reportDepth) fail('too-large', name, `exceeds JSON depth ${DASHBOARD_LIMITS.reportDepth}`);
+  if (parsed?.tool === VERIFICATION_PROGRESS_TOOL) {
+    const progress = validateVerificationProgress(parsed);
+    if (!progress.valid) fail('malformed-input', name, progress.message);
+    return Object.freeze({ kind: 'verification-progress', name, progress: progress.value });
+  }
+  requiredReport(parsed, name);
+  if (parsed.files.length > DASHBOARD_LIMITS.reportFiles || parsed.rules.length > DASHBOARD_LIMITS.reportRules || parsed.suggestedChecks.length > DASHBOARD_LIMITS.reportChecks) fail('too-large', name, 'report collection limit exceeded');
+  return Object.freeze({ kind: 'report', name, report: Object.freeze(parsed) });
 }
 
 export function validateDashboardImportBatch(items) {
   if (!Array.isArray(items) || !items.length) fail('unsupported-type', 'selected input', 'select at least one file');
   const imports = items.map(validateDashboardImport);
   if (imports.filter((item) => item.kind === 'report').length > DASHBOARD_LIMITS.reportComparisonFiles) fail('unsupported-type', 'selected input', 'at most two report files can be compared');
+  if (imports.filter((item) => item.kind === 'verification-progress').length > DASHBOARD_LIMITS.progressFiles) fail('unsupported-type', 'selected input', 'select at most one verification-progress file');
   if (imports.filter((item) => item.kind === 'diff').length > 1) fail('unsupported-type', 'selected input', 'select one diff at a time');
   return Object.freeze(imports);
 }

@@ -27,6 +27,7 @@ const suites = [
   'scripts/dashboard-architecture-contracts.js',
   'scripts/dashboard-import-contracts.js',
   'scripts/dashboard-comparison-contracts.js',
+  'scripts/dashboard-verification-progress-contracts.js',
   'scripts/dashboard-explorer-contracts.js',
   'scripts/dashboard-accessibility-contracts.js',
   'scripts/artifact-manifest-contracts.js',

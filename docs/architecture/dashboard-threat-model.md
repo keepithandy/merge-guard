@@ -10,6 +10,7 @@ Last reviewed: 2026-08-24
 
 - selected source diffs and patches;
 - report fields, including filenames, reasons, PR context, checks, suppressions, and ownership guidance;
+- verification completion state and optional verification notes;
 - the integrity of risk score, readiness, finding identity, and comparison output;
 - local filesystem confidentiality outside explicitly selected files;
 - browser availability and user control over exports;
@@ -23,6 +24,7 @@ In scope:
 - untrusted strings inside otherwise valid reports;
 - a hostile website probing or rebinding to the loopback server;
 - accidental selection of the wrong type or too many reports;
+- an exported verification-progress file selected with a different report;
 - stale worker results racing a newer selection;
 - a future implementation accidentally adding persistence, execution, or network behavior.
 
@@ -41,12 +43,12 @@ The dashboard does not claim to authenticate reports, prove code safety, execute
 | --- | --- | --- | --- |
 | DASH-T01 | Active content or report strings cause DOM XSS | No `innerHTML`, eval, dynamic import, inline script, or user-built URL; render text with `textContent`; strict local CSP | Malicious-string browser fixtures and static source scan |
 | DASH-T02 | Selected source is exfiltrated | `connect-src 'none'`; no fetch/XHR/WebSocket/EventSource/beacon/ping, telemetry, remote asset, CORS, service worker, or server upload | Response-header fixture, outbound API static scan, browser network assertion |
-| DASH-T03 | Oversized/deep input exhausts memory or CPU | Check `File.size` before read; enforce byte, line, depth, cardinality, and two-report limits; worker timeout/cancel; no archives | Boundary and timeout fixtures at and above every limit |
-| DASH-T04 | Malformed or future schema is interpreted as valid | Fatal UTF-8 decode; object-root/tool/schema/required-field checks; reject before state commit; typed errors | Malformed, legacy, future, scalar, and truncated JSON fixtures |
+| DASH-T03 | Oversized/deep input exhausts memory or CPU | Check `File.size` before read; enforce byte, line, depth, cardinality, two-report, and one-progress-file limits; worker timeout/cancel; no archives | Boundary and timeout fixtures at and above every limit |
+| DASH-T04 | Malformed or future schema is interpreted as valid | Fatal UTF-8 decode; object-root/tool/schema/required-field checks for reports and progress; reject before state commit; typed errors | Malformed, legacy, future, scalar, and truncated JSON fixtures |
 | DASH-T05 | Loopback server exposes arbitrary files or accepts hostile requests | Bind `127.0.0.1`; ephemeral port; exact Host authority; fixed asset map; GET/HEAD only; no body, CORS, directory listing, symlink, proxy, CONNECT, or upgrade | Server integration cases for traversal, encoded paths, Host changes, methods, and upgrade/connect |
 | DASH-T06 | Sensitive review state persists after the session | Memory-only state; no local/session storage, IndexedDB, Cache Storage, cookie, service worker, server temp file, or remote storage; revoke export URLs | Browser storage inspection before/after import, export, and reload |
 | DASH-T07 | Suggested checks, filenames, or input data execute code | Never spawn, shell, evaluate, compile untrusted regex, or treat input as a path/module; checklist is display-only | Static scan and hostile command-string fixtures |
-| DASH-T08 | Browser output drifts from authoritative report/scorer | Imported reports are display-authoritative; raw diffs and comparisons call shared core modules only; exports preserve values | Cross-runtime report/comparison snapshots and no-recalculation assertions |
+| DASH-T08 | Browser output drifts from authoritative report/scorer or applies work to the wrong finding | Imported reports are display-authoritative; raw diffs and comparisons call shared core modules only; verification progress is keyed by stable finding identity and an exact SHA-256 report binding; exports preserve values | Cross-runtime report/comparison snapshots, binding fixtures, and no-recalculation assertions |
 | DASH-T09 | Export or error handling leaks more data than selected | User-gesture-only JSON/escaped Markdown downloads; no automatic navigation; no absolute paths, stacks, excerpts, tokens, or environment data in errors | Export escaping, object-URL revocation, and error-redaction fixtures |
 
 ## Abuse cases
@@ -65,13 +67,15 @@ Stale worker response — associate every import with a monotonically increasing
 
 Score manipulation — display imported values exactly and identify their schema/tool version. Never lower risk based on UI state, checked checklist items, missing history, suppressed annotations, or PR prose.
 
+Mismatched verification progress — retain the imported progress file only in current browser memory and show it as unapplied unless its SHA-256 report binding exactly matches a selected report. Never use its filename, order in the selection, or a suggested-check index as an association key.
+
 ## Security invariants
 
 1. No selected byte crosses the browser-to-server or browser-to-remote boundary.
 2. No imported value becomes executable code, HTML, a filesystem path, or a network destination.
 3. No report score, finding, readiness value, or threshold is recalculated during report viewing.
 4. No check is executed by the dashboard.
-5. No review state survives reload unless a later, separately authorized contract replaces this invariant.
+5. No review state survives reload unless the user explicitly downloads it and later imports it with its exactly bound report.
 6. Invalid input cannot partially replace valid state.
 7. The loopback process can read only its explicit packaged asset allowlist.
 

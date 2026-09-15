@@ -12,6 +12,10 @@ assert(app.includes('Suggested checks'));
 assert(app.includes('Fix this PR'));
 assert(app.includes('Copy check'));
 assert(app.includes('Download verification checklist'));
+assert(app.includes('Download verification progress'));
+assert(app.includes('Copy verification checklist'));
+assert(app.includes('reportBinding'));
+assert(app.includes('verification-progress'));
 assert(app.includes('Merge Guard verification checklist'));
 assert(app.includes('does not approve a pull request'));
 assert(app.includes('What changed since the previous report'));
@@ -35,6 +39,7 @@ assert(fixture.files.length > 0 && fixture.rules.length > 0 && fixture.suggested
 assert(html.includes('role="status"'));
 assert(html.includes('id="output"'));
 assert(html.includes('choose which report is earlier'));
+assert(html.includes('verification-progress JSON file'));
 assert(fs.readFileSync('dashboard/README.md', 'utf8').includes('portable Markdown verification-checklist'));
 assert(fs.readFileSync('dashboard/README.md', 'utf8').includes('local calibration signals'));
 console.log('dashboard explorer contracts passed');
