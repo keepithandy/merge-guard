@@ -11,6 +11,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 ### Added
 
+- Human Verification in the local dashboard: report-bound verification sessions now record optional environment metadata, explicit Untested / Pass / Fail / N/A results, user-added checks, human-observed runtime defects, and Markdown/JSON evidence without changing deterministic risk scores or review semantics. Verification-progress schema v2 carries the richer evidence while schema v1 remains loadable through an explicit migration notice.
 - Trusted pull-request policy-baseline receipts: the composite Action now evaluates explicit policy manifests from the exact base commit, records base/head/tested identities and source digests, and defers same-PR policy edits until after merge.
 - Conservative `reviewDecision` labels and a `primaryChecks` projection for focused human-facing review output, while retaining the legacy `mergeReadiness` field in schema version 1.
 - A single `npm test` contributor entry point that runs the detailed local contract suite.
@@ -28,6 +29,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 ### Changed
 
+- Human Verification keeps dashboard analysis first and observed runtime evidence second; report comparison never carries an old human Pass onto a changed/current report, and resolved findings remain comparison state rather than manual Pass.
 - Tightened default routing, persistence, and async/network signals to require specific path segments or call-like syntax and to ignore fixture/data files for core line matching.
 - Shortened the default text, Markdown, and pull-request projections to show three primary checks and identify additional checks as optional detail.
 - Reframed the README and roadmap around the CLI/Action golden path and beta usefulness validation; dashboard, plugin, provenance, and trend systems remain optional advanced subsystems.
@@ -118,17 +120,3 @@ Status: historical stabilization candidate. Package publication was not authoriz
 - Rules-based diff scanner with plain-text, Markdown, and JSON reports.
 - CI mode and GitHub pull-request comment workflow support.
 - Documentation-only change detection, per-file risk breakdowns, safe/standard/strict presets, rule explanations, configurable high-risk paths, and configurable suggested test commands.
-- Optional local AI-ready review-summary prompt output without an AI provider or API key.
-
-## Release checklist
-
-Before staging a candidate:
-
-- run `npm run smoke`;
-- run `npm run test:cli`, `npm run test:snapshots`, `npm run test:repository`, `npm run test:policies`, `npm run test:guidance`, and `npm run test:policy-resolution`;
-- run `npm run test:pr-summary`, `npm run test:github-review`, `npm run test:finding-comparison`, and `npm run test:review-e2e`;
-- run dashboard, artifact, legacy-risk, report-trend, plugin, installation, security, performance, public-contract, distribution, support, and version gates;
-- run `npm run test:doctor`, `npm run test:consumer-fixtures`, and `npm run release:check`;
-- verify CLI text, Markdown, JSON, package dry-run, documentation, and current version history;
-- stage to a new `release/v<package-version>` path from an immutable reviewed commit;
-- do not publish automatically from a passing issue, pull request, or validation command.
