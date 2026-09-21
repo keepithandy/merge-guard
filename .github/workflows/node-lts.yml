@@ -12,6 +12,7 @@ permissions:
 jobs:
   human-verification-validation:
     name: Human Verification full validation
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
