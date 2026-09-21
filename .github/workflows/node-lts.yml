@@ -10,6 +10,61 @@ permissions:
   contents: read
 
 jobs:
+  human-verification-validation:
+    name: Human Verification full validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+          cache-dependency-path: package.json
+
+      - name: Install dependencies without changing lock state
+        run: npm install --no-package-lock --ignore-scripts
+
+      - name: Run complete repository test suite
+        run: npm test
+
+      - name: Run repository check
+        run: npm run check
+
+      - name: Run dashboard architecture contracts
+        run: npm run test:dashboard-architecture
+
+      - name: Run dashboard import contracts
+        run: npm run test:dashboard-import
+
+      - name: Run dashboard comparison contracts
+        run: npm run test:dashboard-comparison
+
+      - name: Run dashboard verification-progress contracts
+        run: npm run test:dashboard-verification-progress
+
+      - name: Run dashboard review-focus contracts
+        run: npm run test:dashboard-review-focus
+
+      - name: Run dashboard explorer contracts
+        run: npm run test:dashboard-explorer
+
+      - name: Run dashboard accessibility contracts
+        run: npm run test:dashboard-accessibility
+
+      - name: Run public-contract suite
+        run: npm run test:public-contracts
+
+      - name: Run security suite
+        run: npm run test:security
+
+      - name: Check diff whitespace
+        run: git diff --check origin/${{ github.base_ref }}...HEAD
+
   contracts:
     name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -92,6 +147,15 @@ jobs:
       - name: Run local dashboard import contracts
         run: npm run test:dashboard-import
 
+      - name: Run local dashboard comparison contracts
+        run: npm run test:dashboard-comparison
+
+      - name: Run local dashboard verification-progress contracts
+        run: npm run test:dashboard-verification-progress
+
+      - name: Run local dashboard review-focus contracts
+        run: npm run test:dashboard-review-focus
+
       - name: Run local dashboard explorer contracts
         run: npm run test:dashboard-explorer
 
@@ -121,6 +185,7 @@ jobs:
 
       - name: Run plugin conformance contracts
         run: npm run test:plugin-conformance
+
       - name: Validate installation and packaging
         run: npm run test:installation
 
@@ -135,14 +200,19 @@ jobs:
 
       - name: Validate security and provenance baseline
         run: npm run test:security
+
       - name: Validate performance budgets and soak
         run: npm run test:performance
+
       - name: Validate release-candidate package
         run: npm run test:release-candidate
+
       - name: Validate release artifact flow
         run: npm run test:release-artifacts
+
       - name: Validate distribution listings
         run: npm run test:distribution
+
       - name: Validate support process
         run: npm run test:support
 
