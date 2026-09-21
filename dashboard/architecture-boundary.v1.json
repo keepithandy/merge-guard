@@ -8,10 +8,7 @@
     "server": {
       "bindHost": "127.0.0.1",
       "port": "ephemeral",
-      "methods": [
-        "GET",
-        "HEAD"
-      ],
+      "methods": ["GET", "HEAD"],
       "assetAccess": "fixed-allowlist",
       "acceptsRequestBodies": false,
       "acceptsUserFiles": false,
@@ -20,10 +17,7 @@
       "cache": "no-store"
     },
     "browser": {
-      "inputAcquisition": [
-        "file-picker",
-        "drag-and-drop"
-      ],
+      "inputAcquisition": ["file-picker", "drag-and-drop"],
       "processing": "dedicated-module-worker",
       "state": "memory-only",
       "serviceWorker": false,
@@ -32,24 +26,15 @@
   },
   "inputs": {
     "diff": {
-      "extensions": [
-        ".diff",
-        ".patch"
-      ],
+      "extensions": [".diff", ".patch"],
       "maxBytes": 20971520,
       "maxLines": 200000,
       "encoding": "utf-8",
       "requiredMarker": "diff --git ",
-      "reject": [
-        "archive",
-        "binary-patch",
-        "nul-byte"
-      ]
+      "reject": ["archive", "binary-patch", "nul-byte"]
     },
     "report": {
-      "extensions": [
-        ".json"
-      ],
+      "extensions": [".json"],
       "maxBytes": 10485760,
       "maxDepth": 64,
       "maxFiles": 10000,
@@ -57,34 +42,19 @@
       "maxChecks": 10000,
       "maxComparisonFiles": 2,
       "requiredTool": "merge-guard",
-      "supportedSchemaVersions": [
-        1
-      ],
-      "reject": [
-        "archive",
-        "non-object-root",
-        "unsupported-schema"
-      ]
+      "supportedSchemaVersions": [1],
+      "reject": ["archive", "non-object-root", "unsupported-schema"]
     },
     "verificationProgress": {
-      "extensions": [
-        ".json"
-      ],
+      "extensions": [".json"],
       "maxBytes": 10485760,
       "maxDepth": 64,
       "maxProgressFiles": 1,
       "maxChecks": 50000,
       "requiredTool": "merge-guard-verification-progress",
-      "supportedSchemaVersions": [
-        1
-      ],
+      "supportedSchemaVersions": [1, 2],
       "reportBinding": "sha-256-canonical-report",
-      "reject": [
-        "archive",
-        "non-object-root",
-        "unsupported-schema",
-        "duplicate-finding-identity"
-      ]
+      "reject": ["archive", "non-object-root", "unsupported-schema", "duplicate-finding-identity", "duplicate-item-identity", "invalid-verification-status"]
     }
   },
   "processing": {
@@ -114,10 +84,7 @@
     "objectUrls": "revoke-after-download"
   },
   "outputs": {
-    "formats": [
-      "markdown",
-      "json"
-    ],
+    "formats": ["markdown", "json"],
     "trigger": "explicit-user-action",
     "preserveReportValues": true,
     "executeChecks": false
@@ -126,24 +93,7 @@
     "behavior": "reject-before-state-commit",
     "retainPreviousValidView": true,
     "exposeLocalPaths": false,
-    "categories": [
-      "too-large",
-      "unsupported-type",
-      "invalid-encoding",
-      "malformed-input",
-      "incompatible-schema",
-      "processing-timeout"
-    ]
+    "categories": ["too-large", "unsupported-type", "invalid-encoding", "malformed-input", "incompatible-schema", "processing-timeout"]
   },
-  "threatIds": [
-    "DASH-T01",
-    "DASH-T02",
-    "DASH-T03",
-    "DASH-T04",
-    "DASH-T05",
-    "DASH-T06",
-    "DASH-T07",
-    "DASH-T08",
-    "DASH-T09"
-  ]
+  "threatIds": ["DASH-T01", "DASH-T02", "DASH-T03", "DASH-T04", "DASH-T05", "DASH-T06", "DASH-T07", "DASH-T08", "DASH-T09"]
 }
