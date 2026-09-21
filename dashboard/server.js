@@ -10,6 +10,7 @@ const assets = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/comparison.js', ['comparison.js', 'text/javascript; charset=utf-8']],
   ['/review-focus.js', ['review-focus.js', 'text/javascript; charset=utf-8']],
+  ['/human-verification.js', ['human-verification.js', 'text/javascript; charset=utf-8']],
   ['/verification-progress.js', ['verification-progress.js', 'text/javascript; charset=utf-8']],
   ['/import-worker.js', ['import-worker.js', 'text/javascript; charset=utf-8']],
   ['/import-contract.js', ['import-contract.js', 'text/javascript; charset=utf-8']],
