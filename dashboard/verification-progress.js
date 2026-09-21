@@ -7,17 +7,9 @@ export const VERIFICATION_PROGRESS_MAX_CHECKS = 50000;
 export const VERIFICATION_PROGRESS_MAX_DEFECTS = 10000;
 export const VERIFICATION_PROGRESS_MAX_NOTE_LENGTH = VERIFICATION_NOTE_MAX_LENGTH;
 
-function plainObject(value) {
-  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
-
-function validBinding(value) {
-  return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
-}
-
-function validNullableText(value, max = 8000) {
-  return value === null || (typeof value === 'string' && value.length <= max);
-}
+function plainObject(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
+function validBinding(value) { return typeof value === 'string' && /^[a-f0-9]{64}$/.test(value); }
+function validNullableText(value, max = 8000) { return value === null || (typeof value === 'string' && value.length <= max); }
 
 function validateLegacy(progress) {
   if (!Array.isArray(progress.checks) || progress.checks.length > VERIFICATION_PROGRESS_MAX_CHECKS) return { valid: false, message: 'progress.checks must be an array within the supported limit' };
@@ -83,20 +75,13 @@ function validateCurrent(progress) {
   if (!plainObject(session)) return { valid: false, message: 'progress.session must be an object' };
   if (typeof session.id !== 'string' || !session.id) return { valid: false, message: 'progress.session.id must be non-empty text' };
   if (!validNullableText(session.createdAt) || !validNullableText(session.updatedAt)) return { valid: false, message: 'progress session timestamps must be text or null' };
-  const metadataError = validateMetadata(session.metadata);
-  if (metadataError) return { valid: false, message: metadataError };
+  const metadataError = validateMetadata(session.metadata); if (metadataError) return { valid: false, message: metadataError };
   if (!Array.isArray(session.items) || session.items.length > VERIFICATION_PROGRESS_MAX_CHECKS) return { valid: false, message: 'progress.session.items must be an array within the supported limit' };
   const identities = new Set();
-  for (const [index, item] of session.items.entries()) {
-    const error = validateItem(item, index, identities);
-    if (error) return { valid: false, message: error };
-  }
+  for (const [index, item] of session.items.entries()) { const error = validateItem(item, index, identities); if (error) return { valid: false, message: error }; }
   if (!Array.isArray(session.runtimeDefects) || session.runtimeDefects.length > VERIFICATION_PROGRESS_MAX_DEFECTS) return { valid: false, message: 'progress.session.runtimeDefects must be an array within the supported limit' };
   const defectIdentities = new Set();
-  for (const [index, defect] of session.runtimeDefects.entries()) {
-    const error = validateDefect(defect, index, defectIdentities);
-    if (error) return { valid: false, message: error };
-  }
+  for (const [index, defect] of session.runtimeDefects.entries()) { const error = validateDefect(defect, index, defectIdentities); if (error) return { valid: false, message: error }; }
   return { valid: true, value: Object.freeze(progress), legacySchemaVersion: null };
 }
 
@@ -108,10 +93,12 @@ export function validateVerificationProgress(progress) {
   return progress.schemaVersion === 1 ? validateLegacy(progress) : validateCurrent(progress);
 }
 
+export function verificationProgressMatchesReport(progress, reportBinding) {
+  return validBinding(reportBinding) && progress?.reportBinding === reportBinding;
+}
+
 export function progressByFinding(progress) {
-  if (progress.schemaVersion === 1) {
-    return new Map(progress.checks.map((check) => [check.findingIdentity, { status: check.completed ? 'pass' : 'untested', note: check.note, migratedFromLegacyCompleted: check.completed }]));
-  }
+  if (progress.schemaVersion === 1) return new Map(progress.checks.map((check) => [check.findingIdentity, { status: check.completed ? 'pass' : 'untested', note: check.note, migratedFromLegacyCompleted: check.completed }]));
   return new Map(progress.session.items.filter((item) => item.findingIdentity).map((item) => [item.findingIdentity, { status: item.status, note: item.note }]));
 }
 
