@@ -120,3 +120,17 @@ Status: historical stabilization candidate. Package publication was not authoriz
 - Rules-based diff scanner with plain-text, Markdown, and JSON reports.
 - CI mode and GitHub pull-request comment workflow support.
 - Documentation-only change detection, per-file risk breakdowns, safe/standard/strict presets, rule explanations, configurable high-risk paths, and configurable suggested test commands.
+- Optional local AI-ready review-summary prompt output without an AI provider or API key.
+
+## Release checklist
+
+Before staging a candidate:
+
+- run `npm run smoke`;
+- run `npm run test:cli`, `npm run test:snapshots`, `npm run test:repository`, `npm run test:policies`, `npm run test:guidance`, and `npm run test:policy-resolution`;
+- run `npm run test:pr-summary`, `npm run test:github-review`, `npm run test:finding-comparison`, and `npm run test:review-e2e`;
+- run dashboard, artifact, legacy-risk, report-trend, plugin, installation, security, performance, public-contract, distribution, support, and version gates;
+- run `npm run test:doctor`, `npm run test:consumer-fixtures`, and `npm run release:check`;
+- verify CLI text, Markdown, JSON, package dry-run, documentation, and current version history;
+- stage to a new `release/v<package-version>` path from an immutable reviewed commit;
+- do not publish automatically from a passing issue, pull request, or validation command.
