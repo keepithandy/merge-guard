@@ -52,7 +52,7 @@ assert(humanVerification.includes('Human verification records testing performed 
 assert(fixture.files.length > 0 && fixture.rules.length > 0 && fixture.suggestedChecks.length > 0);
 assert(html.includes('role="status"'));
 assert(html.includes('id="output"'));
-assert(html.includes('choose which is earlier'));
+assert(html.includes('choose which report is earlier'));
 assert(html.includes('verification-progress JSON file'));
 assert(fs.readFileSync('dashboard/README.md', 'utf8').includes('Human Verification'));
 assert(fs.readFileSync('dashboard/README.md', 'utf8').includes('Review focus'));
