@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "runtime": "node",
+  "directory": ".github/smoke",
+  "runner": "run-integrity.mjs",
+  "minimumChecks": 4,
+  "purpose": "Repository integrity only; no Merge Guard product or policy behavior."
+}
