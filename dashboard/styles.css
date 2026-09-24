@@ -1,1 +1,54 @@
-body { font: 16px system-ui, sans-serif; margin: 2rem; color: #17202a; background: #f7f9fb; } main { max-width: 60rem; margin: auto; } #drop-zone, .report, .comparison, .comparison-controls, .calibration, .review-focus, .verification-progress { display: block; border: 2px solid #d5dee8; background: #fff; padding: 1.25rem; margin: 1rem 0; border-radius: .5rem; } #drop-zone { border-style: dashed; cursor: pointer; } #files { display: block; margin-top: 1rem; } .report { border-left: .5rem solid #506b87; } .comparison { border-left: .5rem solid #237a57; } .comparison-controls { border-left: .5rem solid #4d5f8b; } .calibration { border-left: .5rem solid #8f5b18; } .review-focus { border-left: .5rem solid #a13d15; } .verification-progress { border-left: .5rem solid #7d3f85; } .review-focus-high { font-weight: 700; } .review-focus-medium { font-weight: 600; } .summary { font-weight: 700; } .exports { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1rem 0; } .action-cards { display: grid; gap: .75rem; } .action-card { border: 1px solid #b7c7d8; border-radius: .35rem; padding: 1rem; } .action-card h4 { margin: 0 0 .5rem; } .action-card label { display: block; margin-top: .75rem; } .action-card button { margin-top: .75rem; } textarea { box-sizing: border-box; display: block; font: inherit; margin-top: .35rem; max-width: 100%; min-height: 5rem; width: 100%; } select { font: inherit; padding: .35rem; } button { border: 2px solid #145da0; border-radius: .35rem; background: #145da0; color: #fff; padding: .6rem .8rem; font: inherit; cursor: pointer; } li { margin: .5rem 0; } :focus-visible { outline: 3px solid #f0a000; outline-offset: 3px; } [data-state="error"] { color: #a61b1b; font-weight: 600; } @media (max-width: 42rem) { body { margin: 1rem; } #drop-zone, .report, .comparison, .comparison-controls, .calibration, .review-focus, .verification-progress { padding: 1rem; } } @media (prefers-contrast: more) { body { color: #000; background: #fff; } #drop-zone, .report, .comparison, .comparison-controls, .calibration, .review-focus, .verification-progress, .action-card { border-color: #000; } button { color: #000; background: #fff; } } @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+* { box-sizing: border-box; }
+body { font: 16px system-ui, sans-serif; margin: 2rem; color: #17202a; background: #f7f9fb; overflow-wrap: anywhere; }
+main { max-width: 60rem; margin: auto; min-width: 0; }
+#drop-zone, .report, .comparison, .comparison-controls, .calibration, .review-focus, .verification-progress, .human-verification { display: block; border: 2px solid #d5dee8; background: #fff; padding: 1.25rem; margin: 1rem 0; border-radius: .5rem; min-width: 0; }
+#drop-zone { border-style: dashed; cursor: pointer; }
+#files { display: block; margin-top: 1rem; max-width: 100%; }
+.report { border-left: .5rem solid #506b87; }
+.comparison { border-left: .5rem solid #237a57; }
+.comparison-controls { border-left: .5rem solid #4d5f8b; }
+.calibration { border-left: .5rem solid #8f5b18; }
+.review-focus { border-left: .5rem solid #a13d15; }
+.verification-progress { border-left: .5rem solid #7d3f85; }
+.human-verification { border-left: .5rem solid #375f78; }
+.review-focus-high { font-weight: 700; }
+.review-focus-medium { font-weight: 600; }
+.summary, .verification-summary { font-weight: 700; }
+.exports { display: flex; gap: .75rem; flex-wrap: wrap; margin: 1rem 0; }
+.verification-cards, .runtime-defects { display: grid; gap: .75rem; margin: 1rem 0; }
+.verification-card, .runtime-defect, .runtime-defect-form, .verification-summary { border: 1px solid #b7c7d8; border-radius: .35rem; padding: 1rem; min-width: 0; }
+.verification-card h4, .runtime-defect h4, .runtime-defect-form h4 { margin: 0 0 .5rem; }
+.provenance { font-weight: 700; }
+.status-untested { border-left: .35rem solid #6c757d; }
+.status-pass { border-left: .35rem solid #237a57; }
+.status-fail { border-left: .35rem solid #a61b1b; }
+.status-na { border-left: .35rem solid #4d5f8b; }
+.verification-card label, .runtime-defect-form label, .metadata-grid label, .verification-details label { display: block; font-weight: 600; margin-top: .75rem; }
+.verification-details { border-top: 1px solid #d5dee8; margin: 1rem 0; padding-top: .75rem; }
+.verification-details summary { cursor: pointer; font-weight: 700; min-height: 44px; padding: .65rem 0; }
+.metadata-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+input, select, textarea, button { font: inherit; max-width: 100%; }
+input, select { min-height: 44px; padding: .5rem; width: 100%; }
+textarea { display: block; margin-top: .35rem; min-height: 5rem; padding: .5rem; resize: vertical; width: 100%; }
+button { border: 2px solid #145da0; border-radius: .35rem; background: #145da0; color: #fff; min-height: 44px; padding: .6rem .8rem; cursor: pointer; margin: .25rem .25rem .25rem 0; }
+.secondary-button { background: #fff; color: #145da0; }
+.danger-button { background: #fff; border-color: #8b1a1a; color: #8b1a1a; }
+button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: not-allowed; opacity: .55; }
+li { margin: .5rem 0; }
+:focus-visible { outline: 3px solid #f0a000; outline-offset: 3px; }
+[data-state="error"] { color: #a61b1b; font-weight: 600; }
+@media (max-width: 42rem) {
+  body { margin: .75rem; }
+  #drop-zone, .report, .comparison, .comparison-controls, .calibration, .review-focus, .verification-progress, .human-verification { padding: 1rem; }
+  .metadata-grid { grid-template-columns: 1fr; }
+  .exports { align-items: stretch; flex-direction: column; }
+  .exports button { width: 100%; }
+}
+@media (prefers-contrast: more) {
+  body { color: #000; background: #fff; }
+  #drop-zone, .report, .comparison, .comparison-controls, .calibration, .review-focus, .verification-progress, .human-verification, .verification-card, .runtime-defect, .runtime-defect-form, .verification-summary { border-color: #000; }
+  button { color: #000; background: #fff; border-color: #000; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

@@ -8,7 +8,7 @@ const findings = [{ identity: 'routing' }, { identity: 'state' }];
 const focus = buildReviewFocus({
   report,
   findings,
-  progress: new Map([['routing', { completed: true }]]),
+  progress: new Map([['routing', { status: 'pass' }], ['state', { status: 'untested' }]]),
   comparison: { configurationChanged: true, summary: { new: 2, unchanged: 1 } },
   expiringSuppressions: [{ ruleId: 'legacy' }]
 });
@@ -22,11 +22,12 @@ assert.deepEqual(focus.items.map((item) => item.key), [
   'reported-readiness'
 ]);
 assert(focus.items.find((item) => item.key === 'reported-readiness').detail.includes('reviewer judgment'));
+assert(focus.items.find((item) => item.key === 'recurring-findings').detail.includes('previous human Pass'));
 
 const recorded = buildReviewFocus({
   report,
-  findings: [{ identity: 'routing' }],
-  progress: new Map([['routing', { completed: true }]]),
+  findings: [{ identity: 'routing' }, { identity: 'state' }],
+  progress: new Map([['routing', { status: 'fail' }], ['state', { status: 'na' }]]),
   comparison: null,
   expiringSuppressions: []
 });

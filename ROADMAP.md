@@ -6,7 +6,7 @@ This is the canonical roadmap for work after the v1.0 release candidate. It desc
 
 The historical v1.0 candidate at `636a1e9812bb017dae69be122b36555b89db5e77` passed its release gates and reproducible staging checks but remained unsigned, unapproved for external release actions, unpublished, and unverified. Its evidence remains immutable history; it is not the active product milestone. Tagging, npm publication, GitHub release creation, and stable Action-reference movement remain manual owner decisions for any version.
 
-The current `main` source identity is `1.3.0-beta.1`; it consolidates the completed v1.1, v1.2, and v1.3 source work into an explicit unpublished beta without changing historical candidates or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
+The current `main` source identity is `1.3.0-beta.2`; it consolidates completed v1.1, v1.2, and v1.3 source work into an explicit unpublished beta without changing historical candidates or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
 
 The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. The reviewer-signal cleanup, companion-change contracts, and browser-game save compatibility slices are also implemented. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active field-validation milestone exists to measure that.
 
@@ -41,6 +41,24 @@ The first corrective target is the missed precision gate, the materially low ove
 Exit gate: a new preregistered held-out pilot reaches the thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md). An honest miss is preserved, but it locks every successor and requires a newly approved roadmap revision; it does not open an automatic corrective loop. No v2 or extension-surface expansion begins before a passing decision.
 
 Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, and browser-game save compatibility merged in #159 after all 11 required GitHub checks passed.
+
+### Owner-directed additive slice — Human Verification evidence
+
+The owner has explicitly authorized a bounded dashboard/evidence improvement during beta validation: **Human Verification**. This is not a new analysis system and does not reopen the expansion queue.
+
+The slice builds directly on the existing local dashboard, report comparison, verification-progress, and durable-evidence work. It allows a person to record current-build Pass / Fail / N/A / Untested results, environment metadata, user-added manual checks, and human-observed runtime defects, then export that report-bound evidence as Markdown or JSON.
+
+Roadmap integrity constraints for this slice are explicit:
+
+- deterministic risk scoring, thresholds, findings, and review-decision semantics do not change;
+- no discovered or imported project command is executed;
+- no hosted service, account, telemetry, remote storage, media upload, or GitHub write is added;
+- Merge Guard report schema v1, CLI, Action, comparison, and existing evidence provenance remain compatible;
+- verification-progress v1 remains loadable with an explicit migration notice, while v2 carries richer Human Verification evidence;
+- previous human Pass evidence never becomes current-build Pass through report comparison;
+- the work does not constitute proof of safety, CI replacement, code-review replacement, or merge approval.
+
+This owner-directed slice is complete only when its dashboard architecture, import, comparison, verification-progress, review-focus, explorer, accessibility, public-contract, security, and full repository gates remain green. It does not change the beta recovery exit gate above.
 
 ## Planned milestones
 

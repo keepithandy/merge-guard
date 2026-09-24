@@ -11,6 +11,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 ### Added
 
+- Human Verification in the local dashboard: report-bound verification sessions now record optional environment metadata, explicit Untested / Pass / Fail / N/A results, user-added checks, human-observed runtime defects, and Markdown/JSON evidence without changing deterministic risk scores or review semantics. Verification-progress schema v2 carries the richer evidence while schema v1 remains loadable through an explicit migration notice.
 - Trusted pull-request policy-baseline receipts: the composite Action now evaluates explicit policy manifests from the exact base commit, records base/head/tested identities and source digests, and defers same-PR policy edits until after merge.
 - Conservative `reviewDecision` labels and a `primaryChecks` projection for focused human-facing review output, while retaining the legacy `mergeReadiness` field in schema version 1.
 - A single `npm test` contributor entry point that runs the detailed local contract suite.
@@ -28,6 +29,7 @@ All notable Merge Guard changes are recorded here. Dates record when source work
 
 ### Changed
 
+- Human Verification keeps dashboard analysis first and observed runtime evidence second; report comparison never carries an old human Pass onto a changed/current report, and resolved findings remain comparison state rather than manual Pass.
 - Tightened default routing, persistence, and async/network signals to require specific path segments or call-like syntax and to ignore fixture/data files for core line matching.
 - Shortened the default text, Markdown, and pull-request projections to show three primary checks and identify additional checks as optional detail.
 - Reframed the README and roadmap around the CLI/Action golden path and beta usefulness validation; dashboard, plugin, provenance, and trend systems remain optional advanced subsystems.
