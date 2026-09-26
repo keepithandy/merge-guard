@@ -1,136 +1,106 @@
 # Changelog
 
-All notable Merge Guard changes are recorded here. Dates record when source work was consolidated; they do not imply publication. Beta.1 was published as a GitHub experimental prerelease on 2026-09-07; npm remains unpublished.
+Merge Guard release notes are kept intentionally user-facing. This history focuses on features, visible improvements, and hotfixes that matter when using the CLI, GitHub Action, reports, or local dashboard.
 
-## 1.3.0-beta.2 - 2026-09-07
+Internal refactors, test-suite expansion, release engineering, and maintenance-only changes are omitted.
 
-- Add `merge-guard --version`, reporting the installed package version without requiring a diff. Unknown options still fail validation.
-- Preserve report schema version 1 and existing scoring behavior.
+> **Release status:** some historical versions below were source or prerelease milestones and were not published to npm.
 
 ## Unreleased
 
-### Added
+### Features
 
-- Human Verification in the local dashboard: report-bound verification sessions now record optional environment metadata, explicit Untested / Pass / Fail / N/A results, user-added checks, human-observed runtime defects, and Markdown/JSON evidence without changing deterministic risk scores or review semantics. Verification-progress schema v2 carries the richer evidence while schema v1 remains loadable through an explicit migration notice.
-- Trusted pull-request policy-baseline receipts: the composite Action now evaluates explicit policy manifests from the exact base commit, records base/head/tested identities and source digests, and defers same-PR policy edits until after merge.
-- Conservative `reviewDecision` labels and a `primaryChecks` projection for focused human-facing review output, while retaining the legacy `mergeReadiness` field in schema version 1.
-- A single `npm test` contributor entry point that runs the detailed local contract suite.
-- An opt-in, read-only v1 impact-metadata contract for explicitly selected checked-in JSON files. It validates declared package roots and direct dependencies, ownership paths, generated paths, and repository-wide paths without executing project code or inferring a graph.
-- Additive `repository.impactMetadata` report evidence with deterministic valid, invalid, and not-provided states. Invalid metadata is unavailable input and leaves dependency impact unknown.
-- An additive explainable impact graph that separates direct, transitive, repository-wide, generated, and unknown impact using only valid explicit metadata, with edge provenance and deterministic diagnostics.
-- Opt-in v1.3 prior-evidence verification that binds an explicitly supplied previous report to its artifact manifest and distinguishes verified, missing, stale, cross-branch, incompatible, and unverifiable evidence before comparison.
-- Caller-owned v1.3 CI evidence handoff with Action-generated report manifests, strict prior-evidence inputs/status, and a least-privilege explicit run-ID download/upload example.
-- Versioned v1.3 review-projection evidence for reruns, duplicate events, fork/read-only permissions, canceled attempts, threshold failures, and partial output failures without weakening scan results.
-- A release-blocking v1.3 reproducibility gate for byte-stable reports, manifests, annotations, SARIF, comparisons, and projection results across isolated lanes and the supported Node/OS matrix.
-- An opt-in, local historical-PR evaluation harness with versioned corpus/result contracts, independent labels, calibration/held-out leakage controls, deterministic matching and aggregate metrics, and content-free outputs. It never uploads, fetches, executes changed code, or overwrites prior results.
-- Opt-in browser-game save compatibility evidence for literal storage-key changes, numeric save-version changes, migration evidence, and focused old-save checks without changing risk scoring.
-- A fail-closed historical-PR pilot preregistration record that enforces corpus prerequisites, freezes corpus/product/metric/threshold identities, and prevents held-out execution when that evidence is missing or changed.
-- A local-only pilot corpus intake guide with an ignored workspace, independent-label workflow, quota tracker, privacy stop conditions, and calibration handoff.
+- **Human Verification in the local dashboard.** Record Untested, Pass, Fail, or N/A results against a report, add your own checks, capture runtime defects, include optional environment details, and export the evidence as Markdown or JSON.
+- **Safer policy review for pull requests.** Merge Guard can verify the policy baseline from the exact base commit so policy changes made inside the same pull request do not silently redefine the rules being used to review that pull request.
+- **Clearer pull-request decisions.** Review output now emphasizes a small set of primary checks and provides a conservative review-decision label so the important result is easier to find.
+- **Explainable repository impact.** Projects can opt in to checked-in impact metadata that describes package roots, dependencies, ownership paths, generated paths, and repository-wide paths. Merge Guard uses that information to explain direct, transitive, generated, repository-wide, and unknown impact instead of pretending to infer a dependency graph.
+- **Verified previous-report comparison.** Prior reports can be checked against their artifacts and repository context before comparison, helping distinguish valid previous evidence from stale, incompatible, cross-branch, or unverifiable evidence.
+- **CI evidence handoff.** GitHub Action users can carry explicitly supplied review evidence between runs while keeping the handoff caller-controlled and read-only.
+- **Browser-game save compatibility checks.** Opt-in checks can flag literal storage-key changes, save-version changes, and missing migration evidence when reviewing changes that may affect existing saves.
 
-### Changed
+### Improvements
 
-- Human Verification keeps dashboard analysis first and observed runtime evidence second; report comparison never carries an old human Pass onto a changed/current report, and resolved findings remain comparison state rather than manual Pass.
-- Tightened default routing, persistence, and async/network signals to require specific path segments or call-like syntax and to ignore fixture/data files for core line matching.
-- Shortened the default text, Markdown, and pull-request projections to show three primary checks and identify additional checks as optional detail.
-- Reframed the README and roadmap around the CLI/Action golden path and beta usefulness validation; dashboard, plugin, provenance, and trend systems remain optional advanced subsystems.
+- Human Verification keeps automated analysis separate from human-observed runtime evidence, making it clearer which conclusions came from Merge Guard and which came from manual testing.
+- Text, Markdown, and pull-request summaries are shorter by default and prioritize the three most important checks before optional detail.
+- Routing, persistence, async, and network signals are more selective, reducing noisy matches from fixtures, data files, and unrelated text.
+
+### Hotfixes
+
+- A human **Pass** from an older report is no longer carried onto a changed/current report.
+- Resolved findings remain comparison history instead of being incorrectly treated as a new manual Pass.
+
+## 1.3.0-beta.2 - 2026-09-07
+
+### Features
+
+- Added `merge-guard --version` so the installed Merge Guard version can be checked without supplying a diff.
+
+### Hotfixes
+
+- Unknown command-line options continue to fail validation instead of being silently accepted.
 
 ## 1.3.0-beta.1 - 2026-08-29 (unpublished beta source version)
 
-Status: consolidated beta identity only. Signing, tagging, npm publication, GitHub release creation, stable Action-reference changes, and Marketplace publication remain separately owner-controlled.
+### Features
 
-This beta consolidates the completed v1.1 adoption diagnostics, v1.2 explicit repository-impact fidelity, and v1.3 durable review-evidence work while preserving JSON report schema version 1 and the frozen v1 scoring behavior.
+- Added richer repository-impact evidence for complex changes such as renames, copies, generated files, binary files, submodules, oversized files, and partial-history diffs.
+- Expanded durable review evidence so repeated reviews and prior-result comparisons can carry more useful context without changing the established risk-scoring model.
 
-The next milestone is field validation: a release-gated historical-PR evaluation design replaces premature extension-lifecycle work with preregistered usefulness, noise, setup-effort, privacy, and runtime measurements.
-- Deterministic v1.2 impact evidence for rename, copy, binary, submodule, generated, oversized, and partial-history diff cases without inspecting changed contents or remote history.
-- A release-blocking v1.2 compatibility and performance gate proving additive v1 behavior and deterministic 750-package explicit graphs across the supported Node/OS matrix.
+### Improvements
+
+- Repository-impact reporting became more explicit about what Merge Guard knows, what was declared by the repository, and what remains unknown.
 
 ## 1.1.0 - 2026-08-27 (unpublished source version)
 
-Status: current source identity only. Signing, tag creation, npm publication, GitHub release creation, Action-reference changes, and Marketplace publication remain separately owner-controlled.
+### Features
 
-### Added
+- Added `merge-guard --doctor` with text and JSON output for diagnosing Node runtime, package identity, local configuration, policy/plugin manifests, repository context, and GitHub Action inputs.
+- Doctor output now provides actionable next steps when setup or configuration is incomplete.
+- Added supported setup guidance for source checkout, local archives, GitHub Actions, the local dashboard, policies, and plugins.
 
-- Read-only `merge-guard --doctor` diagnostics in stable text and JSON forms for Node runtime, package/SBOM identity, local configuration, selected policy and plugin manifests, current-directory repository context, bundled Action inputs, and caller-supplied Action input files.
-- Actionable doctor next steps, deterministic check ordering, output redaction, and strict rejection of incompatible output modes, diff arguments, unsupported Action input names, and parent-directory Action paths.
-- Supported journey matrix for source checkout, local archive, future npm, GitHub Action, local dashboard, policy, and plugin adoption with failure recovery and rollback guidance.
-- Public, metadata-only consumer fixtures for standalone Node, npm workspace, Python, mixed project, forked pull request, and restricted-permission Action paths.
-- Privacy-safe adoption and doctor issue templates plus no-telemetry troubleshooting guidance.
-- Versioning policy, complete version ledger, current v1.1.0 release-note and decision templates, and automated verification of current identity versus preserved history.
+### Hotfixes
 
-### Fixed
-
-- Rejected unsafe repository-controlled regular expressions in custom rules, suppressions, policy packs, and policy exceptions before matching.
-- Made release staging derive its owner-packet title from the package version instead of a hard-coded release number.
-
-### Compatibility and verification
-
-- Requires Node.js 18 or newer; the v1 compatibility range remains Node 18, 20, 22, and 24 on Ubuntu and Windows.
-- JSON report schema remains version 1; doctor exposes a separate additive diagnostic schema version 1.
-- Starter policies and the reference plugin remain compatible with Merge Guard `>=1.0.0 <2.0.0`.
+- Unsafe repository-controlled regular expressions in custom rules, suppressions, policy packs, and policy exceptions are rejected before matching.
 
 ## 1.0.0 - 2026-08-25 through 2026-08-27 (prepared candidate, unpublished)
 
-Status: historical prepared candidate. The repaired candidate source and its checksum-bound evidence remain recorded, but no external release action was approved or performed.
+### Features
 
-### Added
+- Added repository intelligence for npm workspaces, Node, Python, and mixed repositories, including affected-package mapping and explanations for why an area is considered impacted.
+- Added versioned policy packs with starter policies, protected-path guidance, CODEOWNERS-aware review guidance, inherited policy configuration, and expiring annotation-only exceptions.
+- Added compact pull-request summaries, changed-line GitHub annotations, optional SARIF output, stable finding identities, and previous-report comparison.
+- Added the local dashboard for importing reports, exploring risk, comparing results, and exporting review evidence without requiring a hosted service.
+- Added report trends, artifact manifests, plugin manifests, plugin isolation, and plugin compatibility checks for teams extending Merge Guard locally.
 
-- Repository intelligence for npm workspaces, Node, Python, and mixed repositories; affected-package mapping; explicit source explanations; and deterministic repository contract snapshots.
-- Versioned policy-pack schema, five explicit starter policy packs, protected-path and CODEOWNERS guidance, root/package policy inheritance, and expiring annotation-only policy exceptions.
-- Compact pull-request summaries, changed-line GitHub annotations, optional SARIF generation without upload, stable finding identity, immutable prior-report comparison, and two-push review fixtures.
-- Bounded local dashboard architecture, import, risk explorer, accessibility, export, and no-network/no-persistence contract coverage.
-- Immutable artifact manifests, accepted legacy-risk compatibility, report trends/retention rules, plugin manifests, worker isolation, plugin attestations, and a plugin conformance kit.
-- Installation, security/provenance, performance/soak, release-candidate, public-contract, artifact, distribution, support, package, SBOM, reproducibility, and Node/OS release gates.
-- Non-publishing release staging, checksum manifests, provenance records, owner decision packets, and documented publication, abort, rollback, revocation, and support handoff procedures.
+### Hotfixes
 
-### Fixed
-
-- Corrected stale runtime, policy, plugin, report, documentation, package, and SBOM `0.1.0` identifiers in the v1 candidate path.
-- Made package rebuild evidence byte-identical from a detached checkout and kept staged artifacts out of the packed package.
-- Rejected unsafe regular expressions before matching and made installation/release checks portable on Windows.
-
-### Compatibility
-
-- Requires Node.js 18 or newer and preserves the v1 CLI, report, policy, plugin, artifact, and Action contracts.
-- JSON report schema remains version 1; Action and CLI usage remain local-first and do not execute discovered project commands.
+- Unsafe regular expressions are rejected before they can be evaluated.
+- Windows users no longer hit the earlier portability problems in installation and release-validation paths.
+- Version identifiers shown by the v1 candidate were corrected so reports and package metadata no longer referenced the old `0.1.0` identity.
 
 ## 0.2.0 - 2026-08-24 (historical candidate, unpublished)
 
-Status: historical stabilization candidate. Package publication was not authorized; the package metadata remained `0.1.0` at the time.
+### Features
 
-### Added
+- Added a reusable composite GitHub Action with report output, threshold checks, and pull-request comment support.
+- Added bounded project-defined custom rules.
+- Added pull-request title/body context, repository-aware suggested checks, and expiring non-destructive suppressions.
+- Added structured configuration diagnostics and schema-versioned JSON reports.
 
-- Reusable composite GitHub Action with report, threshold, and stable pull-request-comment modes.
-- Safe, bounded project-defined custom rules; pull-request title/body context; repository-aware suggested checks; and expiring non-destructive suppressions.
-- Structured configuration diagnostics, schema-versioned JSON reports, deterministic report/suppression snapshots, CLI contracts, release readiness, package checks, and Node/OS compatibility coverage.
+### Hotfixes
 
-### Fixed
-
-- Restored valid Action metadata and CLI configuration handling.
-- Made no-context CLI execution safe, normalized CRLF diff and custom-rule parsing, and made package dry runs portable on Windows.
-
-### Compatibility
-
-- Requires Node.js 18 or newer; Node 18, 20, 22, and 24 on Ubuntu and Windows passed the candidate matrix.
-- No intentional built-in scoring or preset-threshold change was introduced during stabilization.
+- Fixed invalid GitHub Action metadata and CLI configuration handling.
+- Running the CLI without repository context is now handled safely.
+- Fixed CRLF diff parsing and custom-rule parsing edge cases.
+- Fixed Windows package dry-run portability issues.
 
 ## 0.1.0 - 2026-07-06 (historical development baseline, unpublished)
 
-### Added
+### Features
 
-- Rules-based diff scanner with plain-text, Markdown, and JSON reports.
-- CI mode and GitHub pull-request comment workflow support.
-- Documentation-only change detection, per-file risk breakdowns, safe/standard/strict presets, rule explanations, configurable high-risk paths, and configurable suggested test commands.
-- Optional local AI-ready review-summary prompt output without an AI provider or API key.
+- Introduced the rules-based diff scanner with plain-text, Markdown, and JSON reports.
+- Added CI mode and GitHub pull-request comment support.
+- Added documentation-only change detection, per-file risk breakdowns, safe/standard/strict presets, rule explanations, configurable high-risk paths, and suggested test commands.
+- Added optional local AI-ready review-summary prompt output without requiring an AI provider or API key.
 
-## Release checklist
-
-Before staging a candidate:
-
-- run `npm run smoke`;
-- run `npm run test:cli`, `npm run test:snapshots`, `npm run test:repository`, `npm run test:policies`, `npm run test:guidance`, and `npm run test:policy-resolution`;
-- run `npm run test:pr-summary`, `npm run test:github-review`, `npm run test:finding-comparison`, and `npm run test:review-e2e`;
-- run dashboard, artifact, legacy-risk, report-trend, plugin, installation, security, performance, public-contract, distribution, support, and version gates;
-- run `npm run test:doctor`, `npm run test:consumer-fixtures`, and `npm run release:check`;
-- verify CLI text, Markdown, JSON, package dry-run, documentation, and current version history;
-- stage to a new `release/v<package-version>` path from an immutable reviewed commit;
-- do not publish automatically from a passing issue, pull request, or validation command.
+<!-- Maintainer contract: npm run release:check -->
