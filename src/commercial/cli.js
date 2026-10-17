@@ -11,8 +11,11 @@ function checkoutUrl(plan, env) {
 }
 
 export async function runCommercialCommand(args, { env = process.env } = {}) {
-  const [command, value] = args;
+  const [command, value, ...rest] = args;
   if (!['plan', 'activate', 'license', 'account'].includes(command)) return false;
+  if (rest.length) throw new Error(`${command} received unexpected extra arguments`);
+  if ((command === 'plan' || command === 'account') && value) throw new Error(`${command} does not accept an argument`);
+  if (command === 'license' && value && value !== 'clear') throw new Error('license accepts only the optional "clear" argument');
 
   if (command === 'activate') {
     if (!value) throw new Error('activate requires a Polar license key');
