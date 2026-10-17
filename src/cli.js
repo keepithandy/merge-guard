@@ -25,6 +25,7 @@ import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutp
 import { formatDoctor, inspectDoctor } from './doctor.js';
 import { selectPrimaryChecks } from './projectChecks.js';
 import { MERGE_GUARD_VERSION } from './version.js';
+import { runCommercialCommand } from './commercial/cli.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -74,6 +75,13 @@ Usage:
   merge-guard <path-to-diff>
   git diff | merge-guard
   node src/cli.js examples/sample.diff
+
+Commands:
+  merge-guard plan              Show the current Free, Pro, or Team entitlement
+  merge-guard activate <key>    Activate a Polar license key
+  merge-guard license           Revalidate and show the current license
+  merge-guard license clear     Clear local license state
+  merge-guard account           Show the configured Polar customer portal
 
 Options:
   --json                    Print the report as JSON
@@ -288,6 +296,8 @@ async function main() {
     printHelp();
     return;
   }
+
+  if (await runCommercialCommand(args)) return;
 
   validateOptions(args);
 
