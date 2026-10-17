@@ -63,6 +63,7 @@ const proFetch = async (url) => {
 
 const activated = await activateLicense('MG-TEST-PRO', { env, fetchImpl: proFetch, label: 'test-device' });
 assert.equal(activated.plan, PLAN_PRO);
+assert.equal('licenseKey' in activated, false, 'public commercial state must not expose the full license key');
 assert.equal(fs.existsSync(licenseFilePath(env)), true);
 assert.equal(readLicenseState({ env }).licenseKey, 'MG-TEST-PRO');
 
