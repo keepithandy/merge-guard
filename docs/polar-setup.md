@@ -37,6 +37,12 @@ MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL=<hosted portal link>
 
 Never commit real customer license keys or Polar organization access tokens.
 
+## Build-time public configuration
+
+Before publishing a production package, copy the organization ID, Pro/Team benefit IDs, checkout URLs, and customer-portal URL into `POLAR_BUILD_CONFIG` in `src/commercial/config.js`. These identifiers/URLs are public product configuration, not authentication secrets. Environment variables remain higher-priority overrides for tests, CI, and alternate distributions.
+
+A production package must not require each customer to know or configure the seller's Polar organization/benefit IDs.
+
 ## Client integration
 
 Merge Guard uses Polar's unauthenticated customer-portal license endpoints, which Polar documents as safe for public clients:
