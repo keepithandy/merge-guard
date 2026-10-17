@@ -1,0 +1,78 @@
+# Polar setup for Merge Guard
+
+This document contains the manual account-level work needed after the repository commercial foundation is merged.
+
+## Products
+
+Create two recurring products in Polar:
+
+### Merge Guard Pro
+
+- Price: **$9/month**
+- Attach a **License Keys** benefit.
+- Record the generated benefit ID as `MERGE_GUARD_POLAR_PRO_BENEFIT_ID`.
+- Record the checkout URL as `MERGE_GUARD_PRO_CHECKOUT_URL`.
+
+### Merge Guard Team
+
+- Price: **$29/month**
+- Attach a separate **License Keys** benefit.
+- Record the generated benefit ID as `MERGE_GUARD_POLAR_TEAM_BENEFIT_ID`.
+- Record the checkout URL as `MERGE_GUARD_TEAM_CHECKOUT_URL`.
+
+Keep Team fixed-price for the first release. Polar supports seat-based billing, but Merge Guard should not enable it until seat ownership and team delivery are real product requirements.
+
+## Organization configuration
+
+Set:
+
+```text
+MERGE_GUARD_POLAR_ORGANIZATION_ID=<Polar organization UUID>
+MERGE_GUARD_POLAR_PRO_BENEFIT_ID=<Pro license-key benefit UUID>
+MERGE_GUARD_POLAR_TEAM_BENEFIT_ID=<Team license-key benefit UUID>
+MERGE_GUARD_PRO_CHECKOUT_URL=<hosted checkout link>
+MERGE_GUARD_TEAM_CHECKOUT_URL=<hosted checkout link>
+MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL=<hosted portal link>
+```
+
+Never commit real customer license keys or Polar organization access tokens.
+
+## Client integration
+
+Merge Guard uses Polar's unauthenticated customer-portal license endpoints, which Polar documents as safe for public clients:
+
+- Activate: `POST /v1/customer-portal/license-keys/activate`
+- Validate: `POST /v1/customer-portal/license-keys/validate`
+- Deactivate: `POST /v1/customer-portal/license-keys/deactivate`
+
+The CLI does **not** require or embed a Polar organization access token.
+
+## Lifecycle
+
+- No license: Free.
+- Valid mapped Pro benefit: Pro.
+- Valid mapped Team benefit: Team.
+- Revoked, disabled, expired, or unmapped benefit: Free.
+- Successful validation is cached for 24 hours.
+- Temporary validation failures may use a previously validated paid plan for up to seven days.
+- After the grace window, failure falls back to Free.
+- Free scanning remains available throughout.
+
+## CLI verification
+
+```bash
+merge-guard plan
+merge-guard activate <license-key>
+merge-guard license
+merge-guard license clear
+merge-guard account
+```
+
+## Documentation references
+
+- https://polar.sh/docs/api-reference/benefits/create
+- https://polar.sh/docs/api-reference/customer-portal/license-keys/activate
+- https://polar.sh/docs/api-reference/customer-portal/license-keys/validate
+- https://polar.sh/docs/api-reference/customer-portal/license-keys/deactivate
+- https://polar.sh/features/subscriptions
+- https://polar.sh/features/seats
