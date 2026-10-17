@@ -10,6 +10,28 @@ It does not require an AI provider or API key, and it never runs discovered proj
 
 > Current public preview: [`1.3.0-beta.2`](https://github.com/keepithandy/merge-guard/releases/tag/v1.3.0-beta.2). Download the verified package from the [GitHub release](https://github.com/keepithandy/merge-guard/releases/tag/v1.3.0-beta.2), and read the [release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) for scope and status.
 
+## Commercial packaging
+
+The existing MIT scanner remains **Free**. A commercial entitlement foundation now supports planned **Pro ($9/month)** and **Team ($29/month)** products through Polar without changing the existing open-source analysis path.
+
+| Plan | Price | Current boundary |
+| --- | ---: | --- |
+| Free | $0 | Complete existing MIT scanner, outputs, custom rules, starter policies, report comparison, and local dashboard |
+| Pro | $9/month target | Polar entitlement plus paid delivery/support benefits; production checkout remains gated until those benefits are live |
+| Team | $29/month target | Pro plus Team delivery/support benefits; production checkout remains gated until the Team benefit is live |
+
+Commercial commands are additive:
+
+```bash
+merge-guard plan
+merge-guard activate <license-key>
+merge-guard license
+merge-guard license clear
+merge-guard account
+```
+
+See [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
+
 ## What it answers
 
 Merge Guard focuses review on five questions:
