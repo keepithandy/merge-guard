@@ -1,11 +1,13 @@
 import { activateLicense, clearLicenseState, readLicenseState, validateLicense } from './license.js';
+import { resolveCommercialConfig } from './config.js';
 
 function titleCase(value) {
   return String(value || '').replace(/(^|_)([a-z])/g, (_, prefix, char) => `${prefix ? ' ' : ''}${char.toUpperCase()}`);
 }
 
 function checkoutUrl(plan, env) {
-  return plan === 'team' ? env.MERGE_GUARD_TEAM_CHECKOUT_URL : env.MERGE_GUARD_PRO_CHECKOUT_URL;
+  const config = resolveCommercialConfig(env);
+  return plan === 'team' ? config.teamCheckoutUrl : config.proCheckoutUrl;
 }
 
 export async function runCommercialCommand(args, { env = process.env } = {}) {
@@ -26,7 +28,7 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   }
 
   if (command === 'account') {
-    const url = env.MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL;
+    const url = resolveCommercialConfig(env).customerPortalUrl;
     if (!url) {
       console.log('Customer portal URL is not configured. Set MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL.');
     } else {
