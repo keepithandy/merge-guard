@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { capabilitiesForPlan, PLAN_FREE, planForBenefitId } from './entitlements.js';
+import { resolveCommercialConfig } from './config.js';
 
 const POLAR_BASE_URL = 'https://api.polar.sh';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -40,7 +41,7 @@ export function clearLicenseState({ env = process.env } = {}) {
 }
 
 function configuredOrganizationId(env) {
-  return env.MERGE_GUARD_POLAR_ORGANIZATION_ID || null;
+  return resolveCommercialConfig(env).organizationId || null;
 }
 
 function keyFromState(state, env) {
