@@ -39,6 +39,7 @@ const suites = [
   'scripts/plugin-worker-contracts.js',
   'scripts/plugin-attestation-contracts.js',
   'scripts/plugin-conformance-contracts.js',
+  'scripts/commercial-contracts.js',
   'scripts/installation-contracts.js',
   'scripts/security-contracts.js',
   'scripts/performance-contracts.js',
