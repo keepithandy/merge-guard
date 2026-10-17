@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -100,6 +101,23 @@ assert.equal(offline.status, 'offline-grace');
 
 clearLicenseState({ env });
 assert.equal(readLicenseState({ env }), null);
+
+const planRun = spawnSync(process.execPath, ['src/cli.js', 'plan'], {
+  cwd: process.cwd(),
+  env,
+  encoding: 'utf8'
+});
+assert.equal(planRun.status, 0, planRun.stderr);
+assert.match(planRun.stdout, /Merge Guard Free/);
+assert.match(planRun.stdout, /Plan: Free/);
+
+const badPlanRun = spawnSync(process.execPath, ['src/cli.js', 'plan', 'unexpected'], {
+  cwd: process.cwd(),
+  env,
+  encoding: 'utf8'
+});
+assert.equal(badPlanRun.status, 1);
+assert.match(badPlanRun.stderr, /plan does not accept an argument/);
 fs.rmSync(temp, { recursive: true, force: true });
 console.log('commercial entitlement contracts passed');
 
