@@ -10,6 +10,7 @@ Internal refactors, test-suite expansion, release engineering, and maintenance-o
 
 ### Features
 
+- **Commercial entitlement foundation.** Added Free/Pro/Team plan detection, Polar license activation and validation commands, protected local license state, cached offline behavior, and launch documentation while preserving the existing MIT scanner as Free.
 - **Human Verification in the local dashboard.** Record Untested, Pass, Fail, or N/A results against a report, add your own checks, capture runtime defects, include optional environment details, and export the evidence as Markdown or JSON.
 - **Safer policy review for pull requests.** Merge Guard can verify the policy baseline from the exact base commit so policy changes made inside the same pull request do not silently redefine the rules being used to review that pull request.
 - **Clearer pull-request decisions.** Review output now emphasizes a small set of primary checks and provides a conservative review-decision label so the important result is easier to find.
