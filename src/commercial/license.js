@@ -48,6 +48,12 @@ function keyFromState(state, env) {
   return env.MERGE_GUARD_LICENSE_KEY || state?.licenseKey || null;
 }
 
+function cachedPlanFromState(state, env) {
+  if (!state?.licenseKey || !state?.benefitId || !state?.lastValidatedAt) return PLAN_FREE;
+  if (!['granted', 'offline-grace'].includes(state.status)) return PLAN_FREE;
+  return planForBenefitId(state.benefitId, env);
+}
+
 function parseValidatedLicense(data, env) {
   const status = data?.status || 'unknown';
   const expiresAt = data?.expires_at || null;
@@ -123,7 +129,10 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
 
   const validatedAt = state?.lastValidatedAt ? Date.parse(state.lastValidatedAt) : 0;
   const age = validatedAt ? nowMs(now) - validatedAt : Number.POSITIVE_INFINITY;
-  if (!force && state?.plan && age <= CACHE_TTL_MS) return commercialView({ ...state, validation: 'cached' });
+  const cachedPlan = cachedPlanFromState(state, env);
+  if (!force && cachedPlan !== PLAN_FREE && age <= CACHE_TTL_MS) {
+    return commercialView({ ...state, plan: cachedPlan, validation: 'cached' });
+  }
 
   try {
     const data = await polarPost('/v1/customer-portal/license-keys/validate', {
@@ -146,8 +155,8 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
     writeLicenseState(next, { env });
     return commercialView(next);
   } catch (error) {
-    if (state?.plan && state.plan !== PLAN_FREE && age <= OFFLINE_GRACE_MS) {
-      return commercialView({ ...state, status: 'offline-grace', validation: 'cached', warning: error.message });
+    if (cachedPlan !== PLAN_FREE && age <= OFFLINE_GRACE_MS) {
+      return commercialView({ ...state, plan: cachedPlan, status: 'offline-grace', validation: 'cached', warning: error.message });
     }
     return commercialView({ provider: 'polar', plan: PLAN_FREE, status: 'unavailable', validation: 'failed', warning: error.message });
   }
