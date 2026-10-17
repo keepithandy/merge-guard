@@ -1,3 +1,5 @@
+import { resolveCommercialConfig } from './config.js';
+
 export const PLAN_FREE = 'free';
 export const PLAN_PRO = 'pro';
 export const PLAN_TEAM = 'team';
@@ -54,7 +56,8 @@ export function hasCapability(plan, capability) {
 
 export function planForBenefitId(benefitId, env = process.env) {
   if (!benefitId) return PLAN_FREE;
-  if (env.MERGE_GUARD_POLAR_TEAM_BENEFIT_ID && benefitId === env.MERGE_GUARD_POLAR_TEAM_BENEFIT_ID) return PLAN_TEAM;
-  if (env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID && benefitId === env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID) return PLAN_PRO;
+  const config = resolveCommercialConfig(env);
+  if (config.teamBenefitId && benefitId === config.teamBenefitId) return PLAN_TEAM;
+  if (config.proBenefitId && benefitId === config.proBenefitId) return PLAN_PRO;
   return PLAN_FREE;
 }
