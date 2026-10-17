@@ -1,4 +1,4 @@
-import { activateLicense, clearLicenseState, readLicenseState, validateLicense } from './license.js';
+import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState, validateLicense } from './license.js';
 import { resolveCommercialConfig } from './config.js';
 
 function titleCase(value) {
@@ -22,8 +22,13 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   }
 
   if (command === 'license' && value === 'clear') {
-    clearLicenseState({ env });
-    console.log('Merge Guard license state cleared. Free features remain available.');
+    try {
+      await deactivateLicense({ env });
+      console.log('Merge Guard license deactivated and local state cleared. Free features remain available.');
+    } catch (error) {
+      clearLicenseState({ env });
+      console.log(`Merge Guard local license state cleared. Polar deactivation could not be confirmed: ${error.message}`);
+    }
     return true;
   }
 
