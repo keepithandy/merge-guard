@@ -7,6 +7,8 @@
 - [ ] `npm run release:check` passes.
 - [ ] `npm pack --dry-run` contains no secrets or local license state.
 - [ ] CLI Free scan works with no Polar configuration.
+- [ ] Opt-in Sandbox contracts pass for endpoint selection, environment/organization/key isolation, copied and legacy caches, offline Free fallback, and failed activation/deactivation.
+- [ ] Production build IDs/links are preserved; Sandbox IDs are supplied explicitly and never used as production defaults.
 - [ ] CLI `plan`, `activate`, `license`, `license clear`, and `account` commands behave as documented.
 - [ ] No access token, customer license key, or production secret is committed.
 - [ ] README, changelog, roadmap, tier matrix, and Polar setup agree.
@@ -23,6 +25,7 @@
 - [ ] Pro test checkout → activation → validation succeeds.
 - [ ] Team test checkout → activation → validation succeeds.
 - [ ] Revocation/cancellation behavior is verified.
+- [ ] Live Sandbox activation and entitlement lifecycle evidence is recorded separately from mocked automated test results.
 
 ## Paid benefit delivery
 

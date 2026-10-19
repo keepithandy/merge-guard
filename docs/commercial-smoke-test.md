@@ -14,17 +14,17 @@ Expected: plan is Free and the scanner works normally.
 
 ## 2. Configure Polar test values
 
-Set the organization ID, Pro/Team benefit IDs, checkout links, and customer portal URL from `.env.example`.
+Follow [Opt-in Sandbox licensing](polar-setup.md#opt-in-sandbox-licensing) in a fresh PowerShell window. Explicitly select `sandbox` and set its organization and Pro benefit IDs. Confirm `plan` displays Sandbox and Free before activation. Configure Team only when a separate Sandbox Team benefit exists.
 
-Do not commit those local values.
+No access token is required. Never commit license keys. This checklist does not authorize purchases, checkout, or subscription creation.
 
 ## 3. Pro
 
-1. Complete a test checkout for Merge Guard Pro.
-2. Obtain the generated license key.
-3. Run `node src/cli.js activate <key>`.
+1. Use an existing Sandbox Pro test license associated with the configured benefit.
+2. Confirm that the benefit has device activations enabled as required by this CLI.
+3. Activate using the masked local prompt in the setup guide.
 4. Run `node src/cli.js plan`.
-5. Restart the shell and run `node src/cli.js license`.
+5. Restart the shell, reapply the same Sandbox configuration, and run `node src/cli.js license`.
 6. Confirm the plan remains Pro and no full key is printed.
 
 ## 4. Team
@@ -33,13 +33,13 @@ Repeat with the Team test product and confirm plan resolves to Team.
 
 ## 5. Revocation
 
-Revoke/cancel the test entitlement in Polar, then force revalidation with:
+For an existing test entitlement, observe its revocation or cancellation behavior in Sandbox, then force revalidation with:
 
 ```bash
 node src/cli.js license
 ```
 
-Expected: paid entitlement is removed and Free scanning still works.
+Expected: revoked/disabled/expired or rejected entitlement falls back to Free and Free scanning still works. Cancellation scheduled for period end may leave a granted license valid until that period ends; check actual entitlement status and expiration. This CLI neither cancels subscriptions nor infers cancellation from billing state.
 
 ## 6. Offline behavior
 
@@ -55,3 +55,9 @@ node src/cli.js plan
 ```
 
 Expected: Free.
+
+## 8. Environment isolation
+
+Keep production and Sandbox in separate configured shells. A Sandbox activation must not change the production file or plan. Clearing Sandbox must preserve production state. Switching environments cannot reuse the other environment's cached entitlement, key, or activation. Automated commercial contracts cover both directions, copied files, legacy files, shared custom path overrides, failed activation/deactivation, rejected licenses, and offline fallback using a mocked provider.
+
+Passing automated contracts does not prove live Polar activation or cancellation succeeded. Record live test evidence separately; no live license or subscription is required for `npm test` or release checks.

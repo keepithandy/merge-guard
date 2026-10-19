@@ -4,7 +4,6 @@ import path from 'node:path';
 import { capabilitiesForPlan, PLAN_FREE, planForBenefitId } from './entitlements.js';
 import { resolveCommercialConfig } from './config.js';
 
-const POLAR_BASE_URL = 'https://api.polar.sh';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const OFFLINE_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -13,8 +12,11 @@ function nowMs(now = Date.now) {
 }
 
 export function licenseFilePath(env = process.env) {
-  if (env.MERGE_GUARD_LICENSE_FILE) return path.resolve(env.MERGE_GUARD_LICENSE_FILE);
-  return path.join(os.homedir(), '.merge-guard', 'license.json');
+  const { environment } = resolveCommercialConfig(env);
+  const file = env.MERGE_GUARD_LICENSE_FILE
+    ? path.resolve(env.MERGE_GUARD_LICENSE_FILE)
+    : path.join(os.homedir(), '.merge-guard', 'license.json');
+  return environment === 'sandbox' ? `${file}.sandbox` : file;
 }
 
 export function readLicenseState({ env = process.env } = {}) {
@@ -22,7 +24,12 @@ export function readLicenseState({ env = process.env } = {}) {
   if (!fs.existsSync(file)) return null;
   try {
     const state = JSON.parse(fs.readFileSync(file, 'utf8'));
-    return state && typeof state === 'object' ? state : null;
+    if (!state || typeof state !== 'object' || Array.isArray(state)) return null;
+    const config = resolveCommercialConfig(env);
+    // Keep legacy production keys available for live revalidation only. Untagged
+    // files and files copied from another environment cannot authorize Sandbox.
+    if (state.environment === undefined && config.environment === 'production') return state;
+    return state.environment === config.environment && state.organizationId === config.organizationId ? state : null;
   } catch {
     return null;
   }
@@ -56,6 +63,8 @@ function hasExpired(expiresAt, atMs) {
 }
 
 function cachedPlanFromState(state, env, key, atMs) {
+  const config = resolveCommercialConfig(env);
+  if (state?.environment !== config.environment || state?.organizationId !== config.organizationId) return PLAN_FREE;
   if (!state?.licenseKey || state.licenseKey !== key || !state?.benefitId || !state?.lastValidatedAt) return PLAN_FREE;
   if (hasExpired(state.expiresAt, atMs)) return PLAN_FREE;
   if (!['granted', 'offline-grace'].includes(state.status)) return PLAN_FREE;
@@ -63,7 +72,9 @@ function cachedPlanFromState(state, env, key, atMs) {
 }
 
 function parseValidatedLicense(data, env, atMs = Date.now()) {
-  const status = data?.status || 'unknown';
+  const organizationId = configuredOrganizationId(env);
+  const status = data?.organization_id && data.organization_id !== organizationId
+    ? 'wrong-organization' : data?.status || 'unknown';
   const expiresAt = data?.expires_at || null;
   const expired = hasExpired(expiresAt, atMs);
   const plan = status === 'granted' && !expired ? planForBenefitId(data?.benefit_id, env) : PLAN_FREE;
@@ -76,28 +87,33 @@ function parseValidatedLicense(data, env, atMs = Date.now()) {
   };
 }
 
-async function polarPost(endpoint, payload, { fetchImpl = globalThis.fetch, signal } = {}) {
+async function polarPost(endpoint, payload, { env = process.env, fetchImpl = globalThis.fetch, signal } = {}) {
+  const { apiBaseUrl } = resolveCommercialConfig(env);
   if (typeof fetchImpl !== 'function') throw new Error('Fetch API is unavailable in this Node.js runtime.');
-  const response = await fetchImpl(`${POLAR_BASE_URL}${endpoint}`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload),
-    signal
-  });
+  let response;
+  try {
+    response = await fetchImpl(`${apiBaseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+      redirect: 'error',
+      signal
+    });
+  } catch {
+    throw new Error('Polar request could not be completed.');
+  }
   if (!response.ok) {
-    let detail = '';
-    try {
-      const body = await response.json();
-      detail = body?.detail || body?.error || '';
-    } catch {
-      detail = '';
-    }
-    const error = new Error(detail ? `Polar request failed (${response.status}): ${detail}` : `Polar request failed (${response.status})`);
+    // Provider errors may reflect a submitted license key. Never print or store them.
+    const error = new Error(`Polar request failed (${response.status})`);
     error.status = response.status;
     throw error;
   }
   if (response.status === 204) return null;
-  return response.json();
+  try {
+    return await response.json();
+  } catch {
+    throw new Error('Polar returned an invalid response.');
+  }
 }
 
 function timeoutSignal(ms = 5000) {
@@ -112,11 +128,13 @@ export async function activateLicense(key, { label = `${os.hostname()} / Merge G
     key,
     organization_id: organizationId,
     label
-  }, { fetchImpl, signal: timeoutSignal() });
+  }, { env, fetchImpl, signal: timeoutSignal() });
   const parsed = parseValidatedLicense(data?.license_key, env);
   if (parsed.plan === PLAN_FREE) throw new Error('License is valid but is not mapped to a Merge Guard Pro or Team benefit.');
   const state = {
     provider: 'polar',
+    environment: resolveCommercialConfig(env).environment,
+    organizationId,
     plan: parsed.plan,
     status: parsed.status,
     licenseKey: key,
@@ -130,8 +148,9 @@ export async function activateLicense(key, { label = `${os.hostname()} / Merge G
 }
 
 export async function validateLicense({ env = process.env, fetchImpl, force = false, now = Date.now } = {}) {
-  const state = readLicenseState({ env });
-  const key = keyFromState(state, env);
+  const savedState = readLicenseState({ env });
+  const key = keyFromState(savedState, env);
+  const state = savedState?.licenseKey === key ? savedState : null;
   const organizationId = configuredOrganizationId(env);
   if (!key || !organizationId) {
     return commercialView({ provider: key ? 'polar' : null, plan: PLAN_FREE, status: key ? 'not-configured' : 'not-activated' });
@@ -152,10 +171,12 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
       key,
       organization_id: organizationId,
       activation_id: state?.activationId || undefined
-    }, { fetchImpl, signal: timeoutSignal() });
+    }, { env, fetchImpl, signal: timeoutSignal() });
     const parsed = parseValidatedLicense(data, env, currentTime);
     const next = {
       provider: 'polar',
+      environment: resolveCommercialConfig(env).environment,
+      organizationId,
       plan: parsed.plan,
       status: parsed.status,
       licenseKey: key,
@@ -176,6 +197,8 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
     if (rejected) {
       const denied = {
         provider: 'polar',
+        environment: resolveCommercialConfig(env).environment,
+        organizationId,
         plan: PLAN_FREE,
         status: 'rejected',
         licenseKey: key,
@@ -197,13 +220,13 @@ export async function deactivateLicense({ env = process.env, fetchImpl } = {}) {
   const state = readLicenseState({ env });
   const organizationId = configuredOrganizationId(env);
   const key = keyFromState(state, env);
-  if (state?.activationId && organizationId && key) {
+  if (state?.activationId && state.licenseKey === key && organizationId && key) {
     try {
       await polarPost('/v1/customer-portal/license-keys/deactivate', {
         key,
         organization_id: organizationId,
         activation_id: state.activationId
-      }, { fetchImpl, signal: timeoutSignal() });
+      }, { env, fetchImpl, signal: timeoutSignal() });
     } finally {
       clearLicenseState({ env });
     }

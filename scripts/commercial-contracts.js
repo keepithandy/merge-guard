@@ -25,6 +25,8 @@ import {
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-commercial-'));
 const env = {
   ...process.env,
+  MERGE_GUARD_POLAR_ENVIRONMENT: 'production',
+  MERGE_GUARD_LICENSE_KEY: '',
   MERGE_GUARD_LICENSE_FILE: path.join(temp, 'license.json'),
   MERGE_GUARD_POLAR_ORGANIZATION_ID: '11111111-1111-4111-8111-111111111111',
   MERGE_GUARD_POLAR_PRO_BENEFIT_ID: '22222222-2222-4222-8222-222222222222',
@@ -104,6 +106,8 @@ assert.equal(offline.status, 'offline-grace');
 const testNow = () => Date.parse('2026-10-16T12:00:00.000Z');
 const cachedProState = (overrides = {}) => ({
   provider: 'polar',
+  environment: 'production',
+  organizationId: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
   plan: PLAN_PRO,
   status: 'granted',
   licenseKey: 'MG-TEST-PRO',
@@ -198,6 +202,8 @@ console.log('commercial entitlement contracts passed');
 function writeOldState() {
   fs.writeFileSync(licenseFilePath(env), JSON.stringify({
     provider: 'polar',
+    environment: 'production',
+    organizationId: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
     plan: PLAN_PRO,
     status: 'granted',
     licenseKey: 'MG-TEST-PRO',

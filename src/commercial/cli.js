@@ -16,6 +16,8 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   if (rest.length) throw new Error(`${command} received unexpected extra arguments`);
   if ((command === 'plan' || command === 'account') && value) throw new Error(`${command} does not accept an argument`);
   if (command === 'license' && value && value !== 'clear') throw new Error('license accepts only the optional "clear" argument');
+  const { environment } = resolveCommercialConfig(env);
+  if (environment === 'sandbox') console.log('Polar environment: Sandbox (test licenses only)');
 
   if (command === 'activate') {
     if (!value) throw new Error('activate requires a Polar license key');
