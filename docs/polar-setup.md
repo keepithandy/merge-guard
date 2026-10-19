@@ -53,6 +53,8 @@ Merge Guard uses Polar's unauthenticated customer-portal license endpoints, whic
 
 The CLI does **not** require or embed a Polar organization access token.
 
+**Activation setup:** Polar documents the activation endpoint as necessary when the license-key benefit has device activations enabled. Confirm that both Pro and Team benefits use an activation configuration compatible with this CLI (which calls `activate` before storing a license). Otherwise, direct validation-only benefits require a separately tested CLI activation path before launch.
+
 ## Lifecycle
 
 - No license: Free.
@@ -60,7 +62,9 @@ The CLI does **not** require or embed a Polar organization access token.
 - Valid mapped Team benefit: Team.
 - Revoked, disabled, expired, or unmapped benefit: Free.
 - Successful validation is cached for 24 hours.
-- Temporary validation failures may use a previously validated paid plan for up to seven days.
+- Temporary network errors, rate limits, or Polar server failures may use a previously validated paid plan for up to seven days, **but never beyond the license expiration date**.
+- Definitive Polar client rejections (for example an invalid key or activation) immediately fall back to Free; they never trigger offline grace.
+- A cached plan is tied to the exact license key and cannot be reused with a different override key.
 - After the grace window, failure falls back to Free.
 - Free scanning remains available throughout.
 
