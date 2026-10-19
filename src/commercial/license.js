@@ -48,16 +48,24 @@ function keyFromState(state, env) {
   return env.MERGE_GUARD_LICENSE_KEY || state?.licenseKey || null;
 }
 
-function cachedPlanFromState(state, env) {
-  if (!state?.licenseKey || !state?.benefitId || !state?.lastValidatedAt) return PLAN_FREE;
+function hasExpired(expiresAt, atMs) {
+  if (!expiresAt) return false;
+  const expiry = Date.parse(expiresAt);
+  // An invalid expiration timestamp cannot safely authorize a paid plan.
+  return !Number.isFinite(expiry) || expiry <= atMs;
+}
+
+function cachedPlanFromState(state, env, key, atMs) {
+  if (!state?.licenseKey || state.licenseKey !== key || !state?.benefitId || !state?.lastValidatedAt) return PLAN_FREE;
+  if (hasExpired(state.expiresAt, atMs)) return PLAN_FREE;
   if (!['granted', 'offline-grace'].includes(state.status)) return PLAN_FREE;
   return planForBenefitId(state.benefitId, env);
 }
 
-function parseValidatedLicense(data, env) {
+function parseValidatedLicense(data, env, atMs = Date.now()) {
   const status = data?.status || 'unknown';
   const expiresAt = data?.expires_at || null;
-  const expired = expiresAt ? Date.parse(expiresAt) <= Date.now() : false;
+  const expired = hasExpired(expiresAt, atMs);
   const plan = status === 'granted' && !expired ? planForBenefitId(data?.benefit_id, env) : PLAN_FREE;
   return {
     plan,
@@ -84,7 +92,9 @@ async function polarPost(endpoint, payload, { fetchImpl = globalThis.fetch, sign
     } catch {
       detail = '';
     }
-    throw new Error(detail ? `Polar request failed (${response.status}): ${detail}` : `Polar request failed (${response.status})`);
+    const error = new Error(detail ? `Polar request failed (${response.status}): ${detail}` : `Polar request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
   }
   if (response.status === 204) return null;
   return response.json();
@@ -127,10 +137,13 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
     return commercialView({ provider: key ? 'polar' : null, plan: PLAN_FREE, status: key ? 'not-configured' : 'not-activated' });
   }
 
-  const validatedAt = state?.lastValidatedAt ? Date.parse(state.lastValidatedAt) : 0;
-  const age = validatedAt ? nowMs(now) - validatedAt : Number.POSITIVE_INFINITY;
-  const cachedPlan = cachedPlanFromState(state, env);
-  if (!force && cachedPlan !== PLAN_FREE && age <= CACHE_TTL_MS) {
+  const currentTime = nowMs(now);
+  const validatedAt = state?.lastValidatedAt ? Date.parse(state.lastValidatedAt) : NaN;
+  const age = Number.isFinite(validatedAt) ? currentTime - validatedAt : Number.POSITIVE_INFINITY;
+  const withinCache = age >= 0 && age <= CACHE_TTL_MS;
+  const withinGrace = age >= 0 && age <= OFFLINE_GRACE_MS;
+  const cachedPlan = cachedPlanFromState(state, env, key, currentTime);
+  if (!force && cachedPlan !== PLAN_FREE && withinCache) {
     return commercialView({ ...state, plan: cachedPlan, validation: 'cached' });
   }
 
@@ -140,7 +153,7 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
       organization_id: organizationId,
       activation_id: state?.activationId || undefined
     }, { fetchImpl, signal: timeoutSignal() });
-    const parsed = parseValidatedLicense(data, env);
+    const parsed = parseValidatedLicense(data, env, currentTime);
     const next = {
       provider: 'polar',
       plan: parsed.plan,
@@ -149,13 +162,31 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
       activationId: state?.activationId || parsed.activationId || null,
       benefitId: parsed.benefitId,
       expiresAt: parsed.expiresAt,
-      lastValidatedAt: new Date(nowMs(now)).toISOString(),
+      lastValidatedAt: new Date(currentTime).toISOString(),
       validation: 'live'
     };
     writeLicenseState(next, { env });
     return commercialView(next);
   } catch (error) {
-    if (cachedPlan !== PLAN_FREE && age <= OFFLINE_GRACE_MS) {
+    // A definite client-side rejection (invalid/revoked key, bad activation,
+    // or unauthorized organization) must never turn into a paid offline grant.
+    // Rate limiting, server errors, and transport outages may use bounded grace.
+    const rejected = Number.isInteger(error.status) && error.status >= 400
+      && error.status < 500 && error.status !== 429;
+    if (rejected) {
+      const denied = {
+        provider: 'polar',
+        plan: PLAN_FREE,
+        status: 'rejected',
+        licenseKey: key,
+        lastValidatedAt: new Date(currentTime).toISOString(),
+        validation: 'failed',
+        warning: error.message
+      };
+      writeLicenseState(denied, { env });
+      return commercialView(denied);
+    }
+    if (cachedPlan !== PLAN_FREE && withinGrace) {
       return commercialView({ ...state, plan: cachedPlan, status: 'offline-grace', validation: 'cached', warning: error.message });
     }
     return commercialView({ provider: 'polar', plan: PLAN_FREE, status: 'unavailable', validation: 'failed', warning: error.message });
