@@ -2,19 +2,20 @@ import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState
 import { resolveCommercialConfig } from './config.js';
 
 // A piped key avoids exposing a sensitive value in shell history or argv.
-async function readActivationKey(input) {
+export async function readActivationKey(input) {
   if (input?.isTTY) throw new Error('Pipe the license key into "merge-guard activate --stdin"; interactive input is not supported.');
   if (!input || typeof input[Symbol.asyncIterator] !== 'function') {
     throw new Error('activate --stdin requires a readable standard input stream');
   }
-  let received = '';
+  const chunks = [];
+  let bytes = 0;
   for await (const chunk of input) {
-    received += chunk.toString('utf8');
-    if (Buffer.byteLength(received, 'utf8') > 4096) {
-      throw new Error('activate --stdin input exceeds the 4096-byte maximum');
-    }
+    const part = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    bytes += part.length;
+    if (bytes > 4096) throw new Error('activate --stdin input exceeds the 4096-byte maximum');
+    chunks.push(part);
   }
-  const key = received.replace(/\r?\n$/, '');
+  const key = Buffer.concat(chunks).toString('utf8').replace(/\r?\n$/, '');
   if (!key || /[\r\n]/.test(key)) {
     throw new Error('activate --stdin requires exactly one nonempty license key');
   }
