@@ -22,14 +22,14 @@ Do not commit those local values.
 
 1. Complete a test checkout for Merge Guard Pro.
 2. Obtain the generated license key.
-3. Run `node src/cli.js activate <key>`.
+3. Pipe the test key to `node src/cli.js activate --stdin`, without putting it in shell history or process arguments. For example: `printf '%s\\n' "$TEST_POLAR_LICENSE_KEY" | node src/cli.js activate --stdin`.
 4. Run `node src/cli.js plan`.
 5. Restart the shell and run `node src/cli.js license`.
 6. Confirm the plan remains Pro and no full key is printed.
 
 ## 4. Team
 
-Repeat with the Team test product and confirm plan resolves to Team.
+After `license clear` successfully deactivates the Pro device, repeat with the Team test product and confirm the plan resolves to Team. Verify trying to switch without deactivating is rejected and the original activation remains intact.
 
 ## 5. Revocation
 
@@ -54,4 +54,4 @@ node src/cli.js license clear
 node src/cli.js plan
 ```
 
-Expected: Free.
+Expected: Free. If Polar deactivation fails, the local activation must remain for retry; deliberately use `license clear --local-only` only if remote cleanup is impossible, noting the remote device slot may remain occupied.\n
