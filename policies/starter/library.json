@@ -3,7 +3,7 @@
   "identity": {
     "id": "merge-guard.starter.library",
     "name": "Library starter policy",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "For reusable packages whose public exports and packed artifact are compatibility boundaries."
   },
   "compatibility": {
@@ -24,7 +24,7 @@
       "id": "compatibility-marker-change",
       "label": "Compatibility marker changed",
       "pathPattern": "^(src|types)/",
-      "linePattern": "deprecated|breaking|removed",
+      "linePattern": "(^|[ \\t]|//|/\\*|\\*)(@deprecated\\b|deprecated(:|[ ](api|method|function|support|use|in)\\b|$)|breaking(:|[ ]change\\b|[ ]api\\b)|removed[ ](the[ ])?(public[ ]|api[ ]|export[ ]|method[ ]|function[ ]|support[ ]))",
       "weight": 3,
       "check": "Run consumer fixtures against the supported compatibility range."
     }
@@ -34,7 +34,10 @@
       "id": "public-exports",
       "pattern": "^(src/(index|public)|package\\.json)",
       "reason": "Public exports and package metadata define the consumer contract.",
-      "requiredCheckIds": ["library-tests", "package-inspection"]
+      "requiredCheckIds": [
+        "library-tests",
+        "package-inspection"
+      ]
     }
   ],
   "requiredChecks": [

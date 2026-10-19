@@ -1,0 +1,6 @@
+diff --git a/src/index.js b/src/index.js
+--- a/src/index.js
++++ b/src/index.js
+@@ -1,1 +1,2 @@
+ export { existing } from "./existing.js";
++export { createWorldPlugin, getEntity, queryEntities } from "./world.js";
