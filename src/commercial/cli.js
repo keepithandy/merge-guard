@@ -1,6 +1,26 @@
 import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState, validateLicense } from './license.js';
 import { resolveCommercialConfig } from './config.js';
 
+// A piped key avoids exposing a sensitive value in shell history or argv.
+async function readActivationKey(input) {
+  if (input?.isTTY) throw new Error('Pipe the license key into "merge-guard activate --stdin"; interactive input is not supported.');
+  if (!input || typeof input[Symbol.asyncIterator] !== 'function') {
+    throw new Error('activate --stdin requires a readable standard input stream');
+  }
+  let received = '';
+  for await (const chunk of input) {
+    received += chunk.toString('utf8');
+    if (Buffer.byteLength(received, 'utf8') > 4096) {
+      throw new Error('activate --stdin input exceeds the 4096-byte maximum');
+    }
+  }
+  const key = received.replace(/\r?\n$/, '');
+  if (!key || /[\r\n]/.test(key)) {
+    throw new Error('activate --stdin requires exactly one nonempty license key');
+  }
+  return key;
+}
+
 function titleCase(value) {
   return String(value || '').replace(/(^|_)([a-z])/g, (_, prefix, char) => `${prefix ? ' ' : ''}${char.toUpperCase()}`);
 }
@@ -10,7 +30,7 @@ function checkoutUrl(plan, env) {
   return plan === 'team' ? config.teamCheckoutUrl : config.proCheckoutUrl;
 }
 
-export async function runCommercialCommand(args, { env = process.env } = {}) {
+export async function runCommercialCommand(args, { env = process.env, stdin = process.stdin } = {}) {
   const [command, value, ...rest] = args;
   if (!['plan', 'activate', 'license', 'account'].includes(command)) return false;
   if (rest.length) throw new Error(`${command} received unexpected extra arguments`);
@@ -18,8 +38,9 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   if (command === 'license' && value && value !== 'clear') throw new Error('license accepts only the optional "clear" argument');
 
   if (command === 'activate') {
-    if (!value) throw new Error('activate requires a Polar license key');
-    const state = await activateLicense(value, { env });
+    if (!value) throw new Error('activate requires a Polar license key or --stdin');
+    const key = value === '--stdin' ? await readActivationKey(stdin) : value;
+    const state = await activateLicense(key, { env });
     console.log(`Merge Guard ${titleCase(state.plan)} activated.\n\nPlan: ${titleCase(state.plan)}\nLicense: ${titleCase(state.status)}`);
     return true;
   }
