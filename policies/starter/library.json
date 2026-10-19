@@ -24,7 +24,7 @@
       "id": "compatibility-marker-change",
       "label": "Compatibility marker changed",
       "pathPattern": "^(src|types)/",
-      "linePattern": "(^|[ \\t]|//|/\\*|\\*)(@deprecated|deprecated([: ]|$)|breaking\\b|removed[ ](the[ ])?(public[ ]|api[ ]|export[ ]|method[ ]|function[ ]|support[ ]))",
+      "linePattern": "(^|[ \\t]|//|/\\*|\\*)(@deprecated\\b|deprecated(:|[ ](api|method|function|support|use|in)\\b|$)|breaking(:|[ ]change\\b|[ ]api\\b)|removed[ ](the[ ])?(public[ ]|api[ ]|export[ ]|method[ ]|function[ ]|support[ ]))",
       "weight": 3,
       "check": "Run consumer fixtures against the supported compatibility range."
     }
