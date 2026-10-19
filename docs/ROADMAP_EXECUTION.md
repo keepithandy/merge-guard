@@ -9,10 +9,10 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 3. Add evidence-based repository impact fidelity in v1.2.
 4. Make review evidence durable across CI runs in v1.3.
 5. Clean up the reviewer-facing beta path using observed false positives and measured check noise.
-6. Validate usefulness and adoption readiness with a labeled historical-PR beta evaluation.
+6. Release a clearly labeled Free preview after full CI/security/package verification and separate owner authorization; invite voluntary, privacy-safe field feedback. Independent historical evaluation is optional for formal accuracy claims.
 7. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
 
-Only one milestone is active at a time. Beta field validation is active. Historical release evidence remains preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
+Only one bounded Free development slice is active at a time. Solo-maintainer beta fixes and voluntary feedback are active; independent label collection is optional. Historical release and pilot evidence remain preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
 
 Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through reviewed GitHub pull requests and approved merges. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
 
