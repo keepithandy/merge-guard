@@ -1,6 +1,6 @@
 # Pilot corpus intake
 
-This guide turns the historical-PR pilot requirements into a repeatable, local-only intake process. It prepares the independently labeled corpus tracked in [#163](https://github.com/Keepithandy/merge-guard/issues/163); calibration and the frozen held-out run remain separate work tracked in [#164](https://github.com/Keepithandy/merge-guard/issues/164) and [#160](https://github.com/Keepithandy/merge-guard/issues/160).
+This **optional** guide turns the historical-PR pilot requirements into a repeatable, local-only intake process **for a future independently quantified accuracy study**. It is not needed to improve, merge or prepare the solo Free beta: see [the active roadmap](PHASE_ROADMAP.md) and [Free user feedback](FREE_BETA_FEEDBACK.md). The historical two-label schema remains strict *only within this opt-in study*. It prepares the independently labeled corpus tracked in [#163](https://github.com/Keepithandy/merge-guard/issues/163); calibration and the frozen held-out run remain separate work tracked in [#164](https://github.com/Keepithandy/merge-guard/issues/164) and [#160](https://github.com/Keepithandy/merge-guard/issues/160).
 
 ## Privacy boundary
 

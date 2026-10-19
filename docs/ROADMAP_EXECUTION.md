@@ -9,10 +9,10 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 3. Add evidence-based repository impact fidelity in v1.2.
 4. Make review evidence durable across CI runs in v1.3.
 5. Clean up the reviewer-facing beta path using observed false positives and measured check noise.
-6. Validate usefulness and adoption readiness with a labeled historical-PR beta evaluation.
+6. Release a clearly labeled Free preview after full CI/security/package verification and separate owner authorization; invite voluntary, privacy-safe field feedback. Independent historical evaluation is optional for formal accuracy claims.
 7. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
 
-Only one milestone is active at a time. Beta field validation is active. Historical release evidence remains preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
+Only one bounded Free development slice is active at a time. Solo-maintainer beta fixes and voluntary feedback are active; independent label collection is optional. Historical release and pilot evidence remain preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
 
 Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through reviewed GitHub pull requests and approved merges. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
 
@@ -174,41 +174,36 @@ Implemented by #159 at source commit `d0495555d7afce468a4664beb3584f56dd415bef`.
 
 Completion evidence: focused key-replacement, version-change, migration, unrelated-diff, additive-JSON, default-policy, and non-browser-game fixtures passed. All 11 required GitHub checks passed across Node 18/20/22/24 on Ubuntu and Windows, plus smoke, composite-Action, and review-experience checks.
 
-## Active queue — beta field validation
+## Active queue — solo-maintainer Free beta improvements
 
-### Preregistered held-out historical-PR pilot
+Owner-directed roadmap change (October 19, 2026): The Free release path does **not** require a second independent reviewer or a 50-PR independently adjudicated corpus. One owner can ship bounded fixes with deterministic positive and negative regression tests, full required CI, security/integrity compatibility and rollback coverage. A separate explicit decision controls external publication. See [active solo roadmap](PHASE_ROADMAP.md).
 
-Completed in #160 with a 2026-09-03 **stop** decision. The caller-owned corpus had 50 held-out cases from five opaque repository aliases. Preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564` bound product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`, metric implementation, corpus content, and thresholds before the held-out partition.
+### Historical preregistered pilot — preserved, not the Free development gate
 
-Acceptance follows [the evaluation harness design](EVALUATION_HARNESS_DESIGN.md): at least 70% actionable precision, at least 80% critical supported-scope recall when measurable, no greater than one median unmatched positive-weight finding per PR, at least 70% clean-PR specificity, no greater than five minutes median default-path setup, the existing 3,000 ms performance budget, and no privacy, determinism, frozen-v1 compatibility, or evidence-integrity regression.
+Completed in #160 on September 3, 2026 with a `stop` decision. The corpus used 50 held-out cases from five aliases; the original immutable preregistration ID was `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564` and the product commit was `e63bf37a84dae314965c98dfe9387b6a0db833bf`.
 
-The content-free aggregate missed actionable precision (12/140, 8.6%). Overall supported-scope recall was materially low (12/35, 34.3%) but is a diagnosis metric without a separate numeric threshold in the implemented preregistration. Critical recall was insufficient evidence. Median unmatched findings (one), clean-PR specificity (11/15, 73.3%), median setup (one minute), and p95 analysis time (four milliseconds) met their gates. The corrective plan is calibration-only: expand outcome-grounded high-severity labels, audit unmatched finding family/path combinations, add focused fixtures for any justified change, and then use a newly preregistered corpus for another held-out run. Thresholds and cases remain frozen after a run except through preregistered exclusion rules.
+Actionable precision **12/140 (8.6%)**, overall supported-scope recall **12/35 (34.3%)** and high-severity recall **insufficient evidence** (denominator 0). The old strict cohort is neither a passing claim nor permitted input for tuning. The original detailed protocol is [preserved as optional research](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md); it is **not** a blocker for Free preview work.
 
-Status: complete. The fail-closed preregistration gate and first held-out run are finished; the immutable record and raw corpus remain local and caller-owned.
+### Focused scanner and policy improvements
 
-### Calibration evidence expansion
+1. Reproduce one reported issue using a minimal synthetic negative probe and at least one genuine positive-control behavior.
+2. Produce the smallest compatible correction, explaining score/check movement, remaining uncertainty, security implications and rollback.
+3. Run targeted regressions, `npm.cmd test`, `npm.cmd run release:check` and required GitHub Actions on the exact final commit.
+4. Have the **solo owner** approve or reject the PR. No manufactured second-reviewer or external adjudication step.
 
-This is the active next slice. Add outcome-grounded, independently reviewed calibration cases, including at least five high-severity supported concerns so critical recall can be measured before another held-out run. Summaries remain content-free, and repository aliases must not cross between calibration and held-out partitions.
+PR [#193](https://github.com/keepithandy/merge-guard/pull/193) contains a proposed library policy and index export warning fix and targeted positive/negative tests. It may receive a solo-owner merge decision after the roadmap revision and final CI/compatibility review; there is no numerical accuracy improvement claim.
 
-Acceptance:
+### Feedback-first Free preview
 
-- calibration labels identify actual review outcomes or maintainer judgments without deriving expected answers from Merge Guard findings;
-- two independent decisions and an adjudication state exist for every new case;
-- unmatched positive findings and missed concerns are grouped by stable rule family and path without publishing source content;
-- disputed labels remain visible rather than being removed to improve a metric;
-- corpus validation and the calibration run pass locally.
-
-### Precision and recall correction
-
-Use only calibration evidence to propose changes addressing the missed actionable-precision gate, the materially low overall supported-scope recall diagnosis, and the missing critical-recall denominator. Every change requires a focused regression fixture, an explanation of expected score movement, frozen-v1 compatibility coverage, and the complete release-readiness suite. Held-out cases remain unavailable for tuning.
-
-### Second preregistered held-out pilot
-
-After calibration work and any justified product changes are frozen, assemble a fresh independently labeled held-out corpus, create a new preregistration, and rerun the pilot once. Preserve the original result as immutable evidence. The harness recommendation remains part of the record, but only `proceed` with every fixed gate satisfied maps to phase `PASS`; `improve`, `stop`, `insufficient-evidence`, an invalid run, or any metric miss maps to `FAIL` and locks successor work pending a newly approved roadmap revision.
+- Keep Free scanner/API/Action/offline use available without a commercial license.
+- Publish only under separately authorized version/artifact/release actions; complete packaging, installation, security, reproducibility and rollback checks first.
+- Accept opt-in, sanitized reports from Free users through [the feedback guide](FREE_BETA_FEEDBACK.md) and an issue template. Never send repository code or identifiers automatically.
+- Maintain `unverified` versus `reproduced` and `confirmed` status. Self-selected reports are for prioritization, **not measured population precision or recall**.
+- If a statistically generalizable claim is needed later, begin a **separate, voluntary independent evaluation** under the preserved protocol and existing strict evaluator; do not rewrite historical evidence.
 
 ### Golden-path GitHub experience
 
-This is unapproved future work, not part of the strict four-phase sequence. It may enter a future roadmap only after a passing pilot and repeated evidence identifies it as the single next problem. Keep advanced evidence available and frozen v1 behavior compatible.
+Free installation and troubleshooting improvements may follow real adoption friction. They remain scoped, offline-first and tested, not dependent on the optional independent-efficacy protocol.
 
 ## Definition of ready
 

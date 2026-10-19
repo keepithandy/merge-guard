@@ -1,8 +1,8 @@
 # Merge Guard long-horizon roadmap
 
-Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work named in the [strict phase roadmap](PHASE_ROADMAP.md) may enter the active sequence.
+Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work explicitly selected by the owner under the [active solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) may enter the active sequence. No second human reviewer is required for ordinary Free fixes. Independent-accuracy claims retain the [optional strict protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md).
 
-The purpose of this registry is to preserve the full product space without selecting work. After the strict roadmap and a separately authorized publication decision are complete, a future roadmap may choose exactly one evidence-backed problem from this document and convert only that problem into bounded work.
+The purpose of this registry is to preserve the full product space without selecting work. After the current owner-directed Free beta priorities and any separately authorized publication, a future roadmap may choose a bounded problem from this registry. It still needs security, compatibility and rollout planning; independently labeled preregistration is needed only if making a statistically validated efficacy claim.
 
 ## Product thesis
 

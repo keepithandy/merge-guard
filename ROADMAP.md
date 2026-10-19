@@ -10,7 +10,7 @@ The current `main` source identity is `1.3.0-beta.2`; it consolidates completed 
 
 The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. The reviewer-signal cleanup, companion-change contracts, and browser-game save compatibility slices are also implemented. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active field-validation milestone exists to measure that.
 
-The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md). The [strict phase-roadmap approval draft](docs/PHASE_ROADMAP.md) reduces that active queue to four gated phases, while the much broader [long-horizon roadmap](docs/LONG_HORIZON_ROADMAP.md) remains an unapproved idea registry.
+The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md). The [active solo-maintainer Free beta roadmap](docs/PHASE_ROADMAP.md) supersedes the old mandatory four-phase independent-evaluation sequence for normal development and preview distribution. The previous strict protocol remains [optional for independently verified statistical accuracy claims](docs/OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md). The broader [long-horizon roadmap](docs/LONG_HORIZON_ROADMAP.md) remains an unapproved idea registry.
 
 ## Active priority
 
@@ -31,33 +31,33 @@ Scope:
 The commercial slice is additive to the scanner. Missing or unavailable licensing must not stop Free analysis, and no Polar organization access token is embedded in the distributed CLI.
 
 
-### Beta recovery cycle — improve precision and recall before expansion
+### Solo-maintainer Free beta: targeted fixes first, field learning afterward
 
-The evaluation harness and targeted usefulness slices are implemented. The first preregistered held-out pilot completed on 2026-09-03 with a **stop** decision; it does not support a broader-adoption claim.
+The owner directed on October 19, 2026 that independent human reviewers **must no longer be a prerequisite to development, rule-fix merges or publishing a clearly labeled Free beta**. The active workflow is [the solo-maintainer roadmap](docs/PHASE_ROADMAP.md). Reproducible positive/negative fixtures, green required CI, contract compatibility, privacy/security reviews, rollback plans and a solo owner merge decision replace the mandatory two-reviewer intake and preregistered efficacy gate for ordinary Free releases. External publication still needs its own exact approval.
 
-The completed pilot:
+Merge Guard's existing MIT scanner is Free and must remain usable offline, without a paid entitlement or third-party service. Its Free beta is **experimental review decision support**, not a confirmed defect detector or a guarantee of no missed risks.
 
-- uses at least 50 held-out pull requests from at least five opaque repository aliases;
-- freezes the corpus, product commit, metric implementation, and thresholds before the held-out run;
-- measures actionable precision, supported-scope recall, noise, specificity, setup effort, and runtime;
-- publishes only content-free aggregate results and records an explicit improve, proceed, stop, or insufficient-evidence decision;
-- preserves local-only analysis, frozen v1 compatibility, and the existing privacy and execution boundaries.
+The first independently preregistered pilot remains an immutable historical **stop** decision from September 3, 2026:
 
-Pilot record: product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`; preregistration ID `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564`; 50 held-out cases across five opaque repository aliases, with 35 supported concerns and 15 low-risk controls. Actionable precision was 12/140 (8.6%; gate: 70%). Overall supported-scope recall was 12/35 (34.3%), a material diagnosis metric; the implemented preregistration does not define a separate numeric gate for it. Critical recall was `insufficient-evidence` (0 high-severity concerns; gate: 80% when the denominator is at least five). Median unmatched findings was one (gate met), clean-PR specificity was 11/15 (73.3%; gate met), median setup was one minute (gate met), and p95 analysis time was four milliseconds (gate met). All corpus and per-case material remains local and ignored.
+- product commit `e63bf37a84dae314965c98dfe9387b6a0db833bf`; preregistration `6be3c252d0ffbdbbf96ca05e0a39af4e400250efddf512cc8b0bac4fad4df564`;
+- 50 held-out cases from five aliases, with 35 supported concerns and 15 low-risk controls;
+- actionable precision **12/140 (8.6%)** against the former 70% formal pilot gate;
+- overall supported-scope recall **12/35 (34.3%)**, diagnosed as low without a separate numeric gate;
+- critical recall **insufficient evidence** (zero high-severity denominator);
+- median unmatched findings 1, clean-PR specificity 11/15 (73.3%), median setup 1 minute and p95 runtime 4 ms passed their former preregistered checks.
 
-The active recovery sequence is:
+Do not alter, relabel, rerun for tuning or describe the old pilot as passing. Improvements in targeted fixtures or self-selected feedback reports are **not estimates of general precision or recall**.
 
-1. Expand the calibration partition with outcome-grounded, independently reviewed cases, including enough high-severity concerns to measure critical recall.
-2. Audit unmatched findings and missed supported concerns by stable rule family and path using calibration evidence only.
-3. Make only evidence-backed rule or presentation changes, with focused regression fixtures and frozen-v1 compatibility coverage.
-4. Pass the full local and GitHub compatibility gates on the selected product commit.
-5. Assemble a fresh held-out corpus, preregister its corpus, metric, threshold, and product identities, and run a second pilot without post-registration tuning.
+The practical work order is:
 
-The first corrective target is the missed precision gate, the materially low overall supported-scope recall diagnosis, and the missing critical-recall denominator. Setup effort, runtime, median noise, and clean-PR specificity already met their thresholds, so golden-path simplification remains conditional rather than the active priority.
+1. Fix clear, bounded rule/recommendation defects using minimal positive and negative regression cases, an explained expected score change, full CI, and rollback. PR [#193](https://github.com/keepithandy/merge-guard/pull/193) is the first pending example; a second human reviewer is no longer a prerequisite to a solo owner merge decision.
+2. Verify representative Free installs/Action use, supported platforms, deterministic reports, frozen public interfaces, security, package contents and documented limitations on the exact candidate before any separately authorized external release.
+3. Collect **voluntary** Free-user feedback using the privacy-safe [feedback guide](docs/FREE_BETA_FEEDBACK.md) and GitHub issue form. Users need not publish proprietary diffs or identifying details; avoid passive telemetry.
+4. Convert reproduced user issues into focused tests and future fixes. Track unverified versus confirmed reports; avoid deriving population accuracy percentages from self-selected issues.
 
-Exit gate: a new preregistered held-out pilot reaches the thresholds documented in [the evaluation harness design](docs/EVALUATION_HARNESS_DESIGN.md). An honest miss is preserved, but it locks every successor and requires a newly approved roadmap revision; it does not open an automatic corrective loop. No v2 or extension-surface expansion begins before a passing decision.
+A full dual-human-labeled calibration / fresh held-out study remains available only as an **optional future evidence program** when the owner wants externally supportable quantified accuracy claims. Its implementation retains the strict integrity, thresholds and two-label requirements; it is not invoked to authorize Free fixes or Free preview publication.
 
-Completed usefulness evidence: reviewer signal cleanup merged in #156, companion-change contracts landed at `483c490`, and browser-game save compatibility merged in #159 after all 11 required GitHub checks passed.
+No hosted/AI/remote code execution or unrelated expansion is authorized by this direction. Commercial products and external release actions retain their separate permission gates.
 
 ### Owner-directed additive slice — Human Verification evidence
 
@@ -126,7 +126,7 @@ Exit gate: a reviewer can identify the exact current and prior evidence, underst
 - Measure actionability, supported-scope recall, noise, specificity, setup effort, and runtime without telemetry or uploads.
 - Simplify defaults or improve core analysis according to preregistered results before expanding the extension surface.
 
-Exit gate: an immutable beta passes release gates and a preregistered held-out evaluation reaches the documented usefulness thresholds, or the milestone records an honest no-go result and the measured corrective plan.
+Exit gate for the **Free preview**: an immutable candidate passes required CI/release checks, security, consumer/installation fixtures, compatibility and rollback review; accurately discloses unvalidated field accuracy; and receives separate exact owner authorization before external publication. The preregistered dual-reviewer threshold study remains optional for statistical efficacy claims, not a preview gate.
 
 ## v2 decision checkpoint
 
@@ -138,6 +138,8 @@ A v2 roadmap begins only when accumulated evidence shows that a breaking contrac
 - Delivery work is split into narrow issues with deterministic acceptance criteria and rollback notes.
 - Additive v1 changes preserve frozen CLI, report, policy, plugin, artifact, and Action contracts.
 - Risk-scoring changes require fixtures, compatibility notes, and a clear explanation of score movement.
+- A solo owner may review and merge ordinary Free fixes after required tests and rollback; no second human reviewer or preregistered corpus is mandatory.
+- User-submitted field feedback is voluntary and self-selected, not a statistical accuracy estimate.
 - Unknown, unavailable, and untrusted evidence must remain distinct from clean or safe evidence.
 - Merge Guard remains useful without AI, hosted storage, telemetry, or external services.
 - Publishing, tagging, permissions, network access, persistence, and code execution always require explicit authorization.

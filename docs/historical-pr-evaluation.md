@@ -1,6 +1,6 @@
 # Historical pull-request evaluation harness
 
-The historical-PR harness evaluates Merge Guard against an explicitly selected local corpus. It is designed for beta field validation, not routine pull-request scanning.
+The historical-PR harness evaluates Merge Guard against an explicitly selected local corpus. It is an **optional formal, independently verified accuracy study**, not a prerequisite for routine pull-request scanning, solo-maintainer fixes, source merges or Free preview releases. See [the active Free beta roadmap](PHASE_ROADMAP.md) and [the optional historical protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md). The evaluator's original integrity/dual-label requirements are preserved for honest statistical claims.
 
 ```bash
 npm run eval:historical-prs -- --corpus C:\path\to\corpus --mode validate
@@ -11,7 +11,7 @@ npm run eval:historical-prs -- --corpus C:\path\to\corpus --mode run --partition
 
 ## Calibration-only preflight (preparatory, not a phase PASS)
 
-Before proposing any change to the analyzer, keep an **independently labeled calibration-only corpus** in the ignored `.merge-guard-pilot/` workspace and run:
+If pursuing the **optional formal accuracy study**, keep an independently labeled calibration-only corpus in the ignored `.merge-guard-pilot/` workspace and run:
 
 ```bash
 npm run eval:calibration-preflight -- --corpus .merge-guard-pilot/calibration-corpus
@@ -20,9 +20,9 @@ npm run test:calibration-preflight
 
 This local, read-only command inspects a calibration-only manifest before opening case files. It refuses mixed calibration/held-out manifests **without loading held-out diffs or labels**, never runs the analyzer, and prints only summary counts, generic blocker codes, and a list of manual review requirements. It returns exit status `2` for automatically blocked evidence and `0` when numerical/structural checks are met **but human verification is still required**.
 
-The structural check requires at least 15 supported concerns, 15 low-risk controls, and 5 high-severity supported concerns; it flags exact duplicate calibration diffs, disputed or excluded decisions, and synthetic provenance. Those thresholds describe the strict recovery roadmap's calibration prerequisite, not new product/held-out metrics. Synthetic fixture cases do not qualify as authentic independent evidence.
+The structural check requires at least 15 supported concerns, 15 low-risk controls, and 5 high-severity supported concerns; it flags exact duplicate calibration diffs, disputed or excluded decisions, and synthetic provenance. Those thresholds describe the preserved optional independent-evaluation protocol's calibration prerequisite, not a requirement for Free beta source fixes. Synthetic fixture cases do not qualify as authentic independent evidence.
 
-**Never treat `human-verification-required` or exit status `0` as Phase 1 PASS.** Independent labels, outcome-grounded provenance, source ancestry and separation from held-out data, exclusions, and calibration freeze must be verified and authorized using the owner-controlled private ledger. Official phases remain governed by [the strict phase roadmap](PHASE_ROADMAP.md); this preparatory preflight does not unlock Phase 2 or permit modifying production rules.
+**Never treat `human-verification-required` or exit status `0` as Phase 1 PASS.** Independent labels, outcome-grounded provenance, source ancestry and separation from held-out data, exclusions, and calibration freeze must be verified and authorized using the owner-controlled private ledger. Optional formal evidence phases remain governed by [the archived protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md); this preparatory preflight does not unlock formal Phase 2 or establish measured accuracy. It does **not** restrict ordinary solo-owner product changes under [the active roadmap](PHASE_ROADMAP.md).
 
 For the repeatable, content-free **before/after calibration measurement** procedure, including caller-asserted commit identities, immutable input checks, both verification stages, and commands for Windows PowerShell, see [Repeatable calibration measurement](REPRODUCIBLE_CALIBRATION.md). That workflow requires authentic independent evidence and does not authorize production rule changes.
 

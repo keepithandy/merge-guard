@@ -1,0 +1,73 @@
+name: Free beta feedback
+description: Report a noisy finding, missed concern, or usability problem in the free Merge Guard preview. Do not share private source.
+title: "[Free beta] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve the free preview. Feedback is voluntary and public.
+        **Do not paste private repositories, full diffs, secrets, tokens, identifying information, or proprietary logs.**
+        Minimal invented/sanitized examples are welcome but optional. Nothing is uploaded automatically by Merge Guard.
+  - type: dropdown
+    id: feedback_type
+    attributes:
+      label: What happened?
+      options:
+        - A warning was not useful or was too broad
+        - Merge Guard missed a concern
+        - Suggested check was irrelevant
+        - Installation or GitHub Action issue
+        - Performance or usability issue
+        - Other feedback
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit (optional)
+      placeholder: e.g. v1.3.0-beta.2 or local commit
+  - type: dropdown
+    id: environment
+    attributes:
+      label: How did you use Merge Guard?
+      options:
+        - CLI
+        - GitHub Action
+        - Local dashboard
+        - Not sure
+  - type: textarea
+    id: observed
+    attributes:
+      label: Actual behavior
+      description: Describe what Merge Guard reported or did. A private diff is not required.
+      placeholder: "It flagged src/index.js as navigation, but the change only added a module export."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Explain the signal or check you expected and why, if known.
+    validations:
+      required: true
+  - type: textarea
+    id: safe_repro
+    attributes:
+      label: Optional sanitized reproducer
+      description: Invented/minimal code is helpful; do not share real private source, full diffs, tokens or logs.
+      render: javascript
+  - type: dropdown
+    id: verification
+    attributes:
+      label: Verification status (self-reported)
+      options:
+        - I reproduced it myself
+        - I observed it once
+        - I am unsure
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I have not included private code, credentials, customer data, identifying details or proprietary logs.
+          required: true
