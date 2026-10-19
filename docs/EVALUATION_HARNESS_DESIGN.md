@@ -1,6 +1,6 @@
 # Historical pull-request evaluation harness design
 
-Status: **historical evaluation design retained for optional independent accuracy research; first pilot completed with a stop result**. Harness implementation accepted; further independent corpus work is optional.
+Status: **historical evaluation design retained for optional independent accuracy research; first pilot completed with a stop result**. The harness implementation accepted for optional independent research; further independent corpus work is optional.
 
 Tracking milestone: field validation and adoption readiness after `1.3.0-beta.1`.
 
