@@ -7,7 +7,11 @@
 - [ ] `npm run release:check` passes.
 - [ ] `npm pack --dry-run` contains no secrets or local license state.
 - [ ] CLI Free scan works with no Polar configuration.
-- [ ] CLI `plan`, `activate`, `license`, `license clear`, and `account` commands behave as documented.
+- [ ] CLI `plan`, `activate --stdin`, `license`, `license clear`, `license clear --local-only`, and `account` commands behave as documented.
+- [ ] License updates are atomic and preserve previously valid state after failed writes.
+- [ ] Repeated same-key activation does not consume a second device slot; a different key cannot orphan the first device.
+- [ ] Polar deactivation failure preserves retryable state; environment key overrides do not overwrite unrelated activations.
+- [ ] License keys are absent from command-line arguments, shell history, help output, and test logs for the documented activation flow.
 - [ ] No access token, customer license key, or production secret is committed.
 - [ ] README, changelog, roadmap, tier matrix, and Polar setup agree.
 
