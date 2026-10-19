@@ -1,6 +1,6 @@
 # Historical pull-request evaluation harness design
 
-Status: **harness implementation accepted; caller-owned corpus and pilot results pending**
+Status: **historical evaluation design retained for optional independent accuracy research; first pilot completed with a stop result**. Harness implementation accepted; further independent corpus work is optional.
 
 Tracking milestone: field validation and adoption readiness after `1.3.0-beta.1`.
 
@@ -8,7 +8,7 @@ Tracking milestone: field validation and adoption readiness after `1.3.0-beta.1`
 
 The harness exists to answer whether Merge Guard gives reviewers useful, actionable risk guidance on real pull requests without unacceptable noise or setup cost. It is not a test-coverage counter and it must not convert passing internal contracts into a claim of product usefulness.
 
-The beta proceeds toward wider adoption only when a preregistered corpus evaluation shows acceptable actionability, supported-scope recall, noise, setup effort, and runtime. If it does not, the next work targets the measured failure rather than adding extension infrastructure.
+A **statistical claim that the beta reaches the preregistered usefulness thresholds** requires a valid independent corpus showing acceptable actionability, supported-scope recall, noise, setup effort and runtime. For such a formal evaluation, if it does not pass, the next work targets the measured failure rather than adding extension infrastructure. This does **not** block a clearly identified experimental Free preview, solo-owned fixes or voluntary user feedback under [the active roadmap](PHASE_ROADMAP.md).
 
 ## Non-goals
 
