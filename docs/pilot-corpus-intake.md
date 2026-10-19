@@ -124,6 +124,16 @@ Use the versioned schemas as the authority. This abbreviated pair shows the rela
 }
 ```
 
+## Calibration preflight before repair proposals
+
+Prepare a separate calibration-only manifest (no held-out cases) under the ignored local workspace and run:
+
+```bash
+npm run eval:calibration-preflight -- --corpus .merge-guard-pilot/calibration-corpus
+```
+
+The command reports provisional included-case counts, supported and high-severity supported concerns, negative controls, duplicate exact-diff groups, excluded/disputed cases, synthetic controls, and generic blocker codes. It never evaluates the held-out partition. It **cannot** verify real-world provenance, the independence of two labelers, related PR ancestry, or frozen labels. Keep those decisions and excluded/disputed/duplicate rows visible in the private ledger and confirm them manually before requesting formal Phase 1 authorization. A structurally sufficient result is **not a Phase 1 PASS** and does not authorize rule changes.
+
 ## Validation and handoff
 
 Validate after each intake batch and before calibration:
