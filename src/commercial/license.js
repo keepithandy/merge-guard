@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -30,9 +31,30 @@ export function readLicenseState({ env = process.env } = {}) {
 
 export function writeLicenseState(state, { env = process.env } = {}) {
   const file = licenseFilePath(env);
-  fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
-  fs.writeFileSync(file, JSON.stringify(state, null, 2) + '\n', { encoding: 'utf8', mode: 0o600 });
-  return file;
+  const directory = path.dirname(file);
+  // Serialize before touching disk: a serialization failure must preserve the
+  // previously validated state.
+  const contents = JSON.stringify(state, null, 2) + '\n';
+  fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const temporaryFile = path.join(directory, `.${path.basename(file)}.${randomUUID()}.tmp`);
+  let descriptor;
+  try {
+    // The temporary file lives beside the destination so rename is atomic on
+    // supported local filesystems. 'wx' prevents overwriting an existing file.
+    descriptor = fs.openSync(temporaryFile, 'wx', 0o600);
+    fs.writeFileSync(descriptor, contents, 'utf8');
+    fs.fsyncSync(descriptor);
+    fs.closeSync(descriptor);
+    descriptor = undefined;
+    fs.renameSync(temporaryFile, file);
+    return file;
+  } catch (error) {
+    if (descriptor !== undefined) {
+      try { fs.closeSync(descriptor); } catch { /* preserve original failure */ }
+    }
+    try { fs.rmSync(temporaryFile, { force: true }); } catch { /* preserve original failure */ }
+    throw error;
+  }
 }
 
 export function clearLicenseState({ env = process.env } = {}) {
@@ -108,6 +130,16 @@ function timeoutSignal(ms = 5000) {
 export async function activateLicense(key, { label = `${os.hostname()} / Merge Guard`, env = process.env, fetchImpl } = {}) {
   const organizationId = configuredOrganizationId(env);
   if (!organizationId) throw new Error('MERGE_GUARD_POLAR_ORGANIZATION_ID is not configured.');
+  const existing = readLicenseState({ env });
+  if (existing?.activationId && existing.licenseKey !== key) {
+    throw new Error('A different license is already activated. Run "merge-guard license clear" to deactivate it before switching keys.');
+  }
+  if (existing?.activationId && existing.licenseKey === key) {
+    // Reuse the existing device activation instead of consuming another slot.
+    const refreshed = await validateLicense({ env, fetchImpl, force: true });
+    if (refreshed.plan === PLAN_FREE) throw new Error('The existing license could not be validated as Pro or Team.');
+    return refreshed;
+  }
   const data = await polarPost('/v1/customer-portal/license-keys/activate', {
     key,
     organization_id: organizationId,
@@ -151,7 +183,7 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
     const data = await polarPost('/v1/customer-portal/license-keys/validate', {
       key,
       organization_id: organizationId,
-      activation_id: state?.activationId || undefined
+      activation_id: state?.licenseKey === key ? state?.activationId || undefined : undefined
     }, { fetchImpl, signal: timeoutSignal() });
     const parsed = parseValidatedLicense(data, env, currentTime);
     const next = {
@@ -159,7 +191,7 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
       plan: parsed.plan,
       status: parsed.status,
       licenseKey: key,
-      activationId: state?.activationId || parsed.activationId || null,
+      activationId: state?.licenseKey === key ? state?.activationId || parsed.activationId || null : parsed.activationId || null,
       benefitId: parsed.benefitId,
       expiresAt: parsed.expiresAt,
       lastValidatedAt: new Date(currentTime).toISOString(),
@@ -196,7 +228,9 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
 export async function deactivateLicense({ env = process.env, fetchImpl } = {}) {
   const state = readLicenseState({ env });
   const organizationId = configuredOrganizationId(env);
-  const key = keyFromState(state, env);
+  // Deactivate only the key that actually owns the stored device activation.
+  // An environment key override must not be used with a different activation.
+  const key = state?.licenseKey || null;
   if (state?.activationId && organizationId && key) {
     try {
       await polarPost('/v1/customer-portal/license-keys/deactivate', {
