@@ -5,6 +5,8 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { Readable } from 'node:stream';
+import { readActivationKey } from '../src/commercial/cli.js';
 import {
   CAPABILITIES,
   hasCapability,
@@ -16,6 +18,7 @@ import {
 import {
   activateLicense,
   clearLicenseState,
+  deactivateLicense,
   licenseFilePath,
   readLicenseState,
   writeLicenseState,
@@ -38,6 +41,14 @@ assert.equal(hasCapability(PLAN_FREE, CAPABILITIES.CORE_SCAN), true);
 assert.equal(hasCapability(PLAN_FREE, CAPABILITIES.PREMIUM_POLICY_DELIVERY), false);
 assert.equal(hasCapability(PLAN_PRO, CAPABILITIES.PREMIUM_POLICY_DELIVERY), true);
 assert.equal(hasCapability(PLAN_TEAM, CAPABILITIES.SHARED_POLICY_DELIVERY), true);
+
+assert.equal(await readActivationKey(Readable.from(['MG-TEST-', 'PRO\\n'.replace('\\n', '\n')])), 'MG-TEST-PRO');
+await assert.rejects(readActivationKey(Readable.from([''])), /exactly one nonempty/);
+await assert.rejects(readActivationKey(Readable.from(['first\nsecond\n'])), /exactly one nonempty/);
+await assert.rejects(readActivationKey(Readable.from(['x'.repeat(4097)])), /4096-byte maximum/);
+const terminalInput = Readable.from(['MG-TEST-PRO']);
+terminalInput.isTTY = true;
+await assert.rejects(readActivationKey(terminalInput), /interactive input is not supported/);
 
 const response = (status, body) => ({
   ok: status >= 200 && status < 300,
@@ -68,10 +79,40 @@ assert.equal(activated.plan, PLAN_PRO);
 assert.equal('licenseKey' in activated, false, 'public commercial state must not expose the full license key');
 assert.equal(fs.existsSync(licenseFilePath(env)), true);
 assert.equal(readLicenseState({ env }).licenseKey, 'MG-TEST-PRO');
+const licenseFile = licenseFilePath(env);
+const originalStateBytes = fs.readFileSync(licenseFile, 'utf8');
+assert.throws(() => writeLicenseState({ invalid: 1n }, { env }), /BigInt/);
+assert.equal(fs.readFileSync(licenseFile, 'utf8'), originalStateBytes);
+assert.equal(fs.readdirSync(temp).filter(name => name.endsWith('.tmp')).length, 0);
+if (process.platform !== 'win32') {
+  assert.equal(fs.statSync(licenseFile).mode & 0o777, 0o600, 'license file should be owner-readable only');
+}
 
 const cached = await validateLicense({ env, fetchImpl: async () => { throw new Error('should not call network'); } });
 assert.equal(cached.plan, PLAN_PRO);
 assert.equal(cached.validation, 'cached');
+
+// Reusing a license on the same device must revalidate, not consume a new activation.
+const reused = await activateLicense('MG-TEST-PRO', {
+  env,
+  fetchImpl: async (url) => {
+    assert(url.endsWith('/validate'), 'existing device must not activate again');
+    return response(200, {
+      status: 'granted',
+      benefit_id: env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID,
+      expires_at: null
+    });
+  }
+});
+assert.equal(reused.plan, PLAN_PRO);
+await assert.rejects(
+  activateLicense('ANOTHER-LICENSE', {
+    env,
+    fetchImpl: async () => { throw new Error('must reject switching before network request'); }
+  }),
+  /deactivate it before switching keys/
+);
+assert.equal(readLicenseState({ env }).licenseKey, 'MG-TEST-PRO');
 
 const teamFetch = async () => response(200, {
   status: 'granted',
@@ -173,6 +214,23 @@ writeLicenseState(cachedProState({ expiresAt: 'not-a-date' }), { env });
 const invalidExpiry = await validateLicense({ env, fetchImpl: offlineFetch, now: testNow });
 assert.equal(invalidExpiry.plan, PLAN_FREE);
 
+// An environment override must never deactivate an unrelated stored activation.
+writeLicenseState(cachedProState({ activationId: 'stored-device-activation' }), { env });
+let deactivationCalls = 0;
+await deactivateLicense({
+  env: { ...env, MERGE_GUARD_LICENSE_KEY: 'UNRELATED-ENV-KEY' },
+  fetchImpl: async (url, options) => {
+    deactivationCalls += 1;
+    assert(url.endsWith('/deactivate'));
+    const body = JSON.parse(options.body);
+    assert.equal(body.key, 'MG-TEST-PRO');
+    assert.equal(body.activation_id, 'stored-device-activation');
+    return response(204, null);
+  }
+});
+assert.equal(deactivationCalls, 1);
+assert.equal(readLicenseState({ env }), null);
+
 clearLicenseState({ env });
 assert.equal(readLicenseState({ env }), null);
 
@@ -192,6 +250,26 @@ const badPlanRun = spawnSync(process.execPath, ['src/cli.js', 'plan', 'unexpecte
 });
 assert.equal(badPlanRun.status, 1);
 assert.match(badPlanRun.stderr, /plan does not accept an argument/);
+
+const invalidStdinRun = spawnSync(process.execPath, ['src/cli.js', 'activate', '--stdin'], {
+  cwd: process.cwd(),
+  env,
+  input: 'first\nsecond\n',
+  encoding: 'utf8'
+});
+assert.equal(invalidStdinRun.status, 1);
+assert.match(invalidStdinRun.stderr, /exactly one nonempty license key/);
+assert.doesNotMatch(invalidStdinRun.stderr, /first|second/);
+
+const missingConfigRun = spawnSync(process.execPath, ['src/cli.js', 'activate', '--stdin'], {
+  cwd: process.cwd(),
+  env: { ...env, MERGE_GUARD_POLAR_ORGANIZATION_ID: '' },
+  input: 'MG-TEST-PRO\n',
+  encoding: 'utf8'
+});
+assert.equal(missingConfigRun.status, 1);
+assert.match(missingConfigRun.stderr, /ORGANIZATION_ID is not configured/);
+assert.doesNotMatch(missingConfigRun.stderr, /MG-TEST-PRO/);
 fs.rmSync(temp, { recursive: true, force: true });
 console.log('commercial entitlement contracts passed');
 
