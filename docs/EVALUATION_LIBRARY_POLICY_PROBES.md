@@ -1,6 +1,6 @@
 # Proposed library risk-signal precision fix (PR #193)
 
-**Status: implemented on an unmerged draft branch; not authorized for release or merge.** The [strict phase roadmap](PHASE_ROADMAP.md) still requires a genuine, independently verified Phase 1 PASS followed by specific owner authorization before an official Phase 2 rule repair can be merged. This PR's code changes are a **requested experimental candidate**, not a compliant Phase 2 attempt or a measured accuracy improvement.
+**Status: implemented on an unmerged draft branch; eligible for the solo owner's source-review/merge decision after final regression, release/security/compatibility CI and rollback checks.** The current [solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) **does not require a second reviewer, formal Phase 1 PASS, large independently labeled corpus or Phase 2 research authorization** to merge a bounded Free fix. This PR is still **not** an independently validated accuracy improvement, and source merge does not authorize an external release.
 
 ## Problem reproduced
 
@@ -45,10 +45,13 @@ The automated suite `scripts/evaluation-policy-characterization-contracts.js` us
 
 The regression tests establish **specific rule behavior**, not population-level precision/recall. Passing CI is necessary but not sufficient for a release claim.
 
-## Evidence and rollback gates before merge
+## Solo-owner merge checks and rollback
 
-- The strict roadmap has Phase 1 READY but not PASS and Phase 2 LOCKED. Merge is blocked until independent labels, provenance, held-out ancestry separation, sufficient calibration counts, approved Phase 1 hypotheses, and specific Phase 2 authorization are documented.
-- Evaluate against the **same frozen, independently reviewed calibration corpus** with the reproducible measurement/compare workflow. Record full commit identities, each metric's numerator/denominator, noise, specificity, critical recall, privacy/determinism, and positive/negative case outcomes. Never tune against the old held-out pilot.
-- The policy-pack content hash changes intentionally with the `1.0.1` version. Existing frozen v1 report schema remains unchanged, but check consumer/Action/SARIF contracts and policy snapshot compatibility on both Windows and Linux.
-- **Rollback:** revert this PR's changes to `src/analyzeDiff.js` and `policies/starter/library.json` together; the original conservative filename rule and `1.0.0` keyword matcher then return. Re-run all regression and release-readiness checks.
-- If authorized criteria cannot be met, **do not merge** this experimental fix or describe it as a formal Phase 2 PASS.
+- Verify the exact final source commit, the positive/negative regression suite, complete `npm.cmd test` / `npm.cmd run release:check`, and all required GitHub Actions across supported Windows/Linux Node versions. The solo owner can approve the source merge after reviewing the diff and limitations; **no second human reviewer or independent pilot is mandatory**.
+- Review both possible failure directions: this fix reduces noisy warnings for synthetic `component.removed` events and additive library re-exports, but must not miss explicit deprecations/breakages, actual navigation or removal of public exports. The tests cover these cases; unknown field behavior remains unmeasured.
+- The policy-pack content hash changes intentionally with the `1.0.1` version. Existing frozen v1 report schemas remain unchanged; verify consumer/Action/SARIF, determinism, security and policy snapshot coverage.
+- **Rollback:** revert this PR's changes to `src/analyzeDiff.js` and `policies/starter/library.json` together; the original conservative filename rule and `1.0.0` keyword matcher then return. Re-run focused and release-readiness checks.
+- Do **not** claim a measured precision/recall improvement, conceal the old September pilot stop result or infer that self-selected future user reports represent population-level accuracy.
+- Separate explicit owner authorization is still required for any npm/GitHub publication, tag, stable Action ref, Marketplace or payment action. Free user reports are voluntary and must not transmit source automatically.
+
+A future independent, statistically defensible efficacy study remains [optional](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md), using its unchanged strict evaluator. It is not the gate for this Free source fix.
