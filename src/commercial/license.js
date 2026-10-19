@@ -165,6 +165,9 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
   const state = readLicenseState({ env });
   const key = keyFromState(state, env);
   const organizationId = configuredOrganizationId(env);
+  // An environment override may be used for an isolated validation, but must
+  // not replace another license's durable local device activation.
+  const externalKey = Boolean(env.MERGE_GUARD_LICENSE_KEY && env.MERGE_GUARD_LICENSE_KEY !== state?.licenseKey);
   if (!key || !organizationId) {
     return commercialView({ provider: key ? 'polar' : null, plan: PLAN_FREE, status: key ? 'not-configured' : 'not-activated' });
   }
@@ -197,7 +200,7 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
       lastValidatedAt: new Date(currentTime).toISOString(),
       validation: 'live'
     };
-    writeLicenseState(next, { env });
+    if (!externalKey) writeLicenseState(next, { env });
     return commercialView(next);
   } catch (error) {
     // A definite client-side rejection (invalid/revoked key, bad activation,
@@ -215,7 +218,7 @@ export async function validateLicense({ env = process.env, fetchImpl, force = fa
         validation: 'failed',
         warning: error.message
       };
-      writeLicenseState(denied, { env });
+      if (!externalKey) writeLicenseState(denied, { env });
       return commercialView(denied);
     }
     if (cachedPlan !== PLAN_FREE && withinGrace) {
