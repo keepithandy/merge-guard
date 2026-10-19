@@ -1,10 +1,10 @@
 # Repeatable calibration measurement — real pull requests
 
-Status: **preparatory evaluation workflow**, not a Phase 1 PASS or Phase 2 authorization. The strict [phase roadmap](PHASE_ROADMAP.md) governs authorization, preregistration, rollback, and publication. These scripts do not change scanner rules or evaluation thresholds.
+Status: **optional formal accuracy-research workflow**, not a requirement for a solo maintainer to fix, merge or prepare the Free preview. Use the [active solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) for ordinary work. The preserved [optional independent evaluation protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md) applies only if you choose an independently supported precision/recall study. These scripts do not change scanner rules or evaluation thresholds.
 
 ## 1. Prepare real evidence, without treating a download as a label
 
-Maintain private source-to-alias mappings and source outcome evidence only in the Git-ignored `.merge-guard-pilot/` workspace. Before accepting a real PR case:
+**Skip this section entirely for ordinary source fixes and the Free preview.** If you separately decide to pursue an independent, quantified accuracy study, maintain private source-to-alias mappings and source outcome evidence only in the Git-ignored `.merge-guard-pilot/` workspace. Before accepting a formal case:
 
 1. Verify permission to use the material and the PR's actual identity, merge outcome, and whether it appeared in the previous held-out evaluation. Search the private intake ledger; do not reuse held-out or related ancestry as calibration.
 2. Store one bounded, sanitized unified diff under `.merge-guard-pilot/calibration-corpus/cases/<opaque-case-id>/change.diff`. Confirm diff metadata and contents contain no credentials or identifying data that should not be shared; do not commit it. The evaluation runner is local, but filenames and paths are still private.
@@ -12,7 +12,7 @@ Maintain private source-to-alias mappings and source outcome evidence only in th
 4. Obtain two independent **human** include/exclude decisions before anyone sees the other's conclusion. Then adjudicate, record truthful `lowRisk`, supported and unsupported concerns, severity, actual affected paths, outcome-grounded provenance, and preserve disagreements and exclusions. Do not use an AI-generated second review.
 5. Use the versioned [manifest and labels schemas](historical-pr-evaluation.md) and the [pilot intake guide](pilot-corpus-intake.md). A blank labels file, a single review, or a structurally valid synthetic case is not qualifying evidence.
 
-For the user's initial Pulse Engine PR #21 candidate, a local diff was downloaded but setup time, independent reviewer B, outcome evidence, and held-out overlap are not verified. **Keep this candidate unqualified until those checks succeed.** Do not generate fake `labels.json` just to make the validation command green.
+For the earlier Pulse Engine PR #21 candidate, a local diff was downloaded but setup time, independent reviewer B, outcome evidence, and held-out overlap were not verified. **That case remains unqualified only for the optional formal study.** It can still inform synthetic regression hypotheses for routine Free fixes. Never invent a second reviewer or fake `labels.json` to bypass the formal evaluator.
 
 ## 2. Validate and audit before running anything
 
@@ -44,7 +44,7 @@ This command:
 - writes `metadata.json` (corpus content hash including labels/configurations, manifest identity, metric source hash and asserted product SHA), `aggregate.json` (metrics and broad diagnosis), and `case-results.json` (private per-case evidence) in the new ignored directory;
 - reports `provisional-human-verification-required`, **never PASS**, even if all numerical quotas are met.
 
-Record the product commit, frozen corpus content identity, metric identity, and human evidence approvals in the private ledger before authorizing any real repair. Do not tune a rule based on held-out pilot results. A real product repair may begin **only** after the formal Phase 1 PASS and specific owner-approved Phase 2 hypothesis IDs and commit.
+For **formal evidence-grade research**, record the product commit, frozen corpus identity, metric identity, human approvals and authorized hypotheses in the private ledger. Do not tune against held-out pilot results. Ordinary solo-owner Free fixes instead use regression fixtures, full CI, compatibility and rollback under the [active roadmap](PHASE_ROADMAP.md), without the formal Phase 1/2 labels or numerical quotas.
 
 ## 4. Compare a single approved hypothesis with the exact same corpus
 
@@ -59,7 +59,7 @@ npm run eval:calibration-compare -- --baseline .merge-guard-pilot/baseline-01 --
 
 The comparison fails closed on a changed corpus/label hash, metric implementation hash, manifest, case membership, input/configuration hashes, denominators, or held-out partition. It reports content-free before/after precision, supported-scope recall, critical recall, specificity, median unmatched findings, and stable rule-family/path-class diagnosis deltas. It does **not** expose literal paths, source, PR URLs, identities, rationales, or individual case results.
 
-Both measurements must have come from a properly approved frozen calibration corpus. Only the approved product candidate should vary. Compare before/after counts and denominators, investigate whether fewer warnings also reduced important detections, and document positive and negative regression fixtures and a rollback for every altered rule.
+For a **formal quantified comparison**, both measurements must come from a properly approved frozen calibration corpus. Only the approved product candidate should vary. Compare before/after counts and denominators, investigate whether fewer warnings also reduced important detections, and document positive and negative regression fixtures and a rollback for every altered rule.
 
 Neither these comparisons nor a better calibration score establish generalization to unseen pull requests. Formal Phase 3 uses a **fresh**, separately preregistered held-out corpus, with no post-result tuning, only after Phase 2 PASS.
 
@@ -73,6 +73,6 @@ npm test
 npm run release:check
 ```
 
-The comparison tests build *synthetic local fixtures* to verify input-integrity enforcement and arithmetic. They do not supply authentic calibration evidence. Record CI status, review outcomes, baseline/candidate full commit SHAs, and the exact failed gate if any; do not merge a formal Phase 2 product repair without the authorized roadmap requirements.
+The comparison tests build *synthetic local fixtures* to verify input-integrity enforcement and arithmetic. They do not supply authentic calibration evidence. Record CI status, review outcomes, baseline/candidate commit SHAs and the exact failed gate if any; do not claim an independently verified formal result without satisfying its optional protocol. Normal Free source fixes do not require these human-label checks.
 
 **Privacy:** Do not share private ledger, full diffs, labels, per-case results, completed comparison files, or absolute source paths. Review the content-free aggregate before citing or sharing it. No upload, telemetry, signing, publishing, billing, or release is performed by these commands.
