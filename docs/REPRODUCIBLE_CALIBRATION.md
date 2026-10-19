@@ -73,6 +73,6 @@ npm test
 npm run release:check
 ```
 
-The comparison tests build *synthetic local fixtures* to verify input-integrity enforcement and arithmetic. The [library-policy characterization probes](EVALUATION_LIBRARY_POLICY_PROBES.md) document an additional, explicitly unverified matching limitation without making rule changes or adding real-world accuracy evidence. They do not supply authentic calibration evidence. Record CI status, review outcomes, baseline/candidate full commit SHAs, and the exact failed gate if any; do not merge a formal Phase 2 product repair without the authorized roadmap requirements.
+The comparison tests build *synthetic local fixtures* to verify input-integrity enforcement and arithmetic. The [draft library-policy precision fix and regression probes](EVALUATION_LIBRARY_POLICY_PROBES.md) describe an experimental, **unmerged** rule adjustment requested by the owner. Synthetic tests do not supply independently verified accuracy evidence or unlock formal Phase 2. They do not supply authentic calibration evidence. Record CI status, review outcomes, baseline/candidate full commit SHAs, and the exact failed gate if any; do not merge a formal Phase 2 product repair without the authorized roadmap requirements.
 
 **Privacy:** Do not share private ledger, full diffs, labels, per-case results, completed comparison files, or absolute source paths. Review the content-free aggregate before citing or sharing it. No upload, telemetry, signing, publishing, billing, or release is performed by these commands.
