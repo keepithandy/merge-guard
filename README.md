@@ -42,7 +42,7 @@ Merge Guard focuses review on five questions:
 4. Which checks should I run?
 5. What should I verify first?
 
-The report is decision support, not approval. Tests, human review, and repository protection rules remain authoritative.
+The report is decision support, not approval. Tests, a maintainer's review, and repository protection rules remain authoritative. The solo-maintainer [Free beta development roadmap](docs/PHASE_ROADMAP.md) does not require two independent reviewers to improve or release the Free preview; [user feedback](docs/FREE_BETA_FEEDBACK.md) is voluntary and telemetry-free. Passing fixtures do not prove statistical accuracy; the previous preregistered pilot recorded a stop decision.
 
 ## Quick start
 
