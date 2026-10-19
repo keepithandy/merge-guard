@@ -293,7 +293,21 @@ function lineMatchCount(lines, pattern) {
   return lines.filter((line) => pattern.test(line)).length;
 }
 
-function matchRiskPattern(pattern, files, addedLines, totals, config) {
+// A pure, additive re-export in index.js changes a library's public surface,
+// but is not by itself evidence of application startup or navigation changes.
+// Keep routing coverage for executable entry logic, non-export edits, and
+// deletions of existing exports. Unknown or multi-line syntax fails open to
+// the existing review signal rather than silently suppressing it.
+function isPureAdditiveIndexReexport(change) {
+  if (!change || !/(^|\/)index\.[cm]?[jt]sx?$/i.test(change.path)
+    || change.removedLinesCount !== 0) return false;
+  const executableLines = change.addedLines.filter((line) => !isCommentOrWhitespaceLine(line));
+  return executableLines.length > 0
+    && executableLines.every((line) =>
+      /^\s*export\s+(?:\{[^{}]*\}|\*)\s+from\s+(['"])[^'"]+\1\s*;?\s*$/.test(line));
+}
+
+function matchRiskPattern(pattern, files, addedLines, totals, config, changes = []) {
   if (pattern.id === 'large-change') {
     const lineCount = totals.added + totals.removed;
     const matched = lineCount >= config.largeChangeLines || files.length >= config.largeChangeFiles;
@@ -307,7 +321,11 @@ function matchRiskPattern(pattern, files, addedLines, totals, config) {
     };
   }
 
-  const matchedFiles = pattern.file ? files.filter((file) => pattern.file.test(file)) : [];
+  const matchedFiles = pattern.file ? files.filter((file) =>
+    pattern.file.test(file)
+      && !(pattern.id === 'routing-or-entry'
+        && isPureAdditiveIndexReexport(changes.find((change) => change.path === file)))
+  ) : [];
   const matchedLineCount = lineMatchCount(addedLines, pattern.line);
   const reasons = [];
 
@@ -362,7 +380,7 @@ function scoreRisk(diffText, changes, config) {
   for (const pattern of RISK_PATTERNS) {
     if (docsOnly && pattern.id !== 'test-change') continue;
 
-    const match = matchRiskPattern(pattern, files, addedLines, totals, config);
+    const match = matchRiskPattern(pattern, files, addedLines, totals, config, changes);
     if (match.matched) {
       const weight = adjustedWeight(pattern.weight, config);
       score += weight;
@@ -479,7 +497,7 @@ function scoreSingleFile(change, config) {
 
   if (!docsLike) {
     for (const pattern of RISK_PATTERNS) {
-      const match = matchRiskPattern(pattern, [change.path], addedLines, totals, config);
+      const match = matchRiskPattern(pattern, [change.path], addedLines, totals, config, [change]);
       if (match.matched) {
         const weight = adjustedWeight(pattern.weight, config);
         score += weight;
