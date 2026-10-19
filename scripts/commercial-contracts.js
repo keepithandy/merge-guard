@@ -42,7 +42,7 @@ assert.equal(hasCapability(PLAN_FREE, CAPABILITIES.PREMIUM_POLICY_DELIVERY), fal
 assert.equal(hasCapability(PLAN_PRO, CAPABILITIES.PREMIUM_POLICY_DELIVERY), true);
 assert.equal(hasCapability(PLAN_TEAM, CAPABILITIES.SHARED_POLICY_DELIVERY), true);
 
-assert.equal(await readActivationKey(Readable.from(['MG-TEST-', 'PRO\\n'.replace('\\n', '\n')])), 'MG-TEST-PRO');
+assert.equal(await readActivationKey(Readable.from(['MG-TEST-', 'PRO\n'])), 'MG-TEST-PRO');
 await assert.rejects(readActivationKey(Readable.from([''])), /exactly one nonempty/);
 await assert.rejects(readActivationKey(Readable.from(['first\nsecond\n'])), /exactly one nonempty/);
 await assert.rejects(readActivationKey(Readable.from(['x'.repeat(4097)])), /4096-byte maximum/);
@@ -169,13 +169,28 @@ assert.equal(futureCache.plan, PLAN_FREE);
 assert.notEqual(futureCache.validation, 'cached');
 
 // An override license key must never borrow a different key's paid cache.
-writeLicenseState(cachedProState(), { env });
+writeLicenseState(cachedProState({ activationId: 'original-device-id' }), { env });
 const override = await validateLicense({
   env: { ...env, MERGE_GUARD_LICENSE_KEY: 'UNRELATED-KEY' },
   fetchImpl: offlineFetch,
   now: testNow
 });
 assert.equal(override.plan, PLAN_FREE);
+const overrideEnv = { ...env, MERGE_GUARD_LICENSE_KEY: 'UNRELATED-KEY' };
+const overrideLive = await validateLicense({
+  env: overrideEnv, force: true, now: testNow,
+  fetchImpl: async (url, options) => {
+    assert.equal(JSON.parse(options.body).activation_id, undefined, 'do not send another key\'s activation ID');
+    return response(200, {
+      status: 'granted',
+      benefit_id: env.MERGE_GUARD_POLAR_TEAM_BENEFIT_ID,
+      expires_at: null
+    });
+  }
+});
+assert.equal(overrideLive.plan, PLAN_TEAM);
+assert.equal(readLicenseState({ env }).licenseKey, 'MG-TEST-PRO', 'override validation must not replace on-disk key');
+assert.equal(readLicenseState({ env }).activationId, 'original-device-id');
 
 // The same injected time governs live expiration validation.
 const expiredLive = await validateLicense({
@@ -216,6 +231,11 @@ assert.equal(invalidExpiry.plan, PLAN_FREE);
 
 // An environment override must never deactivate an unrelated stored activation.
 writeLicenseState(cachedProState({ activationId: 'stored-device-activation' }), { env });
+await assert.rejects(
+  deactivateLicense({ env, fetchImpl: async () => { throw new Error('temporary outage'); } }),
+  /temporary outage/
+);
+assert.equal(readLicenseState({ env }).activationId, 'stored-device-activation', 'failed deactivation must remain retryable');
 let deactivationCalls = 0;
 await deactivateLicense({
   env: { ...env, MERGE_GUARD_LICENSE_KEY: 'UNRELATED-ENV-KEY' },
@@ -270,6 +290,17 @@ const missingConfigRun = spawnSync(process.execPath, ['src/cli.js', 'activate', 
 assert.equal(missingConfigRun.status, 1);
 assert.match(missingConfigRun.stderr, /ORGANIZATION_ID is not configured/);
 assert.doesNotMatch(missingConfigRun.stderr, /MG-TEST-PRO/);
+
+// Local-only cleanup is explicitly opt-in and does not attempt remote network calls.
+writeLicenseState(cachedProState({ activationId: 'to-be-forgotten' }), { env });
+const localClear = spawnSync(process.execPath, ['src/cli.js', 'license', 'clear', '--local-only'], {
+  cwd: process.cwd(),
+  env,
+  encoding: 'utf8'
+});
+assert.equal(localClear.status, 0, localClear.stderr);
+assert.match(localClear.stdout, /without contacting Polar/);
+assert.equal(readLicenseState({ env }), null);
 fs.rmSync(temp, { recursive: true, force: true });
 console.log('commercial entitlement contracts passed');
 
