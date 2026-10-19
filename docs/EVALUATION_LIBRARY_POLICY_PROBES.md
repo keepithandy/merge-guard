@@ -1,35 +1,54 @@
-# Calibration-only policy characterization: library compatibility and entry signals
+# Proposed library risk-signal precision fix (PR #193)
 
-**Status:** **Preparatory test cases only**, not an accuracy measurement or an approved repair hypothesis. See [the strict phase roadmap](PHASE_ROADMAP.md). Formal Phase 1 is not PASS; Phase 2 remains LOCKED. Production analyzer and starter policy bytes must remain unchanged.
+**Status: implemented on an unmerged draft branch; not authorized for release or merge.** The [strict phase roadmap](PHASE_ROADMAP.md) still requires a genuine, independently verified Phase 1 PASS followed by specific owner authorization before an official Phase 2 rule repair can be merged. This PR's code changes are a **requested experimental candidate**, not a compliant Phase 2 attempt or a measured accuracy improvement.
 
-## Why these probes exist
+## Problem reproduced
 
-A locally observed, owner-supplied Pulse Engine PR #21 diff produced `routing-or-entry` on the path `src/index.js` with **zero** matching navigation-code lines. Applying the explicit library starter policy also produced `compatibility-marker-change` on the string `world/component.removed`. An independently constructed minimal synthetic probe repeated the compatibility warning. A positive probe containing an explicit `BREAKING: removed the public createWorld() API` notice also produced that warning.
+The previous library starter policy matched the substring `removed` anywhere in an added source line. Thus an ordinary event name such as `world/component.removed` generated the +3 **Compatibility marker changed** rule, even though this event name alone says nothing about public API compatibility. A separate built-in rule matched `src/index.js` based on its filename even when the only changed line was an additive module re-export; the suggested navigation test was misleading.
 
-These are reproducible **match mechanisms**, not adjudicated false positives and not evidence of any historical release defect. The library policy legitimately detects the PR's new public exports. Do not generalize this example into accuracy statistics.
+The owner observed both mechanisms in local read-only scans while examining a Pulse Engine change, then reproduced the first with a minimal single-line fixture. The real example is **still not independently adjudicated calibration evidence**. No private source diff, labels, reviewer identities, or local evaluation output are checked into GitHub.
 
-## Automated, deterministic probes
+## Targeted code changes on this draft
 
-Run the synthetic-only contract suite:
+1. **Library compatibility rule:** Starter policy `merge-guard.starter.library` is bumped from `1.0.0` to `1.0.1` and the `compatibility-marker-change` line regex now requires contextual signals such as `BREAKING`, `@deprecated`, `DEPRECATED:`, or explicitly stated public API, export, function, method, or support removal. An event type containing `removed` alone no longer triggers. Genuine breaking/deprecation notices retain the +3 compatibility signal.
+2. **Built-in routing/entry rule:** A `src/index.js`-like file whose added executable lines consist **only** of simple single-line `export { ... } from "module";` or `export * from "module";` statements, with no removed lines, no longer triggers the generic routing/entry warning based solely on its filename. All other index edits, export deletions, navigation calls, and route-file changes retain the existing detection logic. Ambiguous or multiline export syntax falls back to the old review signal.
+3. **Public library API rule:** Unchanged. An additive re-export in `src/index.js` remains covered by the explicit library starter policy's +4 `public-api-change` rule and exported-API compatibility check.
+
+No scoring thresholds, output schemas, evaluation metrics, commercial entitlements, or held-out pilot data change.
+
+## Positive and negative regression coverage
+
+Run from the repository root:
 
 ```powershell
 npm.cmd run test:evaluation-policy-characterization
+npm.cmd run test:policies
+npm.cmd run test:snapshots
+npm.cmd test
+npm.cmd run release:check
 ```
 
-The three committed fixtures, under `test/fixtures/evaluation-hypotheses/`, deliberately contain **invented one-line diffs, not private PR data**.
+The automated suite `scripts/evaluation-policy-characterization-contracts.js` uses **synthetic-only** fixtures under `test/fixtures/evaluation-hypotheses/`.
 
-| Fixture | Present behavior that CI characterizes | Future desired distinction (not yet an executable pass condition) |
-| --- | --- | --- |
-| `library-component-event.diff` | Library compatibility warning, weight **+3**, one line and one path match | An event type containing `removed` alone should not imply public API breakage |
-| `library-breaking-notice.diff` | Library compatibility warning, weight **+3**, one line and one path match | Continue detecting explicit breaking/deprecation declarations |
-| `library-export-only.diff` | Built-in `routing-or-entry` warning, weight **+2**, path-only / zero matching lines; library public-API warning, weight **+4** | Distinguish library public exports from navigation guidance, without losing real entry-point or export-contract coverage |
+| Test | Expected corrected behavior |
+| --- | --- |
+| Component-removal event name | No compatibility warning or +3 points |
+| Explicit `BREAKING` public API removal | Compatibility warning retained, +3 |
+| `@deprecated`, `DEPRECATED:`, public function/support removal | Compatibility warning retained, +3 |
+| Non-API identifier `removed` and `worker/deprecated` event | No compatibility warning |
+| Pure added `src/index.js` re-export | No generic `routing-or-entry` or navigation guidance |
+| Same export with `navigate("/dashboard")` | Routing/entry warning retained, +2 |
+| Non-export index setup edit | Routing/entry warning retained, +2 |
+| Deleted export | Existing entrypoint warning retained, +2 |
+| Explicit `src/router.js` navigation | Routing warning retained, +2 |
+| Additive `src/index.js` export with library policy | Library public API warning retained, +4 |
 
-The characterization tests **pass with today's code**, thereby freezing the present behavior for diagnosis. They **do not yet protect the desired behavior**. When a repair is authorized, the responsible engineer must replace the event-name assertion with an assertion that no compatibility rule fires, retain the positive control, add independent real-world positive/negative regression coverage, and measure the entire frozen calibration corpus. A passing characterization test is not proof that a fix has been implemented.
+The regression tests establish **specific rule behavior**, not population-level precision/recall. Passing CI is necessary but not sufficient for a release claim.
 
-## Formal evidence and change-control blockers
+## Evidence and rollback gates before merge
 
-- The user's local `.merge-guard-pilot/` ledger and case data remain **local and ignored**; do not commit or upload real diffs, labels, PR source, and per-case outputs.
-- The Pulse Engine example is still a pending candidate: two genuine independent reviewers, outcome-grounded provenance, ancestry exclusion against held-out data, and observed setup duration have not been verified.
-- Do not count these synthetic tests toward the 15 supported calibration concerns, 15 low-risk controls, or 5 high-severity concerns. They are engineering **contracts**, not independently labeled human judgments.
-- At most three evidence-based hypotheses can be selected during an explicitly authorized Phase 1. The two observations above are **unranked questions** until that phase produces qualifying evidence.
-- No analyzer, scoring, policy, threshold, public schema, frozen held-out data, or publication action is changed here.
+- The strict roadmap has Phase 1 READY but not PASS and Phase 2 LOCKED. Merge is blocked until independent labels, provenance, held-out ancestry separation, sufficient calibration counts, approved Phase 1 hypotheses, and specific Phase 2 authorization are documented.
+- Evaluate against the **same frozen, independently reviewed calibration corpus** with the reproducible measurement/compare workflow. Record full commit identities, each metric's numerator/denominator, noise, specificity, critical recall, privacy/determinism, and positive/negative case outcomes. Never tune against the old held-out pilot.
+- The policy-pack content hash changes intentionally with the `1.0.1` version. Existing frozen v1 report schema remains unchanged, but check consumer/Action/SARIF contracts and policy snapshot compatibility on both Windows and Linux.
+- **Rollback:** revert this PR's changes to `src/analyzeDiff.js` and `policies/starter/library.json` together; the original conservative filename rule and `1.0.0` keyword matcher then return. Re-run all regression and release-readiness checks.
+- If authorized criteria cannot be met, **do not merge** this experimental fix or describe it as a formal Phase 2 PASS.
