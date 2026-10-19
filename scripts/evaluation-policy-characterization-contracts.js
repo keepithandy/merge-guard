@@ -94,6 +94,8 @@ for (const line of [
   'const removed = components.delete(id);',
   'events.emit("worker/deprecated");',
   'const breakingPoint = 3;',
+  'const BREAKING = true;',
+  'const DEPRECATED = false;',
   'const error = "not-removed";'
 ]) {
   const { standard, withLibraryPolicy } = evaluateProbe(syntheticDiff('src/world.js', line));
