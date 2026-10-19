@@ -72,7 +72,8 @@
     "compare": "node scripts/compare-reports.js",
     "eval:historical-prs": "node scripts/evaluate-historical-prs.js",
     "release:stage": "node scripts/stage-release.js",
-    "release:check": "node scripts/release-readiness.js"
+    "release:check": "node scripts/release-readiness.js",
+    "test:commercial": "node scripts/commercial-contracts.js"
   },
   "keywords": [
     "git",

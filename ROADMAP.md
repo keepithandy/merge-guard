@@ -14,6 +14,23 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ## Active priority
 
+### Owner-directed additive slice — Commercial Foundation
+
+On 2026-10-16 the owner explicitly authorized an additive commercialization slice for Free/Pro/Team packaging through Polar. This is a documented exception to the normal expansion sequence and does not change analyzer scoring, usefulness claims, or the beta-recovery evidence gate.
+
+Scope:
+
+- preserve the entire existing MIT feature set as Free;
+- add centralized plan/capability modeling rather than scattered plan checks;
+- add Polar public-client license activation, validation, deactivation, and local cached state;
+- expose `plan`, `activate`, `license`, and `account` CLI commands;
+- document $9/month Pro and $29/month Team targets, Polar setup, smoke testing, and release gates;
+- keep production checkout, publication, tags, and stable Action-reference movement as explicit owner actions;
+- do not advertise paid benefits until their actual delivery path exists and is tested.
+
+The commercial slice is additive to the scanner. Missing or unavailable licensing must not stop Free analysis, and no Polar organization access token is embedded in the distributed CLI.
+
+
 ### Beta recovery cycle — improve precision and recall before expansion
 
 The evaluation harness and targeted usefulness slices are implemented. The first preregistered held-out pilot completed on 2026-09-03 with a **stop** decision; it does not support a broader-adoption claim.
