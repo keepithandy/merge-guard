@@ -3,6 +3,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import { assessCalibrationPreflight } from '../src/calibrationPreflight.js';
 import { evaluateHistoricalPrCorpus, loadHistoricalPrCorpus } from '../src/historicalPrEvaluation.js';
@@ -100,7 +101,7 @@ function main(args) {
     note: 'Private output written locally; no independent-label proof or release decision'
   }));
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   // The command entry point is deliberately checked by argv rather than
   // running on import, keeping pure functions testable.
   try { main(process.argv.slice(2)); }
