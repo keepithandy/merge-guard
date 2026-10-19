@@ -24,13 +24,13 @@ Commercial commands are additive:
 
 ```bash
 merge-guard plan
-merge-guard activate <license-key>
+merge-guard activate --stdin
 merge-guard license
 merge-guard license clear
 merge-guard account
 ```
 
-See [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
+Pipe the license key into `activate --stdin` (for example, `printf '%s\\n' "$MERGE_GUARD_LICENSE_KEY" | merge-guard activate --stdin`) to keep it out of command-line arguments and shell history. The older `activate <license-key>` syntax remains supported for compatibility but exposes the key to shell history and process argument inspection. An existing device activation is reused when the same key is reactivated; switch keys only after `license clear` succeeds. If remote deactivation fails, the local activation remains for retry. `license clear --local-only` is an explicit last-resort override that may leave a remote device slot occupied.\n\nSee [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
 
 ## What it answers
 
