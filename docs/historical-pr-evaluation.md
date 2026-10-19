@@ -9,6 +9,21 @@ npm run eval:historical-prs -- --corpus C:\path\to\corpus --mode preregister --o
 npm run eval:historical-prs -- --corpus C:\path\to\corpus --mode run --partition held-out --output held-out-results --preregistration preregistration.json --product-commit <same-full-commit-sha>
 ```
 
+## Calibration-only preflight (preparatory, not a phase PASS)
+
+Before proposing any change to the analyzer, keep an **independently labeled calibration-only corpus** in the ignored `.merge-guard-pilot/` workspace and run:
+
+```bash
+npm run eval:calibration-preflight -- --corpus .merge-guard-pilot/calibration-corpus
+npm run test:calibration-preflight
+```
+
+This local, read-only command inspects a calibration-only manifest before opening case files. It refuses mixed calibration/held-out manifests **without loading held-out diffs or labels**, never runs the analyzer, and prints only summary counts, generic blocker codes, and a list of manual review requirements. It returns exit status `2` for automatically blocked evidence and `0` when numerical/structural checks are met **but human verification is still required**.
+
+The structural check requires at least 15 supported concerns, 15 low-risk controls, and 5 high-severity supported concerns; it flags exact duplicate calibration diffs, disputed or excluded decisions, and synthetic provenance. Those thresholds describe the strict recovery roadmap's calibration prerequisite, not new product/held-out metrics. Synthetic fixture cases do not qualify as authentic independent evidence.
+
+**Never treat `human-verification-required` or exit status `0` as Phase 1 PASS.** Independent labels, outcome-grounded provenance, source ancestry and separation from held-out data, exclusions, and calibration freeze must be verified and authorized using the owner-controlled private ledger. Official phases remain governed by [the strict phase roadmap](PHASE_ROADMAP.md); this preparatory preflight does not unlock Phase 2 or permit modifying production rules.
+
 `validate` checks the corpus before analysis. Calibration and held-out runs must select their partition explicitly. `run` writes a new output directory containing `aggregate.json` and `case-results.json`; it refuses to overwrite an existing directory.
 
 `preregister` fails unless the held-out corpus reaches the documented minimum case, repository-alias, supported-concern, low-risk-control, and independent-label requirements. Its content-free record binds the complete corpus content, the caller-asserted product commit, the installed metric source, and the fixed thresholds. A held-out run requires that exact record and rejects corpus, source, product, threshold, or identity drift. The product commit is a caller assertion; the local command does not contact GitHub or inspect remote state.
