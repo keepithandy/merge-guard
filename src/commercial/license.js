@@ -235,18 +235,15 @@ export async function deactivateLicense({ env = process.env, fetchImpl } = {}) {
   // An environment key override must not be used with a different activation.
   const key = state?.licenseKey || null;
   if (state?.activationId && organizationId && key) {
-    try {
-      await polarPost('/v1/customer-portal/license-keys/deactivate', {
-        key,
-        organization_id: organizationId,
-        activation_id: state.activationId
-      }, { fetchImpl, signal: timeoutSignal() });
-    } finally {
-      clearLicenseState({ env });
-    }
-  } else {
-    clearLicenseState({ env });
+    // Preserve local activation on remote failure so the user can retry. The
+    // explicit CLI --local-only option handles intentional forced cleanup.
+    await polarPost('/v1/customer-portal/license-keys/deactivate', {
+      key,
+      organization_id: organizationId,
+      activation_id: state.activationId
+    }, { fetchImpl, signal: timeoutSignal() });
   }
+  clearLicenseState({ env });
 }
 
 export function commercialView(state = {}) {
