@@ -73,6 +73,9 @@
     "eval:historical-prs": "node scripts/evaluate-historical-prs.js",
     "eval:calibration-preflight": "node scripts/calibration-preflight.js",
     "test:calibration-preflight": "node scripts/calibration-preflight-contracts.js",
+    "eval:calibration-measure": "node scripts/calibration-measure.js",
+    "eval:calibration-compare": "node scripts/calibration-compare.js",
+    "test:calibration-comparison": "node scripts/calibration-comparison-contracts.js",
     "release:stage": "node scripts/stage-release.js",
     "release:check": "node scripts/release-readiness.js",
     "test:commercial": "node scripts/commercial-contracts.js"

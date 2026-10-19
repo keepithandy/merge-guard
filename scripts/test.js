@@ -24,6 +24,7 @@ const suites = [
   'scripts/evaluation-design-contracts.js',
   'scripts/historical-pr-evaluation-contracts.js',
   'scripts/calibration-preflight-contracts.js',
+  'scripts/calibration-comparison-contracts.js',
   'scripts/browser-game-save-contracts.js',
   'scripts/dashboard-architecture-contracts.js',
   'scripts/dashboard-import-contracts.js',

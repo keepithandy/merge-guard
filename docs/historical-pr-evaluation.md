@@ -24,6 +24,8 @@ The structural check requires at least 15 supported concerns, 15 low-risk contro
 
 **Never treat `human-verification-required` or exit status `0` as Phase 1 PASS.** Independent labels, outcome-grounded provenance, source ancestry and separation from held-out data, exclusions, and calibration freeze must be verified and authorized using the owner-controlled private ledger. Official phases remain governed by [the strict phase roadmap](PHASE_ROADMAP.md); this preparatory preflight does not unlock Phase 2 or permit modifying production rules.
 
+For the repeatable, content-free **before/after calibration measurement** procedure, including caller-asserted commit identities, immutable input checks, both verification stages, and commands for Windows PowerShell, see [Repeatable calibration measurement](REPRODUCIBLE_CALIBRATION.md). That workflow requires authentic independent evidence and does not authorize production rule changes.
+
 `validate` checks the corpus before analysis. Calibration and held-out runs must select their partition explicitly. `run` writes a new output directory containing `aggregate.json` and `case-results.json`; it refuses to overwrite an existing directory.
 
 `preregister` fails unless the held-out corpus reaches the documented minimum case, repository-alias, supported-concern, low-risk-control, and independent-label requirements. Its content-free record binds the complete corpus content, the caller-asserted product commit, the installed metric source, and the fixed thresholds. A held-out run requires that exact record and rejects corpus, source, product, threshold, or identity drift. The product commit is a caller assertion; the local command does not contact GitHub or inspect remote state.
