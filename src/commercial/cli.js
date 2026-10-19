@@ -34,7 +34,9 @@ function checkoutUrl(plan, env) {
 export async function runCommercialCommand(args, { env = process.env, stdin = process.stdin } = {}) {
   const [command, value, ...rest] = args;
   if (!['plan', 'activate', 'license', 'account'].includes(command)) return false;
-  if (rest.length) throw new Error(`${command} received unexpected extra arguments`);
+  if (rest.length && !(command === 'license' && value === 'clear' && rest.length === 1 && rest[0] === '--local-only')) {
+    throw new Error(`${command} received unexpected extra arguments`);
+  }
   if ((command === 'plan' || command === 'account') && value) throw new Error(`${command} does not accept an argument`);
   if (command === 'license' && value && value !== 'clear') throw new Error('license accepts only the optional "clear" argument');
 
@@ -47,12 +49,16 @@ export async function runCommercialCommand(args, { env = process.env, stdin = pr
   }
 
   if (command === 'license' && value === 'clear') {
+    if (rest[0] === '--local-only') {
+      clearLicenseState({ env });
+      console.log('Local license state cleared without contacting Polar. A remote activation may still occupy a device slot.');
+      return true;
+    }
     try {
       await deactivateLicense({ env });
       console.log('Merge Guard license deactivated and local state cleared. Free features remain available.');
     } catch (error) {
-      clearLicenseState({ env });
-      console.log(`Merge Guard local license state cleared. Polar deactivation could not be confirmed: ${error.message}`);
+      throw new Error(`Polar deactivation could not be confirmed; local activation is retained for retry. Use "merge-guard license clear --local-only" only if remote cleanup is impossible. ${error.message}`);
     }
     return true;
   }
