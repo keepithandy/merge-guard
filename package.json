@@ -71,6 +71,8 @@
     "test:consumer-fixtures": "node scripts/consumer-conformance-contracts.js",
     "compare": "node scripts/compare-reports.js",
     "eval:historical-prs": "node scripts/evaluate-historical-prs.js",
+    "eval:calibration-preflight": "node scripts/calibration-preflight.js",
+    "test:calibration-preflight": "node scripts/calibration-preflight-contracts.js",
     "release:stage": "node scripts/stage-release.js",
     "release:check": "node scripts/release-readiness.js",
     "test:commercial": "node scripts/commercial-contracts.js"
