@@ -18,6 +18,7 @@ import {
   clearLicenseState,
   licenseFilePath,
   readLicenseState,
+  writeLicenseState,
   validateLicense
 } from '../src/commercial/license.js';
 
@@ -98,6 +99,79 @@ const offline = await validateLicense({
 });
 assert.equal(offline.plan, PLAN_PRO);
 assert.equal(offline.status, 'offline-grace');
+
+
+const testNow = () => Date.parse('2026-10-16T12:00:00.000Z');
+const cachedProState = (overrides = {}) => ({
+  provider: 'polar',
+  plan: PLAN_PRO,
+  status: 'granted',
+  licenseKey: 'MG-TEST-PRO',
+  benefitId: env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID,
+  lastValidatedAt: '2026-10-16T11:00:00.000Z',
+  ...overrides
+});
+const offlineFetch = async () => { throw new Error('network unavailable'); };
+
+// A cached entitlement is never valid past its actual expiration, even during
+// the 24-hour cache or 7-day offline window.
+writeLicenseState(cachedProState({ expiresAt: '2026-10-16T11:30:00.000Z' }), { env });
+const expiredCached = await validateLicense({ env, fetchImpl: offlineFetch, now: testNow });
+assert.equal(expiredCached.plan, PLAN_FREE);
+const expiredOffline = await validateLicense({ env, fetchImpl: offlineFetch, force: true, now: testNow });
+assert.equal(expiredOffline.plan, PLAN_FREE);
+
+// A future validation timestamp must not extend the cache/grace periods.
+writeLicenseState(cachedProState({ lastValidatedAt: '2026-10-17T11:00:00.000Z' }), { env });
+const futureCache = await validateLicense({ env, fetchImpl: offlineFetch, now: testNow });
+assert.equal(futureCache.plan, PLAN_FREE);
+assert.notEqual(futureCache.validation, 'cached');
+
+// An override license key must never borrow a different key's paid cache.
+writeLicenseState(cachedProState(), { env });
+const override = await validateLicense({
+  env: { ...env, MERGE_GUARD_LICENSE_KEY: 'UNRELATED-KEY' },
+  fetchImpl: offlineFetch,
+  now: testNow
+});
+assert.equal(override.plan, PLAN_FREE);
+
+// The same injected time governs live expiration validation.
+const expiredLive = await validateLicense({
+  env, force: true, now: testNow,
+  fetchImpl: async () => response(200, {
+    status: 'granted',
+    benefit_id: env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID,
+    expires_at: '2026-10-16T11:59:59.000Z'
+  })
+});
+assert.equal(expiredLive.plan, PLAN_FREE);
+assert.equal(expiredLive.status, 'expired');
+
+// Definitive 4xx license rejection revokes cached access immediately.
+// Transient 5xx errors may still use bounded offline grace.
+writeLicenseState(cachedProState(), { env });
+const rejected = await validateLicense({
+  env, force: true, now: testNow,
+  fetchImpl: async () => response(403, { detail: 'invalid license' })
+});
+assert.equal(rejected.plan, PLAN_FREE);
+assert.equal(rejected.status, 'rejected');
+assert.equal(readLicenseState({ env }).plan, PLAN_FREE);
+const stillRejected = await validateLicense({ env, fetchImpl: offlineFetch, now: testNow });
+assert.equal(stillRejected.plan, PLAN_FREE);
+writeLicenseState(cachedProState(), { env });
+const serverOutage = await validateLicense({
+  env, force: true, now: testNow,
+  fetchImpl: async () => response(503, { detail: 'temporary server error' })
+});
+assert.equal(serverOutage.plan, PLAN_PRO);
+assert.equal(serverOutage.status, 'offline-grace');
+
+// Malformed expiration timestamps must fail closed rather than grant access.
+writeLicenseState(cachedProState({ expiresAt: 'not-a-date' }), { env });
+const invalidExpiry = await validateLicense({ env, fetchImpl: offlineFetch, now: testNow });
+assert.equal(invalidExpiry.plan, PLAN_FREE);
 
 clearLicenseState({ env });
 assert.equal(readLicenseState({ env }), null);
