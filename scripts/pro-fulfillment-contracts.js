@@ -86,6 +86,30 @@ try {
   const depReport = applyPolicyPack(analyzeDiff(diff, {}), diff, deps.policy);
   assert(depReport.policyPacks.some(p => p.id === 'merge-guard.pro.dependency-provenance'));
   assert(depReport.policyRequiredChecks.some(check => check.id === 'dependency-diff'));
+  assert(depReport.rules.some(rule =>
+    rule.id === 'policy:merge-guard.pro.dependency-provenance:npm-lifecycle-scripts'),
+  'dependency policy must detect added package lifecycle script');
+
+  const workflowDiff = [
+    'diff --git a/.github/workflows/check.yml b/.github/workflows/check.yml',
+    '--- a/.github/workflows/check.yml',
+    '+++ b/.github/workflows/check.yml',
+    '@@ -0,0 +1 @@',
+    '+permissions: write-all'
+  ].join('\\n');
+  const ciPack = await fetchPremiumPolicyPack('ci-trust-boundaries',
+    { env: clientEnv, licenseFetch: provider });
+  const ciReport = applyPolicyPack(analyzeDiff(workflowDiff, {}), workflowDiff, ciPack.policy);
+  assert(ciReport.rules.some(rule =>
+    rule.id === 'policy:merge-guard.pro.ci-trust-boundaries:write-all-permissions'),
+  'CI pack must detect elevated workflow permissions');
+  const noTriggerDiff = [
+    'diff --git a/README.md b/README.md', '--- a/README.md', '+++ b/README.md',
+    '@@ -0,0 +1 @@', '+Pro policy documentation'
+  ].join('\\n');
+  const noTrigger = applyPolicyPack(analyzeDiff(noTriggerDiff, {}), noTriggerDiff, ciPack.policy);
+  assert(!noTrigger.rules.some(rule => rule.policyPackId === 'merge-guard.pro.ci-trust-boundaries'),
+  'documentation-only changes must not trigger CI privilege policy rules');
   assert(report.policyPacks.some(p => p.id === 'merge-guard.pro.release-integrity'));
   assert(report.policyRequiredChecks.some(c => c.id === 'release-package'));
 
