@@ -1,5 +1,7 @@
 # Roadmap Execution Plan
 
+**October 20, 2026 synchronization:** [The audited post-P5 roadmap](POST_P5_ROADMAP.md) is the current status/dependency ledger. The Free lane below remains active under [the solo-maintainer phase roadmap](PHASE_ROADMAP.md). Commercial P5A–C are merged but P6–P9 are **proposed only** and are not automatically approved work. This execution document preserves the earlier historical release history as history rather than silently promoting source work to publication.
+
 This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slices. Issue numbers are assigned only when a slice is accepted into the active queue.
 
 ## Delivery sequence
@@ -174,6 +176,28 @@ Implemented by #159 at source commit `d0495555d7afce468a4664beb3584f56dd415bef`.
 
 Completion evidence: focused key-replacement, version-change, migration, unrelated-diff, additive-JSON, default-policy, and non-browser-game fixtures passed. All 11 required GitHub checks passed across Node 18/20/22/24 on Ubuntu and Windows, plus smoke, composite-Action, and review-experience checks.
 
+## Completed queue — owner-directed commercial foundation and P5 source work
+
+The additive Free/Pro/Team licensing foundation merged in [#188](https://github.com/keepithandy/merge-guard/pull/188). Sandbox isolation and denial/persistence fail-closed behavior merged in [#195](https://github.com/keepithandy/merge-guard/pull/195). A live-license-verified, **locally staged** Pro reference-policy catalog and support ticket intake merged in [#196](https://github.com/keepithandy/merge-guard/pull/196); these public reference packs are **not** private paid assets, and gateway hosting/real support operations remain unproven.
+
+| Slice | Completed source identity | Limit |
+| --- | --- | --- |
+| P5A onboarding ([#197](https://github.com/keepithandy/merge-guard/issues/197)) | [#200](https://github.com/keepithandy/merge-guard/pull/200), merge `d997b10`: redacted read-only onboard and validated HTTPS portal | No real account onboarding or paid access implied |
+| P5B operator support ([#198](https://github.com/keepithandy/merge-guard/issues/198)) | [#201](https://github.com/keepithandy/merge-guard/pull/201), merge `928c4bb`: unsent drafts, pending metadata and opt-in closed-ticket purge | No outbound delivery, staffed SLA or proven Windows ACLs |
+| P5C subscription lifecycle ([#199](https://github.com/keepithandy/merge-guard/issues/199)) | [#202](https://github.com/keepithandy/merge-guard/pull/202), merge `10adb8a`: mocked Pro/Team lifecycle/entitlement matrix | No real Polar subscription checkout/renewal evidence |
+| Post-P5 security correction | [#203](https://github.com/keepithandy/merge-guard/pull/203), merge `520f452`: symlink-safe retention and validated ticket timestamps | No claim of full hosting/queue security audit |
+
+All four P5 PR heads passed the five GitHub Actions workflows and Node 18/20/22/24 Windows/Linux matrix. They were separately merged; these successes do **not** certify a new release artifact or prove a live final-`main` end-to-end subscription. No production checkout, npm publication, GitHub release/tag, stable Action ref, mailbox or deployed gateway was authorized.
+
+### Next commercial sequence — proposals only
+
+[Proposed P6 hardening/proof, P7 Free preview decision, P8 Team delivery, and P9 production rollout](POST_P5_ROADMAP.md) are **not active delivery issues**. Any phase promotion needs an explicit owner decision, bounded acceptance criteria, a rollback plan and an evidence trail. The active paid [release checklist](commercial-release-checklist.md) continues to block launch.
+
+### Other open work
+
+- [#190](https://github.com/keepithandy/merge-guard/issues/190): intermittent plugin-worker timeout on Windows/Node 24. Diagnose startup scheduling before modifying test fixture timing; never weaken production isolation/timeout contracts.
+- [#189](https://github.com/keepithandy/merge-guard/pull/189): historical open licensing hardening PR. Compare with merged #195–#203 and close/rebase only after an actual unique-change audit; do not blindly merge stale work.
+
 ## Active queue — solo-maintainer Free beta improvements
 
 Owner-directed roadmap change (October 19, 2026): The Free release path does **not** require a second independent reviewer or a 50-PR independently adjudicated corpus. One owner can ship bounded fixes with deterministic positive and negative regression tests, full required CI, security/integrity compatibility and rollback coverage. A separate explicit decision controls external publication. See [active solo roadmap](PHASE_ROADMAP.md).
@@ -191,7 +215,7 @@ Actionable precision **12/140 (8.6%)**, overall supported-scope recall **12/35 (
 3. Run targeted regressions, `npm.cmd test`, `npm.cmd run release:check` and required GitHub Actions on the exact final commit.
 4. Integrate the source change after all required CI, security, compatibility and rollback gates pass, without a manual/peer reviewer prerequisite.
 
-PR [#193](https://github.com/keepithandy/merge-guard/pull/193) contains a proposed library policy and index export warning fix and targeted positive/negative tests. It may be integrated after the roadmap revision and final automated CI/compatibility gates; there is no numerical accuracy improvement claim.
+PR [#193](https://github.com/keepithandy/merge-guard/pull/193) **merged** at `864fadb` after targeted positive/negative tests and required automated checks. Its fixture coverage documents a bounded library policy / index export warning fix, **not** a statistically established improvement in precision or recall. Select the next Free repair from an independently reproducible bug or voluntary sanitized feedback; #193 is no longer pending.
 
 ### Feedback-first Free preview
 
