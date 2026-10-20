@@ -132,7 +132,7 @@ Exit gate: a reviewer can identify the exact current and prior evidence, underst
 - Align source, package, runtime, SBOM, notes, and decision templates to one explicit beta identity.
 - Build a local, labeled historical-PR evaluation harness with calibration and held-out partitions.
 - Measure actionability, supported-scope recall, noise, specificity, setup effort, and runtime without telemetry or uploads.
-- Simplify defaults or improve core analysis according to preregistered results before expanding the extension surface.
+- Preserve the September preregistered `stop` result as historical evidence, **not** as data for tuning or an obstacle to ordinary bounded Free repairs. Use minimal positive/negative regressions for a specific repair; require **new** independently reviewed and frozen evidence only if making representative statistical accuracy claims.
 
 Exit gate for the **Free preview**: an immutable candidate passes required CI/release checks, security, consumer/installation fixtures, compatibility and rollback review; accurately discloses unvalidated field accuracy; and receives separate exact owner authorization before external publication. The preregistered dual-reviewer threshold study remains optional for statistical efficacy claims, not a preview gate.
 
