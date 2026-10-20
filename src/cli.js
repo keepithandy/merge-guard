@@ -86,6 +86,7 @@ Commands:
   merge-guard license clear     Clear local license state
   merge-guard account           Show the configured Polar customer portal
   merge-guard support submit <file>  Send a Pro support request to an owner-configured queue
+  merge-guard pro policies          List available license-verified Pro policy packs
 
 Options:
   --json                    Print the report as JSON

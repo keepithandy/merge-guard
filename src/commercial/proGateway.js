@@ -87,6 +87,29 @@ function servePolicy(id, directory) {
   return { policy, sha256 };
 }
 
+function catalogPolicies(directory) {
+  const root = fs.lstatSync(directory);
+  if (!root.isDirectory() || root.isSymbolicLink()) {
+    throw new Error('Invalid Pro policy directory.');
+  }
+  const entries = fs.readdirSync(directory).filter(name =>
+    name.endsWith('.json') && POLICY_ID.test(name.slice(0, -5)));
+  if (entries.length > 50) throw new Error('Pro policy catalog exceeds 50 entries.');
+  const policies = [];
+  for (const file of entries.sort()) {
+    const id = file.slice(0, -5);
+    const item = servePolicy(id, directory);
+    if (item) {
+      policies.push({
+        id,
+        name: item.policy.identity.name,
+        version: item.policy.identity.version
+      });
+    }
+  }
+  return { policies };
+}
+
 function queueTicket(body, directory, env) {
   if (typeof body.contact !== 'string' || body.contact.length > 254
       || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.contact)
@@ -152,7 +175,7 @@ export function createProGateway({
       reply(res, 200, { status: 'ok', environment: config.environment });
       return;
     }
-    if (req.method !== 'POST' || !['/v1/pro/policy', '/v1/pro/support'].includes(req.url)) {
+    if (req.method !== 'POST' || !['/v1/pro/policy', '/v1/pro/catalog', '/v1/pro/support'].includes(req.url)) {
       reply(res, 404, { error: 'not-found' });
       return;
     }
@@ -169,6 +192,11 @@ export function createProGateway({
       const granted = await verifyLicense(body, env, fetchImpl);
       if (!granted) { reply(res, 403, { error: 'not-entitled' }); return; }
 
+      if (req.url === '/v1/pro/catalog') {
+        try { reply(res, 200, catalogPolicies(policyDirectory)); }
+        catch { reply(res, 503, { error: 'policy-catalog-unavailable' }); }
+        return;
+      }
       if (req.url === '/v1/pro/policy') {
         let result;
         try { result = servePolicy(body.id, policyDirectory); }

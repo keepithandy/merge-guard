@@ -7,7 +7,7 @@ import { once } from 'node:events';
 import { spawnSync } from 'node:child_process';
 import { activateLicense, clearLicenseState } from '../src/commercial/license.js';
 import { createProGateway } from '../src/commercial/proGateway.js';
-import { fetchPremiumPolicyPack, submitPrioritySupport } from '../src/commercial/proClient.js';
+import { fetchPremiumPolicyPack, listPremiumPolicyPacks, submitPrioritySupport } from '../src/commercial/proClient.js';
 import { analyzeDiff } from '../src/analyzeDiff.js';
 import { applyPolicyPack } from '../src/starterPolicies.js';
 
@@ -59,6 +59,14 @@ try {
   assert.deepEqual(await health.json(), { status: 'ok', environment: 'sandbox' });
   const clientEnv = { ...env, MERGE_GUARD_PRO_SANDBOX_SERVICE_URL: service };
   await activateLicense(key, { env, fetchImpl: provider });
+  const catalog = await listPremiumPolicyPacks({ env: clientEnv, licenseFetch: provider });
+  assert.deepEqual(catalog.map(p => p.id), ['ci-trust-boundaries', 'dependency-provenance', 'release-integrity']);
+  for (const listed of catalog) {
+    const delivered = await fetchPremiumPolicyPack(listed.id, { env: clientEnv, licenseFetch: provider });
+    assert.equal(delivered.policy.identity.name, listed.name);
+    assert.equal(delivered.policy.identity.version, listed.version);
+    assert(delivered.policy.rules.length >= 2);
+  }
   const delivery = await fetchPremiumPolicyPack('release-integrity', { env: clientEnv, licenseFetch: provider });
   assert.equal(delivery.policy.identity.id, 'merge-guard.pro.release-integrity');
   assert.equal(delivery.policy.identity.version, '1.0.0');
@@ -74,6 +82,10 @@ try {
     '+ "postinstall": "node something.js"'
   ].join('\n');
   const report = applyPolicyPack(analyzeDiff(diff, {}), diff, delivery.policy);
+  const deps = await fetchPremiumPolicyPack('dependency-provenance', { env: clientEnv, licenseFetch: provider });
+  const depReport = applyPolicyPack(analyzeDiff(diff, {}), diff, deps.policy);
+  assert(depReport.policyPacks.some(p => p.id === 'merge-guard.pro.dependency-provenance'));
+  assert(depReport.policyRules.some(rule => rule.id === 'npm-lifecycle-scripts') || depReport.policyRequiredChecks.length > 0);
   assert(report.policyPacks.some(p => p.id === 'merge-guard.pro.release-integrity'));
   assert(report.policyRequiredChecks.some(c => c.id === 'release-package'));
 
@@ -134,6 +146,9 @@ try {
   });
   assert.equal(traversal.status, 404);
 
+  const missingPolicy = await fetchPremiumPolicyPack('not-listed', { env: clientEnv, licenseFetch: provider }).catch(error => error);
+  assert.match(missingPolicy.message, /failed \(404\)/);
+
   const oversized = await fetch(service + '/v1/pro/support', {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID, activation_id: activationId,
@@ -143,6 +158,7 @@ try {
 
   // A definitive revocation denies both policy delivery and ticket intake.
   granted = false;
+  await assert.rejects(listPremiumPolicyPacks({ env: clientEnv, licenseFetch: provider }), /currently granted/);
   await assert.rejects(
     fetchPremiumPolicyPack('release-integrity', { env: clientEnv, licenseFetch: provider }),
     /currently granted/

@@ -69,6 +69,28 @@ async function sendRequest(endpoint, payload, { url, fetchImpl }) {
   catch { throw new Error('Invalid Pro fulfillment response.'); }
 }
 
+export async function listPremiumPolicyPacks({
+  env = process.env, fetchImpl = globalThis.fetch, licenseFetch = globalThis.fetch
+} = {}) {
+  const url = serviceUrl(env);
+  const grant = await obtainGrant(env, licenseFetch, CAPABILITIES.PREMIUM_POLICY_DELIVERY);
+  const result = await sendRequest('/v1/pro/catalog', grant, { url, fetchImpl });
+  if (!result || !Array.isArray(result.policies) || result.policies.length > 50) {
+    throw new Error('Invalid Pro policy catalog.');
+  }
+  const ids = new Set();
+  return result.policies.map(item => {
+    if (!item || typeof item.id !== 'string' || !POLICY_ID.test(item.id)
+        || typeof item.name !== 'string' || !item.name.trim() || item.name.length > 160
+        || typeof item.version !== 'string' || !/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(item.version)
+        || ids.has(item.id)) {
+      throw new Error('Invalid Pro policy catalog.');
+    }
+    ids.add(item.id);
+    return { id: item.id, name: item.name, version: item.version };
+  });
+}
+
 export async function fetchPremiumPolicyPack(id, {
   env = process.env, fetchImpl = globalThis.fetch, licenseFetch = globalThis.fetch
 } = {}) {

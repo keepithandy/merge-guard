@@ -1,6 +1,6 @@
 import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState, validateLicense } from './license.js';
 import { resolveCommercialConfig } from './config.js';
-import { submitPrioritySupport } from './proClient.js';
+import { listPremiumPolicyPacks, submitPrioritySupport } from './proClient.js';
 
 function titleCase(value) {
   return String(value || '').replace(/(^|_)([a-z])/g, (_, prefix, char) => `${prefix ? ' ' : ''}${char.toUpperCase()}`);
@@ -13,7 +13,14 @@ function checkoutUrl(plan, env) {
 
 export async function runCommercialCommand(args, { env = process.env } = {}) {
   const [command, value, ...rest] = args;
-  if (!['plan', 'activate', 'license', 'account', 'support'].includes(command)) return false;
+  if (!['plan', 'activate', 'license', 'account', 'support', 'pro'].includes(command)) return false;
+  if (command === 'pro') {
+    if (value !== 'policies' || rest.length) throw new Error('Usage: merge-guard pro policies');
+    const policies = await listPremiumPolicyPacks({ env });
+    console.log('Available Pro policy packs (' + policies.length + '):');
+    for (const policy of policies) console.log('- ' + policy.id + ' v' + policy.version + ' — ' + policy.name);
+    return true;
+  }
   if (command === 'support') {
     if (value !== 'submit' || rest.length !== 1) throw new Error('Usage: merge-guard support submit <message-file>');
     const result = await submitPrioritySupport(rest[0], { env });
