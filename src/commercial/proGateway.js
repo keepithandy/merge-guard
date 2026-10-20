@@ -261,7 +261,7 @@ export function createProGateway({
 
       // Store only a salted-in-process fingerprint, never the raw license key.
       // A caller can rotate keys, but it cannot bypass the source-address gate.
-      if (typeof body.key === 'string') {
+      if (typeof body.key === 'string' && body.organization_id === config.organizationId) {
         const fingerprint = createHash('sha256')
           .update(keyRateSalt).update(body.key).digest('hex');
         if (!allowWithinWindow(keyBuckets, fingerprint, maxKeyRequestsPerMinute)) {
