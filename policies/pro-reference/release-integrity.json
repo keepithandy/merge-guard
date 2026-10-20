@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.pro.release-integrity",
+    "name": "Release integrity review",
+    "version": "1.0.0",
+    "description": "Focused release-chain review of dependency locks, package provenance, automation permissions, and publisher configuration."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "1.3.0",
+    "maximumMergeGuardVersionExclusive": "2.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "lockfile-tampering",
+      "label": "Dependency lock file changed",
+      "pathPattern": "(^|/)(package-lock\\.json|npm-shrinkwrap\\.json|yarn\\.lock|pnpm-lock\\.yaml)$",
+      "weight": 4,
+      "check": "Compare dependency graph changes, new transitive packages, and integrity metadata."
+    },
+    {
+      "id": "install-lifecycle",
+      "label": "Install or publish lifecycle hook changed",
+      "pathPattern": "(^|/)package\\.json$",
+      "linePattern": "(preinstall|postinstall|prepare|prepublishOnly)",
+      "weight": 7,
+      "check": "Review executable lifecycle hooks and demonstrate expected behavior in a clean environment."
+    },
+    {
+      "id": "release-workflow",
+      "label": "Publishing workflow changed",
+      "pathPattern": "^\\.github/workflows/",
+      "linePattern": "(permissions:|id-token:|publish|release|npm|pull_request_target)",
+      "weight": 6,
+      "check": "Review least-privilege token permissions, trigger trust boundaries, and publish provenance."
+    },
+    {
+      "id": "registry-publisher",
+      "label": "Registry or publisher configuration changed",
+      "pathPattern": "(^|/)(\\.npmrc|package\\.json|action\\.yml)$",
+      "linePattern": "(registry|publishConfig|provenance|access|token)",
+      "weight": 6,
+      "check": "Inspect registry targets and publish access settings without disclosing credentials."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "release-workflows",
+      "pattern": "^\\.github/workflows/",
+      "reason": "Release automation and token permissions require human review before publication.",
+      "requiredCheckIds": [
+        "release-package"
+      ]
+    },
+    {
+      "id": "dependency-locks",
+      "pattern": "(^|/)(package-lock\\.json|npm-shrinkwrap\\.json|pnpm-lock\\.yaml|yarn\\.lock)$",
+      "reason": "A lockfile change can introduce additional executable dependencies.",
+      "requiredCheckIds": [
+        "dependency-audit"
+      ]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "dependency-audit",
+      "command": "npm audit --omit=dev",
+      "reason": "Inspect dependency vulnerabilities if npm is the project package manager; review advisories manually."
+    },
+    {
+      "id": "release-package",
+      "command": "npm pack --dry-run --json",
+      "reason": "Inspect the exact npm artifact contents before publication; do not publish automatically."
+    }
+  ]
+}
