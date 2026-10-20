@@ -10,7 +10,7 @@
 
 Both endpoints require a locally activated device and pass its activation ID to Polar validation; a raw unactivated license key is insufficient for fulfillment.
 
-The working reference policy at policies/pro-reference/release-integrity.json identifies risks in dependency locks, npm lifecycle scripts, publisher configuration, and workflow release permissions. **It is public example content, not proprietary/exclusive paid content**. Actual paid-only content must be privately provisioned and legally reviewed.
+Three working policies in `policies/pro-reference/` cover release integrity, CI trust boundaries and dependency provenance. **They are public example content, not exclusive paid intellectual property.** Production paid-only content must be privately provisioned outside this public repository with appropriate distribution rights.
 
 ## Run a local Sandbox test
 
@@ -29,6 +29,7 @@ In another PowerShell terminal with the same Sandbox Polar IDs and a previously 
 
 ~~~powershell
 $env:MERGE_GUARD_PRO_SANDBOX_SERVICE_URL = 'http://127.0.0.1:8787'
+node src/cli.js pro policies
 node src/cli.js --pro-policy release-integrity examples/sample.diff
 
 $env:MERGE_GUARD_SUPPORT_CONTACT = 'you@example.com'
@@ -49,6 +50,14 @@ The show command prints private email and issue text; never post it publicly. Th
 
 Delete the local request file after testing. Do not commit local support messages, keys, or queue records. The ticket is only written to the owner's selected local directory: no email is sent automatically.
 
+## Additional Phase 3 and 4 functionality
+
+The gateway now has a non-secret `GET /healthz`, a limit of 16 concurrent entitlement requests, bounded request sizes and connection timeouts, terminal escape refusal in tickets and support-root symlink protection. On POSIX, ticket directories must have owner-only permissions. **Windows ACLs are not established by POSIX file modes.** See [policy catalog and security](pro-policy-catalog.md).
+
+`node src/cli.js pro policies` lists policies delivered through the owner-configured gateway after a fresh Pro/Team entitlement check. It does not expose policy bodies, keys or diffs.
+
+To avoid putting a Polar key into your command-line arguments, pipe one key from the clipboard to `node src/cli.js activate --stdin`. Clear the clipboard afterward. The legacy positional key argument remains compatible but less private.
+
 ## Configuration and isolation
 
 - MERGE_GUARD_PRO_SANDBOX_SERVICE_URL: HTTPS Sandbox gateway origin or HTTP 127.0.0.1 for Sandbox local testing only.
@@ -68,6 +77,6 @@ Tickets use unpredictable UUID filenames and POSIX 0600 file/0700 directory crea
 
 Use npm run test:pro-fulfillment, npm run test:commercial, npm test and npm run release:check. The contract tests use mocked Polar responses and a loopback gateway, including revoked license and request-tampering checks.
 
-**The following remain unverified owner launch gates:** private paid content and licensing terms; owner-deployed HTTPS service and support mailbox; verified owner response lifecycle and retention handling; end-to-end Sandbox live fulfillment on the exact candidate commit; Pro cancellation/revocation/expiry; Team-specific benefits; safe customer key input, Windows credential protection, terms/refunds/privacy/support; and explicit release/checkout approval.
+**The following commercial launch blockers remain:** private paid content and distribution rights; deployed hardened HTTPS and support mailbox; real support response, privacy retention/deletion and Windows ACL controls; live Sandbox E2E on the exact final commit; cancellation/revocation/expiry and Team entitlements; terms/refunds/privacy readiness; and explicit external release/checkout authorization. October 20 live Sandbox exercises occurred before the later source-hardening commits, so they do not verify the final production candidate.
 
 Do not enable production checkout or publish a release based solely on these tests.
