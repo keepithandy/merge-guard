@@ -26,6 +26,7 @@ import { formatDoctor, inspectDoctor } from './doctor.js';
 import { selectPrimaryChecks } from './projectChecks.js';
 import { MERGE_GUARD_VERSION } from './version.js';
 import { runCommercialCommand } from './commercial/cli.js';
+import { fetchPremiumPolicyPack } from './commercial/proClient.js';
 
 const KNOWN_OPTIONS = new Set([
   '--json',
@@ -37,6 +38,7 @@ const KNOWN_OPTIONS = new Set([
   '--pr-title',
   '--pr-body',
   '--policy',
+  '--pro-policy',
   '--policy-config',
   '--evaluation-context',
   '--starter-policy-directory',
@@ -53,6 +55,7 @@ const KNOWN_OPTIONS = new Set([
   '-h'
 ]);
 const VALUE_OPTIONS = new Set([
+  '--pro-policy',
   '--preset',
   '--fail-threshold',
   '--pr-title',
@@ -88,6 +91,7 @@ Options:
   --markdown                Print the report as Markdown
   --ci                      Print Markdown, write to GITHUB_STEP_SUMMARY when available, and fail on configured high risk
   --ai                      Add an optional AI-ready review summary to the report
+  --pro-policy <id>         Apply live license-verified Pro policy from configured fulfillment service
   --preset <preset>         Use risk preset: safe, standard, or strict
   --fail-threshold <score>  Override the configured CI failure score with a positive integer
   --pr-title <text>         Include pull request title as report context
@@ -325,11 +329,12 @@ async function main() {
     throw new Error('--json, --markdown, --pr-summary, --annotations, and --sarif are mutually exclusive output modes.');
   }
   const policyId = getOptionValue(args, '--policy');
+  const proPolicyId = getOptionValue(args, '--pro-policy');
   const policyConfigPath = getOptionValue(args, '--policy-config');
   const evaluationContextPath = getOptionValue(args, '--evaluation-context');
   const starterPolicyDirectory = resolveStarterPolicyDirectory(getOptionValue(args, '--starter-policy-directory'));
-  if (policyId && policyConfigPath) {
-    throw new Error('--policy and --policy-config conflict; select one policy source.');
+  if ([policyId, policyConfigPath, proPolicyId].filter(Boolean).length > 1) {
+    throw new Error('--policy, --policy-config, and --pro-policy are mutually exclusive.');
   }
   const evaluationContext = evaluationContextPath
     ? loadEvaluationContext(evaluationContextPath)
@@ -392,6 +397,11 @@ async function main() {
     selectedPolicies.push(policy);
     report = applyPolicyPack(report, diffText, policy);
     report.policyEvidence = createPolicyEvidence({ evaluationContext, sources: [source] });
+  } else if (proPolicyId) {
+    const delivery = await fetchPremiumPolicyPack(proPolicyId);
+    selectedPolicies.push(delivery.policy);
+    report = applyPolicyPack(report, diffText, delivery.policy);
+    report.proPolicyDelivery = { ...delivery.source, authorization: 'live' };
   } else if (policyConfigPath) {
     policyResolution = loadAndResolvePolicyManifest(policyConfigPath, diffText, {
       evaluationContext,
