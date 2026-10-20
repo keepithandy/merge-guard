@@ -109,7 +109,9 @@ export async function submitPrioritySupport(filePath, {
     }
     contents = fs.readFileSync(filePath, 'utf8').trim();
   } catch { throw new Error('Support request must be a regular file of at most 4 KB.'); }
-  if (!contents || contents.length > 4000) throw new Error('Support request text must be 1–4000 characters.');
+  if (!contents || contents.length > 4000 || /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(contents)) {
+    throw new Error('Support request text must be 1–4000 characters without terminal control characters.');
+  }
   const grant = await obtainGrant(env, licenseFetch, CAPABILITIES.PRIORITY_SUPPORT);
   const result = await sendRequest('/v1/pro/support', {
     ...grant, contact, message: contents

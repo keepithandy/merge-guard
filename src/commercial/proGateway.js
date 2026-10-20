@@ -7,6 +7,8 @@ import { planForBenefitId, PLAN_FREE } from './entitlements.js';
 import { validatePolicyPack } from '../policyPacks.js';
 
 const MAX_BODY_BYTES = 12 * 1024;
+const DEFAULT_MAX_IN_FLIGHT = 16;
+const UNSAFE_TERMINAL_CONTROL = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/;
 const POLICY_ID = /^[a-z0-9](?:[a-z0-9-]{0,46}[a-z0-9])?$/;
 
 function reply(res, status, value) {
@@ -23,6 +25,10 @@ function reply(res, status, value) {
 async function readBody(req) {
   if (req.headers['content-type']?.split(';')[0].trim().toLowerCase() !== 'application/json') {
     throw new Error('JSON content-type required');
+  }
+  const advertisedLength = Number(req.headers['content-length']);
+  if (Number.isFinite(advertisedLength) && advertisedLength > MAX_BODY_BYTES) {
+    throw new Error('Request too large');
   }
   let length = 0;
   const chunks = [];
@@ -65,6 +71,8 @@ async function verifyLicense(body, env, fetchImpl) {
 }
 
 function servePolicy(id, directory) {
+  const root = fs.lstatSync(directory);
+  if (!root.isDirectory() || root.isSymbolicLink()) return null;
   if (typeof id !== 'string' || !POLICY_ID.test(id)) return null;
   const file = path.join(directory, id + '.json');
   let policy;
@@ -83,7 +91,8 @@ function queueTicket(body, directory, env) {
   if (typeof body.contact !== 'string' || body.contact.length > 254
       || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.contact)
       || typeof body.message !== 'string'
-      || body.message.trim().length < 1 || body.message.length > 4000) {
+      || body.message.trim().length < 1 || body.message.length > 4000
+      || UNSAFE_TERMINAL_CONTROL.test(body.contact) || UNSAFE_TERMINAL_CONTROL.test(body.message)) {
     return null;
   }
   const config = resolveCommercialConfig(env);
@@ -99,6 +108,11 @@ function queueTicket(body, directory, env) {
     message: body.message
   };
   fs.mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const root = fs.lstatSync(directory);
+  if (!root.isDirectory() || root.isSymbolicLink()
+      || (process.platform !== 'win32' && (root.mode & 0o077) !== 0)) {
+    throw new Error('Support directory must be a private, real directory.');
+  }
   const file = path.join(directory, ticketId + '.json');
   let fd;
   try {
@@ -118,7 +132,8 @@ export function createProGateway({
   env = process.env,
   policyDirectory,
   supportDirectory,
-  fetchImpl = globalThis.fetch
+  fetchImpl = globalThis.fetch,
+  maxInFlight = DEFAULT_MAX_IN_FLIGHT
 } = {}) {
   const config = resolveCommercialConfig(env);
   if (!config.organizationId || !config.proBenefitId || !policyDirectory || !supportDirectory) {
@@ -127,31 +142,57 @@ export function createProGateway({
   if (path.resolve(policyDirectory) === path.resolve(supportDirectory)) {
     throw new Error('Policy and support directories must differ.');
   }
-  return http.createServer(async (req, res) => {
+  if (!Number.isInteger(maxInFlight) || maxInFlight < 1 || maxInFlight > 1024) {
+    throw new Error('Pro gateway maxInFlight must be an integer from 1 to 1024.');
+  }
+
+  let inFlight = 0;
+  const server = http.createServer(async (req, res) => {
+    if (req.method === 'GET' && req.url === '/healthz') {
+      reply(res, 200, { status: 'ok', environment: config.environment });
+      return;
+    }
     if (req.method !== 'POST' || !['/v1/pro/policy', '/v1/pro/support'].includes(req.url)) {
       reply(res, 404, { error: 'not-found' });
       return;
     }
-    let body;
-    try { body = await readBody(req); }
-    catch { reply(res, 400, { error: 'invalid-request' }); return; }
-
-    const granted = await verifyLicense(body, env, fetchImpl);
-    if (!granted) { reply(res, 403, { error: 'not-entitled' }); return; }
-
-    if (req.url === '/v1/pro/policy') {
-      const result = servePolicy(body.id, policyDirectory);
-      if (!result) { reply(res, 404, { error: 'policy-not-found' }); return; }
-      reply(res, 200, result);
+    if (inFlight >= maxInFlight) {
+      reply(res, 503, { error: 'gateway-busy' });
       return;
     }
-
+    inFlight++;
     try {
-      const ticket = queueTicket(body, supportDirectory, env);
-      if (!ticket) { reply(res, 400, { error: 'invalid-support-request' }); return; }
-      reply(res, 201, ticket);
+      let body;
+      try { body = await readBody(req); }
+      catch { reply(res, 400, { error: 'invalid-request' }); return; }
+
+      const granted = await verifyLicense(body, env, fetchImpl);
+      if (!granted) { reply(res, 403, { error: 'not-entitled' }); return; }
+
+      if (req.url === '/v1/pro/policy') {
+        let result;
+        try { result = servePolicy(body.id, policyDirectory); }
+        catch { reply(res, 503, { error: 'policy-store-unavailable' }); return; }
+        if (!result) { reply(res, 404, { error: 'policy-not-found' }); return; }
+        reply(res, 200, result);
+        return;
+      }
+
+      try {
+        const ticket = queueTicket(body, supportDirectory, env);
+        if (!ticket) { reply(res, 400, { error: 'invalid-support-request' }); return; }
+        reply(res, 201, ticket);
+      } catch {
+        reply(res, 503, { error: 'support-queue-unavailable' });
+      }
     } catch {
-      reply(res, 503, { error: 'support-queue-unavailable' });
+      if (!res.headersSent) reply(res, 503, { error: 'gateway-unavailable' });
+    } finally {
+      inFlight--;
     }
   });
+  server.requestTimeout = 15000;
+  server.headersTimeout = 10000;
+  server.keepAliveTimeout = 5000;
+  return server;
 }

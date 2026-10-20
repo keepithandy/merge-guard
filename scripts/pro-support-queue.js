@@ -9,6 +9,16 @@ const [operation, id, desiredStatus] = process.argv.slice(2);
 const allowedStatus = new Set(['queued', 'open', 'responded', 'closed']);
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
+function assertPrivateDirectory() {
+  const stat = fs.lstatSync(directory);
+  if (!stat.isDirectory() || stat.isSymbolicLink()
+      || (process.platform !== 'win32' && (stat.mode & 0o077) !== 0)) {
+    throw new Error('Ticket queue must be a private, real directory.');
+  }
+}
+
+assertPrivateDirectory();
+
 function ticketPath(id) {
   if (!idPattern.test(id || '')) throw new Error('Invalid ticket ID.');
   return path.join(directory, id + '.json');

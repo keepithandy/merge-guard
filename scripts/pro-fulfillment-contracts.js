@@ -54,6 +54,9 @@ try {
   gateway.listen(0, '127.0.0.1');
   await once(gateway, 'listening');
   const service = 'http://127.0.0.1:' + gateway.address().port;
+  const health = await fetch(service + '/healthz');
+  assert.equal(health.status, 200);
+  assert.deepEqual(await health.json(), { status: 'ok', environment: 'sandbox' });
   const clientEnv = { ...env, MERGE_GUARD_PRO_SANDBOX_SERVICE_URL: service };
   await activateLicense(key, { env, fetchImpl: provider });
   const delivery = await fetchPremiumPolicyPack('release-integrity', { env: clientEnv, licenseFetch: provider });
@@ -79,6 +82,10 @@ try {
   assert.equal(ticket.status, 'queued');
   const tickets = fs.readdirSync(supportDirectory);
   assert.equal(tickets.length, 1);
+  assert.equal(fs.lstatSync(supportDirectory).isSymbolicLink(), false);
+  if (process.platform !== 'win32') {
+    assert.equal(fs.statSync(supportDirectory).mode & 0o077, 0, 'ticket directory must be owner-only');
+  }
   const saved = fs.readFileSync(path.join(supportDirectory, tickets[0]), 'utf8');
   const record = JSON.parse(saved);
   assert.equal(record.contact, 'test@example.invalid');
@@ -113,6 +120,13 @@ try {
   });
   assert.equal(forged.status, 403);
   assert.equal(fs.readdirSync(supportDirectory).length, 1);
+
+  const injected = await fetch(service + '/v1/pro/support', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
+      activation_id: activationId, contact: 'test@example.invalid', message: 'escape:\u001b[31m' })
+  });
+  assert.equal(injected.status, 400, 'terminal escapes must not persist in tickets');
 
   const traversal = await fetch(service + '/v1/pro/policy', {
     method: 'POST', headers: { 'content-type': 'application/json' },
