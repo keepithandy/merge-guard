@@ -82,7 +82,8 @@
     "test:commercial": "node scripts/commercial-contracts.js && node scripts/polar-sandbox-contracts.js && node scripts/license-persistence-contracts.js && node scripts/pro-fulfillment-contracts.js",
     "test:license-persistence": "node scripts/license-persistence-contracts.js",
     "test:pro-fulfillment": "node scripts/pro-fulfillment-contracts.js",
-    "pro:gateway": "node scripts/pro-gateway.js"
+    "pro:gateway": "node scripts/pro-gateway.js",
+    "pro:support-queue": "node scripts/pro-support-queue.js"
   },
   "keywords": [
     "git",
