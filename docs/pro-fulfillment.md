@@ -97,3 +97,9 @@ node scripts/pro-support-operations.js purge-closed 90 --apply
 `pending` emits only ticket IDs/status/timestamps (no contacts/messages), suitable for owner-owned polling; it **does not** send notifications. `draft` creates a private **unsent** reply-handoff file for an operator to copy into their approved mail client; it does not send email or mark `responded`. The operator should mark responded only after external delivery is confirmed. Draft creation refuses overwrites; messages never leave this host automatically.
 
 `purge-closed N` first previews closed tickets updated at least N days ago; `--apply` irreversibly deletes these local closed records and their ordinary draft files. Open/queued/responded tickets are excluded; tickets with missing/invalid timestamps are skipped. Backup, legal hold, retention policy and Windows ACL compliance remain the operator's responsibilities. There is no automatic email, support SLA, or hosted customer mailbox.
+
+## Phase 5C — subscription lifecycle regression
+
+Run `npm.cmd run test:subscription-lifecycle` to exercise deterministic mocked Polar state transitions with a real localhost gateway: Pro/Team grants, benefit upgrades/downgrades, expiry, cancellation, revocation, disabled/unmapped benefits, outage/404 denial, wrong organization/activation, and Production/Sandbox isolation. Each paid catalog/fulfillment operation requires a **fresh live validation**; Free scanning is independent of Polar.
+
+These are automated synthetic contracts, not proof of real Polar billing or real renewals. Final-SHA Sandbox Pro **and Team** cancellation/renewal tests and all external commercial launch gates remain outstanding.
