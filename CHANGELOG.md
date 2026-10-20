@@ -28,6 +28,7 @@ Internal refactors, test-suite expansion, release engineering, and maintenance-o
 
 ### Hotfixes
 
+- Confirmed license denials now take precedence over local storage failures. Every new CLI process verifies paid access online, preventing a surviving stale Pro/Team file from restoring access after denial; cache and offline grace require a live grant in the current process.
 - A human **Pass** from an older report is no longer carried onto a changed/current report.
 - Resolved findings remain comparison history instead of being incorrectly treated as a new manual Pass.
 

@@ -79,7 +79,8 @@
     "test:evaluation-policy-characterization": "node scripts/evaluation-policy-characterization-contracts.js",
     "release:stage": "node scripts/stage-release.js",
     "release:check": "node scripts/release-readiness.js",
-    "test:commercial": "node scripts/commercial-contracts.js && node scripts/polar-sandbox-contracts.js"
+    "test:commercial": "node scripts/commercial-contracts.js && node scripts/polar-sandbox-contracts.js && node scripts/license-persistence-contracts.js",
+    "test:license-persistence": "node scripts/license-persistence-contracts.js"
   },
   "keywords": [
     "git",

@@ -97,7 +97,7 @@ jobs:
       - name: Run smoke suite
         run: npm run smoke
 
-      - name: Validate commercial licensing and Polar environment isolation
+      - name: Validate licensing, Polar isolation, and denial persistence across CLI processes
         run: npm run test:commercial
 
       - name: Run CLI contract suite

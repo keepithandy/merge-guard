@@ -4,6 +4,9 @@
 
 - [ ] `npm test` passes.
 - [ ] `npm run test:commercial` passes.
+- [ ] `npm run test:license-persistence` passes, including independent CLI processes after denial with writes and deletion blocked, and actual Windows read-only files.
+- [ ] A new offline CLI process returns Free despite a surviving paid file; a fresh live grant is required in every process. In-process cache/grace limits match the documented authorization policy.
+- [ ] Denial replacement/removal failures produce sanitized warnings and never restore a paid receipt. Production/Sandbox isolation passes in both directions.
 - [ ] `npm run release:check` passes.
 - [ ] `npm pack --dry-run` contains no secrets or local license state.
 - [ ] CLI Free scan works with no Polar configuration.
@@ -26,6 +29,8 @@
 - [ ] Team test checkout → activation → validation succeeds.
 - [ ] Revocation/cancellation behavior is verified.
 - [ ] Live Sandbox activation and entitlement lifecycle evidence is recorded separately from mocked automated test results.
+- [ ] Live evidence names the exact tested source SHA. Owner-reported Pro activation, validation, shell restart persistence, and deactivation are historical observations until their commit is recorded and the updated policy is exercised.
+- [ ] Plaintext local key storage, process-argument exposure, and Windows ACL behavior are reviewed before a paid launch; restrictive POSIX creation modes do not prove Windows credential protection.
 
 ## Paid benefit delivery
 

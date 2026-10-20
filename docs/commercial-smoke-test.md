@@ -43,9 +43,9 @@ Expected: revoked/disabled/expired or rejected entitlement falls back to Free an
 
 ## 6. Offline behavior
 
-After one successful validation, temporarily block network access and run `plan`.
+After one successful validation, temporarily block network access and start a new `plan` command.
 
-Expected: the cached plan is used within the documented grace period and a warning is shown when live validation is attempted. After the grace period, Merge Guard falls back to Free.
+Expected: the new CLI process attempts validation and falls back to Free with a sanitized warning. Stored Pro/Team state cannot authorize a new process offline. In-process caching/grace is covered by mocked contracts: it requires a successful live grant in that same running process, lasts at most seven days, and never outlives expiration or an observed denial. See [the authorization policy](licensing-authorization.md).
 
 ## 7. Cleanup
 

@@ -194,6 +194,7 @@ changelogContract(metadata);
 for (const [label, script] of [
   ['Commercial entitlement contracts', 'scripts/commercial-contracts.js'],
   ['Polar environment isolation contracts', 'scripts/polar-sandbox-contracts.js'],
+  ['License denial persistence contracts', 'scripts/license-persistence-contracts.js'],
   ['CLI contracts', 'scripts/cli-contracts.js'],
   ['Snapshot contracts', 'scripts/snapshot-contracts.js'],
   ['Repository intelligence contracts', 'scripts/repository-intelligence-contracts.js'],

@@ -44,6 +44,7 @@ const suites = [
   'scripts/plugin-conformance-contracts.js',
   'scripts/commercial-contracts.js',
   'scripts/polar-sandbox-contracts.js',
+  'scripts/license-persistence-contracts.js',
   'scripts/installation-contracts.js',
   'scripts/security-contracts.js',
   'scripts/performance-contracts.js',

@@ -120,6 +120,7 @@ try {
     }
     for (const status of [400, 401, 403, 404, 422, 429, 500, 503]) {
       writeLicenseState(stateFor(env), { env });
+      await validateLicense({ env, now, force: true, fetchImpl: async () => response(200, liveBody(env)) });
       const result = await validateLicense({ env, now, force: true, fetchImpl: async () => response(status, { detail: 'MG-FAKE-SECRET' }) });
       assert.equal(result.plan, status === 429 || status >= 500 ? PLAN_PRO : PLAN_FREE);
       assert(!JSON.stringify(result).includes('MG-FAKE-SECRET'), 'provider errors must not expose keys');
@@ -132,6 +133,10 @@ try {
       { expiresAt: new Date(at - 1).toISOString() }
     ]) {
       writeLicenseState(stateFor(env, extra), { env });
+      // Paid grace requires a live grant in this process, never a disk fixture.
+      await validateLicense({ env, force: true,
+        now: () => Date.parse(extra.lastValidatedAt || stateFor(env).lastValidatedAt),
+        fetchImpl: async () => response(200, liveBody(env, { expires_at: extra.expiresAt || null })) });
       const result = await validateLicense({ env, now, fetchImpl: offline });
       assert.equal(result.plan, extra.lastValidatedAt === new Date(at - 2 * 86400000).toISOString() ? PLAN_PRO : PLAN_FREE);
       assert(!JSON.stringify(result).includes('MG-FAKE-SECRET'));

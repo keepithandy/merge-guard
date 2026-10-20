@@ -23,6 +23,7 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
     if (!value) throw new Error('activate requires a Polar license key');
     const state = await activateLicense(value, { env });
     console.log(`Merge Guard ${titleCase(state.plan)} activated.\n\nPlan: ${titleCase(state.plan)}\nLicense: ${titleCase(state.status)}`);
+    if (state.warning) console.log(`\nWarning: ${state.warning}`);
     return true;
   }
 
@@ -62,5 +63,6 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
 
 export function currentLicenseSummary({ env = process.env } = {}) {
   const state = readLicenseState({ env });
-  return state ? { provider: state.provider, plan: state.plan, status: state.status, lastValidatedAt: state.lastValidatedAt } : null;
+  // A synchronous disk summary cannot establish a paid authorization.
+  return state ? { provider: state.provider, plan: 'free', status: 'unverified', lastValidatedAt: state.lastValidatedAt } : null;
 }

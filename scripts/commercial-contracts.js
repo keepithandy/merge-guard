@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import {
   CAPABILITIES,
@@ -22,7 +22,8 @@ import {
   validateLicense
 } from '../src/commercial/license.js';
 
-const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-commercial-'));
+const temp = path.resolve('.cache', `merge-guard-commercial-${randomUUID()}`);
+fs.mkdirSync(temp, { recursive: true });
 const env = {
   ...process.env,
   MERGE_GUARD_POLAR_ENVIRONMENT: 'production',
@@ -93,6 +94,7 @@ assert.equal(revoked.plan, PLAN_FREE);
 assert.equal(revoked.status, 'revoked');
 
 writeOldState();
+await validateLicense({ env, force: true, fetchImpl: proFetch, now: () => Date.parse('2026-10-14T12:00:00.000Z') });
 const offline = await validateLicense({
   env,
   fetchImpl: async () => { throw new Error('network unavailable'); },
@@ -165,6 +167,7 @@ assert.equal(readLicenseState({ env }).plan, PLAN_FREE);
 const stillRejected = await validateLicense({ env, fetchImpl: offlineFetch, now: testNow });
 assert.equal(stillRejected.plan, PLAN_FREE);
 writeLicenseState(cachedProState(), { env });
+await validateLicense({ env, force: true, fetchImpl: proFetch, now: testNow });
 const serverOutage = await validateLicense({
   env, force: true, now: testNow,
   fetchImpl: async () => response(503, { detail: 'temporary server error' })

@@ -105,8 +105,8 @@ Polar organization access token. This setup does not create checkout or subscrip
 
 - Production retains `~/.merge-guard/license.json` or the exact custom `MERGE_GUARD_LICENSE_FILE` path.
 - Sandbox uses `~/.merge-guard/license.json.sandbox`, or appends `.sandbox` to the custom path. Reusing the same override still selects separate files.
-- Newly saved state records the environment and organization. A mismatched tagged file is ignored entirely, including its key and activation ID. Paid cache and offline grace require an exact environment, organization, key, and mapped benefit.
-- Untagged legacy files are readable only in production, and need one successful live validation before paid cache/grace is available again. They cannot grant Sandbox access.
+- Newly saved state records the environment and organization. A mismatched tagged file is ignored entirely, including its key and activation ID. The file stores credentials only; every new CLI process must obtain a live grant before paid access. A stored `plan` or validation timestamp cannot authorize access.
+- Untagged legacy files are readable only in production for live revalidation. They cannot grant Sandbox access or offline paid access.
 - `license clear` clears/deactivates only the selected environment. A failed remote deactivation still clears that local file; it does not cancel a subscription.
 
 Use a separate fresh PowerShell window for production so the Sandbox overrides
@@ -131,9 +131,9 @@ The CLI does **not** require or embed a Polar organization access token.
 - Valid mapped Pro benefit: Pro.
 - Valid mapped Team benefit: Team.
 - Revoked, disabled, expired, or unmapped benefit: Free.
-- Successful validation is cached for 24 hours.
-- Temporary network errors, rate limits, or Polar server failures may use a previously validated paid plan for up to seven days, **but never beyond the license expiration date**.
-- Definitive Polar client rejections (for example an invalid key or activation) immediately fall back to Free; they never trigger offline grace.
+- Successful live validation creates an in-memory receipt for the current process. Only that receipt can provide the 24-hour cache or up to seven days of grace for temporary network errors, rate limits, or server failures, **never past license expiration**. An ordinary new CLI invocation starts without a receipt, contacts Polar, and falls back to Free during an outage.
+- Definitive Polar client rejections (for example an invalid key or activation), revoked/disabled/expired licenses, wrong organizations, and unmapped benefits immediately fall back to Free and invalidate the current receipt before any disk operation. They never trigger offline grace.
+- If saving a denial fails, the CLI tries removing stale local state. If both operations fail, it reports a generic warning and stays Free. Surviving paid bytes cannot authorize the next CLI process. See [licensing authorization and persistence](licensing-authorization.md) for the reason this requires a process-scoped cache, regression coverage, and remaining limitations.
 - A cached plan is tied to the exact license key and cannot be reused with a different override key.
 - A changed override key cannot reuse another key's device activation.
 - After the grace window, failure falls back to Free.
