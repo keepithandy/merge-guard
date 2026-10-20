@@ -15,10 +15,12 @@ Merge Guard's existing public MIT feature set remains Free. Features already rel
 | Report comparison and local trends | Yes | Yes | Yes | Existing | comparison/trend modules |
 | Local dashboard | Yes | Yes | Yes | Existing | `dashboard/` |
 | Polar plan/license state | — | Yes | Yes | Implemented | `src/commercial/` |
-| Premium policy delivery | — | Yes | Yes | Commercial entitlement | Requires paid benefit content before launch |
-| Priority support | — | Yes | Yes | Commercial entitlement | Requires support channel before launch |
+| Premium policy delivery | — | Yes | Yes | Staged implementation | Live-validated remote policy gateway and local scan integration; private paid content and hosting required before launch |
+| Priority support | — | Yes | Yes | Staged implementation | Live-validated queue intake; staffed reply channel, monitoring, retention policy and hosting required before launch |
 | Shared policy delivery | — | — | Yes | Commercial entitlement | Requires Team delivery package before launch |
 | Team support | — | — | Yes | Commercial entitlement | Requires support process before launch |
+
+The current Pro gateway is a **sandbox-testable implementation**, not a live paid service. The public reference pack is not exclusive paid content. See [Pro fulfillment](pro-fulfillment.md) for exact commands and launch blockers.
 
 ## Pricing target
 
