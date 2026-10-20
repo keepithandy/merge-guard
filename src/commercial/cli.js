@@ -2,6 +2,24 @@ import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState
 import { resolveCommercialConfig } from './config.js';
 import { listPremiumPolicyPacks, submitPrioritySupport } from './proClient.js';
 
+async function readPipedLicenseKey() {
+  if (process.stdin.isTTY) {
+    throw new Error('activate --stdin requires piped input; do not type a key into a command argument.');
+  }
+  let data = '';
+  for await (const chunk of process.stdin) {
+    data += chunk.toString('utf8');
+    if (Buffer.byteLength(data, 'utf8') > 512) {
+      throw new Error('Piped license key exceeds the permitted size.');
+    }
+  }
+  const key = data.trim();
+  if (!key || key.includes('\n') || key.includes('\r') || key.length > 512) {
+    throw new Error('Pipe exactly one valid license key to activate --stdin.');
+  }
+  return key;
+}
+
 function titleCase(value) {
   return String(value || '').replace(/(^|_)([a-z])/g, (_, prefix, char) => `${prefix ? ' ' : ''}${char.toUpperCase()}`);
 }
@@ -34,8 +52,9 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   if (environment === 'sandbox') console.log('Polar environment: Sandbox (test licenses only)');
 
   if (command === 'activate') {
-    if (!value) throw new Error('activate requires a Polar license key');
-    const state = await activateLicense(value, { env });
+    if (!value) throw new Error('activate requires a Polar license key or --stdin');
+    const key = value === '--stdin' ? await readPipedLicenseKey() : value;
+    const state = await activateLicense(key, { env });
     console.log(`Merge Guard ${titleCase(state.plan)} activated.\n\nPlan: ${titleCase(state.plan)}\nLicense: ${titleCase(state.status)}`);
     if (state.warning) console.log(`\nWarning: ${state.warning}`);
     return true;

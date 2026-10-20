@@ -149,6 +149,40 @@ try {
   const missingPolicy = await fetchPremiumPolicyPack('not-listed', { env: clientEnv, licenseFetch: provider }).catch(error => error);
   assert.match(missingPolicy.message, /failed \(404\)/);
 
+  // Owner policy service limits concurrent entitlement checks under burst load.
+  let releaseSlowProvider;
+  let notifyProviderEntered;
+  const enteredProvider = new Promise(resolve => { notifyProviderEntered = resolve; });
+  const heldProvider = async (url, opts) => {
+    notifyProviderEntered();
+    await new Promise(resolve => { releaseSlowProvider = resolve; });
+    return provider(url, opts);
+  };
+  const busyGateway = createProGateway({
+    env, policyDirectory: path.resolve('policies/pro-reference'), supportDirectory,
+    fetchImpl: heldProvider, maxInFlight: 1
+  });
+  try {
+    busyGateway.listen(0, '127.0.0.1');
+    await once(busyGateway, 'listening');
+    const busyUrl = 'http://127.0.0.1:' + busyGateway.address().port;
+    const request = {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
+        activation_id: activationId })
+    };
+    const held = fetch(busyUrl + '/v1/pro/catalog', request);
+    await enteredProvider;
+    const overloaded = await fetch(busyUrl + '/v1/pro/catalog', request);
+    assert.equal(overloaded.status, 503);
+    assert.equal((await overloaded.json()).error, 'gateway-busy');
+    releaseSlowProvider();
+    assert.equal((await held).status, 200);
+  } finally {
+    if (releaseSlowProvider) releaseSlowProvider();
+    busyGateway.close();
+  }
+
   const oversized = await fetch(service + '/v1/pro/support', {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID, activation_id: activationId,
@@ -212,6 +246,10 @@ try {
   await assert.rejects(fetchPremiumPolicyPack('../secret', { env: clientEnv, licenseFetch: provider }), /Invalid Pro policy ID/);
 
   assert.equal(fs.readdirSync(supportDirectory).length, 1);
+  const missingInput = spawnSync(process.execPath, ['src/cli.js', 'activate', '--stdin'],
+    { cwd: process.cwd(), env, input: '\n', encoding: 'utf8' });
+  assert.notEqual(missingInput.status, 0);
+  assert.match(missingInput.stderr, /Pipe exactly one valid license key/);
   console.log('Pro fulfillment contracts passed: policy delivery, scan integration, support queue, revocation, isolation');
 } finally {
   gateway.close();

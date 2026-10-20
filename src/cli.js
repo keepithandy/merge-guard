@@ -81,7 +81,8 @@ Usage:
 
 Commands:
   merge-guard plan              Show the current Free, Pro, or Team entitlement
-  merge-guard activate <key>    Activate a Polar license key
+  merge-guard activate <key>    Activate a Polar license key (legacy: key appears in process args)
+  merge-guard activate --stdin  Activate from piped input without a key in process args
   merge-guard license           Revalidate and show the current license
   merge-guard license clear     Clear local license state
   merge-guard account           Show the configured Polar customer portal
