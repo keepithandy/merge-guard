@@ -80,3 +80,20 @@ Use npm run test:pro-fulfillment, npm run test:commercial, npm test and npm run 
 **The following commercial launch blockers remain:** private paid content and distribution rights; deployed hardened HTTPS and support mailbox; real support response, privacy retention/deletion and Windows ACL controls; live Sandbox E2E on the exact final commit; cancellation/revocation/expiry and Team entitlements; terms/refunds/privacy readiness; and explicit external release/checkout authorization. October 20 live Sandbox exercises occurred before the later source-hardening commits, so they do not verify the final production candidate.
 
 Do not enable production checkout or publish a release based solely on these tests.
+
+## Phase 5B: owner-operated support handling
+
+With `MERGE_GUARD_PRO_SUPPORT_DIRECTORY` set to a secured owner-only queue on the gateway host, the local operator may run:
+
+```powershell
+node scripts/pro-support-operations.js pending --json
+node scripts/pro-support-operations.js draft <ticket-id> <reply-message-file>
+node scripts/pro-support-queue.js show <ticket-id>
+node scripts/pro-support-queue.js status <ticket-id> responded
+node scripts/pro-support-operations.js purge-closed 90
+node scripts/pro-support-operations.js purge-closed 90 --apply
+```
+
+`pending` emits only ticket IDs/status/timestamps (no contacts/messages), suitable for owner-owned polling; it **does not** send notifications. `draft` creates a private **unsent** reply-handoff file for an operator to copy into their approved mail client; it does not send email or mark `responded`. The operator should mark responded only after external delivery is confirmed. Draft creation refuses overwrites; messages never leave this host automatically.
+
+`purge-closed N` first previews closed tickets updated at least N days ago; `--apply` irreversibly deletes these local closed records and their ordinary draft files. Open/queued/responded tickets are excluded; tickets with missing/invalid timestamps are skipped. Backup, legal hold, retention policy and Windows ACL compliance remain the operator's responsibilities. There is no automatic email, support SLA, or hosted customer mailbox.
