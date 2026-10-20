@@ -47,6 +47,7 @@ const suites = [
   'scripts/polar-sandbox-contracts.js',
   'scripts/license-persistence-contracts.js',
   'scripts/pro-fulfillment-contracts.js',
+  'scripts/p6-gateway-security-contracts.js',
   'scripts/pro-support-operations-contracts.js',
   'scripts/subscription-lifecycle-contracts.js',
   'scripts/installation-contracts.js',
