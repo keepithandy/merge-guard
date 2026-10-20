@@ -85,7 +85,7 @@ try {
   const deps = await fetchPremiumPolicyPack('dependency-provenance', { env: clientEnv, licenseFetch: provider });
   const depReport = applyPolicyPack(analyzeDiff(diff, {}), diff, deps.policy);
   assert(depReport.policyPacks.some(p => p.id === 'merge-guard.pro.dependency-provenance'));
-  assert(depReport.policyRules.some(rule => rule.id === 'npm-lifecycle-scripts') || depReport.policyRequiredChecks.length > 0);
+  assert(depReport.policyRequiredChecks.some(check => check.id === 'dependency-diff'));
   assert(report.policyPacks.some(p => p.id === 'merge-guard.pro.release-integrity'));
   assert(report.policyRequiredChecks.some(c => c.id === 'release-package'));
 

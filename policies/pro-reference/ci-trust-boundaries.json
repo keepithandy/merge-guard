@@ -15,7 +15,7 @@
     {
       "id": "privileged-pr-trigger",
       "label": "Privileged pull request workflow trigger changed",
-      "pathPattern": "^\\.github/workflows/[^/]+\\.ya?ml$",
+      "pathPattern": "^\\.github/workflows/",
       "linePattern": "pull_request_target|workflow_run:",
       "weight": 9,
       "check": "Verify that fork-provided input cannot execute with repository secrets or write tokens."
@@ -23,7 +23,7 @@
     {
       "id": "write-all-permissions",
       "label": "Broad workflow write permissions changed",
-      "pathPattern": "^\\.github/workflows/[^/]+\\.ya?ml$",
+      "pathPattern": "^\\.github/workflows/",
       "linePattern": "permissions: write-all|contents: write|actions: write|id-token: write",
       "weight": 7,
       "check": "Confirm minimum required permissions and the identity/token scope of the job."
@@ -31,7 +31,7 @@
     {
       "id": "untrusted-script-interpolation",
       "label": "Workflow dynamic script or shell usage changed",
-      "pathPattern": "^\\.github/workflows/[^/]+\\.ya?ml$",
+      "pathPattern": "^\\.github/workflows/",
       "linePattern": "github\\.event\\.|github\\.head_ref|run:|persist-credentials:",
       "weight": 5,
       "check": "Inspect shell interpolation, untrusted context and checkout credential persistence."

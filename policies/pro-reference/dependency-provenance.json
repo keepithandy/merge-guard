@@ -30,7 +30,7 @@
     {
       "id": "container-base-image",
       "label": "Container base image changed",
-      "pathPattern": "(^|/)(Dockerfile|Dockerfile\\.[^/]+)$",
+      "pathPattern": "(^|/)(Dockerfile|Dockerfile)$",
       "linePattern": "FROM |ADD https?://|RUN curl|RUN wget",
       "weight": 6,
       "check": "Check pinned image digests and provenance of remotely retrieved build inputs."
