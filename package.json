@@ -79,7 +79,7 @@
     "test:evaluation-policy-characterization": "node scripts/evaluation-policy-characterization-contracts.js",
     "release:stage": "node scripts/stage-release.js",
     "release:check": "node scripts/release-readiness.js",
-    "test:commercial": "node scripts/commercial-contracts.js && node scripts/polar-sandbox-contracts.js && node scripts/license-persistence-contracts.js && node scripts/pro-fulfillment-contracts.js && node scripts/commercial-onboarding-contracts.js && node scripts/pro-support-operations-contracts.js && node scripts/subscription-lifecycle-contracts.js && node scripts/p6-gateway-security-contracts.js",
+    "test:commercial": "node scripts/commercial-contracts.js && node scripts/polar-sandbox-contracts.js && node scripts/license-persistence-contracts.js && node scripts/pro-fulfillment-contracts.js && node scripts/commercial-onboarding-contracts.js && node scripts/pro-support-operations-contracts.js && node scripts/subscription-lifecycle-contracts.js && node scripts/p6-gateway-security-contracts.js && node scripts/p6-private-policy-inventory-contracts.js",
     "test:license-persistence": "node scripts/license-persistence-contracts.js",
     "test:pro-fulfillment": "node scripts/pro-fulfillment-contracts.js",
     "pro:gateway": "node scripts/pro-gateway.js",
@@ -89,7 +89,9 @@
     "test:support-operations": "node scripts/pro-support-operations-contracts.js",
     "test:subscription-lifecycle": "node scripts/subscription-lifecycle-contracts.js",
     "test:p6-gateway": "node scripts/p6-gateway-security-contracts.js",
-    "p6:candidate-evidence": "node scripts/p6-candidate-evidence.js"
+    "p6:candidate-evidence": "node scripts/p6-candidate-evidence.js",
+    "test:p6-policy-inventory": "node scripts/p6-private-policy-inventory-contracts.js",
+    "p6:policy-inventory": "node scripts/p6-private-policy-inventory.js"
   },
   "keywords": [
     "git",
