@@ -27,9 +27,9 @@ function serviceUrl(env) {
   return url.origin;
 }
 
-async function obtainGrant(env, licenseFetch) {
+async function obtainGrant(env, licenseFetch, capability) {
   const grant = await validateLicense({ env, fetchImpl: licenseFetch, force: true });
-  if (grant.validation !== 'live' || !hasCapability(grant.plan, CAPABILITIES.PREMIUM_POLICY_DELIVERY)) {
+  if (grant.validation !== 'live' || !hasCapability(grant.plan, capability)) {
     throw new Error('A currently granted Pro or Team license is required.');
   }
   const key = env.MERGE_GUARD_LICENSE_KEY || readLicenseState({ env })?.licenseKey;
@@ -71,7 +71,7 @@ export async function fetchPremiumPolicyPack(id, {
 } = {}) {
   if (typeof id !== 'string' || !POLICY_ID.test(id)) throw new Error('Invalid Pro policy ID.');
   const url = serviceUrl(env);
-  const grant = await obtainGrant(env, licenseFetch);
+  const grant = await obtainGrant(env, licenseFetch, CAPABILITIES.PREMIUM_POLICY_DELIVERY);
   const result = await sendRequest('/v1/pro/policy', { ...grant, id }, { url, fetchImpl });
   if (!result || !result.policy || typeof result.sha256 !== 'string') {
     throw new Error('Invalid Pro policy response.');
@@ -107,7 +107,7 @@ export async function submitPrioritySupport(filePath, {
     contents = fs.readFileSync(filePath, 'utf8').trim();
   } catch { throw new Error('Support request must be a regular file of at most 4 KB.'); }
   if (!contents || contents.length > 4000) throw new Error('Support request text must be 1–4000 characters.');
-  const grant = await obtainGrant(env, licenseFetch);
+  const grant = await obtainGrant(env, licenseFetch, CAPABILITIES.PRIORITY_SUPPORT);
   const result = await sendRequest('/v1/pro/support', {
     ...grant, contact, message: contents
   }, { url, fetchImpl });
