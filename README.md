@@ -495,6 +495,7 @@ After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-
 | Current status after Phase 5 | [Cross-lane post-P5 roadmap, evidence, and proposed P6–P9](docs/POST_P5_ROADMAP.md) |
 | Active Free work | [Solo-maintainer phase roadmap](docs/PHASE_ROADMAP.md) and [execution queue](docs/ROADMAP_EXECUTION.md) |
 | Paid release blockers | [Commercial launch checklist](docs/commercial-release-checklist.md) |
+| Current P6 A–E execution | [P6 source/evidence and owner-gated runbook](docs/P6_EXECUTION.md) and [master issue #205](https://github.com/keepithandy/merge-guard/issues/205) |
 | Future ideas (unapproved) | [Long-horizon registry](docs/LONG_HORIZON_ROADMAP.md) |
 | Current source | [Beta release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) |
 | Version policy | [Versioning](docs/versioning.md) |
