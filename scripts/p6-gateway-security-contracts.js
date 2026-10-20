@@ -121,8 +121,10 @@ try {
   let limited = false;
   for (let i = 0; i < 20; i++) {
     const response = await fetch(base + '/healthz');
-    if (response.status === 429) { limited = true; break; }
-    assert.equal(response.status, 200);
+    const status = response.status;
+    await response.arrayBuffer(); // Release pooled sockets on Node 18/Windows.
+    if (status === 429) { limited = true; break; }
+    assert.equal(status, 200);
   }
   assert(limited, 'gateway must bound unauthenticated request frequency');
   assert.equal(upstreamCalls >= 2, true);
