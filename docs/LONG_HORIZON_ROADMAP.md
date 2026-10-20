@@ -1,6 +1,8 @@
 # Merge Guard long-horizon roadmap
 
-Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work explicitly selected by the owner under the [active solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) may enter the active sequence. No second human reviewer is required for ordinary Free fixes. Independent-accuracy claims retain the [optional strict protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md).
+**Reconciled 2026-10-20:** This remains an **unapproved research/idea registry**, not the executable queue. Current merged P5 source status, open reliability work, separate Free release path, paid blockers and *proposed* next commercial phases are maintained in [the post-P5 roadmap](POST_P5_ROADMAP.md); the [active Free sequence](PHASE_ROADMAP.md) does not depend on historical independent-evaluation gates.
+
+Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work explicitly selected by the owner under the [active solo-maintainer Free beta roadmap](PHASE_ROADMAP.md), or separately authorized as a scoped commercial exception under the [canonical roadmap](../ROADMAP.md), may enter the execution queue. No second human reviewer is required for ordinary Free fixes. Independent-accuracy claims retain the [optional strict protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md).
 
 The purpose of this registry is to preserve the full product space without selecting work. After the current owner-directed Free beta priorities and any separately authorized publication, a future roadmap may choose a bounded problem from this registry. It still needs security, compatibility and rollout planning; independently labeled preregistration is needed only if making a statistically validated efficacy claim.
 
@@ -18,7 +20,7 @@ The durable product advantage is not a larger pile of warnings. It is a small, e
 
 ## Current baseline
 
-The current `1.3.0-beta.1` source already provides:
+The current repository declares `1.3.0-beta.2` as an **unpublished source version**. Its accumulated implemented capabilities include:
 
 - deterministic diff analysis through a local CLI and composite GitHub Action;
 - text, Markdown, JSON, annotation, SARIF, managed-comment, and review-projection outputs;
@@ -32,7 +34,36 @@ The current `1.3.0-beta.1` source already provides:
 - deterministic diagnostics, consumer fixtures, release gates, security contracts, and cross-platform compatibility coverage;
 - an offline historical-PR evaluation harness with calibration, preregistration, held-out execution, and content-free aggregate results.
 
-The first held-out pilot produced a `stop` decision. Actionable precision missed its gate, overall supported-scope recall was materially low, and critical recall lacked a sufficient denominator; median noise, clean-PR specificity, setup effort, and runtime passed. The immediate obligation is to improve signal quality with calibration evidence before adding broad new surface area.
+The September 2026 held-out pilot produced a historical `stop` decision (12/140 actionable precision, 12/35 supported-scope recall, zero qualifying high-severity cases). These results must not be reinterpreted or tuned against. Bounded Free regression fixes are active; a new independently labeled study is optional **only** for quantified efficacy claims. Commercial P5A–C source work and a P5B security follow-up are merged but neither verified paid delivery nor authorized production sales. See the [post-P5 evidence ledger](POST_P5_ROADMAP.md).
+
+## October 2026 workstream reconciliation
+
+These are **classification notes**, not new tasks or authorizations. "Implemented" describes a bounded existing source slice, **not** completion of every idea in its registry workstream. See [the current evidence ledger](POST_P5_ROADMAP.md) for exact merge identifiers.
+
+| Registry workstream | Implemented baseline | Outstanding boundary / disposition |
+| --- | --- | --- |
+| **EVAL** | Local historical evaluator, preregistration and comparison tooling | Historical held-out pilot **stopped**. New independent study only if quantified efficacy claims are desired; no gate for normal Free fixes |
+| **SIGNAL** | Targeted false-warning cleanup including merged #193 | General precision remains unverified; keep small true/false regression pairs on Free path |
+| **RECALL** | Supported rule set and synthetic regression contracts | No representative recall improvement or critical-recall claim; new held-out evidence required for quantified claims |
+| **DIFF** | Bounded diff and metadata classification with reported uncertainty | New formats/edge cases remain candidates with safe parsing budgets |
+| **CHECK** | Deterministic suggested checks, primary-three review plan and manual verification evidence | No automatic execution of project tests/commands is authorized |
+| **IMPACT** | v1.2 explicit graph, metadata, compatibility and provenance | Automatic remote discovery and guessed dependencies are not authorized |
+| **POLICY** | Local starter packs, versioned contracts, Pro **public reference** catalog | Private paid policy rights/delivery and Team sharing still need proof; no public distribution of promised premium-only files |
+| **REVIEW** | PR summaries, report comparison, reviewer projection and Human Verification slice | Human observations do not certify merges or override scanner contracts |
+| **CI** | Cross-platform Actions, smoke, public-contract and release suites | Intermittent plugin-worker investigation [#190](https://github.com/keepithandy/merge-guard/issues/190) remains open |
+| **DASH** | Local memory-only dashboard, import, compare and accessibility fixtures | Hosted accounts/workspaces and uploads remain unapproved |
+| **EVIDENCE** | Immutable manifests and caller-owned CI handoff | No silent hosted retention, automatic retrieval or implied trust in unavailable evidence |
+| **EXT** | Local plugin manifests and worker-contract isolation | Not a hostile-code isolation guarantee; remote registry/trust lifecycle remains exploratory |
+| **SEC** | Baseline source validation, denied-license persistence fixes and P5B symlink hardening | TLS deployment, Windows ACLs, secret/queue operation, incident and restore controls still unverified |
+| **SCALE** | Performance budgets and soak contracts | New resource-intensive scope requires its own bounded evidence |
+| **DIST** | Staging, packaging and artifact/release checks | Source release is **unpublished**; external tags/npm/Action ref moves require specific owner approval |
+| **ADOPT** | v1.1 diagnostics and P5A redacted `onboard` | Real paid onboarding, support capacity and field adoption remain unverified |
+| **ECO** | Selected repository/consumer fixtures | New language, ecosystem or Git forge adapters are unapproved |
+| **AI** | No AI service required for core deterministic analysis | Optional AI explanations are ideas only; no network uploads or AI merge-gate authority |
+| **TEAM** | Benefit-to-capability mapping and mocked subscription changes | **No delivered shared-policy Team service**; commercial Team claims blocked |
+| **V2** | Additive v1 contracts remain authoritative | A breaking v2 architecture is not approved absent a necessity/compatibility case |
+
+**Promotion rule:** work enters the [execution plan](ROADMAP_EXECUTION.md) only after an explicit owner scope decision, positive/negative acceptance fixtures, compatible security and data boundaries, and an independently reviewed rollback path. The separately proposed P6–P9 commercial sequence is described in [the post-P5 roadmap](POST_P5_ROADMAP.md).
 
 ## How to use this roadmap
 
@@ -740,7 +771,7 @@ These are questions, not commitments:
 
 ## Dependency rules
 
-- Signal tuning depends on trustworthy calibration labels.
+- Formal claims about signal tuning and population accuracy depend on independently reviewed calibration and fresh held-out labels. Ordinary bounded Free false-positive/false-negative repairs may proceed sooner using synthetic positive and negative regression fixtures and exact-commit CI; they do **not** establish population efficacy.
 - Held-out evaluation depends on a frozen product, metric implementation, thresholds, and corpus.
 - Critical-recall claims depend on a sufficient high-severity denominator.
 - New ecosystem rules depend on representative fixtures and a maintained adapter owner.
@@ -769,7 +800,7 @@ These are questions, not commitments:
 
 ## Idea registry groupings
 
-These are search and discussion groupings, not phases, a sequence, or authorization. The [strict phase-roadmap approval draft](PHASE_ROADMAP.md) is the only executable sequence:
+These are search and discussion groupings, not phases, a sequence, or authorization. The [solo-maintainer Free phase roadmap](PHASE_ROADMAP.md) controls Free source work; the [execution queue](ROADMAP_EXECUTION.md) records accepted work, while [proposed post-P5 commercial slices](POST_P5_ROADMAP.md) require new owner scope decisions:
 
 1. **Evidence repair:** calibration corpus quality, label guidance, high-severity coverage, and audit tooling.
 2. **Signal repair:** precision inventory, recall gaps, finding composition, and targeted fixtures.

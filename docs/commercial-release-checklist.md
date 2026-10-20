@@ -1,8 +1,25 @@
 # Commercial release checklist
 
+**Verified document refresh: 2026-10-20. Status: BLOCKED for paid launch.** See the [post-P5 integrated roadmap](POST_P5_ROADMAP.md) for evidence, dependencies, proposed P6–P9 scope and separate Free preview gate. Phases P5A [#200](https://github.com/keepithandy/merge-guard/pull/200), P5B [#201](https://github.com/keepithandy/merge-guard/pull/201), P5C [#202](https://github.com/keepithandy/merge-guard/pull/202) and support hardening [#203](https://github.com/keepithandy/merge-guard/pull/203) are **merged source work**, not launch authorization.
+
+## Gate accounting — no inferred completion
+
+| Gate | Evidence observed as of this snapshot | Release disposition |
+| --- | --- | --- |
+| Source integration | PRs #200–#203 merged; main at `520f4527d93e46d8b008759bfad4024b909706c8` | **Implemented**, not a frozen candidate |
+| Automated regression tests | All five workflows successful on **each final PR head**, including 9/9 Node compatibility jobs on Windows/Ubuntu Node 18/20/22/24; commercial tests wired into `npm test` and `test:commercial` | **Recorded PR-head proof only**; re-run on the exact release candidate/artifacts |
+| Pro policy delivery | Authenticated live-provider-verified local gateway and public example policies | **Staged only**; private paid content + hardening/hosting not verified |
+| Priority Support | Local queue/draft/purge plus follow-up validation/symlink repairs | **Staged only**; staffed support, outbound response, backup/restore and Windows ACLs not verified |
+| Pro/Team subscription lifecycle | Mock Polar transitions, localhost gateway and client fail-closed behavior | **Mocks only**; actual Sandbox Pro **and** Team purchases/lifecycle not verified |
+| Team shared-policy fulfillment | Tier capability definitions exist | **Not delivered**; cannot market a shared-policy service |
+| Production sales/release | No current approval naming SHA, artifact, version and allowed channels | **Blocked**; production checkout and publication remain disabled |
+
+**Checklist convention:** a checkbox below is a **fresh launch-candidate attestation**, not an implementation claim. Leave it unchecked until evidence for that *exact candidate* is recorded. Mark failed/unavailable/not-applicable explicitly in the release decision packet; never mark a mocked integration as live verified.
+
 ## Repository
 
-- [ ] `npm test` passes.
+- [ ] `npm test` passes on the exact frozen candidate SHA on all required platforms.
+- [ ] `npm run test:onboarding`, `npm run test:support-operations` and `npm run test:subscription-lifecycle` pass with required negative cases, and links identify the final head.
 - [ ] `npm run test:commercial` passes.
 - [ ] `npm run test:license-persistence` passes, including independent CLI processes after denial with writes and deletion blocked, and actual Windows read-only files.
 - [ ] A new offline CLI process returns Free despite a surviving paid file; a fresh live grant is required in every process. In-process cache/grace limits match the documented authorization policy.
@@ -12,7 +29,7 @@
 - [ ] CLI Free scan works with no Polar configuration.
 - [ ] Opt-in Sandbox contracts pass for endpoint selection, environment/organization/key isolation, copied and legacy caches, offline Free fallback, and failed activation/deactivation.
 - [ ] Production build IDs/links are preserved; Sandbox IDs are supplied explicitly and never used as production defaults.
-- [ ] CLI `plan`, `activate`, `license`, `license clear`, and `account` commands behave as documented.
+- [ ] CLI `plan`, `activate`, `license`, `license clear`, `onboard [--json]`, `account`, `pro policies` and support commands behave as documented on the candidate.
 - [ ] No access token, customer license key, or production secret is committed.
 - [ ] README, changelog, roadmap, tier matrix, and Polar setup agree.
 
@@ -59,6 +76,7 @@
 
 - [ ] Automated Pro/Team mock-lifecycle contracts pass on the exact release head: grant, benefit changes, renewal/expiry, cancellation/revocation/disabled, outage, mismatched activation and environment isolation.
 - [ ] Live Polar Sandbox transitions (not mocks) are exercised on the exact final candidate for both Pro and Team, including cancellation/renewal and checkout-to-activation.
-- [ ] Support response delivery, Windows ACLs, retention/restore, hosted ingress and private policy inventory are proven before selling.
+- [ ] Support response **external delivery confirmation**, Windows ACLs, retention/legal-hold and restore, hosted ingress, and **private** policy inventory are proven before selling.
+- [ ] Before any Pro or Team production checkout, attach a candidate-specific decision packet with independent review findings, residual risks, owner signoff, backout steps, and documented approved external mutations.
 
 Automated green lifecycle tests demonstrate bounded code contracts only; they do **not** imply Polar product configuration or production merchant readiness.

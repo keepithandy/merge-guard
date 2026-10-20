@@ -1,8 +1,12 @@
 # Merge Guard Roadmap
 
+**Roadmap status (October 20, 2026):** See the [audited post-Phase-5 plan](docs/POST_P5_ROADMAP.md) for source evidence, dependency order, proposed P6–P9 slices and separate Free versus commercial launch gates. **P5A/P5B/P5C are merged; a production Pro/Team launch is not greenlit.** This roadmap is direction, not an automatic authorization for new issues, service deployment, checkout, publication, or release.
+
 This is the canonical roadmap for work after the v1.0 release candidate. It describes direction and sequencing, not a promise to ship on a particular date.
 
 ## Current state
+
+**Fresh source state:** `main` was confirmed at `520f4527d93e46d8b008759bfad4024b909706c8` after merged P5A [#200](https://github.com/keepithandy/merge-guard/pull/200), P5B [#201](https://github.com/keepithandy/merge-guard/pull/201), P5C [#202](https://github.com/keepithandy/merge-guard/pull/202), and P5B support-security follow-up [#203](https://github.com/keepithandy/merge-guard/pull/203). The PR heads passed required GitHub Actions; a release candidate must **revalidate one exact frozen commit and artifact**. Current declared source package version remains `1.3.0-beta.2` (unpublished). P5 commercial tests are mocked; live dual-tier Sandbox proof and operational readiness remain outstanding. [Issue #190](https://github.com/keepithandy/merge-guard/issues/190) (intermittent CI) and legacy [PR #189](https://github.com/keepithandy/merge-guard/pull/189) remain open for review, not automatic integration.
 
 The historical v1.0 candidate at `636a1e9812bb017dae69be122b36555b89db5e77` passed its release gates and reproducible staging checks but remained unsigned, unapproved for external release actions, unpublished, and unverified. Its evidence remains immutable history; it is not the active product milestone. Tagging, npm publication, GitHub release creation, and stable Action-reference movement remain manual owner decisions for any version.
 
@@ -13,6 +17,8 @@ The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. Th
 The pre-v1 milestones are complete. Their delivery history remains available in closed GitHub issues and pull requests; the detailed plan for the next milestones lives in [the roadmap execution plan](docs/ROADMAP_EXECUTION.md). The [active solo-maintainer Free beta roadmap](docs/PHASE_ROADMAP.md) supersedes the old mandatory four-phase independent-evaluation sequence for normal development and preview distribution. The previous strict protocol remains [optional for independently verified statistical accuracy claims](docs/OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md). The broader [long-horizon roadmap](docs/LONG_HORIZON_ROADMAP.md) remains an unapproved idea registry.
 
 ## Active priority
+
+**Two independent active/planning lanes:** (1) the authorized solo Free repair/preview workflow in [`docs/PHASE_ROADMAP.md`](docs/PHASE_ROADMAP.md) and (2) **planning** for post-P5 commercial readiness, with P6–P9 proposed—not started—in [`docs/POST_P5_ROADMAP.md`](docs/POST_P5_ROADMAP.md). The [commercial checklist](docs/commercial-release-checklist.md) is the release gate; neither source merges nor mocked CI certify checkout, sale or support availability. Major hosted/paid features require separate scope and security decisions.
 
 ### Owner-directed additive slice — Commercial Foundation
 
@@ -50,7 +56,7 @@ Do not alter, relabel, rerun for tuning or describe the old pilot as passing. Im
 
 The practical work order is:
 
-1. Fix clear, bounded rule/recommendation defects using minimal positive and negative regression cases, an explained expected score change, full CI, and rollback. PR [#193](https://github.com/keepithandy/merge-guard/pull/193) is the first pending example; source integration uses required automated gates without peer-review signoff.
+1. Fix clear, bounded rule/recommendation defects using minimal positive and negative regression cases, an explained expected score change, full CI, and rollback. PR [#193](https://github.com/keepithandy/merge-guard/pull/193) was merged at `864fadb` after required automated gates; its fixture results demonstrate only the targeted behaviors, not general accuracy.
 2. Verify representative Free installs/Action use, supported platforms, deterministic reports, frozen public interfaces, security, package contents and documented limitations on the exact candidate before any separately authorized external release.
 3. Collect **voluntary** Free-user feedback using the privacy-safe [feedback guide](docs/FREE_BETA_FEEDBACK.md) and GitHub issue form. Users need not publish proprietary diffs or identifying details; avoid passive telemetry.
 4. Convert reproduced user issues into focused tests and future fixes. Track unverified versus confirmed reports; avoid deriving population accuracy percentages from self-selected issues.
@@ -85,8 +91,10 @@ This owner-directed slice is complete only when its dashboard architecture, impo
 | v1.2 | Repository impact fidelity | Explicit repository metadata can improve affected-package reasoning without executing project code or guessing dependency edges. |
 | v1.3 | Durable review evidence | Teams can carry immutable Merge Guard evidence across pull-request pushes and CI runs with clear provenance and failure semantics. |
 | v1.3.0-beta.2 | Reviewer signal cleanup | Human-facing reports show conservative decisions, three primary checks, and fewer keyword-driven false positives while preserving the v1 JSON contract. |
-| v1.3.0-beta.3 | Browser-game save compatibility | The opt-in browser-game policy identifies literal storage-key and save-version compatibility gaps and prioritizes old-save verification. |
-| Beta validation | Field validation and adoption readiness | A labeled historical-PR evaluation demonstrates whether findings are actionable, sufficiently complete within supported scope, and easy to adopt. |
+| Browser-game save slice (source) | Save compatibility guidance | An implemented opt-in browser-game policy identifies literal storage-key and save-version compatibility gaps; **not** proof that version `1.3.0-beta.3` was published or even selected. |
+| Beta validation | Free preview readiness and voluntary field learning | A bounded, reproducible Free candidate can receive an explicit preview decision; new independent labels are optional for statistical efficacy claims, not a prerequisite. |
+| P5 commercial source (complete) | Customer diagnostics, support queue operations, Pro/Team mock lifecycle | Merged #200–#203; paid operational launch remains unverified. |
+| Proposed P6–P9 (not active) | Hardened candidate, Free preview, actual Team fulfillment, production rollout | Follow the separate authorizations and exact evidence gates in [the post-P5 plan](docs/POST_P5_ROADMAP.md). |
 
 Milestone versions are directional. Patch releases may ship independently when they are compatible, narrowly scoped fixes.
 
@@ -124,7 +132,7 @@ Exit gate: a reviewer can identify the exact current and prior evidence, underst
 - Align source, package, runtime, SBOM, notes, and decision templates to one explicit beta identity.
 - Build a local, labeled historical-PR evaluation harness with calibration and held-out partitions.
 - Measure actionability, supported-scope recall, noise, specificity, setup effort, and runtime without telemetry or uploads.
-- Simplify defaults or improve core analysis according to preregistered results before expanding the extension surface.
+- Preserve the September preregistered `stop` result as historical evidence, **not** as data for tuning or an obstacle to ordinary bounded Free repairs. Use minimal positive/negative regressions for a specific repair; require **new** independently reviewed and frozen evidence only if making representative statistical accuracy claims.
 
 Exit gate for the **Free preview**: an immutable candidate passes required CI/release checks, security, consumer/installation fixtures, compatibility and rollback review; accurately discloses unvalidated field accuracy; and receives separate exact owner authorization before external publication. The preregistered dual-reviewer threshold study remains optional for statistical efficacy claims, not a preview gate.
 
