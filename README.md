@@ -32,6 +32,10 @@ merge-guard account
 
 See [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
 
+Polar licensing defaults to production. For test licenses, explicitly select `MERGE_GUARD_POLAR_ENVIRONMENT=sandbox` and configure the Sandbox organization and benefit IDs using the [PowerShell setup](docs/polar-setup.md#opt-in-sandbox-licensing). Sandbox uses a separate license state file and cannot inherit production cached access.
+
+Each new CLI process validates paid access with Polar. Stored credentials cannot grant offline paid access; cache/grace applies only after a live grant within the same process. Confirmed denials remain Free even when saving or deleting local state fails. See the [licensing authorization policy](docs/licensing-authorization.md).
+
 ## What it answers
 
 Merge Guard focuses review on five questions:

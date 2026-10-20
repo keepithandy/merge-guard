@@ -15,6 +15,7 @@ Commercial modules use:
 - `node:fs`
 - `node:os`
 - `node:path`
+- `node:crypto` (temporary-file identities and process-local authorization context hashes)
 - global `fetch` / `AbortSignal`
 
 This adds no third-party npm license surface.

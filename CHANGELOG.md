@@ -10,6 +10,7 @@ Internal refactors, test-suite expansion, release engineering, and maintenance-o
 
 ### Features
 
+- **Opt-in Polar Sandbox licensing.** Test activation and validation with an explicit Sandbox environment, fixed API endpoints, isolated license files, and environment-bound cached entitlements. Production remains the default and Free scanning stays available offline.
 - **Commercial entitlement foundation.** Added Free/Pro/Team plan detection, Polar license activation and validation commands, protected local license state, cached offline behavior, and launch documentation while preserving the existing MIT scanner as Free.
 - **Human Verification in the local dashboard.** Record Untested, Pass, Fail, or N/A results against a report, add your own checks, capture runtime defects, include optional environment details, and export the evidence as Markdown or JSON.
 - **Safer policy review for pull requests.** Merge Guard can verify the policy baseline from the exact base commit so policy changes made inside the same pull request do not silently redefine the rules being used to review that pull request.
@@ -27,6 +28,7 @@ Internal refactors, test-suite expansion, release engineering, and maintenance-o
 
 ### Hotfixes
 
+- Confirmed license denials now take precedence over local storage failures. Every new CLI process verifies paid access online, preventing a surviving stale Pro/Team file from restoring access after denial; cache and offline grace require a live grant in the current process.
 - A human **Pass** from an older report is no longer carried onto a changed/current report.
 - Resolved findings remain comparison history instead of being incorrectly treated as a new manual Pass.
 
