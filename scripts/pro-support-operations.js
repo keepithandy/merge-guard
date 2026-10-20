@@ -34,7 +34,10 @@ function readTicket(id) {
   const file = ticketFile(id);
   regularFile(file);
   const ticket = JSON.parse(fs.readFileSync(file, 'utf8'));
-  if (!ticket || ticket.id !== id || !allowedStatus.has(ticket.status)) {
+  if (!ticket || ticket.id !== id || !allowedStatus.has(ticket.status)
+      || typeof ticket.receivedAt !== 'string'
+      || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(ticket.receivedAt)
+      || !Number.isFinite(Date.parse(ticket.receivedAt))) {
     throw new Error('Invalid ticket record.');
   }
   return ticket;
@@ -104,9 +107,14 @@ function purgeClosed(daysText, apply) {
       const primary = ticketFile(ticket.id);
       const reply = path.join(directory, ticket.id + '.draft.json');
       // Refuse to delete the ticket if an unexpected draft path is present.
-      if (fs.existsSync(reply)) regularFile(reply, 16384);
+      // lstat detects dangling symlinks; existsSync would treat them as absent.
+      const draftStat = fs.lstatSync(reply, { throwIfNoEntry: false });
+      if (draftStat && (!draftStat.isFile() || draftStat.isSymbolicLink()
+          || draftStat.size > 16384)) {
+        throw new Error('Not a regular bounded file.');
+      }
       regularFile(primary);
-      if (fs.existsSync(reply)) fs.unlinkSync(reply);
+      if (draftStat) fs.unlinkSync(reply);
       fs.unlinkSync(primary);
     }
     console.log((apply ? 'Purged' : 'Would purge') + ': ' + ticket.id);
