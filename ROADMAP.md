@@ -33,7 +33,7 @@ The commercial slice is additive to the scanner. Missing or unavailable licensin
 
 ### Solo-maintainer Free beta: targeted fixes first, field learning afterward
 
-The owner directed on October 19, 2026 that independent human reviewers **must no longer be a prerequisite to development, rule-fix merges or publishing a clearly labeled Free beta**. The active workflow is [the solo-maintainer roadmap](docs/PHASE_ROADMAP.md). Reproducible positive/negative fixtures, green required CI, contract compatibility, privacy/security reviews, rollback plans and a solo owner merge decision replace the mandatory two-reviewer intake and preregistered efficacy gate for ordinary Free releases. External publication still needs its own exact approval.
+The owner directed on October 19, 2026 that independent human reviewers **must no longer be a prerequisite to development, rule-fix merges or publishing a clearly labeled Free beta**. The active workflow is [the solo-maintainer roadmap](docs/PHASE_ROADMAP.md). Reproducible positive/negative fixtures, green required CI, contract compatibility, automated privacy/security checks and rollback plans replace mandatory human-review gates and preregistered efficacy gate for ordinary Free releases. External publication still needs its own exact approval.
 
 Merge Guard's existing MIT scanner is Free and must remain usable offline, without a paid entitlement or third-party service. Its Free beta is **experimental review decision support**, not a confirmed defect detector or a guarantee of no missed risks.
 
@@ -50,7 +50,7 @@ Do not alter, relabel, rerun for tuning or describe the old pilot as passing. Im
 
 The practical work order is:
 
-1. Fix clear, bounded rule/recommendation defects using minimal positive and negative regression cases, an explained expected score change, full CI, and rollback. PR [#193](https://github.com/keepithandy/merge-guard/pull/193) is the first pending example; a second human reviewer is no longer a prerequisite to a solo owner merge decision.
+1. Fix clear, bounded rule/recommendation defects using minimal positive and negative regression cases, an explained expected score change, full CI, and rollback. PR [#193](https://github.com/keepithandy/merge-guard/pull/193) is the first pending example; source integration uses required automated gates without peer-review signoff.
 2. Verify representative Free installs/Action use, supported platforms, deterministic reports, frozen public interfaces, security, package contents and documented limitations on the exact candidate before any separately authorized external release.
 3. Collect **voluntary** Free-user feedback using the privacy-safe [feedback guide](docs/FREE_BETA_FEEDBACK.md) and GitHub issue form. Users need not publish proprietary diffs or identifying details; avoid passive telemetry.
 4. Convert reproduced user issues into focused tests and future fixes. Track unverified versus confirmed reports; avoid deriving population accuracy percentages from self-selected issues.
@@ -138,7 +138,7 @@ A v2 roadmap begins only when accumulated evidence shows that a breaking contrac
 - Delivery work is split into narrow issues with deterministic acceptance criteria and rollback notes.
 - Additive v1 changes preserve frozen CLI, report, policy, plugin, artifact, and Action contracts.
 - Risk-scoring changes require fixtures, compatibility notes, and a clear explanation of score movement.
-- A solo owner may review and merge ordinary Free fixes after required tests and rollback; no second human reviewer or preregistered corpus is mandatory.
+- Ordinary Free source fixes can merge after required automated tests, security/compatibility checks and rollback evidence; manual or peer code-review signoff is not mandatory.
 - User-submitted field feedback is voluntary and self-selected, not a statistical accuracy estimate.
 - Unknown, unavailable, and untrusted evidence must remain distinct from clean or safe evidence.
 - Merge Guard remains useful without AI, hosted storage, telemetry, or external services.
