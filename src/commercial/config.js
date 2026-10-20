@@ -7,7 +7,8 @@ export const POLAR_BUILD_CONFIG = Object.freeze({
   teamBenefitId: '',
   proCheckoutUrl: '',
   teamCheckoutUrl: '',
-  customerPortalUrl: ''
+  customerPortalUrl: '',
+  proServiceUrl: ''
 });
 
 export function resolveCommercialConfig(env = process.env) {
@@ -25,6 +26,7 @@ export function resolveCommercialConfig(env = process.env) {
     teamBenefitId: env.MERGE_GUARD_POLAR_TEAM_BENEFIT_ID || defaults.teamBenefitId || '',
     proCheckoutUrl: env.MERGE_GUARD_PRO_CHECKOUT_URL || defaults.proCheckoutUrl || '',
     teamCheckoutUrl: env.MERGE_GUARD_TEAM_CHECKOUT_URL || defaults.teamCheckoutUrl || '',
-    customerPortalUrl: env.MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL || defaults.customerPortalUrl || ''
+    customerPortalUrl: env.MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL || defaults.customerPortalUrl || '',
+    proServiceUrl: env.MERGE_GUARD_PRO_SERVICE_URL || defaults.proServiceUrl || ''
   };
 }
