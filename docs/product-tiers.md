@@ -20,7 +20,7 @@ Merge Guard's existing public MIT feature set remains Free. Features already rel
 | Shared policy delivery | — | — | Yes | Commercial entitlement | Requires Team delivery package before launch |
 | Team support | — | — | Yes | Commercial entitlement | Requires support process before launch |
 
-The current Pro gateway is a **sandbox-testable implementation**, not a live paid service. The public reference pack is not exclusive paid content. See [Pro fulfillment](pro-fulfillment.md) for exact commands and launch blockers.
+The current gateway implements an authenticated policy catalog and three **public reference** packs, but is a **sandbox-testable implementation**, not a live paid service. The public examples are not exclusive paid content. See [Pro fulfillment](pro-fulfillment.md) for exact commands and launch blockers.
 
 ## Pricing target
 

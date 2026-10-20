@@ -48,7 +48,7 @@
     {
       "id": "release-workflows",
       "pattern": "^\\.github/workflows/",
-      "reason": "Release automation and token permissions require human review before publication.",
+      "reason": "Changes to release workflows and token permissions must satisfy automated security and provenance checks.",
       "requiredCheckIds": [
         "release-package"
       ]
@@ -66,7 +66,7 @@
     {
       "id": "dependency-audit",
       "command": "npm audit --omit=dev",
-      "reason": "Inspect dependency vulnerabilities if npm is the project package manager; review advisories manually."
+      "reason": "Run a repeatable dependency vulnerability audit and record unresolved advisories."
     },
     {
       "id": "release-package",

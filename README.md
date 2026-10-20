@@ -24,15 +24,17 @@ Commercial commands are additive:
 
 ```bash
 merge-guard plan
-merge-guard activate <license-key>
+merge-guard activate <license-key>                                  # legacy: exposes key in argv
+# Safer PowerShell: Get-Clipboard -Raw | node src/cli.js activate --stdin
 merge-guard license
 merge-guard license clear
 merge-guard account
+merge-guard pro policies                                           # live-entitled policy catalog
 merge-guard --pro-policy release-integrity path/to/changes.diff  # configured staged gateway
 merge-guard support submit path/to/request.txt                 # configured staged gateway
 ```
 
-The [Pro fulfillment preview](docs/pro-fulfillment.md) adds a separately hosted, license-verified policy delivery gateway and durable support intake. This is **not deployed or production-ready**: actual private policy content, a staffed support channel, hardened hosting and customer support operations are still required. Production checkout remains disabled.
+The [Pro fulfillment preview](docs/pro-fulfillment.md) and [authenticated policy catalog](docs/pro-policy-catalog.md) adds a separately hosted, license-verified policy delivery gateway and durable support intake. This is **not deployed or production-ready**: actual private policy content, a staffed support channel, hardened hosting and customer support operations are still required. Production checkout remains disabled.
 
 See [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
 
