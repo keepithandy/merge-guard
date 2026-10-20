@@ -73,6 +73,10 @@ The gateway accepts only configured schema-valid policy IDs, and its response ha
 
 Tickets use unpredictable UUID filenames and POSIX 0600 file/0700 directory creation modes where supported. They include the reply email and free-form issue text, so they contain personal data. Windows ACLs are NOT proven by POSIX mode flags. The owner must establish clear privacy/retention notices and staff an actual response channel. There is no SLA or automated notification system.
 
+## P6 candidate and security proof (source only)
+
+Follow [P6 execution](P6_EXECUTION.md) for reproducible exact-checkout SHA/tarball SHA-256 logs (`npm run p6:candidate-evidence`), the P6 strict **localhost-only** Host/Origin/forwarded-header and in-process rate limits, private policy inventory (`npm run p6:policy-inventory`) and the still-owner-controlled external Sandbox/support/release gates. A reverse proxy configured with public Host/Forwarded headers **will be rejected** until an explicit trusted-ingress design is reviewed. This staging capability is **not production ready**.
+
 ## Verify and gate paid launch
 
 Use npm run test:pro-fulfillment, npm run test:commercial, npm test and npm run release:check. The contract tests use mocked Polar responses and a loopback gateway, including revoked license and request-tampering checks.
