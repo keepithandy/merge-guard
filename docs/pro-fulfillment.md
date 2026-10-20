@@ -34,6 +34,17 @@ $env:MERGE_GUARD_SUPPORT_CONTACT = 'you@example.com'
 node src/cli.js support submit .\local-support-request.txt
 ~~~
 
+The operator can triage incoming tickets locally (run these on the gateway host, with the same queue directory configured):
+
+~~~powershell
+node scripts/pro-support-queue.js list
+node scripts/pro-support-queue.js show <ticket-id>
+node scripts/pro-support-queue.js status <ticket-id> open
+node scripts/pro-support-queue.js status <ticket-id> responded
+~~~
+
+The show command prints private email and issue text; never post it publicly. The queue does not send mail or guarantee a response time. The operator must actually respond through an approved channel and mark the request responded or closed.
+
 Delete the local request file after testing. Do not commit local support messages, keys, or queue records. The ticket is only written to the owner's selected local directory: no email is sent automatically.
 
 ## Configuration and isolation
