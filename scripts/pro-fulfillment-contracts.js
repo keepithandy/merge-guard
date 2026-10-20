@@ -15,6 +15,7 @@ const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'mg-pro-fulfillment-'));
 const supportDirectory = path.join(temp, 'support');
 const sourceFile = path.join(temp, 'request.md');
 const key = 'MG-PRO-CONTRACT-LICENSE-ONLY';
+const activationId = '77777777-7777-4777-8777-777777777777';
 const env = {
   ...process.env,
   MERGE_GUARD_POLAR_ENVIRONMENT: 'sandbox',
@@ -31,6 +32,7 @@ const provider = async (url, opts) => {
   const request = JSON.parse(opts.body);
   assert.equal(request.key, key);
   assert.equal(request.organization_id, env.MERGE_GUARD_POLAR_ORGANIZATION_ID);
+  if (url.endsWith('/validate')) assert.equal(request.activation_id, activationId);
   const body = {
     status: granted ? 'granted' : 'revoked',
     benefit_id: env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID,
@@ -38,7 +40,7 @@ const provider = async (url, opts) => {
     expires_at: null
   };
   return new Response(JSON.stringify(url.endsWith('/activate')
-    ? { id: '77777777-7777-4777-8777-777777777777', license_key: body }
+    ? { id: activationId, license_key: body }
     : body), { status: 200, headers: { 'content-type': 'application/json' } });
 };
 
@@ -112,13 +114,13 @@ try {
 
   const traversal = await fetch(service + '/v1/pro/policy', {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID, id: '../private' })
+    body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID, activation_id: activationId, id: '../private' })
   });
   assert.equal(traversal.status, 404);
 
   const oversized = await fetch(service + '/v1/pro/support', {
     method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
+    body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID, activation_id: activationId,
       contact: 'test@example.invalid', message: 'x'.repeat(13000) })
   });
   assert.equal(oversized.status, 400);
