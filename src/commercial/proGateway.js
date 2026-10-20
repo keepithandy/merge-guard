@@ -40,13 +40,15 @@ async function readBody(req) {
 async function verifyLicense(body, env, fetchImpl) {
   const config = resolveCommercialConfig(env);
   if (typeof body.key !== 'string' || body.key.length < 8 || body.key.length > 512
-      || body.organization_id !== config.organizationId) return false;
+      || body.organization_id !== config.organizationId
+      || typeof body.activation_id !== 'string'
+      || !/^[0-9a-f-]{36}$/.test(body.activation_id)) return false;
   let response;
   try {
     response = await fetchImpl(config.apiBaseUrl + '/v1/customer-portal/license-keys/validate', {
       method: 'POST', redirect: 'error',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ key: body.key, organization_id: config.organizationId }),
+      body: JSON.stringify({ key: body.key, organization_id: config.organizationId, activation_id: body.activation_id }),
       signal: typeof AbortSignal.timeout === 'function' ? AbortSignal.timeout(5000) : undefined
     });
   } catch { return false; }
