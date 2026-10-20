@@ -1,5 +1,6 @@
 import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState, validateLicense } from './license.js';
 import { resolveCommercialConfig } from './config.js';
+import { submitPrioritySupport } from './proClient.js';
 
 function titleCase(value) {
   return String(value || '').replace(/(^|_)([a-z])/g, (_, prefix, char) => `${prefix ? ' ' : ''}${char.toUpperCase()}`);
@@ -12,7 +13,13 @@ function checkoutUrl(plan, env) {
 
 export async function runCommercialCommand(args, { env = process.env } = {}) {
   const [command, value, ...rest] = args;
-  if (!['plan', 'activate', 'license', 'account'].includes(command)) return false;
+  if (!['plan', 'activate', 'license', 'account', 'support'].includes(command)) return false;
+  if (command === 'support') {
+    if (value !== 'submit' || rest.length !== 1) throw new Error('Usage: merge-guard support submit <message-file>');
+    const result = await submitPrioritySupport(rest[0], { env });
+    console.log('Priority support request accepted into the configured queue. Ticket: ' + result.ticketId);
+    return true;
+  }
   if (rest.length) throw new Error(`${command} received unexpected extra arguments`);
   if ((command === 'plan' || command === 'account') && value) throw new Error(`${command} does not accept an argument`);
   if (command === 'license' && value && value !== 'clear') throw new Error('license accepts only the optional "clear" argument');
