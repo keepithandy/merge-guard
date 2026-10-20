@@ -6,15 +6,20 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 
 ## Delivery sequence
 
-1. Complete the manually approved v1.0 launch gate.
-2. Remove adoption blockers and improve diagnostics in v1.1.
-3. Add evidence-based repository impact fidelity in v1.2.
-4. Make review evidence durable across CI runs in v1.3.
-5. Clean up the reviewer-facing beta path using observed false positives and measured check noise.
-6. Release a clearly labeled Free preview after full CI/security/package verification and separate owner authorization; invite voluntary, privacy-safe field feedback. Independent historical evaluation is optional for formal accuracy claims.
-7. Use adoption, compatibility, and security evidence to decide whether v2 work is justified.
+**Historical source deliveries (completed, not external releases):**
 
-Only one bounded Free development slice is active at a time. Solo-maintainer beta fixes and voluntary feedback are active; independent label collection is optional. Historical release and pilot evidence remain preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
+1. v1.1 adoption/diagnostics, v1.2 explainable repository impact and v1.3 durable review evidence were implemented and release-gated in source.
+2. Beta reviewer-signal cleanup, companion contracts and browser-game saves were implemented. The Sept 2026 independent pilot **stopped** and remains historical.
+3. Targeted Free policy repair [#193](https://github.com/keepithandy/merge-guard/pull/193) merged in October; commercial foundation [#188](https://github.com/keepithandy/merge-guard/pull/188), [#195](https://github.com/keepithandy/merge-guard/pull/195), [#196](https://github.com/keepithandy/merge-guard/pull/196) and P5 [#200–#203](POST_P5_ROADMAP.md#audited-source-status-and-evidence-ledger) merged without external publication.
+
+**Current, separate lanes:**
+
+1. **Free source fixes:** take one reproduced bounded issue, preserve true positives and frozen v1 contracts, require security/compatibility/rollback and exact-commit CI.
+2. **Free preview decision:** freeze/verify package, install, Action, support and rollback at one SHA; request separate approval for any npm, GitHub, Marketplace or Action ref mutation; then accept voluntary privacy-safe feedback.
+3. **Commercial readiness (planning only):** proposed P6 proof and hardening, P8 real Team delivery and P9 production approval; do not skip the [commercial checklist](commercial-release-checklist.md) or infer production readiness from P5 mock suites. Proposed P7 describes Free preview sequencing and does not duplicate the authorized Free source lane.
+4. **Long-term:** decide whether optional independent statistical evaluation and/or breaking v2 changes are justified by fresh evidence, not release pressure.
+
+Only one bounded Free implementation slice should be active at a time. Historical source releases and pilot evidence remain preserved. The v1.0 release gate described below is **archival preparation**, not the active first blocker for implementing an explicitly authorized Free beta. Every external mutation needs its own exact approval.
 
 Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through automated CI validation and source merges without mandatory manual/peer reviewer signoff. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
 
