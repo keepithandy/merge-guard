@@ -72,6 +72,12 @@ try {
   assert.equal(safePending.status, 0, safePending.stderr);
   assert.equal(JSON.parse(safePending.stdout).count, 1);
   assert(!safePending.stdout.includes('private@example.invalid'));
+  const oldQueueList = spawnSync(process.execPath, ['scripts/pro-support-queue.js', 'list'], {
+    cwd: process.cwd(), env, encoding: 'utf8', timeout: 20000
+  });
+  assert.equal(oldQueueList.status, 0, oldQueueList.stderr);
+  assert(!oldQueueList.stdout.includes('private@example.invalid'), 'legacy list must redact corrupt metadata');
+  assert(!oldQueueList.stdout.includes(corruptedId), 'corrupt ticket must be omitted');
 
   // A dangling reply-draft symlink must block deletion, not be treated as absent.
   const linkedId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
