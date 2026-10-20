@@ -61,6 +61,35 @@ try {
   assert(fs.existsSync(path.join(dir, openId + '.json')));
   assert(fs.existsSync(path.join(dir, openId + '.draft.json')));
   assert.equal(JSON.parse(run('pending', '--json').stdout).count, 1);
+
+  // Corrupted ticket timestamps must not leak arbitrary text into pending metadata.
+  const corruptedId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  fs.writeFileSync(path.join(dir, corruptedId + '.json'), JSON.stringify({
+    id: corruptedId, status: 'open', receivedAt: 'private@example.invalid\x1b[31m',
+    contact: 'private@example.invalid', message: 'secret'
+  }), { mode: 0o600 });
+  const safePending = run('pending', '--json');
+  assert.equal(safePending.status, 0, safePending.stderr);
+  assert.equal(JSON.parse(safePending.stdout).count, 1);
+  assert(!safePending.stdout.includes('private@example.invalid'));
+  const oldQueueList = spawnSync(process.execPath, ['scripts/pro-support-queue.js', 'list'], {
+    cwd: process.cwd(), env, encoding: 'utf8', timeout: 20000
+  });
+  assert.equal(oldQueueList.status, 0, oldQueueList.stderr);
+  assert(!oldQueueList.stdout.includes('private@example.invalid'), 'legacy list must redact corrupt metadata');
+  assert(!oldQueueList.stdout.includes(corruptedId), 'corrupt ticket must be omitted');
+
+  // A dangling reply-draft symlink must block deletion, not be treated as absent.
+  const linkedId = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+  writeTicket(linkedId, 'closed', oldDate);
+  const linkedDraft = path.join(dir, linkedId + '.draft.json');
+  fs.symlinkSync(path.join(dir, 'no-such-target'), linkedDraft, 'file');
+  assert.equal(fs.existsSync(linkedDraft), false);
+  assert.equal(fs.lstatSync(linkedDraft).isSymbolicLink(), true);
+  const linkedPurge = run('purge-closed', '30', '--apply');
+  assert.notEqual(linkedPurge.status, 0, 'dangling symlink must refuse purge');
+  assert(fs.existsSync(path.join(dir, linkedId + '.json')), 'ticket must survive unsafe draft');
+  assert(fs.lstatSync(linkedDraft).isSymbolicLink(), 'unsafe draft must not be followed or removed');
   console.log('Pro support operations contracts passed');
 } finally {
   fs.rmSync(dir, { recursive: true, force: true });
