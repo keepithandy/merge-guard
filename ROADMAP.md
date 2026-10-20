@@ -91,7 +91,7 @@ This owner-directed slice is complete only when its dashboard architecture, impo
 | v1.2 | Repository impact fidelity | Explicit repository metadata can improve affected-package reasoning without executing project code or guessing dependency edges. |
 | v1.3 | Durable review evidence | Teams can carry immutable Merge Guard evidence across pull-request pushes and CI runs with clear provenance and failure semantics. |
 | v1.3.0-beta.2 | Reviewer signal cleanup | Human-facing reports show conservative decisions, three primary checks, and fewer keyword-driven false positives while preserving the v1 JSON contract. |
-| v1.3.0-beta.3 | Browser-game save compatibility | The opt-in browser-game policy identifies literal storage-key and save-version compatibility gaps and prioritizes old-save verification. |
+| Browser-game save slice (source) | Save compatibility guidance | An implemented opt-in browser-game policy identifies literal storage-key and save-version compatibility gaps; **not** proof that version `1.3.0-beta.3` was published or even selected. |
 | Beta validation | Free preview readiness and voluntary field learning | A bounded, reproducible Free candidate can receive an explicit preview decision; new independent labels are optional for statistical efficacy claims, not a prerequisite. |
 | P5 commercial source (complete) | Customer diagnostics, support queue operations, Pro/Team mock lifecycle | Merged #200–#203; paid operational launch remains unverified. |
 | Proposed P6–P9 (not active) | Hardened candidate, Free preview, actual Team fulfillment, production rollout | Follow the separate authorizations and exact evidence gates in [the post-P5 plan](docs/POST_P5_ROADMAP.md). |
