@@ -1,6 +1,7 @@
 import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState, validateLicense } from './license.js';
 import { resolveCommercialConfig } from './config.js';
 import { listPremiumPolicyPacks, submitPrioritySupport } from './proClient.js';
+import { inspectCommercialSetup, formatCommercialSetup, safeCustomerPortalUrl } from './onboarding.js';
 
 async function readPipedLicenseKey() {
   if (process.stdin.isTTY) {
@@ -31,7 +32,14 @@ function checkoutUrl(plan, env) {
 
 export async function runCommercialCommand(args, { env = process.env } = {}) {
   const [command, value, ...rest] = args;
-  if (!['plan', 'activate', 'license', 'account', 'support', 'pro'].includes(command)) return false;
+  if (!['plan', 'activate', 'license', 'account', 'support', 'pro', 'onboard'].includes(command)) return false;
+  if (command === 'onboard') {
+    if (value && value !== '--json') throw new Error('Usage: merge-guard onboard [--json]');
+    if (rest.length) throw new Error('Usage: merge-guard onboard [--json]');
+    const setup = inspectCommercialSetup({ env });
+    console.log(value === '--json' ? JSON.stringify(setup, null, 2) : formatCommercialSetup(setup));
+    return true;
+  }
   if (command === 'pro') {
     if (value !== 'policies' || rest.length) throw new Error('Usage: merge-guard pro policies');
     const policies = await listPremiumPolicyPacks({ env });
@@ -72,7 +80,7 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   }
 
   if (command === 'account') {
-    const url = resolveCommercialConfig(env).customerPortalUrl;
+    const url = safeCustomerPortalUrl(resolveCommercialConfig(env).customerPortalUrl);
     if (!url) {
       console.log('Customer portal URL is not configured. Set MERGE_GUARD_POLAR_CUSTOMER_PORTAL_URL.');
     } else {

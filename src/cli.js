@@ -85,7 +85,8 @@ Commands:
   merge-guard activate --stdin  Activate from piped input without a key in process args
   merge-guard license           Revalidate and show the current license
   merge-guard license clear     Clear local license state
-  merge-guard account           Show the configured Polar customer portal
+  merge-guard account           Show the configured HTTPS customer portal
+  merge-guard onboard [--json]  Read-only, redacted commercial setup diagnostics
   merge-guard support submit <file>  Send a Pro support request to an owner-configured queue
   merge-guard pro policies          List available license-verified Pro policy packs
 
