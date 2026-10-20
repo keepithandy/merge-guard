@@ -27,6 +27,7 @@ merge-guard plan
 merge-guard activate <license-key>                                  # legacy: exposes key in argv
 # Safer PowerShell: Get-Clipboard -Raw | node src/cli.js activate --stdin
 merge-guard license
+merge-guard onboard                 # redacted setup diagnostics; no network call
 merge-guard license clear
 merge-guard account
 merge-guard pro policies                                           # live-entitled policy catalog
