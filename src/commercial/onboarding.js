@@ -8,7 +8,7 @@ export function safeCustomerPortalUrl(value) {
   try { url = new URL(value); }
   catch { throw new Error('Customer portal URL is invalid; configure a trusted HTTPS portal URL.'); }
   if (url.protocol !== 'https:' || !url.hostname || url.username || url.password
-      || url.search || url.hash || /[\\x00-\\x1f\\x7f]/.test(value)) {
+      || url.search || url.hash || /[\x00-\x1f\x7f]/.test(value)) {
     throw new Error('Customer portal URL must be HTTPS without credentials, query or fragment.');
   }
   return url.toString();
@@ -51,5 +51,5 @@ export function formatCommercialSetup(setup) {
     '',
     'Next: configure the selected Polar environment; activate using --stdin; run license to verify live.',
     'See docs/polar-setup.md. Free scanning works without licensing.'
-  ].join('\\n');
+  ].join('\n');
 }
