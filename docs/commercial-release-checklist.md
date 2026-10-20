@@ -54,3 +54,11 @@
 - [ ] GitHub release is approved and verified.
 - [ ] Stable Action reference move is approved and verified.
 - [ ] Production Polar checkout is enabled only after smoke testing.
+
+## Phase 5 lifecycle verification distinction
+
+- [ ] Automated Pro/Team mock-lifecycle contracts pass on the exact release head: grant, benefit changes, renewal/expiry, cancellation/revocation/disabled, outage, mismatched activation and environment isolation.
+- [ ] Live Polar Sandbox transitions (not mocks) are exercised on the exact final candidate for both Pro and Team, including cancellation/renewal and checkout-to-activation.
+- [ ] Support response delivery, Windows ACLs, retention/restore, hosted ingress and private policy inventory are proven before selling.
+
+Automated green lifecycle tests demonstrate bounded code contracts only; they do **not** imply Polar product configuration or production merchant readiness.
