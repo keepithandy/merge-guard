@@ -1,5 +1,7 @@
 # Merge Guard long-horizon roadmap
 
+**Reconciled 2026-10-20:** This remains an **unapproved research/idea registry**, not the executable queue. Current merged P5 source status, open reliability work, separate Free release path, paid blockers and *proposed* next commercial phases are maintained in [the post-P5 roadmap](POST_P5_ROADMAP.md); the [active Free sequence](PHASE_ROADMAP.md) does not depend on historical independent-evaluation gates.
+
 Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work explicitly selected by the owner under the [active solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) may enter the active sequence. No second human reviewer is required for ordinary Free fixes. Independent-accuracy claims retain the [optional strict protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md).
 
 The purpose of this registry is to preserve the full product space without selecting work. After the current owner-directed Free beta priorities and any separately authorized publication, a future roadmap may choose a bounded problem from this registry. It still needs security, compatibility and rollout planning; independently labeled preregistration is needed only if making a statistically validated efficacy claim.
@@ -18,7 +20,7 @@ The durable product advantage is not a larger pile of warnings. It is a small, e
 
 ## Current baseline
 
-The current `1.3.0-beta.1` source already provides:
+The current repository declares `1.3.0-beta.2` as an **unpublished source version**. Its accumulated implemented capabilities include:
 
 - deterministic diff analysis through a local CLI and composite GitHub Action;
 - text, Markdown, JSON, annotation, SARIF, managed-comment, and review-projection outputs;
@@ -32,7 +34,7 @@ The current `1.3.0-beta.1` source already provides:
 - deterministic diagnostics, consumer fixtures, release gates, security contracts, and cross-platform compatibility coverage;
 - an offline historical-PR evaluation harness with calibration, preregistration, held-out execution, and content-free aggregate results.
 
-The first held-out pilot produced a `stop` decision. Actionable precision missed its gate, overall supported-scope recall was materially low, and critical recall lacked a sufficient denominator; median noise, clean-PR specificity, setup effort, and runtime passed. The immediate obligation is to improve signal quality with calibration evidence before adding broad new surface area.
+The September 2026 held-out pilot produced a historical `stop` decision (12/140 actionable precision, 12/35 supported-scope recall, zero qualifying high-severity cases). These results must not be reinterpreted or tuned against. Bounded Free regression fixes are active; a new independently labeled study is optional **only** for quantified efficacy claims. Commercial P5A–C source work and a P5B security follow-up are merged but neither verified paid delivery nor authorized production sales. See the [post-P5 evidence ledger](POST_P5_ROADMAP.md).
 
 ## How to use this roadmap
 
@@ -769,7 +771,7 @@ These are questions, not commitments:
 
 ## Idea registry groupings
 
-These are search and discussion groupings, not phases, a sequence, or authorization. The [strict phase-roadmap approval draft](PHASE_ROADMAP.md) is the only executable sequence:
+These are search and discussion groupings, not phases, a sequence, or authorization. The [solo-maintainer Free phase roadmap](PHASE_ROADMAP.md) controls Free source work; the [execution queue](ROADMAP_EXECUTION.md) records accepted work, while [proposed post-P5 commercial slices](POST_P5_ROADMAP.md) require new owner scope decisions:
 
 1. **Evidence repair:** calibration corpus quality, label guidance, high-severity coverage, and audit tooling.
 2. **Signal repair:** precision inventory, recall gaps, finding composition, and targeted fixtures.
