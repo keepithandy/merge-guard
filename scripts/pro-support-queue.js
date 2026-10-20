@@ -31,7 +31,12 @@ function readTicket(id) {
     throw new Error('Invalid ticket file.');
   }
   const ticket = JSON.parse(fs.readFileSync(file, 'utf8'));
-  if (ticket.id !== id || !allowedStatus.has(ticket.status)) throw new Error('Invalid ticket contents.');
+  if (ticket.id !== id || !allowedStatus.has(ticket.status)
+      || typeof ticket.receivedAt !== 'string'
+      || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(ticket.receivedAt)
+      || !Number.isFinite(Date.parse(ticket.receivedAt))) {
+    throw new Error('Invalid ticket contents.');
+  }
   return ticket;
 }
 
