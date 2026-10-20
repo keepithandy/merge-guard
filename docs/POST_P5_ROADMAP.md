@@ -48,9 +48,12 @@ The **September 3, 2026 stopped pilot** remains immutable: actionable precision 
 
 No checkbox in [the commercial checklist](commercial-release-checklist.md) is automatically completed merely because P5 merged. All customer-facing benefit claims must track delivered functionality rather than capability flags or reference packs.
 
-## 4. Proposed next commercial delivery sequence (not authorized for implementation)
+## 4. P6 owner-directed execution; P7–P9 remain proposed
 
-The names below are **planning candidates**, not numbered GitHub issues, active authorizations, or claims that P6–P9 have begun. Promote one bounded slice at a time after an explicit scope decision, reproducible acceptance tests, security analysis, and rollback design.
+**Update (2026-10-20):** Owner approved proceeding through **P6A–P6E source work and safe tests** until an actual operator, live Sandbox, content-rights or production authorization roadblock. Track all five slices together under [P6 master issue #205](https://github.com/keepithandy/merge-guard/issues/205) and the [P6 execution runbook](P6_EXECUTION.md). This approval **does not** enable customer payments, paid fulfillment, host deployment, external publication or unstaffed support. P7–P9 are unchanged proposed phases.
+
+
+P6 slices are now **accepted for bounded source implementation and nonpublishing evidence**, as tracked in #205. The owner-controlled external and live-provider gates are still blocked unless separately met. P7–P9 remain **planning candidates**, not accepted GitHub issues or launch authorizations. Promote one bounded slice at a time after an explicit scope decision, reproducible acceptance tests, security analysis, and rollback design.
 
 ### P6 — Candidate hardening and proof of paid benefit delivery
 
