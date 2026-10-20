@@ -27,6 +27,8 @@ const env = {
   MERGE_GUARD_SUPPORT_CONTACT: 'test@example.invalid'
 };
 let granted = true;
+let expired = false;
+let benefitId = env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID;
 const provider = async (url, opts) => {
   assert.equal(new URL(url).host, 'sandbox-api.polar.sh');
   const request = JSON.parse(opts.body);
@@ -35,9 +37,9 @@ const provider = async (url, opts) => {
   if (url.endsWith('/validate')) assert.equal(request.activation_id, activationId);
   const body = {
     status: granted ? 'granted' : 'revoked',
-    benefit_id: env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID,
+    benefit_id: benefitId,
     organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
-    expires_at: null
+    expires_at: expired ? '2020-01-01T00:00:00.000Z' : null
   };
   return new Response(JSON.stringify(url.endsWith('/activate')
     ? { id: activationId, license_key: body }
@@ -143,6 +145,35 @@ try {
     body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID, id: 'release-integrity' })
   });
   assert.equal(denied.status, 403);
+
+  granted = true;
+  await activateLicense(key, { env, fetchImpl: provider });
+  // Offline grace never authorizes fulfillment: each client operation needs live Polar.
+  await assert.rejects(
+    fetchPremiumPolicyPack('release-integrity', {
+      env: clientEnv, licenseFetch: async () => { throw new Error('provider outage'); }
+    }), /currently granted/
+  );
+  expired = true;
+  await assert.rejects(
+    fetchPremiumPolicyPack('release-integrity', { env: clientEnv, licenseFetch: provider }),
+    /currently granted/
+  );
+  expired = false;
+  benefitId = '55555555-5555-4555-8555-555555555555';
+  await assert.rejects(
+    fetchPremiumPolicyPack('release-integrity', { env: clientEnv, licenseFetch: provider }),
+    /currently granted/
+  );
+  benefitId = env.MERGE_GUARD_POLAR_PRO_BENEFIT_ID;
+  // A valid key with the wrong activation allocation is not accepted at the gateway.
+  const mismatchedDevice = await fetch(service + '/v1/pro/policy', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ key, organization_id: env.MERGE_GUARD_POLAR_ORGANIZATION_ID,
+      activation_id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', id: 'release-integrity' })
+  });
+  assert.equal(mismatchedDevice.status, 403);
+
 
   // Production endpoints cannot borrow the Sandbox loopback URL.
   const prod = { ...clientEnv, MERGE_GUARD_POLAR_ENVIRONMENT: 'production',
