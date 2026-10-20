@@ -43,10 +43,11 @@ The operator can triage incoming tickets locally (run these on the gateway host,
 node scripts/pro-support-queue.js list
 node scripts/pro-support-queue.js show <ticket-id>
 node scripts/pro-support-queue.js status <ticket-id> open
+node scripts/pro-support-operations.js attest-delivery <ticket-id> <provider-reference-file>
 node scripts/pro-support-queue.js status <ticket-id> responded
 ~~~
 
-The show command prints private email and issue text; never post it publicly. The queue does not send mail or guarantee a response time. The operator must actually respond through an approved channel and mark the request responded or closed.
+The show command prints private email and issue text; never post it publicly. The queue does not send mail or guarantee a response time. The operator must actually respond through an approved channel and save an explicit external-delivery attestation before marking the request responded. An attestation is an **operator assertion**, not proof that this software sent a message.
 
 Delete the local request file after testing. Do not commit local support messages, keys, or queue records. The ticket is only written to the owner's selected local directory: no email is sent automatically.
 
@@ -100,7 +101,7 @@ node scripts/pro-support-operations.js purge-closed 90 --apply
 
 `pending` emits only ticket IDs/status/timestamps (no contacts/messages), suitable for owner-owned polling; it **does not** send notifications. `draft` creates a private **unsent** reply-handoff file for an operator to copy into their approved mail client; it does not send email or mark `responded`. The operator should mark responded only after external delivery is confirmed. Draft creation refuses overwrites; messages never leave this host automatically.
 
-`purge-closed N` first previews closed tickets updated at least N days ago; `--apply` irreversibly deletes these local closed records and their ordinary draft files. Open/queued/responded tickets are excluded; tickets with missing/invalid timestamps are skipped. Backup, legal hold, retention policy and Windows ACL compliance remain the operator's responsibilities. There is no automatic email, support SLA, or hosted customer mailbox.
+`purge-closed N` first previews closed tickets updated at least N days ago; `--apply` irreversibly deletes these local closed records and their ordinary draft/delivery receipt files **unless a retention hold path is present**. Run `node scripts/pro-support-operations.js hold <ticket-id> legal` to create a non-overwriting owner-only retention hold; only an independently approved manual hold release may remove it. Open/queued/responded tickets are excluded; tickets with missing/invalid timestamps are skipped. Backup, legal hold, retention policy and Windows ACL compliance remain the operator's responsibilities. There is no automatic email, support SLA, or hosted customer mailbox.
 
 ## Phase 5C — subscription lifecycle regression
 
