@@ -61,6 +61,9 @@ async function faults(mode, env, callback) {
   const calls = { writes: 0, deletes: 0 };
   if (mode === 'read-only') fs.chmodSync(file, 0o444);
   fs.openSync = (...args) => {
+    // Node 18 readFileSync delegates to this public API; newer runtimes can
+    // bypass it. Inject write failures without accidentally blocking reads.
+    if (args[1] === 'r' || args[1] === 0) return original.openSync(...args);
     calls.writes += 1;
     if (mode === 'open') throw Object.assign(new Error(secret), { code: 'EACCES' });
     if (mode === 'both') failed();
