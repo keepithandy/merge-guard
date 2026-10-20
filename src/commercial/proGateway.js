@@ -8,8 +8,46 @@ import { validatePolicyPack } from '../policyPacks.js';
 
 const MAX_BODY_BYTES = 12 * 1024;
 const DEFAULT_MAX_IN_FLIGHT = 16;
+const DEFAULT_IP_REQUESTS_PER_MINUTE = 120;
+const DEFAULT_KEY_REQUESTS_PER_MINUTE = 240;
+const RATE_WINDOW_MS = 60 * 1000;
+const MAX_RATE_BUCKETS = 1024;
+const LOOPBACK_HOST = /^(?:localhost|127\.0\.0\.1|\[::1\]):[1-9][0-9]{0,4}$/;
 const UNSAFE_TERMINAL_CONTROL = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/;
 const POLICY_ID = /^[a-z0-9](?:[a-z0-9-]{0,46}[a-z0-9])?$/;
+
+// A local gateway must not accept hostile Host/Origin or untrusted reverse-proxy
+// identity headers. Public TLS ingress needs a separately reviewed proxy contract.
+function trustedLocalRequest(req) {
+  const host = req.headers.host;
+  if (typeof host !== 'string' || !LOOPBACK_HOST.test(host)
+      || Number(host.slice(host.lastIndexOf(':') + 1)) !== req.socket.localPort
+      || req.headers.origin !== undefined || req.headers.forwarded !== undefined
+      || req.headers['x-forwarded-for'] !== undefined
+      || req.headers['x-forwarded-host'] !== undefined
+      || req.headers['x-forwarded-proto'] !== undefined) return false;
+  const remote = req.socket.remoteAddress;
+  return remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1';
+}
+
+function allowWithinWindow(buckets, id, limit) {
+  const now = Date.now();
+  const value = buckets.get(id);
+  if (value && value.until > now) {
+    if (value.count >= limit) return false;
+    value.count++;
+    return true;
+  }
+  if (buckets.size >= MAX_RATE_BUCKETS) {
+    for (const [key, entry] of buckets) {
+      if (entry.until <= now) buckets.delete(key);
+    }
+    // Refuse unexpected identity cardinality instead of unbounded accumulation.
+    if (buckets.size >= MAX_RATE_BUCKETS && !buckets.has(id)) return false;
+  }
+  buckets.set(id, { until: now + RATE_WINDOW_MS, count: 1 });
+  return true;
+}
 
 function reply(res, status, value) {
   const bytes = Buffer.from(JSON.stringify(value));
@@ -79,7 +117,17 @@ function servePolicy(id, directory) {
   try {
     const stat = fs.lstatSync(file);
     if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 64 * 1024) return null;
-    policy = JSON.parse(fs.readFileSync(file, 'utf8'));
+    // Open the verified inode (not the path a second time), refusing symlink
+    // substitution between lstat and read on platforms with O_NOFOLLOW.
+    const flags = fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0);
+    const fd = fs.openSync(file, flags);
+    try {
+      const opened = fs.fstatSync(fd);
+      if (!opened.isFile() || opened.size > 64 * 1024) return null;
+      policy = JSON.parse(fs.readFileSync(fd, 'utf8'));
+    } finally {
+      fs.closeSync(fd);
+    }
   } catch { return null; }
   const parsed = validatePolicyPack(policy);
   if (!parsed.valid || parsed.policy?.identity?.id !== 'merge-guard.pro.' + id) return null;
@@ -156,7 +204,9 @@ export function createProGateway({
   policyDirectory,
   supportDirectory,
   fetchImpl = globalThis.fetch,
-  maxInFlight = DEFAULT_MAX_IN_FLIGHT
+  maxInFlight = DEFAULT_MAX_IN_FLIGHT,
+  maxIpRequestsPerMinute = DEFAULT_IP_REQUESTS_PER_MINUTE,
+  maxKeyRequestsPerMinute = DEFAULT_KEY_REQUESTS_PER_MINUTE
 } = {}) {
   const config = resolveCommercialConfig(env);
   if (!config.organizationId || !config.proBenefitId || !policyDirectory || !supportDirectory) {
@@ -169,8 +219,28 @@ export function createProGateway({
     throw new Error('Pro gateway maxInFlight must be an integer from 1 to 1024.');
   }
 
+  for (const [label, limit] of [
+    ['maxIpRequestsPerMinute', maxIpRequestsPerMinute],
+    ['maxKeyRequestsPerMinute', maxKeyRequestsPerMinute]
+  ]) {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100000) {
+      throw new Error(label + ' must be an integer from 1 to 100000.');
+    }
+  }
+
   let inFlight = 0;
+  const ipBuckets = new Map();
+  const keyBuckets = new Map();
+  const keyRateSalt = randomUUID();
   const server = http.createServer(async (req, res) => {
+    if (!trustedLocalRequest(req)) {
+      reply(res, 400, { error: 'invalid-request' });
+      return;
+    }
+    if (!allowWithinWindow(ipBuckets, req.socket.remoteAddress, maxIpRequestsPerMinute)) {
+      reply(res, 429, { error: 'rate-limited' });
+      return;
+    }
     if (req.method === 'GET' && req.url === '/healthz') {
       reply(res, 200, { status: 'ok', environment: config.environment });
       return;
@@ -188,6 +258,17 @@ export function createProGateway({
       let body;
       try { body = await readBody(req); }
       catch { reply(res, 400, { error: 'invalid-request' }); return; }
+
+      // Store only a salted-in-process fingerprint, never the raw license key.
+      // A caller can rotate keys, but it cannot bypass the source-address gate.
+      if (typeof body.key === 'string') {
+        const fingerprint = createHash('sha256')
+          .update(keyRateSalt).update(body.key).digest('hex');
+        if (!allowWithinWindow(keyBuckets, fingerprint, maxKeyRequestsPerMinute)) {
+          reply(res, 429, { error: 'rate-limited' });
+          return;
+        }
+      }
 
       const granted = await verifyLicense(body, env, fetchImpl);
       if (!granted) { reply(res, 403, { error: 'not-entitled' }); return; }
