@@ -36,6 +36,35 @@ The current repository declares `1.3.0-beta.2` as an **unpublished source versio
 
 The September 2026 held-out pilot produced a historical `stop` decision (12/140 actionable precision, 12/35 supported-scope recall, zero qualifying high-severity cases). These results must not be reinterpreted or tuned against. Bounded Free regression fixes are active; a new independently labeled study is optional **only** for quantified efficacy claims. Commercial P5A–C source work and a P5B security follow-up are merged but neither verified paid delivery nor authorized production sales. See the [post-P5 evidence ledger](POST_P5_ROADMAP.md).
 
+## October 2026 workstream reconciliation
+
+These are **classification notes**, not new tasks or authorizations. "Implemented" describes a bounded existing source slice, **not** completion of every idea in its registry workstream. See [the current evidence ledger](POST_P5_ROADMAP.md) for exact merge identifiers.
+
+| Registry workstream | Implemented baseline | Outstanding boundary / disposition |
+| --- | --- | --- |
+| **EVAL** | Local historical evaluator, preregistration and comparison tooling | Historical held-out pilot **stopped**. New independent study only if quantified efficacy claims are desired; no gate for normal Free fixes |
+| **SIGNAL** | Targeted false-warning cleanup including merged #193 | General precision remains unverified; keep small true/false regression pairs on Free path |
+| **RECALL** | Supported rule set and synthetic regression contracts | No representative recall improvement or critical-recall claim; new held-out evidence required for quantified claims |
+| **DIFF** | Bounded diff and metadata classification with reported uncertainty | New formats/edge cases remain candidates with safe parsing budgets |
+| **CHECK** | Deterministic suggested checks, primary-three review plan and manual verification evidence | No automatic execution of project tests/commands is authorized |
+| **IMPACT** | v1.2 explicit graph, metadata, compatibility and provenance | Automatic remote discovery and guessed dependencies are not authorized |
+| **POLICY** | Local starter packs, versioned contracts, Pro **public reference** catalog | Private paid policy rights/delivery and Team sharing still need proof; no public distribution of promised premium-only files |
+| **REVIEW** | PR summaries, report comparison, reviewer projection and Human Verification slice | Human observations do not certify merges or override scanner contracts |
+| **CI** | Cross-platform Actions, smoke, public-contract and release suites | Intermittent plugin-worker investigation [#190](https://github.com/keepithandy/merge-guard/issues/190) remains open |
+| **DASH** | Local memory-only dashboard, import, compare and accessibility fixtures | Hosted accounts/workspaces and uploads remain unapproved |
+| **EVIDENCE** | Immutable manifests and caller-owned CI handoff | No silent hosted retention, automatic retrieval or implied trust in unavailable evidence |
+| **EXT** | Local plugin manifests and worker-contract isolation | Not a hostile-code isolation guarantee; remote registry/trust lifecycle remains exploratory |
+| **SEC** | Baseline source validation, denied-license persistence fixes and P5B symlink hardening | TLS deployment, Windows ACLs, secret/queue operation, incident and restore controls still unverified |
+| **SCALE** | Performance budgets and soak contracts | New resource-intensive scope requires its own bounded evidence |
+| **DIST** | Staging, packaging and artifact/release checks | Source release is **unpublished**; external tags/npm/Action ref moves require specific owner approval |
+| **ADOPT** | v1.1 diagnostics and P5A redacted `onboard` | Real paid onboarding, support capacity and field adoption remain unverified |
+| **ECO** | Selected repository/consumer fixtures | New language, ecosystem or Git forge adapters are unapproved |
+| **AI** | No AI service required for core deterministic analysis | Optional AI explanations are ideas only; no network uploads or AI merge-gate authority |
+| **TEAM** | Benefit-to-capability mapping and mocked subscription changes | **No delivered shared-policy Team service**; commercial Team claims blocked |
+| **V2** | Additive v1 contracts remain authoritative | A breaking v2 architecture is not approved absent a necessity/compatibility case |
+
+**Promotion rule:** work enters the [execution plan](ROADMAP_EXECUTION.md) only after an explicit owner scope decision, positive/negative acceptance fixtures, compatible security and data boundaries, and an independently reviewed rollback path. The separately proposed P6–P9 commercial sequence is described in [the post-P5 roadmap](POST_P5_ROADMAP.md).
+
 ## How to use this roadmap
 
 Each workstream has a stable prefix so future phase plans and issues can refer to candidates without implying that everything will ship.
