@@ -32,9 +32,12 @@ async function obtainGrant(env, licenseFetch, capability) {
   if (grant.validation !== 'live' || !hasCapability(grant.plan, capability)) {
     throw new Error('A currently granted Pro or Team license is required.');
   }
-  const key = env.MERGE_GUARD_LICENSE_KEY || readLicenseState({ env })?.licenseKey;
-  if (!key) throw new Error('A currently granted Pro or Team license is required.');
-  return { key, organization_id: resolveCommercialConfig(env).organizationId };
+  const state = readLicenseState({ env });
+  const key = env.MERGE_GUARD_LICENSE_KEY || state?.licenseKey;
+  if (!key || state?.licenseKey !== key || !state?.activationId) {
+    throw new Error('Activate this Pro or Team license on the device before requesting paid fulfillment.');
+  }
+  return { key, organization_id: resolveCommercialConfig(env).organizationId, activation_id: state.activationId };
 }
 
 async function sendRequest(endpoint, payload, { url, fetchImpl }) {
