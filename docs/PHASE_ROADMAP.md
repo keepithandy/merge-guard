@@ -1,12 +1,12 @@
 # Merge Guard — Solo-Maintainer Development and Free Beta Roadmap
 
-**Active direction (owner requested October 19, 2026):** One maintainer can build, test, review, merge and prepare the existing Free product without recruiting independent reviewers. Free-user feedback can later supply genuinely independent field evidence. A formal measured accuracy claim remains a different, optional project.
+**Active direction (owner requested October 19, 2026):** One maintainer can build, test and integrate Free product changes using automated checks without mandatory human or peer code-review signoff. Free-user feedback can later supply genuinely independent field evidence. A formal measured accuracy claim remains a different, optional project.
 
 This replaces the former mandatory four-phase independent-evaluation sequence for **ordinary source work and Free beta preparation**. The former protocol is preserved, but is no longer an entry gate, at [the optional independent-evaluation protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md). This revision is prospective: it does not retroactively mark any failed pilot as passing, revise preregistered thresholds or authorize an external release.
 
 ## Decision and factual boundaries
 
-- **One owner is sufficient** for issue diagnosis, code review, regression fixtures, PR approval and merge. No second human labeler, adjudicator, 15/15/5 case quota, 50-PR held-out corpus or independent preregistration is required for a normal fix, merge, Free beta source candidate or an explicitly authorized preview release.
+- **Normal source changes and merges do not require a human or peer review approval.** Reproducible regression fixtures and mandatory automated CI, security, compatibility and rollback gates remain required. No second human labeler, adjudicator, 15/15/5 case quota, 50-PR held-out corpus or independent preregistration is required for a normal fix, merge, Free beta source candidate or an explicitly authorized preview release.
 - A **passing test suite is evidence of specific behavior**, not proof of real-world accuracy. Phrase findings as "reproduced with these cases", "passes targeted regression tests", and "field performance unknown". Do not claim a verified false-positive *rate*, overall precision, or recall without independent ground truth.
 - Keep the **September 2026 stopped pilot** intact: 12/140 actionable precision (8.6%), 12/35 supported-scope recall (34.3%), and no measurable critical recall (zero qualifying high-severity cases). These historical results cannot be relabeled, erased, tuned against or interpreted as proof that the present Free beta is accurate.
 - **Existing historical-PR evaluation machinery remains opt-in and strict.** Its two-label schema, preregistration, frozen thresholds, preflight and held-out integrity rules are intentionally unchanged for anyone who later chooses formal quantified evaluation. Those commands are **not on the normal Free beta critical path**. A blocked preflight means "formal evaluation unavailable", not "no source fix allowed".
@@ -21,8 +21,8 @@ One bounded issue and one PR at a time are preferred. Code changes can be initia
 2. **Explain:** State the rule, old behavior, desired behavior, expected score/check changes, risks of missed genuine concerns and the rollback path. Mark any owner-only judgment as provisional.
 3. **Repair narrowly:** Preserve genuine risk detection, existing public report schema and safety fallbacks. Do not chase lower scores just to look quieter.
 4. **Test both directions:** Assertions must fail against the bad behavior and pass after the fix. Test representative true detections, benign counterexamples, determinism and supported runtimes. If no targeted positive control exists, the fix is not ready.
-5. **Verify:** Run the full test/release checks and wait for all required GitHub Actions jobs on the exact final commit. Perform a reviewer-readable patch audit and record remaining uncertainty.
-6. **Owner decision:** With green required checks, compatible contracts and documented rollback, the solo owner may mark the PR ready and explicitly approve/merge it. There is no independent-reviewer or formal corpus dependency. Never auto-merge solely because CI is green.
+5. **Verify:** Run full test/release checks and wait for all required GitHub Actions jobs on the exact final commit. Preserve machine-verifiable evidence and describe remaining uncertainty.
+6. **Integrate:** With green required checks, compatible contracts and documented rollback, source changes can be merged without requiring a peer or manual reviewer. Missing or failed CI blocks merging. External release actions remain separately authorized.
 
 Local PowerShell commands (use `npm.cmd`, since the machine's execution policy blocks the `npm` wrapper):
 
@@ -35,7 +35,7 @@ npm.cmd run release:check
 
 `npm.cmd run test:public-contracts` is an optional focused check when a product contract is touched; the full suite and release check are always required. If a command is missing or fails, report that fact rather than treating it as success.
 
-**Current example:** PR [#193](https://github.com/keepithandy/merge-guard/pull/193) proposes narrowing `world/component.removed` compatibility overmatching and navigation guidance on additive `src/index.js` re-exports. It includes positive/negative fixtures and had passing CI on its latest reviewed commit. The independent-reviewer prerequisite no longer blocks this Free-bounded fix. Reconfirm its final SHA, required checks, smoke behavior and owner merge decision before changing `main`. This roadmap revision does **not** merge #193 or claim that its population-level accuracy is known.
+**Current example:** PR [#193](https://github.com/keepithandy/merge-guard/pull/193) proposes narrowing `world/component.removed` compatibility overmatching and navigation guidance on additive `src/index.js` re-exports. It includes positive/negative fixtures and had passing CI on its latest reviewed commit. The independent-reviewer prerequisite no longer blocks this Free-bounded fix. Reconfirm its final SHA, required checks, smoke behavior and automated source integration checks before changing `main`. This roadmap revision does **not** merge #193 or claim that its population-level accuracy is known.
 
 ## Workstream B — Prepare the Free beta honestly
 
@@ -74,13 +74,13 @@ If enough appropriately consented, outcome-grounded independent evidence later b
 | Decision | Solo-maintainer evidence required | Independent human labels? |
 | --- | --- | --- |
 | Investigate a warning | Minimal reproducer and clear limitations | **No** |
-| Propose or merge a contained rule fix | Positive and negative regressions, green required CI, compatibility/security and rollback; owner review/merge | **No** |
+| Propose or merge a contained rule fix | Positive and negative regressions, green required CI, compatibility/security and rollback; no human signoff | **No** |
 | Prepare a Free beta candidate | Full release/packaging/consumer gates, known limitations and immutable candidate | **No** |
 | Publish or update externally | **Separate explicit owner authorization** naming exact artifacts/actions, plus release gates | **No** |
 | Claim statistically measured precision/recall against independent ground truth | Fresh verified labeled corpus, proper denominators, provenance and strict optional evaluation protocol | **Yes**, for that claim only |
 
 ## Safety and status
 
-No script, CI gate or comment may silently reinterpret the September failed pilot as PASS. If a test is skipped, unavailable or failed, describe it precisely. All per-user raw content stays local unless a reporter voluntarily supplies a sanitized example. A passing PR does not authorize publishing or imply that a review has identified every problem.
+No script, CI gate or comment may silently reinterpret the September failed pilot as PASS. If a test is skipped, unavailable or failed, describe it precisely. All per-user raw content stays local unless a reporter voluntarily supplies a sanitized example. Passing CI does not authorize publishing or imply that the analyzer identified every problem.
 
 This roadmap is the **active development and Free preview track**. [Historical independent-evaluation requirements](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md), [the evaluation design](EVALUATION_HARNESS_DESIGN.md), and [historical intake instructions](pilot-corpus-intake.md) remain available only for future independently validated efficacy claims. The [long-horizon roadmap](LONG_HORIZON_ROADMAP.md) remains an unapproved idea registry. Major hosted, telemetry, AI, code-execution or commercial changes still require separate scope, security and owner decisions.

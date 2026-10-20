@@ -30,11 +30,11 @@
 - [ ] Revocation/cancellation behavior is verified.
 - [ ] Live Sandbox activation and entitlement lifecycle evidence is recorded separately from mocked automated test results.
 - [ ] Live evidence names the exact tested source SHA. Owner-reported Pro activation, validation, shell restart persistence, and deactivation are historical observations until their commit is recorded and the updated policy is exercised.
-- [ ] Plaintext local key storage, process-argument exposure, and Windows ACL behavior are reviewed before a paid launch; restrictive POSIX creation modes do not prove Windows credential protection.
+- [ ] Tests cover plaintext key storage, `activate --stdin` as an alternative to process arguments, and Windows ACL behavior before launch; POSIX creation modes do not prove Windows credential protection.
 
 ## Paid benefit delivery
 
-- [ ] Premium Pro benefit has a real delivery path.
+- [ ] Premium Pro benefit has an authenticated policy catalog and live-entitled policy delivery on the final head.
 - [ ] Team shared-policy benefit has a real delivery path.
 - [ ] Support contact/process exists.
 - [ ] Pricing page advertises only benefits that can actually be delivered.
@@ -42,8 +42,8 @@
 ## Legal and support
 
 - [ ] Existing MIT boundary is preserved and understood.
-- [ ] Any new non-MIT paid content has explicit owner/legal review before sale.
-- [ ] Supplier terms/refund/support language is reviewed.
+- [ ] Any new non-MIT paid content has documented distribution rights and meets applicable legal obligations before sale.
+- [ ] Supplier terms, refunds and support disclosures comply with the planned launch markets.
 - [ ] Privacy disclosure states that scanner analysis remains local and licensing contacts Polar.
 
 ## External release

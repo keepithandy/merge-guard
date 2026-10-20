@@ -123,6 +123,8 @@ check('Plugin attestation gate exists', Boolean(read('scripts/plugin-attestation
 check('Plugin conformance gate exists', Boolean(read('scripts/plugin-conformance-contracts.js')));
 check('Installation validation gate exists', Boolean(read('scripts/installation-contracts.js')));
 check('Security validation gate exists', Boolean(read('scripts/security-contracts.js')));
+check('Pro fulfillment gate exists', Boolean(read('scripts/pro-fulfillment-contracts.js')));
+check('Pro fulfillment documentation exists', Boolean(read('docs/pro-fulfillment.md')));
 check('Performance validation gate exists', Boolean(read('scripts/performance-contracts.js')));
 check('Release-candidate validation gate exists', Boolean(read('scripts/release-candidate-contracts.js')));
 check('Public contract gate exists', Boolean(read('scripts/public-contracts.js')));
@@ -195,6 +197,7 @@ for (const [label, script] of [
   ['Commercial entitlement contracts', 'scripts/commercial-contracts.js'],
   ['Polar environment isolation contracts', 'scripts/polar-sandbox-contracts.js'],
   ['License denial persistence contracts', 'scripts/license-persistence-contracts.js'],
+  ['Pro fulfillment contracts', 'scripts/pro-fulfillment-contracts.js'],
   ['CLI contracts', 'scripts/cli-contracts.js'],
   ['Snapshot contracts', 'scripts/snapshot-contracts.js'],
   ['Repository intelligence contracts', 'scripts/repository-intelligence-contracts.js'],

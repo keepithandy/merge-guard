@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.pro.dependency-provenance",
+    "name": "Dependency provenance",
+    "version": "1.0.0",
+    "description": "Detect dependency and build-chain changes requiring reproducible checks."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "1.3.0",
+    "maximumMergeGuardVersionExclusive": "2.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "npm-lifecycle-scripts",
+      "label": "Dependency install-time command changed",
+      "pathPattern": "(^|/)package\\.json$",
+      "linePattern": "preinstall|postinstall|prepare|prepublishOnly|install",
+      "weight": 8,
+      "check": "Inspect lifecycle script execution and document the expected clean-install behavior."
+    },
+    {
+      "id": "lockfile-change",
+      "label": "Dependency resolver lock changed",
+      "pathPattern": "(^|/)(package-lock\\.json|npm-shrinkwrap\\.json|yarn\\.lock|pnpm-lock\\.yaml|poetry\\.lock|uv\\.lock)$",
+      "weight": 5,
+      "check": "Compare locked versions, integrity hashes, transitive dependencies and registry origins."
+    },
+    {
+      "id": "container-base-image",
+      "label": "Container base image changed",
+      "pathPattern": "(^|/)(Dockerfile|Dockerfile)$",
+      "linePattern": "FROM |ADD https?://|RUN curl|RUN wget",
+      "weight": 6,
+      "check": "Check pinned image digests and provenance of remotely retrieved build inputs."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "dependency-manifest",
+      "pattern": "(^|/)(package-lock\\.json|pnpm-lock\\.yaml|yarn\\.lock|poetry\\.lock)$",
+      "reason": "Dependency updates need reproducible provenance checks.",
+      "requiredCheckIds": [
+        "dependency-diff"
+      ]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "dependency-diff",
+      "command": "git diff --check",
+      "reason": "Validate patch consistency and select ecosystem-specific lockfile/security checks."
+    }
+  ]
+}

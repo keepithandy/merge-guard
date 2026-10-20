@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "identity": {
+    "id": "merge-guard.pro.ci-trust-boundaries",
+    "name": "CI trust boundaries",
+    "version": "1.0.0",
+    "description": "Highlight dangerous GitHub Actions trust and privilege transitions."
+  },
+  "compatibility": {
+    "minimumMergeGuardVersion": "1.3.0",
+    "maximumMergeGuardVersionExclusive": "2.0.0",
+    "reportSchemaVersion": 1
+  },
+  "rules": [
+    {
+      "id": "privileged-pr-trigger",
+      "label": "Privileged pull request workflow trigger changed",
+      "pathPattern": "^\\.github/workflows/",
+      "linePattern": "pull_request_target|workflow_run:",
+      "weight": 9,
+      "check": "Verify that fork-provided input cannot execute with repository secrets or write tokens."
+    },
+    {
+      "id": "write-all-permissions",
+      "label": "Broad workflow write permissions changed",
+      "pathPattern": "^\\.github/workflows/",
+      "linePattern": "permissions: write-all|contents: write|actions: write|id-token: write",
+      "weight": 7,
+      "check": "Confirm minimum required permissions and the identity/token scope of the job."
+    },
+    {
+      "id": "untrusted-script-interpolation",
+      "label": "Workflow dynamic script or shell usage changed",
+      "pathPattern": "^\\.github/workflows/",
+      "linePattern": "github\\.event\\.|github\\.head_ref|run:|persist-credentials:",
+      "weight": 5,
+      "check": "Inspect shell interpolation, untrusted context and checkout credential persistence."
+    }
+  ],
+  "protectedPaths": [
+    {
+      "id": "workflow-trust-boundary",
+      "pattern": "^\\.github/workflows/",
+      "reason": "Workflow privilege changes require passing workflow security checks.",
+      "requiredCheckIds": [
+        "workflow-integrity"
+      ]
+    }
+  ],
+  "requiredChecks": [
+    {
+      "id": "workflow-integrity",
+      "command": "git diff --check",
+      "reason": "Check patch hygiene and run applicable CI workflow/security tests without executing changed project code automatically."
+    }
+  ]
+}

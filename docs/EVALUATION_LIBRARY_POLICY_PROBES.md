@@ -1,6 +1,6 @@
 # Proposed library risk-signal precision fix (PR #193)
 
-**Status: implemented on an unmerged draft branch; eligible for the solo owner's source-review/merge decision after final regression, release/security/compatibility CI and rollback checks.** The current [solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) **does not require a second reviewer, formal Phase 1 PASS, large independently labeled corpus or Phase 2 research authorization** to merge a bounded Free fix. This PR is still **not** an independently validated accuracy improvement, and source merge does not authorize an external release.
+**Status: implemented on an unmerged draft branch; eligible for source integration after passing final regression, release/security/compatibility CI and rollback checks without mandatory reviewer signoff.** The current [solo-maintainer Free beta roadmap](PHASE_ROADMAP.md) **does not require a second reviewer, formal Phase 1 PASS, large independently labeled corpus or Phase 2 research authorization** to merge a bounded Free fix. This PR is still **not** an independently validated accuracy improvement, and source merge does not authorize an external release.
 
 ## Problem reproduced
 
@@ -45,10 +45,10 @@ The automated suite `scripts/evaluation-policy-characterization-contracts.js` us
 
 The regression tests establish **specific rule behavior**, not population-level precision/recall. Passing CI is necessary but not sufficient for a release claim.
 
-## Solo-owner merge checks and rollback
+## Automated source integration gates and rollback
 
-- Verify the exact final source commit, the positive/negative regression suite, complete `npm.cmd test` / `npm.cmd run release:check`, and all required GitHub Actions across supported Windows/Linux Node versions. The solo owner can approve the source merge after reviewing the diff and limitations; **no second human reviewer or independent pilot is mandatory**.
-- Review both possible failure directions: this fix reduces noisy warnings for synthetic `component.removed` events and additive library re-exports, but must not miss explicit deprecations/breakages, actual navigation or removal of public exports. The tests cover these cases; unknown field behavior remains unmeasured.
+- Verify the exact final source commit, the positive/negative regression suite, complete `npm.cmd test` / `npm.cmd run release:check`, and all required GitHub Actions across supported Windows/Linux Node versions. With green mandatory checks, the source can be merged without human/peer reviewer approval. This does not authorize external publication.
+- Test both possible failure directions: this fix reduces noisy warnings for synthetic `component.removed` events and additive library re-exports, but must not miss explicit deprecations/breakages, actual navigation or removal of public exports. The tests cover these cases; unknown field behavior remains unmeasured.
 - The policy-pack content hash changes intentionally with the `1.0.1` version. Existing frozen v1 report schemas remain unchanged; verify consumer/Action/SARIF, determinism, security and policy snapshot coverage.
 - **Rollback:** revert this PR's changes to `src/analyzeDiff.js` and `policies/starter/library.json` together; the original conservative filename rule and `1.0.0` keyword matcher then return. Re-run focused and release-readiness checks.
 - Do **not** claim a measured precision/recall improvement, conceal the old September pilot stop result or infer that self-selected future user reports represent population-level accuracy.

@@ -1,5 +1,24 @@
 import { activateLicense, clearLicenseState, deactivateLicense, readLicenseState, validateLicense } from './license.js';
 import { resolveCommercialConfig } from './config.js';
+import { listPremiumPolicyPacks, submitPrioritySupport } from './proClient.js';
+
+async function readPipedLicenseKey() {
+  if (process.stdin.isTTY) {
+    throw new Error('activate --stdin requires piped input; do not type a key into a command argument.');
+  }
+  let data = '';
+  for await (const chunk of process.stdin) {
+    data += chunk.toString('utf8');
+    if (Buffer.byteLength(data, 'utf8') > 512) {
+      throw new Error('Piped license key exceeds the permitted size.');
+    }
+  }
+  const key = data.trim();
+  if (!key || key.includes('\n') || key.includes('\r') || key.length > 512) {
+    throw new Error('Pipe exactly one valid license key to activate --stdin.');
+  }
+  return key;
+}
 
 function titleCase(value) {
   return String(value || '').replace(/(^|_)([a-z])/g, (_, prefix, char) => `${prefix ? ' ' : ''}${char.toUpperCase()}`);
@@ -12,7 +31,20 @@ function checkoutUrl(plan, env) {
 
 export async function runCommercialCommand(args, { env = process.env } = {}) {
   const [command, value, ...rest] = args;
-  if (!['plan', 'activate', 'license', 'account'].includes(command)) return false;
+  if (!['plan', 'activate', 'license', 'account', 'support', 'pro'].includes(command)) return false;
+  if (command === 'pro') {
+    if (value !== 'policies' || rest.length) throw new Error('Usage: merge-guard pro policies');
+    const policies = await listPremiumPolicyPacks({ env });
+    console.log('Available Pro policy packs (' + policies.length + '):');
+    for (const policy of policies) console.log('- ' + policy.id + ' v' + policy.version + ' — ' + policy.name);
+    return true;
+  }
+  if (command === 'support') {
+    if (value !== 'submit' || rest.length !== 1) throw new Error('Usage: merge-guard support submit <message-file>');
+    const result = await submitPrioritySupport(rest[0], { env });
+    console.log('Priority support request accepted into the configured queue. Ticket: ' + result.ticketId);
+    return true;
+  }
   if (rest.length) throw new Error(`${command} received unexpected extra arguments`);
   if ((command === 'plan' || command === 'account') && value) throw new Error(`${command} does not accept an argument`);
   if (command === 'license' && value && value !== 'clear') throw new Error('license accepts only the optional "clear" argument');
@@ -20,8 +52,9 @@ export async function runCommercialCommand(args, { env = process.env } = {}) {
   if (environment === 'sandbox') console.log('Polar environment: Sandbox (test licenses only)');
 
   if (command === 'activate') {
-    if (!value) throw new Error('activate requires a Polar license key');
-    const state = await activateLicense(value, { env });
+    if (!value) throw new Error('activate requires a Polar license key or --stdin');
+    const key = value === '--stdin' ? await readPipedLicenseKey() : value;
+    const state = await activateLicense(key, { env });
     console.log(`Merge Guard ${titleCase(state.plan)} activated.\n\nPlan: ${titleCase(state.plan)}\nLicense: ${titleCase(state.status)}`);
     if (state.warning) console.log(`\nWarning: ${state.warning}`);
     return true;

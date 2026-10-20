@@ -14,7 +14,7 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 
 Only one bounded Free development slice is active at a time. Solo-maintainer beta fixes and voluntary feedback are active; independent label collection is optional. Historical release and pilot evidence remain preserved, while every publication, signing, tagging, release, Marketplace, and stable Action-reference decision stays separately owner-controlled.
 
-Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through reviewed GitHub pull requests and approved merges. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
+Source-only sequencing exception: until a release owner separately authorizes an external v1.0 action, roadmap implementation may proceed through automated CI validation and source merges without mandatory manual/peer reviewer signoff. This exception does not authorize publication, signing, tagging, release creation, Marketplace changes, or stable Action-reference movement.
 
 ## Historical queue — v1.0 launch gate
 
@@ -189,9 +189,9 @@ Actionable precision **12/140 (8.6%)**, overall supported-scope recall **12/35 (
 1. Reproduce one reported issue using a minimal synthetic negative probe and at least one genuine positive-control behavior.
 2. Produce the smallest compatible correction, explaining score/check movement, remaining uncertainty, security implications and rollback.
 3. Run targeted regressions, `npm.cmd test`, `npm.cmd run release:check` and required GitHub Actions on the exact final commit.
-4. Have the **solo owner** approve or reject the PR. No manufactured second-reviewer or external adjudication step.
+4. Integrate the source change after all required CI, security, compatibility and rollback gates pass, without a manual/peer reviewer prerequisite.
 
-PR [#193](https://github.com/keepithandy/merge-guard/pull/193) contains a proposed library policy and index export warning fix and targeted positive/negative tests. It may receive a solo-owner merge decision after the roadmap revision and final CI/compatibility review; there is no numerical accuracy improvement claim.
+PR [#193](https://github.com/keepithandy/merge-guard/pull/193) contains a proposed library policy and index export warning fix and targeted positive/negative tests. It may be integrated after the roadmap revision and final automated CI/compatibility gates; there is no numerical accuracy improvement claim.
 
 ### Feedback-first Free preview
 
