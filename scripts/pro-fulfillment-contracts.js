@@ -96,7 +96,7 @@ try {
     '+++ b/.github/workflows/check.yml',
     '@@ -0,0 +1 @@',
     '+permissions: write-all'
-  ].join('\\n');
+  ].join('\n');
   const ciPack = await fetchPremiumPolicyPack('ci-trust-boundaries',
     { env: clientEnv, licenseFetch: provider });
   const ciReport = applyPolicyPack(analyzeDiff(workflowDiff, {}), workflowDiff, ciPack.policy);
@@ -106,7 +106,7 @@ try {
   const noTriggerDiff = [
     'diff --git a/README.md b/README.md', '--- a/README.md', '+++ b/README.md',
     '@@ -0,0 +1 @@', '+Pro policy documentation'
-  ].join('\\n');
+  ].join('\n');
   const noTrigger = applyPolicyPack(analyzeDiff(noTriggerDiff, {}), noTriggerDiff, ciPack.policy);
   assert(!noTrigger.rules.some(rule => rule.policyPackId === 'merge-guard.pro.ci-trust-boundaries'),
   'documentation-only changes must not trigger CI privilege policy rules');
