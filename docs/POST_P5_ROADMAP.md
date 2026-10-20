@@ -12,7 +12,7 @@
 | [`POST_P5_ROADMAP.md`](POST_P5_ROADMAP.md) | Current cross-lane status, dependency map, proposed next work, evidence and launch gates | Active **planning** record |
 | [`ROADMAP_EXECUTION.md`](ROADMAP_EXECUTION.md) | Bounded, executable *authorized* Free work and historical completions | Active; do not promote proposed P6+ work without owner scope decision |
 | [`PHASE_ROADMAP.md`](PHASE_ROADMAP.md) | Solo-maintainer Free development/preview workflow | Active |
-| [`commercial-release-checklist.md`](commercial-release-checklist.md) | Paid Free/Pro/Team release-gating inventory; unchecked means not verified for launch | Active |
+| [`commercial-release-checklist.md`](commercial-release-checklist.md) | Pro/Team launch-gating inventory including Free compatibility checks; unchecked means not verified for paid launch | Active |
 | [`LONG_HORIZON_ROADMAP.md`](LONG_HORIZON_ROADMAP.md) | Candidate ideas, including AI/hosted/v2; neither prioritized nor approved | Idea registry only |
 | [`OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md`](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md) | Historical formal two-independent-reviewer evaluation | Opt-in for statistical efficacy claims only |
 
