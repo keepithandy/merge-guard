@@ -10,7 +10,7 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 
 1. v1.1 adoption/diagnostics, v1.2 explainable repository impact and v1.3 durable review evidence were implemented and release-gated in source.
 2. Beta reviewer-signal cleanup, companion contracts and browser-game saves were implemented. The Sept 2026 independent pilot **stopped** and remains historical.
-3. Targeted Free policy repair [#193](https://github.com/keepithandy/merge-guard/pull/193) merged in October; commercial foundation [#188](https://github.com/keepithandy/merge-guard/pull/188), [#195](https://github.com/keepithandy/merge-guard/pull/195), [#196](https://github.com/keepithandy/merge-guard/pull/196) and P5 [#200–#203](POST_P5_ROADMAP.md#audited-source-status-and-evidence-ledger) merged without external publication.
+3. Targeted Free policy repair [#193](https://github.com/keepithandy/merge-guard/pull/193) merged in October; commercial foundation [#188](https://github.com/keepithandy/merge-guard/pull/188), [#195](https://github.com/keepithandy/merge-guard/pull/195), [#196](https://github.com/keepithandy/merge-guard/pull/196) and P5 [#200–#203](POST_P5_ROADMAP.md) merged without external publication.
 
 **Current, separate lanes:**
 
