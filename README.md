@@ -491,7 +491,11 @@ After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-
 
 | Topic | Reference |
 | --- | --- |
-| Project direction | [Post-v1 roadmap](ROADMAP.md) |
+| Project direction | [Canonical roadmap](ROADMAP.md) |
+| Current status after Phase 5 | [Cross-lane post-P5 roadmap, evidence, and proposed P6–P9](docs/POST_P5_ROADMAP.md) |
+| Active Free work | [Solo-maintainer phase roadmap](docs/PHASE_ROADMAP.md) and [execution queue](docs/ROADMAP_EXECUTION.md) |
+| Paid release blockers | [Commercial launch checklist](docs/commercial-release-checklist.md) |
+| Future ideas (unapproved) | [Long-horizon registry](docs/LONG_HORIZON_ROADMAP.md) |
 | Current source | [Beta release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) |
 | Version policy | [Versioning](docs/versioning.md) |
 | Installation and diagnostics | [Supported journeys and doctor](docs/adoption-and-diagnostics.md) |
