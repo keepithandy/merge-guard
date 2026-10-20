@@ -8,6 +8,8 @@
 2. **Priority support intake.** Set MERGE_GUARD_SUPPORT_CONTACT to your reply email. Save an issue description in a regular text file (maximum 4KB). Run merge-guard support submit issue.txt. A successful response prints a ticket UUID; an owner-controlled queue stores the contact, issue, time, and status. No license key is saved in the ticket. Queue acceptance does not guarantee a response time.
 3. **Gateway.** The separate Node HTTP gateway independently checks every requested license against the selected Polar environment, organization, Pro/Team benefit mapping, and expiration. Invalid, revoked, expired and cross-environment keys are denied. The gateway has no public interface and defaults to Sandbox.
 
+Both endpoints require a locally activated device and pass its activation ID to Polar validation; a raw unactivated license key is insufficient for fulfillment.
+
 The working reference policy at policies/pro-reference/release-integrity.json identifies risks in dependency locks, npm lifecycle scripts, publisher configuration, and workflow release permissions. **It is public example content, not proprietary/exclusive paid content**. Actual paid-only content must be privately provisioned and legally reviewed.
 
 ## Run a local Sandbox test
