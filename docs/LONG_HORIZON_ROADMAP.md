@@ -742,7 +742,7 @@ These are questions, not commitments:
 
 ## Dependency rules
 
-- Signal tuning depends on trustworthy calibration labels.
+- Formal claims about signal tuning and population accuracy depend on independently reviewed calibration and fresh held-out labels. Ordinary bounded Free false-positive/false-negative repairs may proceed sooner using synthetic positive and negative regression fixtures and exact-commit CI; they do **not** establish population efficacy.
 - Held-out evaluation depends on a frozen product, metric implementation, thresholds, and corpus.
 - Critical-recall claims depend on a sufficient high-severity denominator.
 - New ecosystem rules depend on representative fixtures and a maintained adapter owner.
