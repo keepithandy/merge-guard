@@ -65,6 +65,10 @@ The CLI does **not** require or embed a Polar organization access token.
 - Temporary network errors, rate limits, or Polar server failures may use a previously validated paid plan for up to seven days, **but never beyond the license expiration date**.
 - Definitive Polar client rejections (for example an invalid key or activation) immediately fall back to Free; they never trigger offline grace.
 - A cached plan is tied to the exact license key and cannot be reused with a different override key.
+- Stored activation state is written by atomic local-file replacement, using restrictive file mode where the operating system honors POSIX permissions.
+- An existing activation is revalidated when the same key is activated again. Switching keys requires confirmed deactivation of the previous stored activation.
+- Remote deactivation failure retains local activation state for retry. Deliberate `license clear --local-only` skips Polar and may leave a remote device slot occupied.
+- A different `MERGE_GUARD_LICENSE_KEY` environment override may be validated without overwriting an existing stored device activation.
 - After the grace window, failure falls back to Free.
 - Free scanning remains available throughout.
 
@@ -72,13 +76,13 @@ The CLI does **not** require or embed a Polar organization access token.
 
 ```bash
 merge-guard plan
-merge-guard activate <license-key>
+printf '%s\\n' "$MERGE_GUARD_LICENSE_KEY" | merge-guard activate --stdin
 merge-guard license
 merge-guard license clear
 merge-guard account
 ```
 
-## Documentation references
+The original `activate <key>` form remains available for compatibility, but putting a key directly on the command line risks shell-history and process-argument exposure. Treat `license clear --local-only` as an exceptional recovery command; it does not free a remote Polar activation. Never place real keys in the repository or CI logs.\n\n## Documentation references
 
 - https://polar.sh/docs/api-reference/benefits/create
 - https://polar.sh/docs/api-reference/customer-portal/license-keys/activate
