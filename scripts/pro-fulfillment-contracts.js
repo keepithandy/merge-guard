@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { once } from 'node:events';
+import { spawnSync } from 'node:child_process';
 import { activateLicense, clearLicenseState } from '../src/commercial/license.js';
 import { createProGateway } from '../src/commercial/proGateway.js';
 import { fetchPremiumPolicyPack, submitPrioritySupport } from '../src/commercial/proClient.js';
@@ -81,6 +82,24 @@ try {
   assert.equal(record.status, 'queued');
   assert(!saved.includes(key), 'support ticket must never store a license key');
   assert(!JSON.stringify(ticket).includes(key), 'API confirmation must never include a key');
+  const queueEnv = { ...process.env, MERGE_GUARD_PRO_SUPPORT_DIRECTORY: supportDirectory };
+  const list = spawnSync(process.execPath, ['scripts/pro-support-queue.js', 'list'], {
+    cwd: process.cwd(), env: queueEnv, encoding: 'utf8'
+  });
+  assert.equal(list.status, 0, list.stderr);
+  assert(list.stdout.includes(ticket.ticketId));
+  assert(!list.stdout.includes('test@example.invalid'), 'list output must not expose contact');
+  const opened = spawnSync(process.execPath,
+    ['scripts/pro-support-queue.js', 'status', ticket.ticketId, 'open'],
+    { cwd: process.cwd(), env: queueEnv, encoding: 'utf8' });
+  assert.equal(opened.status, 0, opened.stderr);
+  assert.equal(JSON.parse(fs.readFileSync(path.join(supportDirectory, tickets[0]), 'utf8')).status, 'open');
+  const shown = spawnSync(process.execPath, ['scripts/pro-support-queue.js', 'show', ticket.ticketId],
+    { cwd: process.cwd(), env: queueEnv, encoding: 'utf8' });
+  assert.equal(shown.status, 0, shown.stderr);
+  assert(shown.stdout.includes('test@example.invalid'));
+  assert(!shown.stdout.includes(key));
+
 
   // Gateway validates independently; a forged caller cannot claim paid access.
   const forged = await fetch(service + '/v1/pro/support', {
