@@ -43,6 +43,11 @@ try {
   if (aliasCreated) {
     assert.notEqual(audit(aliased).status, 0, 'parent symlink into checkout is still public');
   }
+  if (process.platform !== 'win32') {
+    fs.chmodSync(dir, 0o755);
+    assert.notEqual(audit(dir).status, 0, 'world-readable policy directories are not private');
+    fs.chmodSync(dir, 0o700);
+  }
   fs.writeFileSync(path.join(dir, 'broken.json'), '{"identity":null}');
   assert.notEqual(audit(dir).status, 0, 'invalid JSON policy must fail entire audit');
   fs.rmSync(path.join(dir, 'broken.json'));
