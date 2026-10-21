@@ -44,7 +44,11 @@ function npmPack() {
 
 try {
   const repositoryRoot = command('git', ['rev-parse', '--show-toplevel']);
-  if (fs.realpathSync(repositoryRoot) !== fs.realpathSync(root)) {
+  // Windows may spell the same directory with different casing or aliases.
+  // Compare filesystem identities instead of case-sensitive path strings.
+  const gitRootStat = fs.statSync(repositoryRoot);
+  const cwdStat = fs.statSync(root);
+  if (gitRootStat.dev !== cwdStat.dev || gitRootStat.ino !== cwdStat.ino) {
     throw new Error('Run candidate evidence from the repository root.');
   }
   const gitSha = command('git', ['rev-parse', '--verify', 'HEAD']);

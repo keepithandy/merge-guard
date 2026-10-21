@@ -34,6 +34,10 @@ try {
   const clean = evidence();
   assert.equal(clean.status, 0, clean.stderr);
   assert.equal(JSON.parse(clean.stdout).checkedOutCommit, sha);
+  if (process.platform === 'win32') {
+    const alternateCase = evidence(fixture.toUpperCase());
+    assert.equal(alternateCase.status, 0, 'Windows directory identity must ignore path casing: ' + alternateCase.stderr);
+  }
 
   fs.appendFileSync(source, '// local modification\n');
   assert.notEqual(evidence().status, 0, 'dirty tracked source must not attest HEAD');
