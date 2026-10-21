@@ -159,6 +159,7 @@ for (const invalid of [
   '--- a/src/app.js\n+++ b/src/app.js\n@@ -0,0 +1 @@\n+fetch("/");\n',
   'diff --git a/src/app.js b/src/app.js extra\n+fetch("/");\n',
   'diff --git a/src/app.js b/../outside.js\n+fetch("/");\n',
+  'diff --git a/src/app.js b/src/app.js\n+const ok = 1;\ndiff --cc src/merge.js\n',
   'diff --git a/src/app.js b/src/app.js\n+const ok = 1;\ndiff --git a/src/bad.js b/../outside.js\n'
 ]) {
   const result = run(['--json'], invalid);
