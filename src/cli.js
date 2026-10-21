@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { analyzeDiff, formatMarkdownReport, formatReport } from './analyzeDiff.js';
+import { parseGitDiffHeaderPath } from './affectedPackages.js';
 import { createAiReviewSummary } from './aiReview.js';
 import { appendCustomRuleWarnings, applyCustomRules } from './customRules.js';
 import { appendPrContext, appendPrContextToAiReview, applyPrContext, normalizePrContext } from './prContext.js';
@@ -378,6 +379,17 @@ async function main() {
 
   if (!diffText.trim()) {
     console.error('merge-guard error: no diff content provided');
+    process.exitCode = 1;
+    return;
+  }
+
+  // Unsupported or malformed input is unknown evidence, not a clean review.
+  // A Git mode-only or binary diff still has a valid diff --git file header.
+  // Refuse the entire input if any section has an unusable header rather than
+  // silently omitting it from risk and check recommendations.
+  const gitHeaders = diffText.split(/\r?\n/).filter((line) => line.startsWith('diff --git '));
+  if (gitHeaders.length === 0 || gitHeaders.some((line) => !parseGitDiffHeaderPath(line))) {
+    console.error('merge-guard error: unsupported diff format; expected valid Git diff --git a/... b/... file headers.');
     process.exitCode = 1;
     return;
   }
