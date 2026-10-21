@@ -16,6 +16,7 @@ const openId = '11111111-1111-4111-8111-111111111111';
 const heldId = '22222222-2222-4222-8222-222222222222';
 const purgeId = '33333333-3333-4333-8333-333333333333';
 const corruptId = '44444444-4444-4444-8444-444444444444';
+const linkedId = '55555555-5555-4555-8555-555555555555';
 const old = new Date(Date.now() - 100 * 86400000).toISOString();
 const env = { ...process.env, MERGE_GUARD_PRO_SUPPORT_DIRECTORY: queue };
 function ticket(id, status, updatedAt = old) {
@@ -52,6 +53,21 @@ try {
   assert.equal(status(openId, 'responded').status, 0,
     'operator attestation is required and sufficient for local status update');
 
+  // Cross-ticket receipt aliases must never turn an unsent ticket into a
+  // responded one. Symlink creation may require privileges on Windows.
+  ticket(linkedId, 'open');
+  let linkCreated = false;
+  try {
+    fs.symlinkSync(path.join(queue, openId + '.delivery.json'),
+      path.join(queue, linkedId + '.delivery.json'), 'file');
+    linkCreated = true;
+  } catch (error) {
+    if (process.platform !== 'win32' || !['EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) throw error;
+  }
+  if (linkCreated) {
+    assert.notEqual(status(linkedId, 'responded').status, 0,
+      'a symlinked receipt from a different ticket must be refused');
+  }
   // Invalid email controls must never reach an owner terminal or draft.
   ticket(corruptId, 'open');
   const corrupted = JSON.parse(fs.readFileSync(path.join(queue, corruptId + '.json'), 'utf8'));
