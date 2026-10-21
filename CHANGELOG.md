@@ -22,6 +22,7 @@ Internal refactors, test-suite expansion, release engineering, and maintenance-o
 
 ### Improvements
 
+- The staged local Pro gateway rejects hostile browser/proxy headers, limits request pressure and refuses replaced policy files. Local support tools require an operator delivery attestation before marking a reply responded and preserve tickets on retention hold. These source capabilities do not enable sales or certify live support.
 - Human Verification keeps automated analysis separate from human-observed runtime evidence, making it clearer which conclusions came from Merge Guard and which came from manual testing.
 - Text, Markdown, and pull-request summaries are shorter by default and prioritize the three most important checks before optional detail.
 - Routing, persistence, async, and network signals are more selective, reducing noisy matches from fixtures, data files, and unrelated text.

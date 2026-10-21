@@ -3,11 +3,14 @@
 // No policies are uploaded, copied, disclosed or entitled by this utility.
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { validatePolicyPack } from '../src/policyPacks.js';
 
 const directory = process.env.MERGE_GUARD_PRO_POLICY_DIRECTORY;
-const publicCheckout = path.resolve(process.cwd());
+// The public boundary belongs to this installed source tree, independent of
+// the operator's current working directory.
+const publicCheckout = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ID = /^[a-z0-9](?:[a-z0-9-]{0,46}[a-z0-9])?$/;
 if (!directory) throw new Error('Set MERGE_GUARD_PRO_POLICY_DIRECTORY to a separate private directory.');
 const resolved = path.resolve(directory);
@@ -34,7 +37,11 @@ const policies = files.map(name => {
   const fd = fs.openSync(file, flags);
   let data;
   try {
-    if (!fs.fstatSync(fd).isFile()) throw new Error('Policy was replaced.');
+    const opened = fs.fstatSync(fd);
+    if (!opened.isFile() || opened.size > 64 * 1024
+        || opened.dev !== stat.dev || opened.ino !== stat.ino) {
+      throw new Error('Policy was replaced.');
+    }
     data = JSON.parse(fs.readFileSync(fd, 'utf8'));
   } finally { fs.closeSync(fd); }
   const validation = validatePolicyPack(data);

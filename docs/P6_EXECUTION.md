@@ -2,11 +2,23 @@
 
 **Tracking:** [P6 master issue #205](https://github.com/keepithandy/merge-guard/issues/205). Follow the [post-P5 roadmap](POST_P5_ROADMAP.md) and its separate [commercial launch checklist](commercial-release-checklist.md). This is an operator procedure, **not proof of a production deployment, real benefits, accepted payments or a commercial release**.
 
+## One Phase 6 execution sequence
+
+| Order / slice | Source deliverable in PR #206 | Acceptance and remaining gate |
+| --- | --- | --- |
+| 1 / P6A | Clean-commit package evidence; actual tarball hash; candidate regression suite in all eight platform/runtime jobs | All 13 checks at one reviewed head; record the post-merge candidate separately; any source change invalidates that candidate |
+| 2 / P6B | Local Host/Origin/forwarded-header refusal, rate/concurrency/body/time bounds, policy descriptor checks, threat model and abuse fixtures | **First owner blocker:** choose intended host, TLS/trusted proxy design, secret/storage paths and access identities; independently verify ACLs, encryption, monitoring and rollback on that host |
+| 3 / P6C | Offline policy identity/version/digest inventory bound to the script's source tree; entitlement denial fixtures | Owner supplies actual private packs and distribution-rights approval; exercise each cleared benefit on approved storage/ingress |
+| 4 / P6D | Unsent drafts, operator delivery attestations, responded guard, retention holds and synthetic restore | Owner assigns staff/channel and privacy/retention/hold authority; prove real external response and encrypted restore through the approved operational setup |
+| 5 / P6E | Mock lifecycle regression and a real Sandbox case procedure | After P6A–D gates: owner supplies Sandbox organization/product/benefit configuration, test account and explicit permitted live actions; record both-tier real lifecycle receipts on the same candidate |
+
+Review and merge passing source work first. Keep #205 open at the first unmet owner gate; P6A–D source implementation is not completion of those operational gates, and P6E remains unverified. No publication, deployment, billing, or production checkout is part of this sequence.
+
 ## P6A — exact-source candidate record
 
-1. Choose a specific immutable commit; `main` moving later invalidates any assertion that the future checkout is the same candidate. `package.json` declares `1.3.0-beta.2`, an unpublished source identity.
+1. Choose a specific immutable commit; `main` moving later invalidates any assertion that the future checkout is the same candidate. `package.json` declares the source identity `1.3.0-beta.2`; this work makes no publication or new release.
 2. Run `npm.cmd test`, `npm.cmd run test:commercial`, `npm.cmd run test:license-persistence`, `npm.cmd run test:subscription-lifecycle`, `npm.cmd run test:security`, `npm.cmd run test:public-contracts`, and `npm.cmd run release:check` from the **same checkout**. Linux uses `npm`.
-3. Run `npm.cmd run p6:candidate-evidence`. It uses offline, lifecycle-script-disabled `npm pack` into an OS temporary directory, checks the actual tarball SHA-1 against npm metadata, emits a SHA-256, package version and exact checked-out git commit, and deletes the temporary tarball. **This does not upload or publish anything.** Record the JSON output in a local decision packet without copying secrets or arbitrary environment variables.
+3. Run `npm.cmd run p6:candidate-evidence` from a clean repository root. It refuses tracked/untracked modifications, ignored files included by npm, a changed HEAD during packaging, and subdirectory invocation. It uses offline, lifecycle-script-disabled `npm pack` into an OS temporary directory, checks the actual tarball SHA-1 against npm metadata, emits a SHA-256, package version and exact checked-out git commit, and deletes the temporary tarball. **This does not upload or publish anything.** Record the JSON output outside the checkout in a local decision packet without copying secrets or arbitrary environment variables. `npm.cmd run test:p6-candidate` exercises both clean and refused candidates. Use an isolated checkout: this is not an attestation against a concurrent privileged filesystem attacker.
 4. In [Node LTS Actions](../.github/workflows/node-lts.yml), verify all nine jobs on **one exact PR head** (Node 18/20/22/24 on Ubuntu/Windows and full validation), the four additional fixture/integrity workflows, and the smoke/release matrix. On PR checkout, this workflow explicitly selects the PR head commit rather than the synthetic merge ref. GitHub runs and matrix logs supply the traceable metadata. Different npm/OS toolchains may produce different hashes; record discrepancies rather than assuming one universal tarball hash.
 5. Inspect `npm pack --dry-run`, SBOM and distribution gates, CLI offline Free scan, onboarding, local support/policy contracts and the rollback target. CI passing alone does not freeze/sign/approve or publish a release.
 

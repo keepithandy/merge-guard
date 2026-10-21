@@ -116,6 +116,41 @@ try {
       await new Promise(resolve => secondary.close(resolve));
     }
   }
+  // Reproduce a path replacement after lstat but before open. The replacement
+  // is itself valid JSON with the requested identity; inode binding must still
+  // refuse it, rather than serving different bytes than the checked file.
+  const policyFile = path.join(policyDir, 'release-integrity.json');
+  const savedFile = path.join(policyDir, 'original.saved');
+  const originalOpen = fs.openSync;
+  let swapped = false;
+  const swapServer = createProGateway({ env, policyDirectory: policyDir, supportDirectory: supportDir,
+    fetchImpl: provider });
+  try {
+    swapServer.listen(0, '127.0.0.1');
+    await once(swapServer, 'listening');
+    fs.openSync = function (file, ...args) {
+      if (file === policyFile && !swapped) {
+        swapped = true;
+        fs.renameSync(policyFile, savedFile);
+        fs.copyFileSync(savedFile, policyFile);
+      }
+      return originalOpen.call(fs, file, ...args);
+    };
+    const result = await fetch('http://127.0.0.1:' + swapServer.address().port + '/v1/pro/policy', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ ...request, id: 'release-integrity' })
+    });
+    assert.equal(result.status, 404, 'a replaced regular policy must not be served');
+    await result.arrayBuffer();
+    assert(swapped, 'fixture must exercise the lstat/open replacement window');
+  } finally {
+    fs.openSync = originalOpen;
+    if (swapped) {
+      fs.unlinkSync(policyFile);
+      fs.renameSync(savedFile, policyFile);
+    }
+    await new Promise(resolve => swapServer.close(resolve));
+  }
   // IP limiter covers unauthenticated traffic, using the TCP peer rather than
   // spoofable forwarding headers. No raw IP or key is emitted in responses.
   let limited = false;

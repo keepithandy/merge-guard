@@ -123,7 +123,8 @@ function servePolicy(id, directory) {
     const fd = fs.openSync(file, flags);
     try {
       const opened = fs.fstatSync(fd);
-      if (!opened.isFile() || opened.size > 64 * 1024) return null;
+      if (!opened.isFile() || opened.size > 64 * 1024
+          || opened.dev !== stat.dev || opened.ino !== stat.ino) return null;
       policy = JSON.parse(fs.readFileSync(fd, 'utf8'));
     } finally {
       fs.closeSync(fd);

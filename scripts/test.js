@@ -48,6 +48,7 @@ const suites = [
   'scripts/license-persistence-contracts.js',
   'scripts/pro-fulfillment-contracts.js',
   'scripts/p6-gateway-security-contracts.js',
+  'scripts/p6-candidate-evidence-contracts.js',
   'scripts/p6-private-policy-inventory-contracts.js',
   'scripts/p6-support-contracts.js',
   'scripts/pro-support-operations-contracts.js',

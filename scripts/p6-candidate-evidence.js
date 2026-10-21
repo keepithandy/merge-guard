@@ -33,15 +33,30 @@ function npmPack() {
     return command(process.execPath, [process.env.npm_execpath, ...args], { env });
   }
   if (process.platform === 'win32') {
-    return command(process.env.ComSpec || 'cmd.exe',
-      ['/d', '/s', '/c', 'npm ' + args.join(' ')], { env });
+    // Avoid constructing a shell command from a temporary path (spaces and
+    // shell metacharacters are valid in Windows profile/temp paths).
+    const npmCli = path.join(path.dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npm-cli.js');
+    if (!fs.existsSync(npmCli)) throw new Error('Run via npm run p6:candidate-evidence.');
+    return command(process.execPath, [npmCli, ...args], { env });
   }
   return command('npm', args, { env });
 }
 
 try {
+  const repositoryRoot = command('git', ['rev-parse', '--show-toplevel']);
+  if (fs.realpathSync(repositoryRoot) !== fs.realpathSync(root)) {
+    throw new Error('Run candidate evidence from the repository root.');
+  }
   const gitSha = command('git', ['rev-parse', '--verify', 'HEAD']);
   assert.match(gitSha, /^[0-9a-f]{40}$/);
+  function assertCleanSource() {
+    if (command('git', ['status', '--porcelain=v1', '--untracked-files=all']) !== '') {
+      throw new Error('Candidate evidence requires clean tracked and untracked source.');
+    }
+    assert.equal(command('git', ['rev-parse', '--verify', 'HEAD']), gitSha,
+      'Candidate commit changed while packaging.');
+  }
+  assertCleanSource();
   const packageBytes = fs.readFileSync(path.join(root, 'package.json'));
   const metadata = JSON.parse(packageBytes.toString('utf8'));
   const packResult = JSON.parse(npmPack());
@@ -55,11 +70,18 @@ try {
   assert.equal(createHash('sha1').update(artifact).digest('hex'), packed.shasum,
     'npm metadata must match the byte-identical tarball');
   assert(Array.isArray(packed.files) && packed.files.length > 0);
+  const tracked = new Set(command('git', ['ls-files', '-z', '--cached']).split('\0'));
+  for (const entry of packed.files) {
+    assert(tracked.has(entry.path), 'Package includes a file outside the recorded commit.');
+  }
+  assertCleanSource();
   // Never emit customer/local state, file contents, keys or raw paths.
   const evidence = {
     schemaVersion: 1,
     kind: 'source-only-p6-candidate-evidence',
     checkedOutCommit: gitSha,
+    sourceTreeClean: true,
+    packagedFilesTracked: true,
     sourceVersion: metadata.version,
     packageJsonSha256: sha256(packageBytes),
     tarball: {

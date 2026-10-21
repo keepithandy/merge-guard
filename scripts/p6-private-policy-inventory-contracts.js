@@ -10,10 +10,11 @@ const dir = path.join(root, 'private');
 fs.mkdirSync(dir, { mode: 0o700 });
 const valid = path.join(dir, 'release-integrity.json');
 fs.copyFileSync(path.join('policies', 'pro-reference', 'release-integrity.json'), valid);
-function audit(selected) {
-  return spawnSync(process.execPath, ['scripts/p6-private-policy-inventory.js'], {
+const script = path.resolve('scripts/p6-private-policy-inventory.js');
+function audit(selected, cwd = process.cwd()) {
+  return spawnSync(process.execPath, [script], {
     env: { ...process.env, MERGE_GUARD_PRO_POLICY_DIRECTORY: selected },
-    cwd: process.cwd(), encoding: 'utf8'
+    cwd, encoding: 'utf8'
   });
 }
 try {
@@ -29,6 +30,10 @@ try {
   assert(!inventory.stdout.includes(root), 'never emit private paths');
   assert.notEqual(audit(path.resolve('policies/pro-reference')).status, 0,
     'checked-in public policy examples must not pass as private assets');
+  assert.notEqual(audit(path.resolve('policies/pro-reference'), root).status, 0,
+    'changing working directory must not bypass the public checkout boundary');
+  assert.equal(audit(dir, root).status, 0,
+    'a real external policy directory remains valid from another working directory');
 
   // A directory alias outside checkout must not make public MIT examples
   // appear to be a private owner-controlled policy collection.

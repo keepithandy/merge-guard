@@ -203,6 +203,7 @@ for (const [label, script] of [
   ['License denial persistence contracts', 'scripts/license-persistence-contracts.js'],
   ['Pro fulfillment contracts', 'scripts/pro-fulfillment-contracts.js'],
   ['P6 local ingress and rate-limit contracts', 'scripts/p6-gateway-security-contracts.js'],
+  ['P6 candidate source binding contracts', 'scripts/p6-candidate-evidence-contracts.js'],
   ['P6 private policy inventory contracts', 'scripts/p6-private-policy-inventory-contracts.js'],
   ['P6 support operations and holds contracts', 'scripts/p6-support-contracts.js'],
   ['CLI contracts', 'scripts/cli-contracts.js'],
