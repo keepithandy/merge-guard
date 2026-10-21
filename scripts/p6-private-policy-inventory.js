@@ -11,7 +11,7 @@ const publicCheckout = path.resolve(process.cwd());
 const ID = /^[a-z0-9](?:[a-z0-9-]{0,46}[a-z0-9])?$/;
 if (!directory) throw new Error('Set MERGE_GUARD_PRO_POLICY_DIRECTORY to a separate private directory.');
 const resolved = path.resolve(directory);
-const relative = path.relative(publicCheckout, resolved);
+const relative = path.relative(fs.realpathSync(publicCheckout), fs.realpathSync(resolved));
 if (!path.isAbsolute(relative) && !relative.startsWith('..' + path.sep) && relative !== '..') {
   throw new Error('Private paid policies must not come from inside the public checkout.');
 }
