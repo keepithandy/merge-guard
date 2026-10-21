@@ -100,7 +100,7 @@ const RISK_PATTERNS = [
     label: 'Tests changed with implementation',
     weight: -1,
     file: /(test|spec|smoke|__tests__)/i,
-    fileDescription: 'test, spec, fixture, smoke, or script contract path conventions',
+    fileDescription: 'test, spec, smoke, or __tests__ path patterns',
     line: null,
     lineDescription: null,
     check: 'Confirm the updated tests cover the changed behavior.'
