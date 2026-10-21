@@ -387,8 +387,8 @@ async function main() {
   // A Git mode-only or binary diff still has a valid diff --git file header.
   // Refuse the entire input if any section has an unusable header rather than
   // silently omitting it from risk and check recommendations.
-  const gitHeaders = diffText.split(/\r?\n/).filter((line) => line.startsWith('diff --git '));
-  if (gitHeaders.length === 0 || gitHeaders.some((line) => !parseGitDiffHeaderPath(line))) {
+  const diffHeaders = diffText.split(/\r?\n/).filter((line) => line.startsWith('diff --'));
+  if (diffHeaders.length === 0 || diffHeaders.some((line) => !parseGitDiffHeaderPath(line))) {
     console.error('merge-guard error: unsupported diff format; expected valid Git diff --git a/... b/... file headers.');
     process.exitCode = 1;
     return;
