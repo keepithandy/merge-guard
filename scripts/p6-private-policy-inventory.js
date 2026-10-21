@@ -16,7 +16,10 @@ if (!path.isAbsolute(relative) && !relative.startsWith('..' + path.sep) && relat
   throw new Error('Private paid policies must not come from inside the public checkout.');
 }
 const root = fs.lstatSync(resolved);
-if (!root.isDirectory() || root.isSymbolicLink()) throw new Error('Private policy root must be a real directory.');
+if (!root.isDirectory() || root.isSymbolicLink() ||
+    (process.platform !== 'win32' && (root.mode & 0o077) !== 0)) {
+  throw new Error('Private policy root must be a real owner-only directory.');
+}
 const files = fs.readdirSync(resolved).filter(name => name.endsWith('.json')).sort();
 if (!files.length || files.length > 50) throw new Error('Private policy inventory must include 1–50 JSON policies.');
 const policies = files.map(name => {
