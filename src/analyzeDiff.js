@@ -1,4 +1,5 @@
 import { MERGE_GUARD_VERSION } from './version.js';
+import { parseGitDiffHeaderPath } from './affectedPackages.js';
 
 const DEFAULT_CONFIG = {
   highRiskPaths: [],
@@ -169,10 +170,10 @@ function parseFileChanges(diffText) {
 
   for (const line of diffText.split(/\r?\n/)) {
     if (line.startsWith('diff --git ')) {
-      const match = line.match(/^diff --git a\/(.*?) b\/(.*)$/);
-      if (match) {
+      const filePath = parseGitDiffHeaderPath(line);
+      if (filePath) {
         current = {
-          path: match[2],
+          path: filePath,
           addedLines: [],
           removedLines: [],
           addedLinesCount: 0,
