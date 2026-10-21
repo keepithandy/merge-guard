@@ -30,6 +30,19 @@ try {
   assert.notEqual(audit(path.resolve('policies/pro-reference')).status, 0,
     'checked-in public policy examples must not pass as private assets');
 
+  // A directory alias outside checkout must not make public MIT examples
+  // appear to be a private owner-controlled policy collection.
+  const aliased = path.join(root, 'public-alias');
+  let aliasCreated = false;
+  try {
+    fs.symlinkSync(path.resolve('policies/pro-reference'), aliased, 'junction');
+    aliasCreated = true;
+  } catch (error) {
+    if (process.platform !== 'win32' || !['EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) throw error;
+  }
+  if (aliasCreated) {
+    assert.notEqual(audit(aliased).status, 0, 'parent symlink into checkout is still public');
+  }
   fs.writeFileSync(path.join(dir, 'broken.json'), '{"identity":null}');
   assert.notEqual(audit(dir).status, 0, 'invalid JSON policy must fail entire audit');
   fs.rmSync(path.join(dir, 'broken.json'));
