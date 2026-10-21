@@ -2,7 +2,9 @@
 
 **Status:** consolidated planning baseline as of **2026-10-20**. **Development only; no commercial launch, publication, deployment, or new feature phase is automatically authorized.** This document reconciles the [canonical roadmap](../ROADMAP.md), [Free phase roadmap](PHASE_ROADMAP.md), [execution queue](ROADMAP_EXECUTION.md), [commercial release checklist](commercial-release-checklist.md), and [long-horizon idea registry](LONG_HORIZON_ROADMAP.md).
 
-**Source snapshot:** `main` at [`520f4527d93e46d8b008759bfad4024b909706c8`](https://github.com/keepithandy/merge-guard/commit/520f4527d93e46d8b008759bfad4024b909706c8) (Phase 5B post-merge hardening, PR #203). This is a repository observation, **not a frozen release candidate**. Refresh this line and verify the exact new SHA before using it as evidence.
+**Current owner decision:** there is no maintainer server budget. **Free development is active; hosted Pro/Team operations are parked.** Start with [Free local setup #208](https://github.com/keepithandy/merge-guard/issues/208) and [the local Pro/Team kit proposal](LOCAL_FIRST_PRODUCTS.md). The hosted gates below are preserved for reference, not requests to buy a server or supply credentials before Free work can continue. Kit content, terms, pricing and delivery still need review before any sale.
+
+**Source baseline for this revision:** [`d0c48cdbc7d7611189503fc1e16376b7de4fa170`](https://github.com/keepithandy/merge-guard/commit/d0c48cdbc7d7611189503fc1e16376b7de4fa170), merged P6 source PR #206. Candidate/CI evidence is recorded in [#205](https://github.com/keepithandy/merge-guard/issues/205). This names the baseline, not a claim that later source or artifacts inherit those checks. New changes require their own exact-head verification.
 
 ## 1. Single source of truth: what each roadmap controls
 
@@ -10,7 +12,7 @@
 | --- | --- | --- |
 | [`ROADMAP.md`](../ROADMAP.md) | Canonical product direction, priority lanes, version boundaries, release decisions | Active |
 | [`POST_P5_ROADMAP.md`](POST_P5_ROADMAP.md) | Current cross-lane status, dependency map, proposed next work, evidence and launch gates | Active **planning** record |
-| [`ROADMAP_EXECUTION.md`](ROADMAP_EXECUTION.md) | Bounded, executable *authorized* Free work and historical completions | Active; P6 source scope is now authorized under #205; P7+ still requires owner scope decision |
+| [`ROADMAP_EXECUTION.md`](ROADMAP_EXECUTION.md) | Bounded, executable *authorized* Free work and historical completions | Active Free setup #208; hosted P6 operations parked; no publication implied |
 | [`PHASE_ROADMAP.md`](PHASE_ROADMAP.md) | Solo-maintainer Free development/preview workflow | Active |
 | [`commercial-release-checklist.md`](commercial-release-checklist.md) | Pro/Team launch-gating inventory including Free compatibility checks; unchecked means not verified for paid launch | Active |
 | [`LONG_HORIZON_ROADMAP.md`](LONG_HORIZON_ROADMAP.md) | Candidate ideas, including AI/hosted/v2; neither prioritized nor approved | Idea registry only |
@@ -30,6 +32,7 @@ The **September 3, 2026 stopped pilot** remains immutable: actionable precision 
 | **P5B** operator support | [#198](https://github.com/keepithandy/merge-guard/issues/198) / [PR #201](https://github.com/keepithandy/merge-guard/pull/201) | **Merged** `928c4bb`; pending-ticket metadata, unsent reply draft, explicit retention dry-run/apply | Mail delivery, operating SLA, verified Windows ACLs / backup/restore |
 | **P5C** subscription lifecycle | [#199](https://github.com/keepithandy/merge-guard/issues/199) / [PR #202](https://github.com/keepithandy/merge-guard/pull/202) | **Merged** `10adb8a`; mocked Polar Pro/Team transitions with localhost gateway, revoked/expired fail-closed contracts | Real Polar Sandbox checkout or renewal/cancel evidence |
 | P5B post-review correction | [PR #203](https://github.com/keepithandy/merge-guard/pull/203) | **Merged** `520f452`; refuses dangling reply-draft symlinks and malformed ticket timestamps in both operator listing paths | Comprehensive security audit, recovery/replay protection or operating compliance |
+| P6 source controls | [PR #206](https://github.com/keepithandy/merge-guard/pull/206), merge `d0c48cd` | **Merged** clean-commit artifact evidence, localhost gateway/descriptor checks, private inventory and local support holds/attestations; exact PR/main CI recorded in #205 | Live hosted operations, private paid rights, staffed real support or Sandbox checkout; those gates remain unverified and parked |
 
 **CI evidence:** PRs [#200](https://github.com/keepithandy/merge-guard/pull/200), [#201](https://github.com/keepithandy/merge-guard/pull/201), [#202](https://github.com/keepithandy/merge-guard/pull/202), and [#203](https://github.com/keepithandy/merge-guard/pull/203) each had five successful GitHub Actions workflows at their reviewed PR heads; the Node compatibility workflows completed nine jobs each, including Node 18/20/22/24 on Windows and Ubuntu and full validation. **Do not transfer these results to a future SHA or assert that a post-squash main/release artifact was independently certified.** The checkout and sale gates are still unverified.
 
@@ -48,14 +51,14 @@ The **September 3, 2026 stopped pilot** remains immutable: actionable precision 
 
 No checkbox in [the commercial checklist](commercial-release-checklist.md) is automatically completed merely because P5 merged. All customer-facing benefit claims must track delivered functionality rather than capability flags or reference packs.
 
-## 4. P6 owner-directed execution; P7–P9 remain proposed
+## 4. Active Free work and parked hosted sequence
 
-**Update (2026-10-20):** Owner approved proceeding through **P6A–P6E source work and safe tests** until an actual operator, live Sandbox, content-rights or production authorization roadblock. The accepted source slices also cover P6D local operator-attestation, receipt lifecycle and retention-hold contracts; this is not evidence of an actual delivered email or staffed support. Track all five slices together under [P6 master issue #205](https://github.com/keepithandy/merge-guard/issues/205) and the [P6 execution runbook](P6_EXECUTION.md). This approval **does not** enable customer payments, paid fulfillment, host deployment, external publication or unstaffed support. P7–P9 are unchanged proposed phases.
+**Current execution:** [#208](https://github.com/keepithandy/merge-guard/issues/208) adds explicit Free local setup with preview/no overwrite and unchanged default reports. Continue with one reproduced Free usability/reliability problem at a time. Optional local Pro workflow kits and Team adoption kits are described in [LOCAL_FIRST_PRODUCTS.md](LOCAL_FIRST_PRODUCTS.md); no new backend, price, SLA or paid delivery is live.
 
 
-P6 slices are now **accepted for bounded source implementation and nonpublishing evidence**, as tracked in #205. The owner-controlled external and live-provider gates are still blocked unless separately met. P7–P9 remain **planning candidates**, not accepted GitHub issues or launch authorizations. Promote one bounded slice at a time after an explicit scope decision, reproducible acceptance tests, security analysis, and rollback design.
+**Historical hosted scope:** P6 source work under [#205](https://github.com/keepithandy/merge-guard/issues/205) merged in #206. Its remaining hosting/rights/support/Sandbox gates, including [#207](https://github.com/keepithandy/merge-guard/issues/207), are now **parked**. The sequence below remains reference material if the owner later resumes hosting; it is not the active Free critical path. P7 publication and any later commercial action still require exact approval.
 
-### P6 — Candidate hardening and proof of paid benefit delivery
+### Parked P6 — Candidate hardening and proof of hosted paid benefit delivery
 
 **Goal:** turn source-only Pro/Team primitives into auditable candidate evidence **without taking production payments**.
 
@@ -116,4 +119,4 @@ P6 slices are now **accepted for bounded source implementation and nonpublishing
 
 For each selected issue record: **scope and owner decision**; baseline SHA; user-visible outcome; threat/privacy/permission boundaries; dependencies; public interface impact; positive+negative/abuse fixtures; `npm.cmd test`, `npm.cmd run test:commercial` (when relevant), `npm.cmd run test:security`, `npm.cmd run test:public-contracts`, `npm.cmd run release:check`; exact GitHub Actions run and final head SHA; reviewer findings and fixes; rollback/revert; residual risk; **source merge versus external operation authorization**. Do not mark a skipped, pending or inapplicable gate as passing.
 
-**Current execution:** follow the [single Phase 6 sequence and acceptance table](P6_EXECUTION.md#one-phase-6-execution-sequence) under [#205](https://github.com/keepithandy/merge-guard/issues/205). PR #206 supplies bounded P6A–D source work; independent review, exact-head CI and a post-merge source candidate record precede the owner handoff. The first operational blocker is P6B's host/TLS/trusted-ingress and secure-storage decision. P6C private rights, P6D real staffed delivery and P6E live Sandbox evidence remain blocked separately. #190 and stale #189 remain maintenance; do not merge #189 as-is. Pro paid rollout depends on P6C–E; Team depends on P8. Free P7 requires its own authorization.
+**Current work selection:** Free setup #208 first, then another reproduced Free issue. The local-kit proposal avoids a maintainer-hosted service and keeps existing MIT features Free. Hosted P6/P8/P9 remains parked; no hosting decision is required to continue Free. #190 and stale #189 remain maintenance; do not merge #189 as-is. Any Free publication, paid-content sale, account change or deployment requires separate exact approval.

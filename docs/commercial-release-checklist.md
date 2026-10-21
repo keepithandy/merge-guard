@@ -1,5 +1,7 @@
 # Commercial release checklist
 
+**Hosted plan parked:** active work is Free plus [a local-kit proposal](LOCAL_FIRST_PRODUCTS.md), with no server budget. This historical hosted-launch checklist remains unmet; its hosting/recurring-product gates are not Free development requirements. A future downloadable kit needs its own content/rights, compatibility, terms, delivery and publication review. No existing customer terms, license behavior or billing change is authorized here.
+
 **Verified document refresh: 2026-10-20. Status: BLOCKED for paid launch.** See the [post-P5 integrated roadmap](POST_P5_ROADMAP.md) for evidence, dependencies, proposed P6–P9 scope and separate Free preview gate. Phases P5A [#200](https://github.com/keepithandy/merge-guard/pull/200), P5B [#201](https://github.com/keepithandy/merge-guard/pull/201), P5C [#202](https://github.com/keepithandy/merge-guard/pull/202) and support hardening [#203](https://github.com/keepithandy/merge-guard/pull/203) are **merged source work**, not launch authorization.
 
 ## Gate accounting — no inferred completion

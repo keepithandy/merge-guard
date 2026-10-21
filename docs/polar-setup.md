@@ -1,5 +1,7 @@
 # Polar setup for Merge Guard
 
+**Historical hosted-product setup — parked.** Free development requires no server or commercial account. The former recurring-product instructions below are reference material, not the current next step. Follow [the local kit proposal](LOCAL_FIRST_PRODUCTS.md); do not create/change products, benefits, customer terms or checkout without a separate owner decision.
+
 This document contains the manual account-level work needed after the repository commercial foundation is merged.
 
 ## Products

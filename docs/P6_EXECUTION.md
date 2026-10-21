@@ -1,5 +1,7 @@
 # P6 (A–E) — source execution and owner-gated release evidence
 
+**Parked by current owner direction:** the source work merged in #206 is retained; live hosted operations are not being pursued with a $0 server budget. Follow [Free-first/local products](LOCAL_FIRST_PRODUCTS.md). The historical host/TLS/credential requests below apply only if hosted work is explicitly resumed; they do not block Free development.
+
 **Tracking:** [P6 master issue #205](https://github.com/keepithandy/merge-guard/issues/205). Follow the [post-P5 roadmap](POST_P5_ROADMAP.md) and its separate [commercial launch checklist](commercial-release-checklist.md). This is an operator procedure, **not proof of a production deployment, real benefits, accepted payments or a commercial release**.
 
 ## One Phase 6 execution sequence

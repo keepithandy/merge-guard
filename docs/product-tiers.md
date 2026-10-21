@@ -1,10 +1,10 @@
 # Merge Guard product tiers
 
-Status: commercial foundation. Pricing is proposed until the Polar products and checkout links are created.
+**Active direction:** Free-first development with no maintainer server budget. Hosted operations are parked. Pro/Team downloadable kits are a proposal in [the local product plan](LOCAL_FIRST_PRODUCTS.md); no new paid kit, price or delivery commitment is live.
 
 ## Product boundary
 
-Merge Guard's existing public MIT feature set remains Free. Features already released under MIT cannot be made exclusive retroactively. Pro and Team are additive commercial entitlements for new paid delivery/support surfaces.
+Merge Guard's existing public MIT feature set remains Free. Features already released under MIT cannot be made exclusive retroactively. Future Pro/Team kits would sell original content and convenience while using the same local Free scanner. Custom rules, policy sharing/import, Action templates and the dashboard remain Free.
 
 | Capability | Free | Pro | Team | Status | Implementation |
 | --- | :---: | :---: | :---: | --- | --- |
@@ -15,28 +15,28 @@ Merge Guard's existing public MIT feature set remains Free. Features already rel
 | Report comparison and local trends | Yes | Yes | Yes | Existing | comparison/trend modules |
 | Local dashboard | Yes | Yes | Yes | Existing | `dashboard/` |
 | Polar plan/license state | — | Yes | Yes | Implemented | `src/commercial/` |
-| Premium policy delivery | — | Yes | Yes | Staged implementation | Live-validated remote policy gateway and local scan integration; private paid content and hosting required before launch |
-| Priority support | — | Yes | Yes | Staged implementation | Live-validated queue intake; staffed reply channel, monitoring, retention policy and hosting required before launch |
-| Shared policy delivery | — | — | Yes | Commercial entitlement | Requires Team delivery package before launch |
-| Team support | — | — | Yes | Commercial entitlement | Requires support process before launch |
+| Premium remote policy delivery | — | Prototype | Prototype | Parked hosted foundation | Live-validated local gateway; no live paid service |
+| Priority support | — | Prototype | Prototype | Parked hosted foundation | Local queue only; no staffed SLA or response commitment |
+| Shared policy delivery / Team support | — | — | Capability flags | Parked entitlement model | No hosted Team product delivered |
+| Local workflow kits | — | Proposed | Proposed | Design only | Original policies, example diffs, review recipes and versioned package |
+| Repository adoption kits | — | — | Proposed | Design only | Shared config/workflow examples and adoption/upgrade guides |
 
 The current gateway implements an authenticated policy catalog and three **public reference** packs, but is a **sandbox-testable implementation**, not a live paid service. The public examples are not exclusive paid content. See [Pro fulfillment](pro-fulfillment.md) for exact commands and launch blockers.
 
-## Pricing target
+## Pricing status
 
 - **Free — $0**
-- **Pro — $9/month**
-- **Team — $29/month**
+- **Pro / Team — undecided; no active kit offer**
 
-Annual pricing is deliberately deferred until monthly checkout is verified.
+The former $9/month Pro and $29/month Team hosted targets are historical and parked. A one-time versioned download is a candidate, not an approved price or lifetime-update promise. Existing customer terms and any billing change require owner review; no license/subscription behavior changes here.
 
 ## Positioning
 
 **Free** proves Merge Guard is useful and keeps the complete existing open-source scanner usable indefinitely.
 
-**Pro** is for professional individual developers who want official paid entitlement, premium policy delivery, and priority support.
+**Pro (proposed)** would save developers setup time with tested workflow kits. Existing public packs are examples, not exclusive paid content.
 
-**Team** includes Pro and adds shared policy delivery and team-oriented support.
+**Team (proposed)** would add repository-local adoption materials. It promises no hosted collaboration, seats, automatic sync or priority-response SLA. Actual content rights and payment/delivery remain undecided.
 
 ## Commercial integrity rules
 

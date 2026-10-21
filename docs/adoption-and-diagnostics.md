@@ -18,6 +18,8 @@ The current v1.3.0-beta.2 source version is unpublished. Earlier candidates rema
 
 ## Doctor command
 
+For a new project, run `merge-guard init --dry-run` to preview a minimal configuration, then `merge-guard init` to create it and `merge-guard --doctor` to inspect setup. Run these from the target project. Setup writes only a new `merge-guard.config.json` with the standard preset; it refuses existing files/links and needs no account, license or network. `--preset safe` / `--preset strict` selects a different initial preset. Use a reviewed source checkout or local package containing this command; merging source does not update an older installed release.
+
 Run doctor from the repository root you want to inspect:
 
 ```bash

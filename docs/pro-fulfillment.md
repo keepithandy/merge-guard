@@ -1,5 +1,7 @@
 # Pro fulfillment — staged implementation
 
+**Parked hosted path:** retained for local testing and historical evidence. Free development now takes priority; [local Pro/Team kits](LOCAL_FIRST_PRODUCTS.md) are the proposed alternative. This runbook is not an instruction to provision hosting or promise support.
+
 **Status:** Implementation preview. Not deployed to paying customers. Production Polar checkout stays disabled. All existing Free/MIT analysis and starter packs remain available.
 
 ## Included workflows

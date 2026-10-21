@@ -46,6 +46,13 @@ try {
   assert.equal(installedSbom.components?.[0]?.purl, `pkg:npm/${sourcePackage.name}@${sourcePackage.version}`, 'packed SBOM purl must match package metadata');
   const localBin = path.join(local, 'node_modules', '.bin', process.platform === 'win32' ? 'merge-guard.cmd' : 'merge-guard');
   assert(fs.existsSync(localBin), 'local install should expose the executable');
+  const setupProject = path.join(temp, 'setup');
+  fs.mkdirSync(setupProject);
+  assert(run(localBin, ['init', '--dry-run'], setupProject).includes('No files written.'));
+  assert(!fs.existsSync(path.join(setupProject, 'merge-guard.config.json')));
+  assert(run(localBin, ['init'], setupProject).includes('Created merge-guard.config.json'));
+  assert.deepEqual(json(fs.readFileSync(path.join(setupProject, 'merge-guard.config.json'), 'utf8')),
+    { preset: 'standard' }, 'packed CLI must create the same minimal Free setup');
   const help = run(localBin, ['--help'], root);
   const sample = run(localBin, ['examples/sample.diff'], root);
   const report = run(localBin, ['--json', 'examples/sample.diff'], root);

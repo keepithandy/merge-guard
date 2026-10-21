@@ -10,6 +10,8 @@ Internal refactors, test-suite expansion, release engineering, and maintenance-o
 
 ### Features
 
+- **Free local setup.** `merge-guard init` creates a minimal local configuration, with an optional preset and a preview. Existing files are never overwritten; setup needs no license, account or network.
+
 - **Opt-in Polar Sandbox licensing.** Test activation and validation with an explicit Sandbox environment, fixed API endpoints, isolated license files, and environment-bound cached entitlements. Production remains the default and Free scanning stays available offline.
 - **Commercial entitlement foundation.** Added Free/Pro/Team plan detection, Polar license activation and validation commands, protected local license state, cached offline behavior, and launch documentation while preserving the existing MIT scanner as Free.
 - **Human Verification in the local dashboard.** Record Untested, Pass, Fail, or N/A results against a report, add your own checks, capture runtime defects, include optional environment details, and export the evidence as Markdown or JSON.

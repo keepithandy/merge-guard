@@ -25,6 +25,7 @@ import { createGithubAnnotationBundle, createSarifLog } from './githubReviewOutp
 import { formatDoctor, inspectDoctor } from './doctor.js';
 import { selectPrimaryChecks } from './projectChecks.js';
 import { MERGE_GUARD_VERSION } from './version.js';
+import { initializeConfig } from './initializeConfig.js';
 import { runCommercialCommand } from './commercial/cli.js';
 import { fetchPremiumPolicyPack } from './commercial/proClient.js';
 
@@ -80,6 +81,8 @@ Usage:
   node src/cli.js examples/sample.diff
 
 Commands:
+  merge-guard init [--dry-run]  Create a minimal local Free configuration without overwriting files
+  merge-guard init --preset <safe|standard|strict>  Choose the initial preset explicitly
   merge-guard plan              Show the current Free, Pro, or Team entitlement
   merge-guard activate <key>    Activate a Polar license key (legacy: key appears in process args)
   merge-guard activate --stdin  Activate from piped input without a key in process args
@@ -302,6 +305,11 @@ async function main() {
 
   if (args.includes('--help') || args.includes('-h')) {
     printHelp();
+    return;
+  }
+
+  if (args[0] === 'init') {
+    console.log(initializeConfig(args.slice(1)));
     return;
   }
 
