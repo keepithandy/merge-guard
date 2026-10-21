@@ -1,4 +1,5 @@
 import { compileSafeRegex } from './safeRegex.js';
+import { parseGitDiffHeaderPath } from './affectedPackages.js';
 
 export const CUSTOM_RULE_WEIGHT_MIN = 0;
 export const CUSTOM_RULE_WEIGHT_MAX = 10;
@@ -13,9 +14,9 @@ function parseFileChanges(diffText) {
 
   for (const line of diffText.split(/\r?\n/)) {
     if (line.startsWith('diff --git ')) {
-      const match = line.match(/^diff --git a\/(.*?) b\/(.*)$/);
-      current = match
-        ? { path: match[2], addedLines: [] }
+      const filePath = parseGitDiffHeaderPath(line);
+      current = filePath
+        ? { path: filePath, addedLines: [] }
         : null;
 
       if (current) changes.push(current);
