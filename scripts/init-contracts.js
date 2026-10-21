@@ -111,6 +111,26 @@ try {
   } finally { fs.fsyncSync = sync; }
   const link = fs.linkSync;
   try {
+    fs.linkSync = () => { const error = new Error(sentinel); error.code = 'ENOTSUP'; throw error; };
+    assert.throws(() => initializeConfig([], { cwd }), error =>
+      error.message.includes('--dry-run') && !error.message.includes(sentinel));
+    assert(!fs.existsSync(filename(cwd)), 'unsupported filesystems must not get a partial config');
+  } finally { fs.linkSync = link; }
+  if (linked) {
+    const raced = directory('link during publication');
+    const missing = path.join(root, 'race-target');
+    try {
+      fs.linkSync = (temporary, target) => {
+        fs.symlinkSync(missing, target, 'file');
+        return link(temporary, target);
+      };
+      assert.throws(() => initializeConfig([], { cwd: raced }));
+      assert(fs.lstatSync(filename(raced)).isSymbolicLink());
+      assert(!fs.existsSync(missing), 'publication must never follow a newly inserted dangling link');
+      assert.deepEqual(fs.readdirSync(raced), ['merge-guard.config.json']);
+    } finally { fs.linkSync = link; }
+  }
+  try {
     fs.linkSync = (temporary, target) => {
       fs.writeFileSync(target, 'replacement must survive');
       return link(temporary, target);
