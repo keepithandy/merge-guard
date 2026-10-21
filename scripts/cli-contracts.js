@@ -153,4 +153,59 @@ assert.equal(run(['--preset']).status, 1, 'missing preset value should fail');
 assert.equal(run(['--fail-threshold']).status, 1, 'missing threshold value should fail');
 assert.equal(run(['--pr-title', 'Context', '--pr-body', 'missing.md', 'examples/sample.diff']).status, 1, 'missing PR body file should fail');
 assert.equal(run([], 'diff --git a/src/example.js b/src/example.js\n+const value = 1;\n').status, 0, 'stdin diff mode should succeed');
+// Unknown input must not be reported as LOW or NO_CONFIGURED_BLOCKERS.
+for (const invalid of [
+  'This is plain text, not a Git diff.\n',
+  '--- a/src/app.js\n+++ b/src/app.js\n@@ -0,0 +1 @@\n+fetch("/");\n',
+  'diff --git a/src/app.js b/src/app.js extra\n+fetch("/");\n',
+  'diff --git a/src/app.js b/../outside.js\n+fetch("/");\n',
+  'diff --git a/src/app.js b/src/app.js\n+const ok = 1;\ndiff --cc src/merge.js\n',
+  'diff --git a/src/app.js b/src/app.js\n+const ok = 1;\ndiff --git a/src/bad.js b/../outside.js\n'
+]) {
+  const result = run(['--json'], invalid);
+  assert.equal(result.status, 1, 'unsupported or partially malformed input must fail closed');
+  assert.equal(result.stdout, '', 'no clean JSON report may be emitted for unknown evidence');
+  assert.match(result.stderr, /unsupported diff format/i);
+  const ci = run(['--ci'], invalid);
+  assert.equal(ci.status, 1, 'CI must also fail on missing or malformed diff evidence');
+  assert(!ci.stdout.includes('NO_CONFIGURED_BLOCKERS'));
+}
+
+// Preserve legitimate Git forms that have no content hunk (e.g. chmod-only).
+const modeOnly = [
+  'diff --git a/src/command.sh b/src/command.sh',
+  'old mode 100644',
+  'new mode 100755',
+  ''
+].join('\n');
+const modeResult = run(['--json'], modeOnly);
+assert.equal(modeResult.status, 0, modeResult.stderr);
+assert.deepEqual(JSON.parse(modeResult.stdout).summary.files, ['src/command.sh']);
+
+const quotedPathResult = run(['--json'], [
+  'diff --git "a/src/file with spaces.js" "b/src/file with spaces.js"',
+  '--- "a/src/file with spaces.js"',
+  '+++ "b/src/file with spaces.js"',
+  '@@ -0,0 +1 @@',
+  '+export const value = true;',
+  ''
+].join('\n'));
+assert.equal(quotedPathResult.status, 0, quotedPathResult.stderr);
+assert.deepEqual(JSON.parse(quotedPathResult.stdout).summary.files, ['src/file with spaces.js']);
+
+// Reject file input the same way, before creating requested review artifacts.
+const invalidInputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'merge-guard-invalid-diff-'));
+try {
+  const invalidFile = path.join(invalidInputDir, 'unsupported.patch');
+  const reportFile = path.join(invalidInputDir, 'report.json');
+  fs.writeFileSync(invalidFile, 'not a patch\n', 'utf8');
+  const refused = run(['--json', '--report-json', reportFile, invalidFile]);
+  assert.equal(refused.status, 1);
+  assert.equal(refused.stdout, '');
+  assert.match(refused.stderr, /unsupported diff format/i);
+  assert.equal(fs.existsSync(reportFile), false, 'unrecognized input must not write a review artifact');
+} finally {
+  fs.rmSync(invalidInputDir, { recursive: true, force: true });
+}
+
 console.log('merge-guard CLI contract tests passed');
