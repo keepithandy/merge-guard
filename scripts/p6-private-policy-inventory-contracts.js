@@ -1,0 +1,70 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mg-p6-inventory-'));
+const dir = path.join(root, 'private');
+fs.mkdirSync(dir, { mode: 0o700 });
+const valid = path.join(dir, 'release-integrity.json');
+fs.copyFileSync(path.join('policies', 'pro-reference', 'release-integrity.json'), valid);
+const script = path.resolve('scripts/p6-private-policy-inventory.js');
+function audit(selected, cwd = process.cwd()) {
+  return spawnSync(process.execPath, [script], {
+    env: { ...process.env, MERGE_GUARD_PRO_POLICY_DIRECTORY: selected },
+    cwd, encoding: 'utf8'
+  });
+}
+try {
+  const inventory = audit(dir);
+  assert.equal(inventory.status, 0, inventory.stderr);
+  const result = JSON.parse(inventory.stdout);
+  assert.equal(result.rightsCleared, false);
+  assert.equal(result.contentsUploaded, false);
+  assert.equal(result.productionEnabled, false);
+  assert.deepEqual(result.policies.map(p => p.id), ['release-integrity']);
+  assert.match(result.policies[0].sha256, /^[a-f0-9]{64}$/);
+  assert(!inventory.stdout.includes('"rules"'), 'never emit policy bytes');
+  assert(!inventory.stdout.includes(root), 'never emit private paths');
+  assert.notEqual(audit(path.resolve('policies/pro-reference')).status, 0,
+    'checked-in public policy examples must not pass as private assets');
+  assert.notEqual(audit(path.resolve('policies/pro-reference'), root).status, 0,
+    'changing working directory must not bypass the public checkout boundary');
+  assert.equal(audit(dir, root).status, 0,
+    'a real external policy directory remains valid from another working directory');
+
+  // A directory alias outside checkout must not make public MIT examples
+  // appear to be a private owner-controlled policy collection.
+  if (process.platform !== 'win32') {
+    const aliased = path.join(root, 'public-alias');
+    fs.symlinkSync(path.resolve('policies/pro-reference'), aliased, 'dir');
+    try {
+      assert.notEqual(audit(aliased).status, 0, 'parent symlink into checkout is still public');
+    } finally {
+      fs.unlinkSync(aliased); // Never recursively remove a directory junction.
+    }
+  }
+  if (process.platform !== 'win32') {
+    fs.chmodSync(dir, 0o755);
+    assert.notEqual(audit(dir).status, 0, 'world-readable policy directories are not private');
+    fs.chmodSync(dir, 0o700);
+  }
+  fs.writeFileSync(path.join(dir, 'broken.json'), '{"identity":null}');
+  assert.notEqual(audit(dir).status, 0, 'invalid JSON policy must fail entire audit');
+  fs.rmSync(path.join(dir, 'broken.json'));
+  let symlinkCreated = false;
+  try {
+    fs.symlinkSync(valid, path.join(dir, 'linked.json'), 'file');
+    symlinkCreated = true;
+  } catch (error) {
+    if (process.platform !== 'win32' || !['EPERM','EACCES','ENOTSUP'].includes(error.code)) throw error;
+  }
+  if (symlinkCreated) {
+    assert.notEqual(audit(dir).status, 0, 'policy symlinks must not be inventoried');
+  }
+  console.log('P6 private policy inventory contracts passed (rights never auto-attested).');
+} finally {
+  fs.rmSync(root, { recursive: true, force: true });
+}

@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | [`ROADMAP.md`](../ROADMAP.md) | Canonical product direction, priority lanes, version boundaries, release decisions | Active |
 | [`POST_P5_ROADMAP.md`](POST_P5_ROADMAP.md) | Current cross-lane status, dependency map, proposed next work, evidence and launch gates | Active **planning** record |
-| [`ROADMAP_EXECUTION.md`](ROADMAP_EXECUTION.md) | Bounded, executable *authorized* Free work and historical completions | Active; do not promote proposed P6+ work without owner scope decision |
+| [`ROADMAP_EXECUTION.md`](ROADMAP_EXECUTION.md) | Bounded, executable *authorized* Free work and historical completions | Active; P6 source scope is now authorized under #205; P7+ still requires owner scope decision |
 | [`PHASE_ROADMAP.md`](PHASE_ROADMAP.md) | Solo-maintainer Free development/preview workflow | Active |
 | [`commercial-release-checklist.md`](commercial-release-checklist.md) | Pro/Team launch-gating inventory including Free compatibility checks; unchecked means not verified for paid launch | Active |
 | [`LONG_HORIZON_ROADMAP.md`](LONG_HORIZON_ROADMAP.md) | Candidate ideas, including AI/hosted/v2; neither prioritized nor approved | Idea registry only |
@@ -48,9 +48,12 @@ The **September 3, 2026 stopped pilot** remains immutable: actionable precision 
 
 No checkbox in [the commercial checklist](commercial-release-checklist.md) is automatically completed merely because P5 merged. All customer-facing benefit claims must track delivered functionality rather than capability flags or reference packs.
 
-## 4. Proposed next commercial delivery sequence (not authorized for implementation)
+## 4. P6 owner-directed execution; P7–P9 remain proposed
 
-The names below are **planning candidates**, not numbered GitHub issues, active authorizations, or claims that P6–P9 have begun. Promote one bounded slice at a time after an explicit scope decision, reproducible acceptance tests, security analysis, and rollback design.
+**Update (2026-10-20):** Owner approved proceeding through **P6A–P6E source work and safe tests** until an actual operator, live Sandbox, content-rights or production authorization roadblock. The accepted source slices also cover P6D local operator-attestation, receipt lifecycle and retention-hold contracts; this is not evidence of an actual delivered email or staffed support. Track all five slices together under [P6 master issue #205](https://github.com/keepithandy/merge-guard/issues/205) and the [P6 execution runbook](P6_EXECUTION.md). This approval **does not** enable customer payments, paid fulfillment, host deployment, external publication or unstaffed support. P7–P9 are unchanged proposed phases.
+
+
+P6 slices are now **accepted for bounded source implementation and nonpublishing evidence**, as tracked in #205. The owner-controlled external and live-provider gates are still blocked unless separately met. P7–P9 remain **planning candidates**, not accepted GitHub issues or launch authorizations. Promote one bounded slice at a time after an explicit scope decision, reproducible acceptance tests, security analysis, and rollback design.
 
 ### P6 — Candidate hardening and proof of paid benefit delivery
 
@@ -113,4 +116,4 @@ The names below are **planning candidates**, not numbered GitHub issues, active 
 
 For each selected issue record: **scope and owner decision**; baseline SHA; user-visible outcome; threat/privacy/permission boundaries; dependencies; public interface impact; positive+negative/abuse fixtures; `npm.cmd test`, `npm.cmd run test:commercial` (when relevant), `npm.cmd run test:security`, `npm.cmd run test:public-contracts`, `npm.cmd run release:check`; exact GitHub Actions run and final head SHA; reviewer findings and fixes; rollback/revert; residual risk; **source merge versus external operation authorization**. Do not mark a skipped, pending or inapplicable gate as passing.
 
-**Current recommendation for work selection:** first reconcile #190 and stale #189 as maintenance, then select P6A (freeze/evidence inventory) and P6B (security threat model) as *proposals*. Pro paid rollout depends on P6C–E; Team depends on P8. Free P7 can proceed on its own schedule after exact authorization.
+**Current execution:** follow the [single Phase 6 sequence and acceptance table](P6_EXECUTION.md#one-phase-6-execution-sequence) under [#205](https://github.com/keepithandy/merge-guard/issues/205). PR #206 supplies bounded P6A–D source work; independent review, exact-head CI and a post-merge source candidate record precede the owner handoff. The first operational blocker is P6B's host/TLS/trusted-ingress and secure-storage decision. P6C private rights, P6D real staffed delivery and P6E live Sandbox evidence remain blocked separately. #190 and stale #189 remain maintenance; do not merge #189 as-is. Pro paid rollout depends on P6C–E; Team depends on P8. Free P7 requires its own authorization.

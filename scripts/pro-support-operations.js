@@ -37,7 +37,12 @@ function readTicket(id) {
   if (!ticket || ticket.id !== id || !allowedStatus.has(ticket.status)
       || typeof ticket.receivedAt !== 'string'
       || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(ticket.receivedAt)
-      || !Number.isFinite(Date.parse(ticket.receivedAt))) {
+      || !Number.isFinite(Date.parse(ticket.receivedAt))
+      || typeof ticket.contact !== 'string' || ticket.contact.length > 254
+      || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ticket.contact)
+      || CONTROL.test(ticket.contact)
+      || typeof ticket.message !== 'string' || ticket.message.length > 4000
+      || CONTROL.test(ticket.message)) {
     throw new Error('Invalid ticket record.');
   }
   return ticket;
@@ -91,6 +96,36 @@ function draft(id, source) {
   }, null, 2) + '\n');
   console.log('Unsent reply draft saved locally for ticket ' + id + '. No email sent.');
 }
+function attestDelivery(id, referenceFile) {
+  const ticket = readTicket(id);
+  if (ticket.status === 'closed') throw new Error('Closed ticket cannot be attested.');
+  regularFile(referenceFile, 512);
+  const reference = fs.readFileSync(referenceFile, 'utf8').trim();
+  // An operator-controlled provider reference, not a customer address or
+  // message body; never claim the gateway itself transmitted a reply.
+  if (reference.length < 4 || reference.length > 200
+      || !/^[A-Za-z0-9][A-Za-z0-9._:/+\-]{3,199}$/.test(reference)) {
+    throw new Error('Delivery reference must be 4–200 safe characters without personal contact details.');
+  }
+  const receipt = path.join(directory, id + '.delivery.json');
+  writePrivate(receipt, JSON.stringify({
+    ticketId: id, status: 'operator-attested-external-delivery',
+    providerReference: reference, confirmedAt: new Date().toISOString(),
+    nonce: randomUUID()
+  }, null, 2) + '\n');
+  console.log('Operator delivery attestation saved for ' + id + '. No email was sent by Merge Guard.');
+}
+function holdTicket(id, category) {
+  readTicket(id);
+  if (!['legal', 'incident', 'retention'].includes(category)) {
+    throw new Error('Hold category must be legal, incident, or retention.');
+  }
+  writePrivate(path.join(directory, id + '.hold.json'), JSON.stringify({
+    ticketId: id, status: 'hold-active', category,
+    createdAt: new Date().toISOString(), nonce: randomUUID()
+  }, null, 2) + '\n');
+  console.log('Retention hold created for ticket ' + id + '. Release requires independent operator authorization.');
+}
 function purgeClosed(daysText, apply) {
   const days = Number(daysText);
   if (!/^[0-9]+$/.test(daysText || '') || !Number.isInteger(days) || days < 1 || days > 3650) {
@@ -99,6 +134,10 @@ function purgeClosed(daysText, apply) {
   const now = Date.now();
   const expired = allTickets().filter(ticket => {
     if (ticket.status !== 'closed' || typeof ticket.updatedAt !== 'string') return false;
+    // Any hold path, even invalid or dangling, blocks destructive removal
+    // until it is independently inspected/released by the owner.
+    const holdPath = path.join(directory, ticket.id + '.hold.json');
+    if (fs.lstatSync(holdPath, { throwIfNoEntry: false })) return false;
     const at = Date.parse(ticket.updatedAt);
     return Number.isFinite(at) && at <= now && now - at >= days * DAY_MS;
   });
@@ -106,6 +145,11 @@ function purgeClosed(daysText, apply) {
     if (apply) {
       const primary = ticketFile(ticket.id);
       const reply = path.join(directory, ticket.id + '.draft.json');
+      const receipt = path.join(directory, ticket.id + '.delivery.json');
+      const hold = path.join(directory, ticket.id + '.hold.json');
+      if (fs.lstatSync(hold, { throwIfNoEntry: false })) {
+        throw new Error('Ticket is on retention hold.');
+      }
       // Refuse to delete the ticket if an unexpected draft path is present.
       // lstat detects dangling symlinks; existsSync would treat them as absent.
       const draftStat = fs.lstatSync(reply, { throwIfNoEntry: false });
@@ -113,8 +157,14 @@ function purgeClosed(daysText, apply) {
           || draftStat.size > 16384)) {
         throw new Error('Not a regular bounded file.');
       }
+      const deliveryStat = fs.lstatSync(receipt, { throwIfNoEntry: false });
+      if (deliveryStat && (!deliveryStat.isFile() || deliveryStat.isSymbolicLink()
+          || deliveryStat.size > 16384)) {
+        throw new Error('Not a regular bounded file.');
+      }
       regularFile(primary);
       if (draftStat) fs.unlinkSync(reply);
+      if (deliveryStat) fs.unlinkSync(receipt);
       fs.unlinkSync(primary);
     }
     console.log((apply ? 'Purged' : 'Would purge') + ': ' + ticket.id);
@@ -124,8 +174,12 @@ function purgeClosed(daysText, apply) {
 
 privateDirectory();
 const [command, value, flag, ...extra] = process.argv.slice(2);
-if (extra.length) throw new Error('Unexpected arguments.');
+if (extra.length || ((command === 'attest-delivery') && !flag)) {
+  throw new Error('Unexpected or missing arguments.');
+}
 if (command === 'pending' && (!value || value === '--json') && !flag) pending(value === '--json');
 else if (command === 'draft' && UUID.test(value || '') && flag) draft(value, flag);
+else if (command === 'attest-delivery' && UUID.test(value || '') && flag) attestDelivery(value, flag);
+else if (command === 'hold' && UUID.test(value || '') && flag) holdTicket(value, flag);
 else if (command === 'purge-closed' && (flag === undefined || flag === '--apply')) purgeClosed(value, flag === '--apply');
-else throw new Error('Usage: pending [--json] | draft <ticket-id> <reply-file> | purge-closed <days> [--apply]');
+else throw new Error('Usage: pending [--json] | draft <ticket-id> <reply-file> | attest-delivery <ticket-id> <reference-file> | hold <ticket-id> <legal|incident|retention> | purge-closed <days> [--apply]');

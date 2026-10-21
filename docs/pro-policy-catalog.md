@@ -38,6 +38,12 @@ The legacy positional activation command is still supported but exposes the key 
 - Support tickets never store the license key; status changes remain local owner triage.
 - A public deployment still needs HTTPS ingress, reverse-proxy rate limiting, abuse monitoring, backups, alerting, privacy/retention controls and staffed support.
 
+## P6 local security and private-rights inventory
+
+P6's loopback gateway now rejects unintended Host/Origin and client-injected forwarding headers and uses bounded in-process source-IP and salted-key request counters. It cannot accept public-host proxy traffic without a new, separately reviewed trusted ingress design. See [P6 execution and deployment gate](P6_EXECUTION.md). Production TLS, distributed rate limits, Windows ACL verification and secrets/queue backup obligations remain **open**.
+
+The read-only `npm run p6:policy-inventory` validates a private policy directory located outside this public repository and prints IDs, versions and hashes, never policy bytes. It deliberately does **not** assert content distribution rights (`rightsCleared: false`), support private customer-only deployment or turn on paid billing. No exclusive private pack inventory or licensed rights has been supplied.
+
 ## Verification
 
 Run `npm.cmd run test:pro-fulfillment`, `npm.cmd run test:commercial`, `npm.cmd test` and `npm.cmd run release:check`. Verify the exact-head GitHub Actions matrix on Windows and Linux.

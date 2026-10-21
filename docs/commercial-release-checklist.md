@@ -16,6 +16,8 @@
 
 **Checklist convention:** a checkbox below is a **fresh launch-candidate attestation**, not an implementation claim. Leave it unchecked until evidence for that *exact candidate* is recorded. Mark failed/unavailable/not-applicable explicitly in the release decision packet; never mark a mocked integration as live verified.
 
+**Phase 6 source progress:** follow [the P6A–E execution and blocker table](P6_EXECUTION.md#one-phase-6-execution-sequence) under [#205](https://github.com/keepithandy/merge-guard/issues/205). The local candidate/security/inventory/support work in PR #206 supplies source controls and regression evidence. The first owner gate is the P6B deployment/TLS/trusted-ingress and secure-storage decision; private rights, real support delivery and live Sandbox receipts remain required. These source changes complete no launch checkbox by themselves.
+
 ## Repository
 
 - [ ] `npm test` passes on the exact frozen candidate SHA on all required platforms.

@@ -124,6 +124,10 @@ check('Plugin conformance gate exists', Boolean(read('scripts/plugin-conformance
 check('Installation validation gate exists', Boolean(read('scripts/installation-contracts.js')));
 check('Security validation gate exists', Boolean(read('scripts/security-contracts.js')));
 check('Pro fulfillment gate exists', Boolean(read('scripts/pro-fulfillment-contracts.js')));
+check('P6 gateway security gate exists', Boolean(read('scripts/p6-gateway-security-contracts.js')));
+check('P6 candidate artifact evidence generator exists', Boolean(read('scripts/p6-candidate-evidence.js')));
+check('P6 offline policy inventory exists', Boolean(read('scripts/p6-private-policy-inventory.js')));
+check('P6 support response/hold gate exists', Boolean(read('scripts/p6-support-contracts.js')));
 check('Pro fulfillment documentation exists', Boolean(read('docs/pro-fulfillment.md')));
 check('Performance validation gate exists', Boolean(read('scripts/performance-contracts.js')));
 check('Release-candidate validation gate exists', Boolean(read('scripts/release-candidate-contracts.js')));
@@ -198,6 +202,10 @@ for (const [label, script] of [
   ['Polar environment isolation contracts', 'scripts/polar-sandbox-contracts.js'],
   ['License denial persistence contracts', 'scripts/license-persistence-contracts.js'],
   ['Pro fulfillment contracts', 'scripts/pro-fulfillment-contracts.js'],
+  ['P6 local ingress and rate-limit contracts', 'scripts/p6-gateway-security-contracts.js'],
+  ['P6 candidate source binding contracts', 'scripts/p6-candidate-evidence-contracts.js'],
+  ['P6 private policy inventory contracts', 'scripts/p6-private-policy-inventory-contracts.js'],
+  ['P6 support operations and holds contracts', 'scripts/p6-support-contracts.js'],
   ['CLI contracts', 'scripts/cli-contracts.js'],
   ['Snapshot contracts', 'scripts/snapshot-contracts.js'],
   ['Repository intelligence contracts', 'scripts/repository-intelligence-contracts.js'],

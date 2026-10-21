@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -78,6 +79,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -234,3 +238,6 @@ jobs:
 
       - name: Verify package contents without publishing
         run: npm pack --dry-run
+
+      - name: Capture P6 candidate identity and local package hash (no publish)
+        run: npm run p6:candidate-evidence

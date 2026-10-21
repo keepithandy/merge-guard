@@ -8,6 +8,7 @@ if (!directory) throw new Error('Set MERGE_GUARD_PRO_SUPPORT_DIRECTORY to your p
 const [operation, id, desiredStatus] = process.argv.slice(2);
 const allowedStatus = new Set(['queued', 'open', 'responded', 'closed']);
 const idPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const CONTROL = /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/;
 
 function assertPrivateDirectory() {
   const stat = fs.lstatSync(directory);
@@ -34,10 +35,41 @@ function readTicket(id) {
   if (ticket.id !== id || !allowedStatus.has(ticket.status)
       || typeof ticket.receivedAt !== 'string'
       || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(ticket.receivedAt)
-      || !Number.isFinite(Date.parse(ticket.receivedAt))) {
+      || !Number.isFinite(Date.parse(ticket.receivedAt))
+      || typeof ticket.contact !== 'string' || ticket.contact.length > 254
+      || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ticket.contact)
+      || CONTROL.test(ticket.contact)
+      || typeof ticket.message !== 'string' || ticket.message.length > 4000
+      || CONTROL.test(ticket.message)) {
     throw new Error('Invalid ticket contents.');
   }
   return ticket;
+}
+
+function requireDeliveryAttestation(ticketId) {
+  const file = path.join(directory, ticketId + '.delivery.json');
+  const stat = fs.lstatSync(file);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16384) {
+    throw new Error('External delivery attestation must be a bounded, regular file.');
+  }
+  const fd = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0));
+  let record;
+  try {
+    const opened = fs.fstatSync(fd);
+    if (!opened.isFile() || opened.size > 16384) {
+      throw new Error('External delivery attestation was replaced.');
+    }
+    record = JSON.parse(fs.readFileSync(fd, 'utf8'));
+  } finally { fs.closeSync(fd); }
+  if (!record || record.ticketId !== ticketId
+      || record.status !== 'operator-attested-external-delivery'
+      || typeof record.providerReference !== 'string'
+      || !/^[A-Za-z0-9][A-Za-z0-9._:\/+\-]{3,199}$/.test(record.providerReference)
+      || typeof record.confirmedAt !== 'string'
+      || !Number.isFinite(Date.parse(record.confirmedAt))) {
+    throw new Error('External delivery attestation is invalid.');
+  }
+  return record;
 }
 
 if (operation === 'list' && id === undefined) {
@@ -59,6 +91,10 @@ if (operation === 'list' && id === undefined) {
   console.log('Message:\n' + ticket.message);
 } else if (operation === 'status' && id && ['open', 'responded', 'closed'].includes(desiredStatus)) {
   const ticket = readTicket(id);
+  if (desiredStatus === 'responded') {
+    // An unsent draft alone cannot transition a ticket to responded.
+    requireDeliveryAttestation(id);
+  }
   ticket.status = desiredStatus;
   ticket.updatedAt = new Date().toISOString();
   const file = ticketPath(id);
