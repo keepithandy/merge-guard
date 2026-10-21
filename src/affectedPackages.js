@@ -25,6 +25,18 @@ function gitTokens(value) {
   return value.match(/"(?:\\.|[^"])*"|\S+/g)?.map(decodeGitPath) || [];
 }
 
+// Use the same decoded Git path in risk analysis and custom-rule matching
+// as in repository impact. Git quotes names containing whitespace, quotes,
+// backslashes or non-ASCII bytes, so matching a raw "a/..." header is unsafe.
+export function parseGitDiffHeaderPath(line) {
+  if (typeof line !== 'string' || !line.startsWith('diff --git ')) return null;
+  const tokens = gitTokens(line.slice('diff --git '.length));
+  if (tokens.length !== 2 || !tokens[0].startsWith('a/') || !tokens[1].startsWith('b/')) {
+    return null;
+  }
+  return normalizeRepositoryPath(tokens[1], true);
+}
+
 function normalizeRepositoryPath(value, stripSidePrefix = false) {
   if (typeof value !== 'string') return null;
 
