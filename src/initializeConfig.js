@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 const FILENAME = 'merge-guard.config.json';
 const PRESETS = new Set(['safe', 'standard', 'strict']);
@@ -32,32 +33,47 @@ export function initializeConfig(args, { cwd = process.cwd() } = {}) {
   if (dryRun) return `Would create ${FILENAME}:\n${contents}No files written.${next}`;
 
   const file = path.join(cwd, FILENAME);
+  const temporary = path.join(cwd, `.merge-guard-init-${randomUUID()}.tmp`);
   let fd;
   let created;
+  let published = false;
+  let cleanupFailed = false;
   try {
-    // Exclusive creation also refuses directories and dangling symlinks.
-    fd = fs.openSync(file, 'wx', 0o600);
+    if (fs.lstatSync(file, { throwIfNoEntry: false })) {
+      const exists = new Error('Existing configuration path.');
+      exists.code = 'EEXIST';
+      throw exists;
+    }
+    fd = fs.openSync(temporary, 'wx', 0o600);
     created = fs.fstatSync(fd);
     fs.writeFileSync(fd, contents, 'utf8');
     fs.fsyncSync(fd);
+    fs.closeSync(fd);
+    fd = undefined;
+    // link is an atomic no-replace publication on Windows and POSIX. Opening
+    // the final name with wx alone can follow a dangling link on Windows.
+    // Never fall back to rename (which overwrites) or a target-path write.
+    fs.linkSync(temporary, file);
+    published = true;
   } catch (error) {
-    if (fd !== undefined) {
-      try { fs.closeSync(fd); } catch { /* preserve the creation failure */ }
-      fd = undefined;
-      try {
-        const current = fs.lstatSync(file);
-        if (current.isFile() && !current.isSymbolicLink() && created
-            && current.dev === created.dev && current.ino === created.ino) {
-          fs.unlinkSync(file);
-        }
-      } catch { /* cleanup must never follow or remove a different path */ }
-    }
     if (error.code === 'EEXIST') {
       throw new Error(`${FILENAME} already exists. Review or edit it manually; init never overwrites it.`);
     }
-    throw new Error(`Could not create ${FILENAME}. Check directory permissions and available storage.`);
+    throw new Error(`Could not safely create ${FILENAME}. Check permissions/storage; use --dry-run for a manual setup.`);
   } finally {
-    if (fd !== undefined) fs.closeSync(fd);
+    if (fd !== undefined) {
+      try { fs.closeSync(fd); } catch { /* preserve the original error */ }
+    }
+    if (created) {
+      try {
+        const current = fs.lstatSync(temporary);
+        if (current.isFile() && !current.isSymbolicLink()
+            && current.dev === created.dev && current.ino === created.ino) {
+          fs.unlinkSync(temporary);
+        } else cleanupFailed = true;
+      } catch { cleanupFailed = true; }
+    }
   }
-  return `Created ${FILENAME} with the ${preset} preset.${next}`;
+  const warning = published && cleanupFailed ? '\nWarning: review the leftover .merge-guard-init-*.tmp setup file.' : '';
+  return `Created ${FILENAME} with the ${preset} preset.${warning}${next}`;
 }

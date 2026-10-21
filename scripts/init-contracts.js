@@ -109,17 +109,18 @@ try {
     assert.throws(() => initializeConfig([], { cwd }), error => !error.message.includes(sentinel));
     assert(!fs.existsSync(filename(cwd)), 'remove our incomplete file on persistence failure');
   } finally { fs.fsyncSync = sync; }
-  const saved = path.join(cwd, 'partial.saved');
+  const link = fs.linkSync;
   try {
-    fs.fsyncSync = () => {
-      fs.renameSync(filename(cwd), saved);
-      fs.writeFileSync(filename(cwd), 'replacement must survive');
-      throw new Error(sentinel);
+    fs.linkSync = (temporary, target) => {
+      fs.writeFileSync(target, 'replacement must survive');
+      return link(temporary, target);
     };
     assert.throws(() => initializeConfig([], { cwd }));
     assert.equal(fs.readFileSync(filename(cwd), 'utf8'), 'replacement must survive',
-      'failure cleanup must not delete a different file at the same name');
-  } finally { fs.fsyncSync = sync; }
+      'a target appearing during publication must never be overwritten or deleted');
+  } finally { fs.linkSync = link; }
+  assert(!fs.readdirSync(cwd).some(name => name.startsWith('.merge-guard-init-')),
+    'failed setup and publication must remove our temporary files');
   assert(!fs.existsSync(marker));
   console.log('Free init contracts passed: preview, presets, offline isolation, safe creation, defaults and refusal paths');
 } finally {
