@@ -32,16 +32,14 @@ try {
 
   // A directory alias outside checkout must not make public MIT examples
   // appear to be a private owner-controlled policy collection.
-  const aliased = path.join(root, 'public-alias');
-  let aliasCreated = false;
-  try {
-    fs.symlinkSync(path.resolve('policies/pro-reference'), aliased, 'junction');
-    aliasCreated = true;
-  } catch (error) {
-    if (process.platform !== 'win32' || !['EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) throw error;
-  }
-  if (aliasCreated) {
-    assert.notEqual(audit(aliased).status, 0, 'parent symlink into checkout is still public');
+  if (process.platform !== 'win32') {
+    const aliased = path.join(root, 'public-alias');
+    fs.symlinkSync(path.resolve('policies/pro-reference'), aliased, 'dir');
+    try {
+      assert.notEqual(audit(aliased).status, 0, 'parent symlink into checkout is still public');
+    } finally {
+      fs.unlinkSync(aliased); // Never recursively remove a directory junction.
+    }
   }
   if (process.platform !== 'win32') {
     fs.chmodSync(dir, 0o755);
