@@ -237,9 +237,15 @@ function collectAddedLines(diffText) {
 }
 
 function isTestFile(file) {
-  return /(^|\/)(?:test|tests|fixtures)\//i.test(file)
-    || /(^|\/)scripts\/[^/]*(?:test|contract|e2e|smoke)[^/]*\.(?:mjs|cjs|js)$/i.test(file)
-    || /(?:test|spec|smoke|__tests__)/i.test(file);
+  // Incidental substrings in production filenames (contest, testimonial,
+  // special, smokehouse) are not test evidence. Match directory and filename
+  // segments, including common script contract and smoke test conventions.
+  if (/(^|\/)(?:__tests__|tests?|specs?|fixtures?|testdata)\//i.test(file)) return true;
+  const basename = file.slice(file.lastIndexOf('/') + 1);
+  if (/(^|[._-])(?:__tests__|tests?|specs?|fixtures?|smoke|e2e)(?=[._-]|$)/i.test(basename)) {
+    return true;
+  }
+  return /(^|\/)scripts\/[^/]*[._-](?:contracts?|tests?|specs?|smoke|e2e)(?=[._-]|$)/i.test(file);
 }
 
 function isDocsFile(file) {
@@ -323,7 +329,7 @@ function matchRiskPattern(pattern, files, addedLines, totals, config, changes = 
   }
 
   const matchedFiles = pattern.file ? files.filter((file) =>
-    pattern.file.test(file)
+    (pattern.id === 'test-change' ? isTestFile(file) : pattern.file.test(file))
       && !(pattern.id === 'routing-or-entry'
         && isPureAdditiveIndexReexport(changes.find((change) => change.path === file)))
   ) : [];
