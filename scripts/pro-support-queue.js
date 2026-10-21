@@ -52,7 +52,15 @@ function requireDeliveryAttestation(ticketId) {
   if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 16384) {
     throw new Error('External delivery attestation must be a bounded, regular file.');
   }
-  const record = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const fd = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0));
+  let record;
+  try {
+    const opened = fs.fstatSync(fd);
+    if (!opened.isFile() || opened.size > 16384) {
+      throw new Error('External delivery attestation was replaced.');
+    }
+    record = JSON.parse(fs.readFileSync(fd, 'utf8'));
+  } finally { fs.closeSync(fd); }
   if (!record || record.ticketId !== ticketId
       || record.status !== 'operator-attested-external-delivery'
       || typeof record.providerReference !== 'string'
