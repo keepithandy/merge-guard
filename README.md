@@ -77,7 +77,7 @@ node src/cli.js path/to/change.diff
 
 ### Set up a local project
 
-From the project you want to review, preview a minimal configuration and then create it with the installed CLI:
+`init` is an **unreleased source feature**. Use a reviewed checkout or local package containing it; the published preview linked above is not updated by this source change. From the project you want to review, preview a minimal configuration and then create it with that CLI:
 
 ```bash
 merge-guard init --dry-run
