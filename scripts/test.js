@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 const suites = [
   'scripts/cli-contracts.js',
   'scripts/quoted-diff-path-contracts.js',
+  'scripts/test-file-detection-contracts.js',
   'scripts/init-contracts.js',
   'scripts/snapshot-contracts.js',
   'scripts/repository-intelligence-contracts.js',
