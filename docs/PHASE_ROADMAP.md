@@ -1,5 +1,7 @@
 # Merge Guard — Solo-Maintainer Development and Free Beta Roadmap
 
+**Current owner direction:** prioritize Free with no maintainer server budget. [#208](https://github.com/keepithandy/merge-guard/issues/208) starts with explicit local `init` setup. The [local Pro/Team kit proposal](LOCAL_FIRST_PRODUCTS.md) explores downloadable content/convenience; hosted operations are parked and are not a Free prerequisite. Existing MIT features remain Free. No release or billing action is implied.
+
 **Verified status refresh (2026-10-20):** This remains the **active Free development path**, independent of the commercial post-P5 proposal. PR [#193](https://github.com/keepithandy/merge-guard/pull/193) has now merged; P5A/P5B/P5C and support hardening are source-complete at [#200](https://github.com/keepithandy/merge-guard/pull/200)–[#203](https://github.com/keepithandy/merge-guard/pull/203), but do not authorize paid launch. Read the [post-P5 cross-lane status and evidence gates](POST_P5_ROADMAP.md). The declared source version is `1.3.0-beta.2`, not evidence of npm publication.
 
 **Active direction (owner requested October 19, 2026):** One maintainer can build, test and integrate Free product changes using automated checks without mandatory human or peer code-review signoff. Free-user feedback can later supply genuinely independent field evidence. A formal measured accuracy claim remains a different, optional project.

@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 // contributors one predictable command for the complete local suite.
 const suites = [
   'scripts/cli-contracts.js',
+  'scripts/init-contracts.js',
   'scripts/snapshot-contracts.js',
   'scripts/repository-intelligence-contracts.js',
   'scripts/repository-intelligence-snapshots.js',

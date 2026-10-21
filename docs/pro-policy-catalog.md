@@ -1,5 +1,7 @@
 # Pro policy catalog and sandbox security
 
+**Parked hosted path:** this prototype is preserved, but the active direction is Free plus [proposed local workflow/adoption kits](LOCAL_FIRST_PRODUCTS.md). Its live-service prerequisites do not block Free development.
+
 Status: **source implementation and Sandbox demonstration**, not a publicly deployed paid offering. Production checkout and npm publication are disabled.
 
 ## Available operations

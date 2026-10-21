@@ -1,16 +1,16 @@
 # Merge Guard Roadmap
 
-**Roadmap status (October 20, 2026):** See the [audited post-Phase-5 plan](docs/POST_P5_ROADMAP.md) for source evidence, dependency order, proposed P6–P9 slices and separate Free versus commercial launch gates. **P5A/P5B/P5C are merged; a production Pro/Team launch is not greenlit.** This roadmap is direction, not an automatic authorization for new issues, service deployment, checkout, publication, or release.
+**Current direction (October 20, 2026): Free first, no maintainer server budget.** Hosted Pro/Team operations are parked. Build the local tool and review [downloadable workflow/adoption kits](docs/LOCAL_FIRST_PRODUCTS.md) as a lower-overhead paid-content proposal. Active slice: [Free local setup #208](https://github.com/keepithandy/merge-guard/issues/208). No deployment, checkout, subscription change or external publication is authorized.
 
 This is the canonical roadmap for work after the v1.0 release candidate. It describes direction and sequencing, not a promise to ship on a particular date.
 
 ## Current state
 
-**Fresh source state:** `main` was confirmed at `520f4527d93e46d8b008759bfad4024b909706c8` after merged P5A [#200](https://github.com/keepithandy/merge-guard/pull/200), P5B [#201](https://github.com/keepithandy/merge-guard/pull/201), P5C [#202](https://github.com/keepithandy/merge-guard/pull/202), and P5B support-security follow-up [#203](https://github.com/keepithandy/merge-guard/pull/203). The PR heads passed required GitHub Actions; a release candidate must **revalidate one exact frozen commit and artifact**. Current declared source package version remains `1.3.0-beta.2` (unpublished). P5 commercial tests are mocked; live dual-tier Sandbox proof and operational readiness remain outstanding. [Issue #190](https://github.com/keepithandy/merge-guard/issues/190) (intermittent CI) and legacy [PR #189](https://github.com/keepithandy/merge-guard/pull/189) remain open for review, not automatic integration.
+**Source baseline for this change:** `d0c48cdbc7d7611189503fc1e16376b7de4fa170`, merged [P6 source PR #206](https://github.com/keepithandy/merge-guard/pull/206), after P5 #200–#203. Its candidate/security/inventory/local-support source and exact-head checks are recorded in [#205](https://github.com/keepithandy/merge-guard/issues/205). Live dual-tier Sandbox and hosting operations remain unverified and are now parked. New changes need their own exact-head checks. [#190](https://github.com/keepithandy/merge-guard/issues/190) and legacy [PR #189](https://github.com/keepithandy/merge-guard/pull/189) remain separate maintenance, not automatic integration.
 
 The historical v1.0 candidate at `636a1e9812bb017dae69be122b36555b89db5e77` passed its release gates and reproducible staging checks but remained unsigned, unapproved for external release actions, unpublished, and unverified. Its evidence remains immutable history; it is not the active product milestone. Tagging, npm publication, GitHub release creation, and stable Action-reference movement remain manual owner decisions for any version.
 
-The current `main` source identity is `1.3.0-beta.2`; it consolidates completed v1.1, v1.2, and v1.3 source work into an explicit unpublished beta without changing historical candidates or authorizing an external release. Current versus historical version identity is defined in [the versioning policy](docs/versioning.md).
+The declared source identity remains `1.3.0-beta.2`. Current source changes do not create a new published version or alter historical candidates. See [the versioning policy](docs/versioning.md).
 
 The v1.1, v1.2, and v1.3 source milestones are implemented and release-gated. The reviewer-signal cleanup, companion-change contracts, and browser-game save compatibility slices are also implemented. Their completion does not claim that Merge Guard is useful enough for broad adoption; the active field-validation milestone exists to measure that.
 
@@ -18,9 +18,11 @@ The pre-v1 milestones are complete. Their delivery history remains available in 
 
 ## Active priority
 
-**Two independent active/planning lanes:** (1) the authorized solo Free repair/preview workflow in [`docs/PHASE_ROADMAP.md`](docs/PHASE_ROADMAP.md) and (2) **planning** for post-P5 commercial readiness, with P6–P9 proposed—not started—in [`docs/POST_P5_ROADMAP.md`](docs/POST_P5_ROADMAP.md). The [commercial checklist](docs/commercial-release-checklist.md) is the release gate; neither source merges nor mocked CI certify checkout, sale or support availability. Major hosted/paid features require separate scope and security decisions.
+**Active:** the solo Free workflow in [PHASE_ROADMAP.md](docs/PHASE_ROADMAP.md), beginning with explicit local setup, followed by one reproduced usability/reliability issue at a time. **Proposed alongside it:** original downloadable Pro workflow kits and Team repository-adoption kits, using the existing Free local policy engine. [POST_P5_ROADMAP.md](docs/POST_P5_ROADMAP.md) preserves the hosted work as history; its operational gates do not block Free. Prices, actual paid content, delivery and any existing-customer changes need later review.
 
 ### Owner-directed additive slice — Commercial Foundation
+
+**Historical authorization:** the hosted monthly-product direction below is parked by the current owner decision. Existing source remains available for local tests; no server purchase or hosted rollout is the next step.
 
 On 2026-10-16 the owner explicitly authorized an additive commercialization slice for Free/Pro/Team packaging through Polar. This is a documented exception to the normal expansion sequence and does not change analyzer scoring, usefulness claims, or the beta-recovery evidence gate.
 
@@ -94,7 +96,9 @@ This owner-directed slice is complete only when its dashboard architecture, impo
 | Browser-game save slice (source) | Save compatibility guidance | An implemented opt-in browser-game policy identifies literal storage-key and save-version compatibility gaps; **not** proof that version `1.3.0-beta.3` was published or even selected. |
 | Beta validation | Free preview readiness and voluntary field learning | A bounded, reproducible Free candidate can receive an explicit preview decision; new independent labels are optional for statistical efficacy claims, not a prerequisite. |
 | P5 commercial source (complete) | Customer diagnostics, support queue operations, Pro/Team mock lifecycle | Merged #200–#203; paid operational launch remains unverified. |
-| Proposed P6–P9 (not active) | Hardened candidate, Free preview, actual Team fulfillment, production rollout | Follow the separate authorizations and exact evidence gates in [the post-P5 plan](docs/POST_P5_ROADMAP.md). |
+| P6 hosted direction (parked) | Source controls merged in #206; live operations unverified | Historical evidence retained; no Free blocker or hosting obligation |
+| Free local setup (active #208) | Explicit minimal configuration, preview and no overwrite | Supported-runtime and unchanged-report checks before source merge |
+| Local Pro/Team kits (proposal) | Original workflow content and repository-adoption guides | No hosting; actual content, terms, pricing and delivery still to review |
 
 Milestone versions are directional. Patch releases may ship independently when they are compatible, narrowly scoped fixes.
 

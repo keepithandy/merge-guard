@@ -1,6 +1,6 @@
 # Roadmap Execution Plan
 
-**October 20, 2026 synchronization:** [The audited post-P5 roadmap](POST_P5_ROADMAP.md) is the current status/dependency ledger. The Free lane below remains active under [the solo-maintainer phase roadmap](PHASE_ROADMAP.md). Commercial P5A–C are merged but P6–P9 are **proposed only** and are not automatically approved work. This execution document preserves the earlier historical release history as history rather than silently promoting source work to publication.
+**Current October 20, 2026 direction:** active work is Free local setup [#208](https://github.com/keepithandy/merge-guard/issues/208), under [the solo-maintainer roadmap](PHASE_ROADMAP.md). P6 source controls merged in #206; hosted operations are **parked** because there is no maintainer server budget. [Local Pro/Team kits](LOCAL_FIRST_PRODUCTS.md) are a content proposal, not a live paid service. The [post-P5 ledger](POST_P5_ROADMAP.md) preserves evidence and separate publication gates.
 
 This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slices. Issue numbers are assigned only when a slice is accepted into the active queue.
 
@@ -16,7 +16,7 @@ This plan turns the [post-v1 roadmap](../ROADMAP.md) into bounded delivery slice
 
 1. **Free source fixes:** take one reproduced bounded issue, preserve true positives and frozen v1 contracts, require security/compatibility/rollback and exact-commit CI.
 2. **Free preview decision:** freeze/verify package, install, Action, support and rollback at one SHA; request separate approval for any npm, GitHub, Marketplace or Action ref mutation; then accept voluntary privacy-safe feedback.
-3. **Commercial readiness (planning only):** proposed P6 proof and hardening, P8 real Team delivery and P9 production approval; do not skip the [commercial checklist](commercial-release-checklist.md) or infer production readiness from P5 mock suites. Proposed P7 describes Free preview sequencing and does not duplicate the authorized Free source lane.
+3. **Local paid-content proposal:** after useful Free improvements, prepare one bounded original workflow/adoption kit for review. No new backend, priority-response promise or price is approved. Hosted P6/P8/P9 work remains parked; P7 publication remains a separate owner decision.
 4. **Long-term:** decide whether optional independent statistical evaluation and/or breaking v2 changes are justified by fresh evidence, not release pressure.
 
 Only one bounded Free implementation slice should be active at a time. Historical source releases and pilot evidence remain preserved. The v1.0 release gate described below is **archival preparation**, not the active first blocker for implementing an explicitly authorized Free beta. Every external mutation needs its own exact approval.
@@ -196,7 +196,7 @@ All four P5 PR heads passed the five GitHub Actions workflows and Node 18/20/22/
 
 ### Next commercial sequence — proposals only
 
-[Proposed P6 hardening/proof, P7 Free preview decision, P8 Team delivery, and P9 production rollout](POST_P5_ROADMAP.md) are **not active delivery issues**. Any phase promotion needs an explicit owner decision, bounded acceptance criteria, a rollback plan and an evidence trail. The active paid [release checklist](commercial-release-checklist.md) continues to block launch.
+[P6 source work](P6_EXECUTION.md) merged as #206. Its unverified hosted operations, P8 hosted Team service and P9 rollout are now parked. [Local kits](LOCAL_FIRST_PRODUCTS.md) replace hosting as the proposed product direction; Free setup #208 is the active source slice. Any later sale or publication still needs useful delivered content, appropriate terms and an exact owner decision. The historical hosted [checklist](commercial-release-checklist.md) does not require a server for Free work.
 
 ### Other open work
 

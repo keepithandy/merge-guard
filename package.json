@@ -26,6 +26,7 @@
     "check": "node scripts/smoke.js",
     "comment": "node scripts/pr-comment.js",
     "test:cli": "node scripts/cli-contracts.js",
+    "test:init": "node scripts/init-contracts.js",
     "test:snapshots": "node scripts/snapshot-contracts.js",
     "test:repository": "node scripts/repository-intelligence-contracts.js && node scripts/repository-intelligence-snapshots.js",
     "test:impact-metadata": "node scripts/impact-metadata-contracts.js",

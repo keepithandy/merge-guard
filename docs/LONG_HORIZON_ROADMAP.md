@@ -1,5 +1,7 @@
 # Merge Guard long-horizon roadmap
 
+**Current priority:** Free-first development with no maintainer server budget; hosted commercial operations are parked. [Local kit proposals](LOCAL_FIRST_PRODUCTS.md) describe the lower-overhead alternative. Hosted ideas below remain future candidates, not current work or a reason to buy hosting.
+
 **Reconciled 2026-10-20:** This remains an **unapproved research/idea registry**, not the executable queue. Current merged P5 source status, open reliability work, separate Free release path, paid blockers and *proposed* next commercial phases are maintained in [the post-P5 roadmap](POST_P5_ROADMAP.md); the [active Free sequence](PHASE_ROADMAP.md) does not depend on historical independent-evaluation gates.
 
 Status: unapproved idea registry. This document is deliberately broader than the active execution queue. It is not an executable roadmap, release promise, issue list, authorization for work or external actions, or license to weaken the current privacy and compatibility boundaries. Only work explicitly selected by the owner under the [active solo-maintainer Free beta roadmap](PHASE_ROADMAP.md), or separately authorized as a scoped commercial exception under the [canonical roadmap](../ROADMAP.md), may enter the execution queue. No second human reviewer is required for ordinary Free fixes. Independent-accuracy claims retain the [optional strict protocol](OPTIONAL_INDEPENDENT_EVALUATION_PROTOCOL.md).

@@ -10,38 +10,9 @@ It does not require an AI provider or API key, and it never runs discovered proj
 
 > Current public preview: [`1.3.0-beta.2`](https://github.com/keepithandy/merge-guard/releases/tag/v1.3.0-beta.2). Download the verified package from the [GitHub release](https://github.com/keepithandy/merge-guard/releases/tag/v1.3.0-beta.2), and read the [release notes](docs/releases/V1.3.0-beta.2_RELEASE_NOTES.md) for scope and status.
 
-## Commercial packaging
+## Free first
 
-The existing MIT scanner remains **Free**. A commercial entitlement foundation now supports planned **Pro ($9/month)** and **Team ($29/month)** products through Polar without changing the existing open-source analysis path.
-
-| Plan | Price | Current boundary |
-| --- | ---: | --- |
-| Free | $0 | Complete existing MIT scanner, outputs, custom rules, starter policies, report comparison, and local dashboard |
-| Pro | $9/month target | Polar entitlement plus paid delivery/support benefits; production checkout remains gated until those benefits are live |
-| Team | $29/month target | Pro plus Team delivery/support benefits; production checkout remains gated until the Team benefit is live |
-
-Commercial commands are additive:
-
-```bash
-merge-guard plan
-merge-guard activate <license-key>                                  # legacy: exposes key in argv
-# Safer PowerShell: Get-Clipboard -Raw | node src/cli.js activate --stdin
-merge-guard license
-merge-guard onboard                 # redacted setup diagnostics; no network call
-merge-guard license clear
-merge-guard account
-merge-guard pro policies                                           # live-entitled policy catalog
-merge-guard --pro-policy release-integrity path/to/changes.diff  # configured staged gateway
-merge-guard support submit path/to/request.txt                 # configured staged gateway
-```
-
-The [Pro fulfillment preview](docs/pro-fulfillment.md) and [authenticated policy catalog](docs/pro-policy-catalog.md) adds a separately hosted, license-verified policy delivery gateway and durable support intake. This is **not deployed or production-ready**: actual private policy content, a staffed support channel, hardened hosting and customer support operations are still required. Production checkout remains disabled.
-
-See [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
-
-Polar licensing defaults to production. For test licenses, explicitly select `MERGE_GUARD_POLAR_ENVIRONMENT=sandbox` and configure the Sandbox organization and benefit IDs using the [PowerShell setup](docs/polar-setup.md#opt-in-sandbox-licensing). Sandbox uses a separate license state file and cannot inherit production cached access.
-
-Each new CLI process validates paid access with Polar. Stored credentials cannot grant offline paid access; cache/grace applies only after a live grant within the same process. Confirmed denials remain Free even when saving or deleting local state fails. See the [licensing authorization policy](docs/licensing-authorization.md).
+The complete MIT scanner runs locally without an account, paid license or maintainer-operated server. Active work improves Free setup and reliability. Hosted Pro/Team operations are parked; optional downloadable kits are described in [the local product plan](docs/LOCAL_FIRST_PRODUCTS.md).
 
 ## What it answers
 
@@ -103,6 +74,19 @@ Scan a diff file:
 ```bash
 node src/cli.js path/to/change.diff
 ```
+
+### Set up a local project
+
+`init` is an **unreleased source feature**. Use a reviewed checkout or local package containing it; the published preview linked above is not updated by this source change. From the project you want to review, preview a minimal configuration and then create it with that CLI:
+
+```bash
+merge-guard init --dry-run
+merge-guard init
+merge-guard --doctor
+git diff | merge-guard
+```
+
+`init` creates only `merge-guard.config.json` using the existing `standard` preset. It never overwrites a file or link, contacts licensing, installs anything or runs project commands. Choose another preset explicitly with `merge-guard init --preset safe` or `--preset strict`. Review an existing configuration manually instead of rerunning setup. From source, run `node /path/to/merge-guard/src/cli.js init` while your current directory is the target project. A diff file literally named `init` can still be scanned as `merge-guard ./init`.
 
 To scan a sibling project while preserving that project's configuration and repository context, run the CLI with the target repository as the current working directory:
 
@@ -486,6 +470,39 @@ npm run release:check
 `npm test` runs the complete local contract suite. `npm run release:check` adds package/runtime/SBOM consistency, installation, security, performance, public-contract, artifact, distribution, and support gates. Neither command publishes packages, creates tags, signs artifacts, or creates releases. See [historical-PR evaluation](docs/historical-pr-evaluation.md) for calibration, preregistration, held-out commands, and their local-only privacy boundary.
 
 After committing a reviewed candidate, `npm run release:stage -- release/v1.3.0-beta.2` creates a detached, two-build, checksum-bound evidence packet without publishing. The compatibility workflow runs the contract suite on Node.js 18, 20, 22, and 24 across Ubuntu and Windows; a configured matrix is not evidence that a particular candidate passed. See the [live Node matrix](.github/workflows/node-lts.yml) and [v1.3.0-beta.2 decision packet](docs/releases/V1.3.0-beta.2_RELEASE_DECISION.md).
+
+## Commercial packaging
+
+The complete existing MIT scanner remains **Free** and runs locally. Development now prioritizes Free usability with no maintainer server budget. Pro/Team are being redesigned as optional **downloadable workflow and team-adoption kits**; these are proposals, not benefits currently for sale. See [the local product plan](docs/LOCAL_FIRST_PRODUCTS.md).
+
+| Plan | Price | Current boundary |
+| --- | ---: | --- |
+| Free | $0 | Complete existing MIT scanner, outputs, custom rules, starter policies, report comparison, and local dashboard |
+| Pro | Undecided; no active offer | Proposed local workflow kits with original policies, examples and review recipes |
+| Team | Undecided; no active offer | Proposed Pro kits plus shared repository templates and adoption/upgrade guides |
+
+The former $9/month Pro and $29/month Team hosted targets are parked. No server, account or license is needed for Free scanning. Existing commercial commands remain an optional staged foundation:
+
+```bash
+merge-guard plan
+merge-guard activate <license-key>                                  # legacy: exposes key in argv
+# Safer PowerShell: Get-Clipboard -Raw | node src/cli.js activate --stdin
+merge-guard license
+merge-guard onboard                 # redacted setup diagnostics; no network call
+merge-guard license clear
+merge-guard account
+merge-guard pro policies                                           # live-entitled policy catalog
+merge-guard --pro-policy release-integrity path/to/changes.diff  # configured staged gateway
+merge-guard support submit path/to/request.txt                 # configured staged gateway
+```
+
+The [Pro fulfillment preview](docs/pro-fulfillment.md) and [authenticated policy catalog](docs/pro-policy-catalog.md) preserve the earlier local gateway/support prototype. **Hosted operations are parked**; this is not a deployed service or the active low-cost kit delivery design. Production checkout remains disabled.
+
+See [product tiers](docs/product-tiers.md), [Polar setup](docs/polar-setup.md), and the [commercial release checklist](docs/commercial-release-checklist.md). No license is required for Free scanning, and a licensing outage falls back to the documented Free/offline behavior rather than breaking analysis.
+
+Polar licensing defaults to production. For test licenses, explicitly select `MERGE_GUARD_POLAR_ENVIRONMENT=sandbox` and configure the Sandbox organization and benefit IDs using the [PowerShell setup](docs/polar-setup.md#opt-in-sandbox-licensing). Sandbox uses a separate license state file and cannot inherit production cached access.
+
+Each new CLI process validates paid access with Polar. Stored credentials cannot grant offline paid access; cache/grace applies only after a live grant within the same process. Confirmed denials remain Free even when saving or deleting local state fails. See the [licensing authorization policy](docs/licensing-authorization.md).
 
 ## Documentation
 
