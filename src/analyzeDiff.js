@@ -675,6 +675,15 @@ export function formatReport(report) {
   lines.push(`Risk score: ${report.riskScore}`);
   lines.push(`Preset: ${report.config.preset}`);
   lines.push('');
+  lines.push('Why this risk?');
+  if (report.rules?.length) {
+    for (const rule of report.rules) {
+      lines.push(`- ${rule.label} (${rule.id}; weight ${rule.weight})`);
+    }
+  } else {
+    lines.push('- No weighted rules were triggered; see risk flags and per-file details below.');
+  }
+  lines.push('');
   lines.push('Summary:');
   lines.push(`- ${report.summary.changedFiles} file(s) changed`);
   lines.push(`- ${report.summary.addedLines} added line(s)`);
