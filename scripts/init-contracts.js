@@ -37,6 +37,10 @@ try {
   assert.equal(initialized.status, 0, initialized.stderr);
   assert.deepEqual(JSON.parse(fs.readFileSync(filename(cwd), 'utf8')), { preset: 'standard' });
   assert(initialized.stdout.includes('git diff | merge-guard'));
+  assert(initialized.stdout.includes('Next steps:'));
+  assert(initialized.stdout.includes('merge-guard --doctor'));
+  assert(preview.stdout.includes('No scans, network calls, or workflow changes'));
+
   assert(!initialized.stdout.includes(sentinel));
   assert(!initialized.stderr.includes(sentinel));
   assert(!fs.existsSync(marker), 'init must never execute discovered package commands');
