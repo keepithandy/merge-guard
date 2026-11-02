@@ -29,7 +29,7 @@ export function initializeConfig(args, { cwd = process.cwd() } = {}) {
   // Omitted fields retain the scanner's existing defaults. In particular, do
   // not replace built-in risky paths/checks with guessed or empty lists.
   const contents = JSON.stringify({ preset }, null, 2) + '\n';
-  const next = '\nNext: git diff | merge-guard\nCheck setup: merge-guard --doctor';
+  const next = '\nNext steps:\n  1. Check setup: merge-guard --doctor\n  2. Scan changes: git diff | merge-guard\n  3. For saved reports: git diff | merge-guard --json\nNo scans, network calls, or workflow changes were performed by init.';
   if (dryRun) return `Would create ${FILENAME}:\n${contents}No files written.${next}`;
 
   const file = path.join(cwd, FILENAME);
